@@ -319,10 +319,10 @@ UNM_PRIORS$TEACHER_LNAME <- NULL
 
 # Create ADMIN_INVALIDATION for future INVALIDATION processes (used below)
 UNM_PRIORS[['ADMIN_INVALIDATION']] <- NA
-UNM_PRIORS[['ADMIN_INVALIDATION']][UNM_PRIORS[['IRREG_ADMIN_INVALID']] =='Y'] <- "IRREG_ADMIN"
 UNM_PRIORS[['ADMIN_INVALIDATION']][UNM_PRIORS[['DNA_INDICATOR']]=='Y'] <- "DNA"
 UNM_PRIORS[['ADMIN_INVALIDATION']][UNM_PRIORS[['PTNA']]=='Y'] <- "PTNA"
-# # UNM_PRIORS[['ADMIN_INVALIDATION']][UNM_PRIORS[['PIV']]=='Y'] <- "PIV"	# No PIV
+# UNM_PRIORS[['ADMIN_INVALIDATION']][UNM_PRIORS[['IRREG_ADMIN_INVALID']] =='Y'] <- "IRREG_ADMIN"
+# UNM_PRIORS[['ADMIN_INVALIDATION']][UNM_PRIORS[['PIV']]=='Y'] <- "PIV"	# No PIV
 # UNM_PRIORS[['ADMIN_INVALIDATION']][!is.na(UNM_PRIORS[['ADMIN_INVALIDATION']])] <- paste(
 	# UNM_PRIORS[['DNA_INDICATOR']][!is.na(UNM_PRIORS[['ADMIN_INVALIDATION']])], 
 	# UNM_PRIORS[['PTNA']][!is.na(UNM_PRIORS[['ADMIN_INVALIDATION']])], 
@@ -381,7 +381,7 @@ UNM_PRIORS[['VALID_CASE']][!is.na(UNM_PRIORS[['ADMIN_INVALIDATION']])] <- "INVAL
 setkeyv(UNM_PRIORS, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "ADMINISTRATION_PERIOD", "SCALE_SCORE"))
 dups <- UNM_PRIORS[c(which(duplicated(UNM_PRIORS))-1, which(duplicated(UNM_PRIORS))),]
 setkeyv(dups, key(UNM_PRIORS))
-dim(dups["VALID_CASE"]) # 189
+dim(dups["VALID_CASE"]) # 196
 head(dups["VALID_CASE"], 20)
 
 UNM_PRIORS <- UNM_PRIORS[which(!duplicated(UNM_PRIORS)),]
@@ -389,7 +389,7 @@ UNM_PRIORS <- UNM_PRIORS[which(!duplicated(UNM_PRIORS)),]
 setkeyv(UNM_PRIORS, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "ADMINISTRATION_PERIOD"))
 dups <- UNM_PRIORS[c(which(duplicated(UNM_PRIORS))-1, which(duplicated(UNM_PRIORS))),]
 setkeyv(dups, key(UNM_PRIORS))
-dim(dups["VALID_CASE"]) # 152
+dim(dups["VALID_CASE"]) # 163
 head(dups["VALID_CASE"], 20)
 
 #  Take the HIGHER score
@@ -399,7 +399,7 @@ UNM_PRIORS[['VALID_CASE']][which(duplicated(UNM_PRIORS))-1] <- "INVALID_CASE"
 setkeyv(UNM_PRIORS, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID"))
 dups <- UNM_PRIORS[c(which(duplicated(UNM_PRIORS))-1, which(duplicated(UNM_PRIORS))),]
 setkeyv(dups, key(UNM_PRIORS))
-dim(dups["VALID_CASE"]) # 400
+dim(dups["VALID_CASE"]) # 403
 head(dups["VALID_CASE"], 20)
 
 #  Take the LAST score (SPRING admin period) since these will be used as priors
@@ -458,7 +458,7 @@ setkeyv(NEW_PRIORS, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "MATC
 setkeyv(NEW_PRIORS, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID"))
 dups <- NEW_PRIORS[c(which(duplicated(NEW_PRIORS))-1, which(duplicated(NEW_PRIORS))),]
 setkeyv(dups, key(NEW_PRIORS))
-dim(dups["VALID_CASE"]) # 413
+dim(dups["VALID_CASE"]) # 417
 head(dups["VALID_CASE"], 20)
 
 NEW_PRIORS[['VALID_CASE']][which(duplicated(NEW_PRIORS))] <- "INVALID_CASE" # invalidate BOTTOM CASE (U - unmatched)
@@ -555,7 +555,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS", "ADMIN_ORDER"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 341,627 duplicate cases
+dim(dups["VALID_CASE"]) # 341,634 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
@@ -566,7 +566,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 44,270 duplicate cases
+dim(dups["VALID_CASE"]) # 44,273 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG) & Georgia_Data_LONG[['SCHOOL_YEAR']] != '2011')] <- "INVALID_CASE" # Take LAST Admin periods other than 2011.
@@ -578,7 +578,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 2,183 duplicate cases
+dim(dups["VALID_CASE"]) # 2,207 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched case for all years.
@@ -614,7 +614,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 614 duplicate cases 
+dim(dups["VALID_CASE"]) # 617 duplicate cases 
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched case for all years.
