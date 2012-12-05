@@ -85,13 +85,14 @@ GA_CRCT<-data.table(data.frame(
         DNA=c(DNAREA, DNAELA, DNAMAT, DNASCI, DNASOC),
         AYP_CTBRC=c(AYP_REACTBRC, AYP_ELACTBRC, AYP_MATCTBRC, AYP_SCICTBRC, AYP_SOCCTBRC),
         AYP_SS=c(AYP_REASS, AYP_ELASS, AYP_MATSS, AYP_SCISS, AYP_SOCSS),
-        CONTENT_AREA=rep(c("READING", "ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES"), each=dim(GA)[1])), key="GTID")
+        CONTENT_AREA=rep(c("READING", "ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES"), each=dim(GA)[1]),
+        ADMIN_TYPE="Spring"), key="GTID")  # Change to correspond with Unmatched CRCT data made available in 2012
 detach(GA)
 
 
 attach(GA_RETEST)
 GA_CRCT_RETEST <- data.table(data.frame(
-	SCHOOL_YEAR=rep(SCHOOL_YEAR, 2),
+        SCHOOL_YEAR=rep(SCHOOL_YEAR, 2),
         GTID =rep(as.factor(GTID), 2),
         AYP_TEST_ID=rep(AYP_TEST_ID, 2),
         SR_STUDENT_ID=rep(SR_STUDENT_ID, 2),
@@ -112,7 +113,7 @@ GA_CRCT_RETEST <- data.table(data.frame(
         AYP_CTBRC=c(AYP_REACTBRC, AYP_MATCTBRC),
         AYP_SS=c(AYP_REASS, AYP_MATSS),
         CONTENT_AREA=rep(c("READING", "MATHEMATICS"), each=dim(GA_RETEST)[1]),
-	RETEST="RETEST"), key="GTID")
+        ADMIN_TYPE="Retest"), key="GTID")  # Change to correspond with Unmatched CRCT data made available in 2012
 detach(GA_RETEST)
 
 
@@ -234,9 +235,10 @@ setnames(GA_CRCT,
 	c("SCHOOL_YEAR","GTID", "AYP_GRADE", "AYP_SS", "SR_SYSTEM_ID"),
 	c("YEAR", "ID", "GRADE", "SCALE_SCORE", "DISTRICT_NUMBER"))
 
-Schools_to_Remove_RETEST[['RETEST']] <- 'RETEST'
-Schools_to_Remove_RETEST <- data.table(Schools_to_Remove_RETEST, key=c('YEAR', 'SCHOOL_NUMBER', 'RETEST'))
-setkey(GA_CRCT, YEAR, SCHOOL_NUMBER, RETEST)
+Schools_to_Remove_RETEST[["ADMIN_TYPE"]] <- "Retest"
+Schools_to_Remove_RETEST <- data.table(Schools_to_Remove_RETEST, key=c('YEAR', 'SCHOOL_NUMBER', "ADMIN_TYPE"))
+GA_CRCT[["ADMIN_TYPE"]] <- as.character(GA_CRCT[["ADMIN_TYPE"]])
+setkey(GA_CRCT, YEAR, SCHOOL_NUMBER, ADMIN_TYPE)
 index.tmp <- GA_CRCT[Schools_to_Remove_RETEST, which=TRUE]
 GA_CRCT[['VALID_CASE']][index.tmp] <- "INVALID_CASE"
 
@@ -252,7 +254,7 @@ GA_CRCT[['VALID_CASE']][index.tmp] <- "INVALID_CASE"
 ###  Invalidate Duplicated Records
 ###
 
-setkeyv(GA_CRCT, c("VALID_CASE", "YEAR", "CONTENT_AREA", "ID", "RETEST"))
+setkeyv(GA_CRCT, c("VALID_CASE", "YEAR", "CONTENT_AREA", "ID", "ADMIN_TYPE"))
 dups <- GA_CRCT[sort(unique(c(which(duplicated(GA_CRCT))-1, which(duplicated(GA_CRCT))))),]
 setkeyv(dups, c("ID", "YEAR", "CONTENT_AREA", "VALID_CASE"))
 summary(dups[VALID_CASE=="VALID_CASE"])
@@ -306,14 +308,14 @@ GA_CRCT[['PTNA']] <- NULL
 GA_CRCT[['DNA']] <- NULL
 GA_CRCT[['AYP_CTBRC']] <- NULL
 GA_CRCT[['STUDENT_GRADE_LEVEL']] <- NULL
-GA_CRCT[['RETEST']] <- NULL
+# GA_CRCT[["ADMIN_TYPE"]] <- NULL
 
 
 ### SAVE GA_CRCT
 
 preferred.variable.order <- c("VALID_CASE", "CONTENT_AREA", "YEAR", "GRADE", "ID", "SCALE_SCORE", 
 	"INSTRUCTOR_NUMBER_1", "SCHOOL_NUMBER", "DISTRICT_NUMBER", "ACHIEVEMENT_LEVEL", 
-	"RACE_CODE", "GENDER_CODE", "ED", "SWD", "LEP", 'ADMIN_INVALIDATION',
+	"RACE_CODE", "GENDER_CODE", "ED", "SWD", "LEP", "ADMIN_INVALIDATION", "ADMIN_TYPE",
 	"SCHOOL_ENROLLMENT_STATUS", "DISTRICT_ENROLLMENT_STATUS", "STATE_ENROLLMENT_STATUS")
 
 GA_CRCT <- GA_CRCT[,preferred.variable.order,with=FALSE]
@@ -533,7 +535,7 @@ GA_CRCT$ID <- as.character(GA_CRCT$ID)
 GA_EOC$ID <- as.character(GA_EOC$ID)
 Georgia_Data_LONG <- rbind.fill(GA_CRCT, GA_EOC)
 
-save(Georgia_Data_LONG, file="Data/Georgia_Data_LONG_Pre-AddPriors_111212.Rdata")
+save(Georgia_Data_LONG, file="Data/Georgia_Data_LONG_Pre-AddPriors_120412.Rdata")
 
 #  Keep as character now for data.table 1.8.2
 #Georgia_Data_LONG[['ID']] <- as.factor(Georgia_Data_LONG[['ID']])

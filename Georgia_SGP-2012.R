@@ -32,11 +32,15 @@ Georgia_SGP <- analyzeSGP(
 				BACKEND="PARALLEL", 
 				WORKERS=list(
 					PERCENTILES=24, BASELINE_PERCENTILES=24,
-					PROJECTIONS=9, LAGGED_PROJECTIONS=9)))
+					PROJECTIONS=11, LAGGED_PROJECTIONS=11)))
+
+Georgia_Simulated_SGPs <- Georgia_SGP@SGP[['Simulated_SGPs']]
+Georgia_SGP@SGP[['Simulated_SGPs']] <- NULL
 
 save(Georgia_SGP, file="Data/Georgia_SGP-2012.Rdata")
+save(Georgia_Simulated_SGPs, file="Data/Georgia_Simulated_SGPs-2012.Rdata")
 
-##  Code used to output the CRCT Results for Review on week of 11/26
+#  Code used to output the CRCT Results for Review on week of 11/26
 # Georgia_SGP <- combineSGP(Georgia_SGP)
 # Georgia_SGP@Data <- Georgia_SGP@Data[Georgia_SGP@Data$CONTENT_AREA %in% c("ELA", "READING", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES") &
 	# Georgia_SGP@Data$GRADE %in% 3:8,]
@@ -60,55 +64,58 @@ save(Georgia_SGP, file="Data/Georgia_SGP-2012.Rdata")
 ###
 ##############################################################################
 
+Georgia_SGP@Data[['GRADE']][Georgia_SGP@Data[['GRADE']]> 8] <- 'EOCT' #  Look at NA grade subjects - could these be turned into EOCT too?
+
+load('/media/Data/SGP/Georgia/Data/Baseline_Matrices/GA_Baseline_Matrices.Rdata')
+SGPstateData[["GA"]][["Baseline_splineMatrix"]][["Coefficient_Matrices"]] <- GA_Baseline_Matrices
+
 #  Straightforward progressions with Middle school priors available
 
 GA.config <- list(
         GRADE_9_LIT.2012 = list(
            sgp.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
-           sgp.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+           sgp.panel.years=c('2010', '2011', '2012'),
            sgp.grade.sequences=list(c(8,8, 'EOCT'))),
         AMERICAN_LIT.2012 = list(
            sgp.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
-           sgp.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+           sgp.panel.years=c('2011', '2012'),
            sgp.grade.sequences=list(c('EOCT', 'EOCT'))),        
 
-	###
-	###		We'll need to figure out what the course progressions for ALGEBRA and GEOMETRY
-	###  
-        # ALGEBRA.2012 = list(
-           # sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'MATHEMATICS_I'),
-           # sgp.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-           # sgp.grade.sequences=list(c(7:8, 'EOCT'), c(7:8, NA, 'EOCT'))),
-        # GEOMETRY.2012 = list(
-           # sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'MATHEMATICS_I'),
-           # sgp.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-           # sgp.grade.sequences=list(c(7:8, 'EOCT'), c(7:8, NA, 'EOCT'))),
+	###		ALGEBRA and GEOMETRY new for 2012
+        ALGEBRA.2012 = list(
+           sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'MATHEMATICS', 'MATHEMATICS', 'ALGEBRA'),
+           sgp.panel.years=c('2010', '2011', '2012'),
+           sgp.grade.sequences=list(c(7:8, 'EOCT'))), # , c(7:8, NA, 'EOCT') - less than 2,000 kids.  Marginal fit ... 
+        GEOMETRY.2012 = list(
+           sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'MATHEMATICS', 'GEOMETRY'),
+           sgp.panel.years=c('2009', '2010', '2011', '2012'),
+           sgp.grade.sequences=list(c(7:8, NA, 'EOCT'))), # NO 7th grade students in students c(7:8, 'EOCT'), ~ 1000 with 8th grade - c(8, 'EOCT'), ugly fit
 
         MATHEMATICS_I.2012 = list(
            sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'MATHEMATICS_I'),
-           sgp.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-           sgp.grade.sequences=list(c(6:8), c(7:8, 'EOCT'), c(7:8, NA, 'EOCT'))),
+           sgp.panel.years=c('2009', '2010', '2011', '2012'),
+           sgp.grade.sequences=list(c('6', '7', '8'), c(7:8, 'EOCT'), c(7:8, NA, 'EOCT'))),
         MATHEMATICS_II.2012 = list(
            sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS_I', 'MATHEMATICS_II'),
-           sgp.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-           sgp.grade.sequences=list(c(8,'EOCT', 'EOCT'), c('EOCT', 'EOCT')),
+           sgp.panel.years=c('2010', '2011', '2012'),
+           sgp.grade.sequences=list(c(8,'EOCT', 'EOCT'), c('EOCT', 'EOCT'))),
 
         PHYSICAL_SCIENCE.2012 = list(
            sgp.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
-           sgp.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-           sgp.grade.sequences=list(6:8, c(7:8, 'EOCT'), c(7:8, NA, 'EOCT'))),
+           sgp.panel.years=c('2009', '2010', '2011', '2012'),
+           sgp.grade.sequences=list(c('6', '7', '8'), c(7:8, 'EOCT'), c(7:8, NA, 'EOCT'))),
         BIOLOGY.2012 = list(
            sgp.content.areas=c('SCIENCE', 'SCIENCE', 'BIOLOGY'),
-           sgp.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+           sgp.panel.years=c('2009', '2010', '2011', '2012'),
            sgp.grade.sequences=list(c(7:8, 'EOCT'), c(7:8, NA, 'EOCT'))),
 
         US_HISTORY.2012 = list(
            sgp.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'), 
-           sgp.panel.years=c('2008', '2009', '2010', '2011', '2012'),
+           sgp.panel.years=c('2010', '2011', '2012'),
            sgp.grade.sequences=list(c(8, 'EOCT'), c(8, NA, 'EOCT'))), # 8:9, 8, 10
         ECONOMICS.2012 = list(
            sgp.content.areas=c('US_HISTORY', 'ECONOMICS'), 
-           sgp.panel.years=c('2011', '2012'),
+           sgp.panel.years=c('2010', '2011', '2012'),
            sgp.grade.sequences=list(c('EOCT', 'EOCT'), c('EOCT', NA, 'EOCT'))))
 
 
@@ -123,7 +130,7 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
             simulate.sgps=FALSE,
             parallel.config=list(
                 BACKEND="PARALLEL", 
-                WORKERS=list(PERCENTILES=6, BASELINE_PERCENTILES=6)))
+                WORKERS=list(PERCENTILES=24, BASELINE_PERCENTILES=24)))
 
 
 ###  Create an additional variable PREFERRED_SGP to identify which SGP to keep for kids who will have duplicates:
