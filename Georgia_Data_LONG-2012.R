@@ -480,7 +480,7 @@ save(NEW_PRIORS, file="Data/Georgia_2012_NEW_PRIORS.Rdata")
 ###############################################################################################
 
 #  Load and clean up the LONG data
-load("Data/Georgia_Data_LONG_Pre-AddPriors_111212.Rdata")
+load("Data/Georgia_Data_LONG_Pre-AddPriors_120412.Rdata")
 Georgia_Data_LONG <- data.table(Georgia_Data_LONG)
 
 #  Change names in LONG Data back to the "original"  Georgia names:
@@ -501,6 +501,7 @@ Georgia_Data_LONG[['MATCH_STATUS']] <- "M"
 ###  Combine the two data objects
 
 Georgia_Data_LONG <- data.table(rbind.fill(Georgia_Data_LONG, NEW_PRIORS))
+Georgia_Data_LONG[['SCHOOL_YEAR']] <- as.character(Georgia_Data_LONG[['SCHOOL_YEAR']])
 
 #  Begin the re-production of the VALID_CASE for use of these data as PRIORS for 2012
 
@@ -510,10 +511,10 @@ Georgia_Data_LONG[['VALID_CASE']] <- 'VALID_CASE'
 
 ###  Invalidate the EOCT cases that have been indicated as invalid or problematic:
 
-eocts <- c("ALGEBRA", "GEOMETRY", "GRADE_9_LIT", "AMERICAN_LIT", "BIOLOGY", "PHYSICAL_SCIENCE", "US_HISTORY", "ECONOMICS", "MATHEMATICS_I", "MATHEMATICS_II")
+eoct.subjs <- c("ALGEBRA", "GEOMETRY", "GRADE_9_LIT", "AMERICAN_LIT", "BIOLOGY", "PHYSICAL_SCIENCE", "US_HISTORY", "ECONOMICS", "MATHEMATICS_I", "MATHEMATICS_II")
 
-Georgia_Data_LONG[['VALID_CASE']][!is.na(Georgia_Data_LONG[['ADMIN_INVALIDATION']]) & Georgia_Data_LONG[['SUBJECT_CODE']] %in% eocts] <- "INVALID_CASE"
-Georgia_Data_LONG[['VC_2011_CORRECTED']][!is.na(Georgia_Data_LONG[['ADMIN_INVALIDATION']]) & Georgia_Data_LONG[['SUBJECT_CODE']] %in% eocts] <- "INVALID_CASE"
+Georgia_Data_LONG[['VALID_CASE']][!is.na(Georgia_Data_LONG[['ADMIN_INVALIDATION']]) & Georgia_Data_LONG[['SUBJECT_CODE']] %in% eoct.subjs] <- "INVALID_CASE"
+Georgia_Data_LONG[['VC_2011_CORRECTED']][!is.na(Georgia_Data_LONG[['ADMIN_INVALIDATION']]) & Georgia_Data_LONG[['SUBJECT_CODE']] %in% eoct.subjs] <- "INVALID_CASE"
 
 summary(as.factor(Georgia_Data_LONG[['VALID_CASE']]))
 
@@ -530,6 +531,44 @@ Georgia_Data_LONG[['VC_2011_CORRECTED']][is.na(Georgia_Data_LONG[['SCALE_SCORE']
 summary(as.factor(Georgia_Data_LONG[['VALID_CASE']]))
 summary(as.factor(Georgia_Data_LONG[['VC_2011_CORRECTED']]))
 
+
+# Invalidate cases from schools in Schools_To_Remove and Schools_To_Remove_RETEST
+load("Data/Base_Files/Schools_to_Remove.Rdata")
+load("Data/Base_Files/Schools_to_Remove_RETEST.Rdata")
+
+crct.subjs <- c("ELA", "READING", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES")
+
+attach(Schools_to_Remove_RETEST)
+Schools_to_Remove_RETEST <- data.table(data.frame(
+        SCHOOL_NUMBER=rep(SCHOOL_NUMBER, 2),
+        SCHOOL_YEAR=as.character(rep(YEAR, 2)),
+        SUBJECT_CODE=rep(c("READING", "MATHEMATICS"), each=dim(Schools_to_Remove_RETEST)[1]),
+        ADMIN_TYPE="Retest", stringsAsFactors=FALSE), key=c('SCHOOL_YEAR', 'SCHOOL_NUMBER', 'SUBJECT_CODE', 'ADMIN_TYPE'))
+detach(Schools_to_Remove_RETEST)
+
+setkey(Georgia_Data_LONG, SCHOOL_YEAR, SCHOOL_NUMBER, SUBJECT_CODE, ADMIN_TYPE)
+index.tmp <- Georgia_Data_LONG[Schools_to_Remove_RETEST, which=TRUE]
+Georgia_Data_LONG[['VALID_CASE']][index.tmp] <- "INVALID_CASE"
+Georgia_Data_LONG[['VC_2011_CORRECTED']][index.tmp] <- "INVALID_CASE"
+
+levels(Schools_to_Remove[['YEAR']]) <- as.character(c(1:3,5:7,8,8:10))
+Schools_to_Remove[['YEAR']] <- as.character(type.convert(as.character(Schools_to_Remove[['YEAR']]))+2000L)
+attach(Schools_to_Remove)
+Schools_to_Remove <- data.table(data.frame(
+        SCHOOL_NUMBER=rep(SCHOOL_NUMBER, length(crct.subjs)),
+        SCHOOL_YEAR=rep(YEAR, length(crct.subjs)),
+        SUBJECT_CODE=rep(crct.subjs, each=dim(Schools_to_Remove)[1]), stringsAsFactors=FALSE), key=c('SCHOOL_YEAR', 'SCHOOL_NUMBER', 'SUBJECT_CODE'))
+detach(Schools_to_Remove)
+
+
+setkey(Georgia_Data_LONG, SCHOOL_YEAR, SCHOOL_NUMBER, SUBJECT_CODE)
+index.tmp <- Georgia_Data_LONG[Schools_to_Remove, which=TRUE]
+index.tmp <- index.tmp[!is.na(index.tmp)]
+Georgia_Data_LONG[['VALID_CASE']][index.tmp] <- "INVALID_CASE"
+Georgia_Data_LONG[['VC_2011_CORRECTED']][index.tmp] <- "INVALID_CASE"
+
+#	64,594 Invalidated
+
 ###  Duplicate case invalidation/removal:
 
 #  First construct a numeric variable to use for sorting duplicates
@@ -544,7 +583,7 @@ Georgia_Data_LONG[['ADMIN_ORDER']] <- as.integer(as.character(Georgia_Data_LONG[
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS", "ADMIN_ORDER", "SCALE_SCORE"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 10,480 duplicate cases
+dim(dups["VALID_CASE"]) # 8,106 duplicate cases
 # head(dups["VALID_CASE"], 20)
 # summary(dups["VALID_CASE"])
 
@@ -555,7 +594,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS", "ADMIN_ORDER"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 341,634 duplicate cases
+dim(dups["VALID_CASE"]) # 336,506 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
@@ -566,7 +605,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 44,273 duplicate cases
+dim(dups["VALID_CASE"]) # 373 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG) & Georgia_Data_LONG[['SCHOOL_YEAR']] != '2011')] <- "INVALID_CASE" # Take LAST Admin periods other than 2011.
@@ -578,7 +617,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 2,207 duplicate cases
+dim(dups["VALID_CASE"]) # 328 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched case for all years.
@@ -591,7 +630,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "MATCH_STATUS", "ADMIN_ORDER"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 309 duplicate cases (only 3 with same scale score - combined here)
+dim(dups["VALID_CASE"]) # 299 duplicate cases (only 3 with same scale score - combined here)
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
@@ -602,7 +641,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "MATCH_STATUS"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 4,039 duplicate cases
+dim(dups["VALID_CASE"]) # 122 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG) & Georgia_Data_LONG[['SCHOOL_YEAR']] != '2011')] <- "INVALID_CASE" # Take LAST Admin periods other than 2011.
@@ -614,7 +653,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 617 duplicate cases 
+dim(dups["VALID_CASE"]) # 107 duplicate cases 
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched case for all years.
@@ -798,9 +837,7 @@ CRC[['DISTRICT_ENROLLMENT_STATUS']] <- factor(2, levels=1:2, labels=c("Enrolled 
 CRC[['STATE_ENROLLMENT_STATUS']] <- factor(2, levels=1:2, labels=c("Enrolled State: No", "Enrolled State: Yes"))
 
 #  Add this to match EOCT below
-CRC[['RETEST_INDICATOR']] <- CRC[['ADMIN_TYPE']]
-levels(CRC[['RETEST_INDICATOR']]) <- c("N", "Y")
-CRC[['RETEST']] <- NULL # table(CRC$ADMIN_TYPE, CRC$RETEST) -- same indicator...  keep official one.
+CRC[['RETEST']] <- NULL # table(CRC$ADMIN_TYPE, CRC$RETEST) -- same indicator as ADMIN_TYPE...  keep official one.
 
 ###  Unique School Identifier.  Continue to do this for consistency...
 
@@ -825,7 +862,7 @@ CRC[['AYP_PERF_LEVEL']] <-
 
 EOC <- read.delim('Data/Base_Files/2012_Data/fy2012_eoct_all-admins_run20121030_pipe.txt', sep='|', header=TRUE)
 UNM_EOC <- read.delim('Data/Base_Files/2012_Data/eoct2012_unmatched_pipe.txt', sep='|', header=TRUE)
-names(UNM_EOC)[c(2:4, 6, 16)] <- c('SR_SYSTEM_ID', 'SR_SCHOOL_ID', 'STUDENT_ID', 'STUDENT_GRADE_LEVEL', 'ADMINISTRATION_PERIOD') # Change from 'TEST_*_ID' to correspond to the "matched" files
+names(UNM_EOC)[c(2:4, 6, 16, 18)] <- c('SR_SYSTEM_ID', 'SR_SCHOOL_ID', 'STUDENT_ID', 'STUDENT_GRADE_LEVEL', 'ADMINISTRATION_PERIOD', 'ADMIN_TYPE') # Change from 'TEST_*_ID' to correspond to the "matched" files
 
 ##  Remove non-Alternative Schools and districts other than GA Virtual School and Dept of Juv Justice
 UNM_EOC <- UNM_EOC[UNM_EOC[['SR_SCHOOL_ID']] > 6000 | UNM_EOC[['SR_SYSTEM_ID']] %in% c(794, 891),]
@@ -846,7 +883,8 @@ EOC <- subset(EOC, STUDENT_GRADE_LEVEL %in% c(8:12, NA)) # keep the 8th graders 
 
 
 levels(EOC[['ASSESSMENT_SUBJECT_CODE']]) <- c("GRADE_9_LIT", "ALGEBRA", "AMERICAN_LIT", "BIOLOGY", "ECONOMICS", "GEOMETRY", "MATHEMATICS_I", "MATHEMATICS_II", "PHYSICAL_SCIENCE", "US_HISTORY")
-levels(EOC[['RETEST_INDICATOR']]) <- c(NA, "N", "Y")
+levels(EOC[['ADMIN_TYPE']]) <- c("No (EOCT)", "No (EOCT)", "Retest")
+EOC[['ADMIN_TYPE']] <- as.character(EOC[['ADMIN_TYPE']])
 
 EOC[['ASSESSMENT_SUBJECT_CODE']] <- as.character(EOC[['ASSESSMENT_SUBJECT_CODE']])
 
@@ -878,7 +916,7 @@ EOC[['IRREGULAR_ADMIN_INDICATOR']] <- NULL
 EOC[['DNA_INDICATOR']] <- NULL
 EOC[['PTNA_INDICATOR']] <- NULL
 EOC[['PIV_INDICATOR']] <- NULL # All NA's
-# EOC[['RETEST_INDICATOR']] <- NULL # Keep this
+# EOC[['ADMIN_TYPE']] <- NULL # Keep this
 
 ### Invalidate NA scores
 EOC[['VALID_CASE']][is.na(EOC[['SCALE_SCORE']])] <- "INVALID_CASE"
@@ -892,10 +930,10 @@ levels(EOC[['ADMIN_ORDER']]) <- c("2", "3", "1")
 EOC[['ADMIN_ORDER']] <- as.integer(as.character(EOC[['ADMIN_ORDER']]))
 
 #  Looks like these are totally identical rows (including scores)...
-setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "RETEST_INDICATOR", "ADMIN_ORDER", "MATCH_STATUS", "SCALE_SCORE"))
+setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "ADMIN_TYPE", "ADMIN_ORDER", "MATCH_STATUS", "SCALE_SCORE"))
 dups <- EOC[c(which(duplicated(EOC))-1, which(duplicated(EOC))),]
 setkeyv(dups, key(EOC))
-dim(dups["VALID_CASE"]) #544 duplicate cases
+dim(dups["VALID_CASE"]) #1,180 duplicate cases
 # head(dups["VALID_CASE"], 20)
 # summary(dups["VALID_CASE"])
 
@@ -903,40 +941,40 @@ dim(dups["VALID_CASE"]) #544 duplicate cases
 EOC <- EOC[which(!duplicated(EOC)),]
 
 #  These are identical except for SCORE
-setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "RETEST_INDICATOR", "ADMIN_ORDER", "MATCH_STATUS"))
+setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "ADMIN_TYPE", "ADMIN_ORDER", "MATCH_STATUS"))
 dups <- EOC[c(which(duplicated(EOC))-1, which(duplicated(EOC))),]
 setkeyv(dups, key(EOC))
-dim(dups["VALID_CASE"]) # 550
+dim(dups["VALID_CASE"]) # 24,939
 
 EOC[['VALID_CASE']][which(duplicated(EOC))-1] <- "INVALID_CASE" # Keep highest score
 
 
 #  Note - these are kids who have RETAKEN a test (NON-Retest!) with same match status
 #  Take FIRST TEST score.
-setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "RETEST_INDICATOR", "MATCH_STATUS"))
+setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "ADMIN_TYPE", "MATCH_STATUS"))
 dups <- EOC[c(which(duplicated(EOC))-1, which(duplicated(EOC))),]
 setkeyv(dups, key(EOC))
-dim(dups["VALID_CASE"]) # 10,277
+dim(dups["VALID_CASE"]) # 17,508
 
 EOC[['VALID_CASE']][which(duplicated(EOC))] <- "INVALID_CASE" # keep TOP case (FIRST ATTEMPT)
 
 
 #  Note - these are kids who have RETAKEN a test (NON-Retest!) with different match status
 #  Take FIRST TEST score -- the matched record
-setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "RETEST_INDICATOR"))
-dups <- EOC[c(which(duplicated(EOC))-1, which(duplicated(EOC))),]
-setkeyv(dups, key(EOC))
-dim(dups["VALID_CASE"]) # 45
+# setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "ADMIN_TYPE"))
+# dups <- EOC[c(which(duplicated(EOC))-1, which(duplicated(EOC))),]
+# setkeyv(dups, key(EOC))
+# dim(dups["VALID_CASE"]) # 0
+# 
+# EOC[['VALID_CASE']][which(duplicated(EOC))] <- "INVALID_CASE" # Keep the matched record and invalidate the unmatched.
 
-EOC[['VALID_CASE']][which(duplicated(EOC))] <- "INVALID_CASE" # Keep the matched record and invalidate the unmatched.
 
-
-#  Invalidate duplicates with different RETEST_INDICATOR by taking highest score.  
-setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "SCALE_SCORE", "RETEST_INDICATOR", "MATCH_STATUS"))
+#  Invalidate duplicates with different ADMIN_TYPE by taking highest score.  
+setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "MATCH_STATUS", "SCALE_SCORE", "ADMIN_TYPE"))
 setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID", "MATCH_STATUS"))
 dups <- EOC[c(which(duplicated(EOC))-1, which(duplicated(EOC))),]
 setkeyv(dups, key(EOC))
-dim(dups["VALID_CASE"]) # 32,258
+dim(dups["VALID_CASE"]) # 2
 
 #  Take the HIGHER score per Allison.
 EOC[['VALID_CASE']][which(duplicated(EOC))-1] <- "INVALID_CASE"
@@ -944,10 +982,10 @@ EOC[['VALID_CASE']][which(duplicated(EOC))-1] <- "INVALID_CASE"
 setkeyv(EOC, c("VALID_CASE", "ASSESSMENT_SUBJECT_CODE", "GTID"))
 dups <- EOC[c(which(duplicated(EOC))-1, which(duplicated(EOC))),]
 setkeyv(dups, key(EOC))
-dim(dups["VALID_CASE"]) # 187
+dim(dups["VALID_CASE"]) # 232
 
 #  Take the MATCHED record.
-EOC[['VALID_CASE']][which(duplicated(EOC))] <- "INVALID_CASE"
+EOC[['VALID_CASE']][which(duplicated(EOC))] <- "INVALID_CASE" # summary(as.factor(EOC[['VALID_CASE']]))  46,999 cases invalidated (47,003 originally)
 
 
 ###  Clean up other issues:
@@ -988,7 +1026,7 @@ setnames(EOC, c('STUDENT_GRADE_LEVEL', 'ASSESSMENT_SUBJECT_CODE'), c('GRADE', 'S
 CRC[['SR_STUDENT_ID']] <- NULL
 CRC[['SR_SCHOOL_ID']] <- NULL
 CRC[['STUDENT_GRADE_LEVEL']] <- NULL
-CRC[['ADMIN_TYPE']] <- NULL # RETEST_INDICATOR has same info now (N ~= 'Spring')
+# CRC[['ADMIN_TYPE']] <- NULL
 CRC[['TEST_TYPE']] <- NULL
 
 EOC[['STUDENT_ID']] <- NULL
