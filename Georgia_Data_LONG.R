@@ -124,6 +124,8 @@ gc() # clean up the workspace
 
 
 ### Stack TEST and RETEST data sets
+GA_CRCT[['GTID']] <- as.character(GA_CRCT[['GTID']])
+GA_CRCT_RETEST[['GTID']] <- as.character(GA_CRCT_RETEST[['GTID']])
 
 GA_CRCT <- as.data.table(rbind.fill(as.data.frame(GA_CRCT), as.data.frame(GA_CRCT_RETEST)))
 
@@ -132,7 +134,7 @@ GA_CRCT <- as.data.table(rbind.fill(as.data.frame(GA_CRCT), as.data.frame(GA_CRC
 
 GA_CRCT[['AYP_TEST_ID']] <- NULL
 GA_CRCT[['SR_STUDENT_ID']] <- NULL
-levels(GA_CRCT[['GTID']])[1:2] <- NA # Remove the empty string factor (missing) GTID and All 0's replace with NA
+# levels(GA_CRCT[['GTID']])[1:2] <- NA # Remove the empty string factor (missing) GTID and All 0's replace with NA
 GA_CRCT[['SR_SYSTEM_ID']] <- as.integer(GA_CRCT[['SR_SYSTEM_ID']])
 GA_CRCT[['STUDENT_GRADE_LEVEL']] <- as.integer(GA_CRCT[['STUDENT_GRADE_LEVEL']])
 GA_CRCT[['STUDENT_GRADE_LEVEL']][GA_CRCT[['STUDENT_GRADE_LEVEL']]==12] <- 0L
@@ -352,7 +354,7 @@ gc()
 
 ###  Convert strings to factors now that they are merged:
 
-for (f in c('GTID', 'RACE_CODE', 'GENDER_CODE', 'STUDENT_GRADE_LEVEL', 'ED', 'SWD', 'LEP', 'IEP',
+for (f in c('RACE_CODE', 'GENDER_CODE', 'STUDENT_GRADE_LEVEL', 'ED', 'SWD', 'LEP', 'IEP',
   'ASSESSMENT_SUBJECT_CODE', 'PTNA', 'DNA_INDICATOR', 'IRREG_ADMIN_INVALID', 'PIV', 'ADMIN_DATE')) {
 	GA_EOC[[f]] <- factor(GA_EOC[[f]])
 }
@@ -360,10 +362,9 @@ for (f in c('GTID', 'RACE_CODE', 'GENDER_CODE', 'STUDENT_GRADE_LEVEL', 'ED', 'SW
 
 ###  Match up factor levels with GA_CRCT
 
-levels(GA_EOC[['GTID']])[1:2] <- NA
 GA_EOC[['SR_SYSTEM_ID']] <- as.integer(GA_EOC[['SR_SYSTEM_ID']])
 
-levels(GA_EOC[['STUDENT_GRADE_LEVEL']]) <- c('6', '7', '8', '9', '10', '11', '12', '6', '7', '8', '9', 'PK')
+levels(GA_EOC[['STUDENT_GRADE_LEVEL']]) <- c('6', '7', '8', '9', '10', '11', '12', '6', '7', '8', '9', NA)
 GA_EOC[['STUDENT_GRADE_LEVEL']] <- as.integer(GA_EOC[['STUDENT_GRADE_LEVEL']])+5
 
 ###  Subset the EOC data similar to CRCT Data 
@@ -494,7 +495,7 @@ levels(GA_EOC$TEACHER_LNAME) <- gsub("  ", " ", levels(GA_EOC$TEACHER_LNAME))
 levels(GA_EOC$TEACHER_FNAME)[1] <- NA
 levels(GA_EOC$TEACHER_LNAME)[1] <- NA
 
-GA_EOC$INSTRUCTOR_NUMBER_1 <- factor(paste(GA_EOC$TEACHER_FNAME, GA_EOC$TEACHER_LNAME, ":", GA_EOC$SR_SCHOOL_ID))
+GA_EOC$INSTRUCTOR_NUMBER_1 <- paste(GA_EOC$TEACHER_FNAME, GA_EOC$TEACHER_LNAME, ":", GA_EOC$SR_SCHOOL_ID)
 
 
 ### Invalidate cases that are not GPS assessments and remove 2006 data
@@ -531,9 +532,9 @@ save(GA_EOC, file="Data/GA_EOC.Rdata")
 ###
 #####################################################################################
 
-GA_CRCT$ID <- as.character(GA_CRCT$ID)
-GA_EOC$ID <- as.character(GA_EOC$ID)
-Georgia_Data_LONG <- rbind.fill(GA_CRCT, GA_EOC)
+# GA_CRCT$ID <- as.character(GA_CRCT$ID)
+# GA_EOC$ID <- as.character(GA_EOC$ID)
+Georgia_Data_LONG <- rbind.fill(GA_CRCT, as.data.frame(GA_EOC))
 
 save(Georgia_Data_LONG, file="Data/Georgia_Data_LONG_Pre-AddPriors_120412.Rdata")
 

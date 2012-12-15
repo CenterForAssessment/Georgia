@@ -8,12 +8,10 @@
 
 require(SGP)
 
-### NULL out baseline coefficient matrices for Georgia
-#  Need the new EOCT knots and boundaries.  Update from Github eventually - still waiting for it to load on 11/23/12
-load('/home/avi/Dropbox/GitHub_Repos/SGPstateData/SGPstateData.rda')
+### NULL out the existing baseline coefficient matrices for Georgia
+#  Need the new EOCT knots and boundaries available in SGP version 0.9-9.9
 
 SGPstateData$GA$Baseline_splineMatrix <- NULL
-
 
 ### Load Long Data
 
@@ -21,11 +19,13 @@ setwd("/media/Data/SGP/Georgia")
 load("Data/Georgia_Data_LONG-2012_FINAL.Rdata")
 
 #  Reduce data to only what we'll be using
-Georgia_Data_LONG <- Georgia_Data_LONG[!Georgia_Data_LONG$SUBJECT_CODE %in% c("MATHEMATICS", "SOCIAL_STUDIES") &
+summary(as.factor(Georgia_Data_LONG$CONTENT_AREA[Georgia_Data_LONG$SCALE_SCORE < 199]))
+Georgia_Data_LONG$VALID_CASE[Georgia_Data_LONG$SCALE_SCORE == 0] <- "INVALID_CASE"
+
+Georgia_Data_LONG <- Georgia_Data_LONG[!Georgia_Data_LONG$SUBJECT_CODE %in% c("MATHEMATICS", "ALGEBRA", "GEOMETRY", "SOCIAL_STUDIES") &
 	Georgia_Data_LONG$GRADE %in% 6:12 & Georgia_Data_LONG$VALID_CASE == 'VALID_CASE',]
 
 Georgia_Data_LONG$GRADE[Georgia_Data_LONG$GRADE > 8] <- 'EOCT'
-
 
 ### prepareSGP
 
@@ -41,40 +41,48 @@ my.baseline.config <- list(
 			list(
 				baseline.content.areas=c('SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
-				baseline.grade.sequences=c(8, 'EOCT')), # 8:9
+				baseline.grade.sequences=c(8, 'EOCT'),
+				baseline.grade.sequences.lags=1), # 8:9
 			list(
 				baseline.content.areas=c('SCIENCE', 'SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'), # can go back to 2007 with 7th grade GPS
-				baseline.grade.sequences=c(7, 8, 'EOCT')), # 7:9
+				baseline.grade.sequences=c(7, 8, 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 1)), # 7:9
 
 			list(
 				baseline.content.areas=c('SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(8, NA, 'EOCT')), # 8, 10
+				baseline.grade.sequences=c(8, 'EOCT'),
+				baseline.grade.sequences.lags=2), # 8, 10
 			list(
 				baseline.content.areas=c('SCIENCE', 'SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(7, 8, NA, 'EOCT')), # 7, 8, 10
+				baseline.grade.sequences=c(7, 8, 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 2)), # 7, 8, 10
 
 ##  Phys Sci Priors
 			list(
 				baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
-				baseline.grade.sequences=c(8, 'EOCT', 'EOCT')), # 8:10				
+				baseline.grade.sequences=c(8, 'EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 1)), # 8:10				
 			list(
 				baseline.content.areas=c('PHYSICAL_SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'), # can go back to 2007 with 7th grade GPS
-				baseline.grade.sequences=c('EOCT', 'EOCT')), # continous grade progression - 9:10, 10:11, etc.
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1), # continous grade progression - 9:10, 10:11, etc.
 			list(
 				baseline.content.areas=c('PHYSICAL_SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', NA, 'EOCT'))) # grade prog with skip year - eg. 9, 11
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=2), # grade prog with skip year - eg. 9, 11
 
-# #  Repeaters
-			# list(
-				# baseline.content.areas=c('BIOLOGY', 'BIOLOGY'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT')))
+#  Repeaters
+			list(
+				baseline.content.areas=c('BIOLOGY', 'BIOLOGY'),
+				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
 
 
 GA_BIOLOGY_Baseline_Matrices <- baselineSGP(
@@ -92,55 +100,67 @@ save(GA_BIOLOGY_Baseline_Matrices, file="Data/Baseline_Matrices/GA_BIOLOGY_Basel
 
 ### PHYSICAL_SCIENCE 
 
+#   RE-RUN THESE TO GET THE Time_Lags FOR 8TH GRADE MATRICES  ( OR PLUG IN MANUALLY )
+
 my.baseline.config <- list(
 #  Science Priors
 			list( #  Enough kids to do an 8th grade baseline here
 				baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('7', '8')),
+				baseline.grade.sequences=c('7', '8'),
+				baseline.grade.sequences.lags=1),
 			list(
 				baseline.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('6', '7', '8')),
+				baseline.grade.sequences=c('6', '7', '8'),
+				baseline.grade.sequences.lags=c(1, 1)),
 
 			list(
 				baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
-				baseline.grade.sequences=c(8, 'EOCT')), # 8:9
+				baseline.grade.sequences=c(8, 'EOCT'),
+				baseline.grade.sequences.lags=1), # 8:9
 			list(
 				baseline.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'), # can go back to 2007 with 7th grade GPS
-				baseline.grade.sequences=c(7, 8, 'EOCT')), # 7:9
+				baseline.grade.sequences=c(7, 8, 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 1)), # 7:9
 
 			list(
 				baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(8, NA, 'EOCT')), # 8, 10
+				baseline.grade.sequences=c(8, 'EOCT'),
+				baseline.grade.sequences.lags=2), # 8, 10
 			list(
 				baseline.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(7, 8, NA, 'EOCT')), # 7:8, 10
+				baseline.grade.sequences=c(7, 8, 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 2)), # 7:8, 10
 
 # BIO Priors 
 			list(
 				baseline.content.areas=c('SCIENCE', 'BIOLOGY', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
-				baseline.grade.sequences=c(8, 'EOCT', 'EOCT')),
+				baseline.grade.sequences=c(8, 'EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 1)),
 
 			list(
 				baseline.content.areas=c('BIOLOGY', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', 'EOCT')), # continuous
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1), # continuous
 			list(
 				baseline.content.areas=c('BIOLOGY', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', NA, 'EOCT'))) # skip year
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=2), # skip year
 
-# #  Repeaters
-			# list(
-				# baseline.content.areas=c('PHYSICAL_SCIENCE', 'PHYSICAL_SCIENCE'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT')))
+#  Repeaters
+			list(
+				baseline.content.areas=c('PHYSICAL_SCIENCE', 'PHYSICAL_SCIENCE'),
+				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
 
 
 GA_PHYSICAL_SCIENCE_Baseline_Matrices <- baselineSGP(
@@ -163,26 +183,31 @@ my.baseline.config <- list(
 			list(
 				baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(8,8, 'EOCT')),
+				baseline.grade.sequences=c(8,8, 'EOCT'),
+				baseline.grade.sequences.lags=c(0, 1)),
 			list(
 				baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(7,7, 8,8, 'EOCT')),
+				baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
+				baseline.grade.sequences.lags=c(0, 1, 0, 1)), # Dual/Continuous
 
 			list(
 				baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(8,8, NA, 'EOCT')),
+				baseline.grade.sequences=c(8,8, 'EOCT'),
+				baseline.grade.sequences.lags=c(0, 2)),
 			list(
 				baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(7,7, 8,8, NA, 'EOCT')))
+				baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
+				baseline.grade.sequences.lags=c(0, 1, 0, 2)), # Dual/SKIP
 
-	#  Repeaters
-			# list(
-				# baseline.content.areas=c('GRADE_9_LIT', 'GRADE_9_LIT'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT')))
+	 # Repeaters
+			list(
+				baseline.content.areas=c('GRADE_9_LIT', 'GRADE_9_LIT'),
+				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
 
 GA_GRADE_9_LIT_Baseline_Matrices <- baselineSGP(
 	Georgia_SGP,
@@ -193,7 +218,7 @@ GA_GRADE_9_LIT_Baseline_Matrices <- baselineSGP(
 	goodness.of.fit.print=FALSE,
 	parallel.config=list(
 		BACKEND="PARALLEL",
-		WORKERS=list(TAUS=10)))
+		WORKERS=list(TAUS=20)))
 
 save(GA_GRADE_9_LIT_Baseline_Matrices, file="Data/Baseline_Matrices/GA_GRADE_9_LIT_Baseline_Matrices.Rdata")
 
@@ -205,26 +230,31 @@ my.baseline.config <- list(
 			list(
 				baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT')), # 8,8,9:10
+				baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=c(0, 1, 1)), # 8,8,9:10
 			list(
 				baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c(8,8, NA, 'EOCT', 'EOCT')), #c(8,8,10:11)
+				baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=c(0, 2, 1)), #c(8,8,10:11)
 	#  EOCT prior only
 			list(
 				baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', 'EOCT')), # continuous
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1), # continuous
 			list(
 				baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', NA, 'EOCT'))) # skip year
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=2), # skip year
 
-	# #  Repeaters
-			# list(
-				# baseline.content.areas=c('AMERICAN_LIT', 'AMERICAN_LIT'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT')))
+	#  Repeaters
+			list(
+				baseline.content.areas=c('AMERICAN_LIT', 'AMERICAN_LIT'),
+				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
 				
 				
 GA_AMERICAN_LIT_Baseline_Matrices <- baselineSGP(
@@ -236,10 +266,9 @@ GA_AMERICAN_LIT_Baseline_Matrices <- baselineSGP(
 	goodness.of.fit.print=FALSE,
 	parallel.config=list(
 		BACKEND="PARALLEL",
-		WORKERS=list(TAUS=10)))
+		WORKERS=list(TAUS=20)))
 
 save(GA_AMERICAN_LIT_Baseline_Matrices, file="Data/Baseline_Matrices/GA_AMERICAN_LIT_Baseline_Matrices.Rdata")
-
 
 
 ### Economics 
@@ -248,16 +277,19 @@ my.baseline.config <- list(
 			list(
 				baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', 'EOCT')),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1),
 			list(
 				baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', NA, 'EOCT')))
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=2),
 
-			# list(
-				# baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT')))  #  ECON may not have enough kids to run...
+			list(
+				baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
+				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))  #  ECON may not have enough kids to run repeaters...
 
 
 GA_ECON_Baseline_Matrices <- baselineSGP(
@@ -269,10 +301,9 @@ GA_ECON_Baseline_Matrices <- baselineSGP(
 	goodness.of.fit.print=FALSE,
 	parallel.config=list(
 		BACKEND="PARALLEL",
-		WORKERS=list(TAUS=10)))
+		WORKERS=list(TAUS=20)))
 
 save(GA_ECON_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_Baseline_Matrices.Rdata")
-
 
 
 
@@ -280,33 +311,73 @@ save(GA_ECON_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_Baseline_Ma
 ###		Repeaters (different year).  New to 2012
 ### 
 
-# my.baseline.config <- list(
-			# list(
-				# baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT')))
+my.baseline.config <- list(
+			list(
+				baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
+				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
 
 
-# GA_USHIST_Baseline_Matrices <- baselineSGP(
-	# Georgia_SGP,
-	# sgp.baseline.config=my.baseline.config,
-	# sgp.percentiles.baseline.max.order=1,
-	# return.matrices.only=TRUE,
-	# calculate.baseline.sgps=FALSE,
-	# goodness.of.fit.print=FALSE)
+GA_USHIST_Baseline_Matrices <- baselineSGP(
+	Georgia_SGP,
+	sgp.baseline.config=my.baseline.config,
+	sgp.percentiles.baseline.max.order=1,
+	return.matrices.only=TRUE,
+	calculate.baseline.sgps=FALSE,
+	goodness.of.fit.print=FALSE)
 
-# save(GA_USHIST_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_Baseline_Matrices.Rdata")
+save(GA_USHIST_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_Baseline_Matrices.Rdata")
+
+
+my.baseline.config <- list(
+			list(
+				baseline.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_I'),
+				baseline.panel.years=c('2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
+
+GA_MATHEMATICS_I_Baseline_Matrices <- baselineSGP(
+	Georgia_SGP,
+	sgp.baseline.config=my.baseline.config,
+	sgp.percentiles.baseline.max.order=1,
+	return.matrices.only=TRUE,
+	calculate.baseline.sgps=FALSE,
+	goodness.of.fit.print=FALSE)
+
+save(GA_MATHEMATICS_I_Baseline_Matrices, file="Data/Baseline_Matrices/GA_MATHEMATICS_I_Baseline_Matrices.Rdata")
+
+
+my.baseline.config <- list(
+			list(
+				baseline.content.areas=c('MATHEMATICS_II', 'MATHEMATICS_II'),
+				baseline.panel.years=c('2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
+
+GA_MATHEMATICS_II_Baseline_Matrices <- baselineSGP(
+	Georgia_SGP,
+	sgp.baseline.config=my.baseline.config,
+	sgp.percentiles.baseline.max.order=1,
+	return.matrices.only=TRUE,
+	calculate.baseline.sgps=FALSE,
+	goodness.of.fit.print=FALSE)
+
+save(GA_MATHEMATICS_II_Baseline_Matrices, file="Data/Baseline_Matrices/GA_MATHEMATICS_II_Baseline_Matrices.Rdata")
 
 
 ###
 ###		Replace Baseline Matrices in SGPstateData
 ###
 
-load('/home/avi/Dropbox/stateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata')
+load('/home/avi/Dropbox/GitHub_Repos/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata')
 GA_Baseline_Matrices[['AMERICAN_LIT.BASELINE']] <- GA_AMERICAN_LIT_Baseline_Matrices$AMERICAN_LIT.BASELINE
-GA_Baseline_Matrices[['BIOLOGY.BASELINE']] <- GA_BIOLOGY_PHYS_SCI_Baseline_Matrices$BIOLOGY.BASELINE
+GA_Baseline_Matrices[['BIOLOGY.BASELINE']] <- GA_BIOLOGY_Baseline_Matrices$BIOLOGY.BASELINE
 GA_Baseline_Matrices[['ECONOMICS.BASELINE']] <- GA_ECON_Baseline_Matrices$ECONOMICS.BASELINE
 GA_Baseline_Matrices[['GRADE_9_LIT.BASELINE']] <- GA_GRADE_9_LIT_Baseline_Matrices$GRADE_9_LIT.BASELINE
+GA_Baseline_Matrices[['MATHEMATICS_I.BASELINE']] <- GA_MATHEMATICS_I_Baseline_Matrices$MATHEMATICS_I.BASELINE
+GA_Baseline_Matrices[['MATHEMATICS_II.BASELINE']] <- GA_MATHEMATICS_II_Baseline_Matrices$MATHEMATICS_II.BASELINE
 GA_Baseline_Matrices[['PHYSICAL_SCIENCE.BASELINE']] <- GA_PHYSICAL_SCIENCE_Baseline_Matrices$PHYSICAL_SCIENCE.BASELINE
+GA_Baseline_Matrices[['US_HISTORY.BASELINE']] <- GA_USHIST_Baseline_Matrices$US_HISTORY.BASELINE
 
-save(GA_Baseline_Matrices, file='Data/Baseline_Matrices/GA_Baseline_Matrices.Rdata', compress='bzip2')
+save(GA_Baseline_Matrices, file='/home/avi/Dropbox/GitHub_Repos/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata', compress='bzip2')
