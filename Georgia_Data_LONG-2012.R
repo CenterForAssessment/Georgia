@@ -497,6 +497,7 @@ eval(parse(text=paste("setnames(Georgia_Data_LONG, c(",
 
 Georgia_Data_LONG[['GRADE_CONVERSION']] <- NULL
 Georgia_Data_LONG[['MATCH_STATUS']] <- "M"
+levels(Georgia_Data_LONG[['SWD']]) <- rep(c("Student with Disability: No", "Student with Disability: Yes"), 2)
 
 ###  Combine the two data objects
 
@@ -519,7 +520,7 @@ Georgia_Data_LONG[['VC_2011_CORRECTED']][!is.na(Georgia_Data_LONG[['ADMIN_INVALI
 summary(as.factor(Georgia_Data_LONG[['VALID_CASE']]))
 
 ### Invalidate NA scores and GTID's with fewer than 10 digits (or NA)
-Georgia_Data_LONG[['GTID']] <- as.character(as.numeric(Georgia_Data_LONG[['GTID']]))
+Georgia_Data_LONG[['GTID']] <- as.character(as.numeric(Georgia_Data_LONG[['GTID']])) # remove leading zeros and other invalid ID's
 Georgia_Data_LONG[['VALID_CASE']][is.na(Georgia_Data_LONG[['GTID']])] <- "INVALID_CASE"
 Georgia_Data_LONG[['VALID_CASE']][which(nchar(Georgia_Data_LONG[['GTID']]) != 10)] <- "INVALID_CASE"
 Georgia_Data_LONG[['VALID_CASE']][is.na(Georgia_Data_LONG[['SCALE_SCORE']])] <- "INVALID_CASE"
@@ -567,7 +568,7 @@ index.tmp <- index.tmp[!is.na(index.tmp)]
 Georgia_Data_LONG[['VALID_CASE']][index.tmp] <- "INVALID_CASE"
 Georgia_Data_LONG[['VC_2011_CORRECTED']][index.tmp] <- "INVALID_CASE"
 
-#	64,594 Invalidated
+#	66,880 Invalidated
 
 ###  Duplicate case invalidation/removal:
 
@@ -583,7 +584,7 @@ Georgia_Data_LONG[['ADMIN_ORDER']] <- as.integer(as.character(Georgia_Data_LONG[
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS", "ADMIN_ORDER", "SCALE_SCORE"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 8,106 duplicate cases
+dim(dups["VALID_CASE"]) # 357,733 duplicate cases
 # head(dups["VALID_CASE"], 20)
 # summary(dups["VALID_CASE"])
 
@@ -594,7 +595,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS", "ADMIN_ORDER"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 336,506 duplicate cases
+dim(dups["VALID_CASE"]) # 339,408 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
@@ -605,7 +606,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 373 duplicate cases
+dim(dups["VALID_CASE"]) # 44,273 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG) & Georgia_Data_LONG[['SCHOOL_YEAR']] != '2011')] <- "INVALID_CASE" # Take LAST Admin periods other than 2011.
@@ -617,7 +618,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 328 duplicate cases
+dim(dups["VALID_CASE"]) # 2,207 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched case for all years.
@@ -630,7 +631,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "MATCH_STATUS", "ADMIN_ORDER"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 299 duplicate cases (only 3 with same scale score - combined here)
+dim(dups["VALID_CASE"]) # 307 duplicate cases (only 3 with same scale score - combined here)
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
@@ -641,7 +642,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "IN
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "MATCH_STATUS"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 122 duplicate cases
+dim(dups["VALID_CASE"]) # 4,039 duplicate cases
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG) & Georgia_Data_LONG[['SCHOOL_YEAR']] != '2011')] <- "INVALID_CASE" # Take LAST Admin periods other than 2011.
@@ -653,7 +654,7 @@ Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVA
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-dim(dups["VALID_CASE"]) # 107 duplicate cases 
+dim(dups["VALID_CASE"]) # 617 duplicate cases 
 # head(dups["VALID_CASE"], 20)
 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched case for all years.
@@ -1041,7 +1042,7 @@ GA_2012 <- data.table(rbind.fill(CRC, EOC))
 
 GA_2012[['ADMINISTRATION_PERIOD']] <- as.character(GA_2012[['ADMINISTRATION_PERIOD']])
 
-save(GA_2012, file="Data/Georgia_Data_LONG-2012.Rdata")
+save(GA_2012, file="Data/Georgia_Data_LONG-2012_ONLY.Rdata")
 
 
 ###############################################################################################
@@ -1050,12 +1051,9 @@ save(GA_2012, file="Data/Georgia_Data_LONG-2012.Rdata")
 ###
 ###############################################################################################
 
-# load("Data/Georgia_Data_LONG-2012.Rdata")
 Georgia_Data_LONG <- data.table(rbind.fill(Georgia_Data_LONG, GA_2012))
-levels(Georgia_Data_LONG[['SWD']]) <- rep(c("Student with Disability: No", "Student with Disability: Yes"), 2)
 
 save(Georgia_Data_LONG, file="Data/Georgia_Data_LONG-2012_FINAL.Rdata")
-
 
 ###############################################################################################
 ###
@@ -1084,6 +1082,12 @@ eval(parse(text=paste("setnames(Georgia_SGP@Data, c(",
                       paste("'", paste(SGPstateData[["GA"]][["Variable_Name_Lookup"]][["names.sgp"]], collapse="','"), "'", sep=""), "))")))
 
 ##  run prepareSGP (with a new version of SGP package from Github!) to convert coefficient matrices.
+
+Georgia_Simulated_SGPs <- Georgia_SGP@SGP[['Simulated_SGPs']]
+Georgia_SGP@SGP[['Simulated_SGPs']] <- NULL
+
+save(Georgia_Simulated_SGPs, file="Data/Georgia_Simulated_SGPs-2012.Rdata")
+
 Georgia_SGP <- prepareSGP(Georgia_SGP)
 
 save(Georgia_SGP, file="Data/Georgia_SGP-2012.Rdata")
