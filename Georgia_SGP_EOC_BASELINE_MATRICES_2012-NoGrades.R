@@ -67,6 +67,12 @@ my.baseline.config <- list(
 				baseline.grade.sequences=c(8, 'EOCT', 'EOCT'),
 				baseline.grade.sequences.lags=c(1, 1)), # 8:10				
 			list(
+				baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
+				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
+				baseline.grade.sequences=c(8, 'EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 2)), # 8:10				
+
+			list(
 				baseline.content.areas=c('PHYSICAL_SCIENCE', 'BIOLOGY'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'), # can go back to 2007 with 7th grade GPS
 				baseline.grade.sequences=c('EOCT', 'EOCT'),
@@ -143,6 +149,11 @@ my.baseline.config <- list(
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
 				baseline.grade.sequences=c(8, 'EOCT', 'EOCT'),
 				baseline.grade.sequences.lags=c(1, 1)),
+			list(
+				baseline.content.areas=c('SCIENCE', 'BIOLOGY', 'PHYSICAL_SCIENCE'),
+				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
+				baseline.grade.sequences=c(8, 'EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 2)),
 
 			list(
 				baseline.content.areas=c('BIOLOGY', 'PHYSICAL_SCIENCE'),
@@ -236,7 +247,7 @@ my.baseline.config <- list(
 				baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
 				baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
-				baseline.grade.sequences.lags=c(0, 2, 1)), #c(8,8,10:11)
+				baseline.grade.sequences.lags=c(0, 1, 2)), #c(8,8,9,11)
 	#  EOCT prior only
 			list(
 				baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
@@ -283,13 +294,14 @@ my.baseline.config <- list(
 				baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
 				baseline.grade.sequences=c('EOCT', 'EOCT'),
-				baseline.grade.sequences.lags=2),
+				baseline.grade.sequences.lags=2))
 
-			list(
-				baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
-				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', 'EOCT'),
-				baseline.grade.sequences.lags=1))  #  ECON may not have enough kids to run repeaters...
+#  ECON doesn't have enough kids to run repeaters...
+			# list(
+				# baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
+				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				# baseline.grade.sequences=c('EOCT', 'EOCT'),
+				# baseline.grade.sequences.lags=1))
 
 
 GA_ECON_Baseline_Matrices <- baselineSGP(
@@ -308,62 +320,63 @@ save(GA_ECON_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_Baseline_Ma
 
 
 ###
-###		Repeaters (different year).  New to 2012
+###		Repeaters (different year).  Tried US Hist, Math I & II, but wierd fit for US Hist, 
+###		and have enough kids to do Math I and II with cohort ref (which matches other analyses)
 ### 
 
-my.baseline.config <- list(
-			list(
-				baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
-				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', 'EOCT'),
-				baseline.grade.sequences.lags=1))
+# # my.baseline.config <- list(
+			# list(
+				# baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
+				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				# baseline.grade.sequences=c('EOCT', 'EOCT'),
+				# baseline.grade.sequences.lags=1))
 
 
-GA_USHIST_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=1,
-	return.matrices.only=TRUE,
-	calculate.baseline.sgps=FALSE,
-	goodness.of.fit.print=FALSE)
+# GA_USHIST_Baseline_Matrices <- baselineSGP(
+	# Georgia_SGP,
+	# sgp.baseline.config=my.baseline.config,
+	# sgp.percentiles.baseline.max.order=1,
+	# return.matrices.only=TRUE,
+	# calculate.baseline.sgps=FALSE,
+	# goodness.of.fit.print=FALSE)
 
-save(GA_USHIST_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_Baseline_Matrices.Rdata")
-
-
-my.baseline.config <- list(
-			list(
-				baseline.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_I'),
-				baseline.panel.years=c('2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', 'EOCT'),
-				baseline.grade.sequences.lags=1))
-
-GA_MATHEMATICS_I_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=1,
-	return.matrices.only=TRUE,
-	calculate.baseline.sgps=FALSE,
-	goodness.of.fit.print=FALSE)
-
-save(GA_MATHEMATICS_I_Baseline_Matrices, file="Data/Baseline_Matrices/GA_MATHEMATICS_I_Baseline_Matrices.Rdata")
+# save(GA_USHIST_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_Baseline_Matrices.Rdata")
 
 
-my.baseline.config <- list(
-			list(
-				baseline.content.areas=c('MATHEMATICS_II', 'MATHEMATICS_II'),
-				baseline.panel.years=c('2010', '2011', '2012'),
-				baseline.grade.sequences=c('EOCT', 'EOCT'),
-				baseline.grade.sequences.lags=1))
+# my.baseline.config <- list(
+			# list(
+				# baseline.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_I'),
+				# baseline.panel.years=c('2010', '2011', '2012'),
+				# baseline.grade.sequences=c('EOCT', 'EOCT'),
+				# baseline.grade.sequences.lags=1))
 
-GA_MATHEMATICS_II_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=1,
-	return.matrices.only=TRUE,
-	calculate.baseline.sgps=FALSE,
-	goodness.of.fit.print=FALSE)
+# GA_MATHEMATICS_I_Baseline_Matrices <- baselineSGP(
+	# Georgia_SGP,
+	# sgp.baseline.config=my.baseline.config,
+	# sgp.percentiles.baseline.max.order=1,
+	# return.matrices.only=TRUE,
+	# calculate.baseline.sgps=FALSE,
+	# goodness.of.fit.print=FALSE)
 
-save(GA_MATHEMATICS_II_Baseline_Matrices, file="Data/Baseline_Matrices/GA_MATHEMATICS_II_Baseline_Matrices.Rdata")
+# save(GA_MATHEMATICS_I_Baseline_Matrices, file="Data/Baseline_Matrices/GA_MATHEMATICS_I_Baseline_Matrices.Rdata")
+
+
+# my.baseline.config <- list(
+			# list(
+				# baseline.content.areas=c('MATHEMATICS_II', 'MATHEMATICS_II'),
+				# baseline.panel.years=c('2010', '2011', '2012'),
+				# baseline.grade.sequences=c('EOCT', 'EOCT'),
+				# baseline.grade.sequences.lags=1))
+
+# GA_MATHEMATICS_II_Baseline_Matrices <- baselineSGP(
+	# Georgia_SGP,
+	# sgp.baseline.config=my.baseline.config,
+	# sgp.percentiles.baseline.max.order=1,
+	# return.matrices.only=TRUE,
+	# calculate.baseline.sgps=FALSE,
+	# goodness.of.fit.print=FALSE)
+
+# save(GA_MATHEMATICS_II_Baseline_Matrices, file="Data/Baseline_Matrices/GA_MATHEMATICS_II_Baseline_Matrices.Rdata")
 
 
 ###
@@ -371,13 +384,14 @@ save(GA_MATHEMATICS_II_Baseline_Matrices, file="Data/Baseline_Matrices/GA_MATHEM
 ###
 
 load('/home/avi/Dropbox/GitHub_Repos/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata')
+GA_Baseline_Matrices <- GA_Baseline_Matrices[1:4]
 GA_Baseline_Matrices[['AMERICAN_LIT.BASELINE']] <- GA_AMERICAN_LIT_Baseline_Matrices$AMERICAN_LIT.BASELINE
 GA_Baseline_Matrices[['BIOLOGY.BASELINE']] <- GA_BIOLOGY_Baseline_Matrices$BIOLOGY.BASELINE
 GA_Baseline_Matrices[['ECONOMICS.BASELINE']] <- GA_ECON_Baseline_Matrices$ECONOMICS.BASELINE
 GA_Baseline_Matrices[['GRADE_9_LIT.BASELINE']] <- GA_GRADE_9_LIT_Baseline_Matrices$GRADE_9_LIT.BASELINE
-GA_Baseline_Matrices[['MATHEMATICS_I.BASELINE']] <- GA_MATHEMATICS_I_Baseline_Matrices$MATHEMATICS_I.BASELINE
-GA_Baseline_Matrices[['MATHEMATICS_II.BASELINE']] <- GA_MATHEMATICS_II_Baseline_Matrices$MATHEMATICS_II.BASELINE
+# GA_Baseline_Matrices[['MATHEMATICS_I.BASELINE']] <- GA_MATHEMATICS_I_Baseline_Matrices$MATHEMATICS_I.BASELINE
+# GA_Baseline_Matrices[['MATHEMATICS_II.BASELINE']] <- GA_MATHEMATICS_II_Baseline_Matrices$MATHEMATICS_II.BASELINE
 GA_Baseline_Matrices[['PHYSICAL_SCIENCE.BASELINE']] <- GA_PHYSICAL_SCIENCE_Baseline_Matrices$PHYSICAL_SCIENCE.BASELINE
-GA_Baseline_Matrices[['US_HISTORY.BASELINE']] <- GA_USHIST_Baseline_Matrices$US_HISTORY.BASELINE
+# GA_Baseline_Matrices[['US_HISTORY.BASELINE']] <- GA_USHIST_Baseline_Matrices$US_HISTORY.BASELINE
 
 save(GA_Baseline_Matrices, file='/home/avi/Dropbox/GitHub_Repos/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata', compress='bzip2')
