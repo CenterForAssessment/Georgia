@@ -61,7 +61,10 @@ outputSGP(Georgia_SGP, output.type="LONG_Data", outputSGP.directory="CRCT_Result
 setwd("/media/Data/SGP/Georgia")
 load("Data/Georgia_SGP-2012_CRCT.Rdata")
 
+#  Create a 'GRADE_REPORTED' variable to retain the info contained in GRADE.
 #  Change the GRADE Variable so that any EOCT test has the value 'EOCT' assigned to it:
+
+Georgia_SGP@Data[['GRADE_REPORTED']] <- Georgia_SGP@Data[['GRADE']]
 
 Georgia_SGP@Data[['GRADE']][!Georgia_SGP@Data[['GRADE']] %in% as.character(3:8)] <- 'EOCT'
 #  Turn NA grade subjects into EOCT too
@@ -91,13 +94,13 @@ GA.config <- list(
            sgp.panel.years=c('2010', '2012'),
            sgp.grade.sequences=list(c('EOCT', 'EOCT'))), # Any skip year progression regardless of grade
 
-
 	##		ALGEBRA and GEOMETRY new for 2012
 	#  Algebra with the skip year is questionable - ~2000 kids, decent fit considering small N ... 
-        ALGEBRA.2012 = list(
-           sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'ALGEBRA'),
-           sgp.panel.years=c('2009', '2010', '2012'),
-           sgp.grade.sequences=list(c(7:8, 'EOCT'))),
+	#  Removed per Qi email 12/17/2012
+        # ALGEBRA.2012 = list(
+           # sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'ALGEBRA'),
+           # sgp.panel.years=c('2009', '2010', '2012'),
+           # sgp.grade.sequences=list(c(7:8, 'EOCT'))),
         GEOMETRY.2012 = list(
            sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'GEOMETRY'),
            sgp.panel.years=c('2009', '2010', '2012'),
@@ -152,7 +155,9 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
 	
 	for (ca in sapply(names(GA.config), function(x) strsplit(x, "[.]")[[1]][1])) {
 		SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']] <- 4
-		SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']] <- 4
+		if (!ca %in% c('GEOMETRY', 'MATHEMATICS_I', 'MATHEMATICS_II', 'US_HISTORY')) {
+			SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']] <- 4
+		}
 	}
 
 	Georgia_SGP@SGP[['SGPercentiles']] <- SGPercentiles
@@ -234,8 +239,14 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
 	SGPercentiles <- Georgia_SGP@SGP[['SGPercentiles']]
 	
 	for (ca in sapply(names(GA.config), function(x) strsplit(x, "[.]")[[1]][1])) {
-		SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']])] <- 3
-		SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']])] <- 3
+		if (ca == "ALGEBRA") {
+			SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']] <- 3 # Algebra is new now and no BASELINE
+		} else {
+			SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']])] <- 3
+			if (!ca %in% c('MATHEMATICS_I', 'MATHEMATICS_II')) { # 'ALGEBRA', 'GEOMETRY', 'US_HISTORY' #  Don't have BASELINES
+				SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']])] <- 3
+			}
+		}
 	}
 
 	Georgia_SGP@SGP[['SGPercentiles']] <- SGPercentiles
@@ -268,7 +279,12 @@ GA.config <- list(
        PHYSICAL_SCIENCE.2012 = list(
            sgp.content.areas=c('SCIENCE', 'BIOLOGY', 'PHYSICAL_SCIENCE'),
            sgp.panel.years=c('2009', '2010', '2012'),
-           sgp.grade.sequences=list(c(8, 'EOCT', 'EOCT'))))  # ~ 8,9, 11 and ANY Skip year
+           sgp.grade.sequences=list(c(8, 'EOCT', 'EOCT'))),  # ~ 8,9, 11 and ANY Skip year
+
+        US_HISTORY.2012 = list(
+           sgp.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'), 
+           sgp.panel.years=c('2009', '2012'),
+           sgp.grade.sequences=list(c(8, 'EOCT')))) # 8, 11
 
 
 Georgia_SGP <- analyzeSGP(Georgia_SGP,
@@ -292,7 +308,9 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
 	
 	for (ca in sapply(names(GA.config), function(x) strsplit(x, "[.]")[[1]][1])) {
 		SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']])] <- 2
-		SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']])] <- 2
+		if (!ca %in% c('US_HISTORY')) { # 'ALGEBRA', 'GEOMETRY', 'MATHEMATICS_I', 'MATHEMATICS_II' #  Don't have BASELINES
+			SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']])] <- 2
+		}
 	}
 
 	Georgia_SGP@SGP[['SGPercentiles']] <- SGPercentiles
@@ -362,9 +380,11 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
 ###		Repeaters - new to 2012
 ###
 
+##  These subjects don't have enough kids to do a cohort analysis but baseline referenced analyses are possible.
+
 	setwd("../")
-	dir.create('EOCT_Repeaters')
-	setwd('EOCT_Repeaters')
+	dir.create('EOCT_Repeaters_Baseline')
+	setwd('EOCT_Repeaters_Baseline')
 
 GA.config <- list(
         GRADE_9_LIT.2012 = list(
@@ -376,15 +396,6 @@ GA.config <- list(
            sgp.panel.years=c('2011', '2012'),
            sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
 
-       MATHEMATICS_I.2012 = list(
-           sgp.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_I'),
-           sgp.panel.years=c('2011', '2012'),
-           sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
-       MATHEMATICS_II.2012 = list(
-           sgp.content.areas=c('MATHEMATICS_II', 'MATHEMATICS_II'),
-           sgp.panel.years=c('2011', '2012'),
-           sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
-
        BIOLOGY.2012 = list(
            sgp.content.areas=c('BIOLOGY', 'BIOLOGY'),
            sgp.panel.years=c('2011', '2012'),
@@ -392,20 +403,21 @@ GA.config <- list(
        PHYSICAL_SCIENCE.2012 = list(
            sgp.content.areas=c('PHYSICAL_SCIENCE', 'PHYSICAL_SCIENCE'),
            sgp.panel.years=c('2011', '2012'),
-           sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
+           sgp.grade.sequences=list(c('EOCT', 'EOCT'))))
 
+#  Removed per Qi email 12/17/2012
 #  The US_HISTORY repeaters has a decent number of kids (~4,000), but the goodness of fit is VERY questionable!  
 #  Did something happen with the test SCALE?  Not sure we should use this cohort...
-        US_HISTORY.2012 = list(  
-           sgp.content.areas=c('US_HISTORY', 'US_HISTORY'), 
-           sgp.panel.years=c('2011', '2012'),
-           sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
+        # US_HISTORY.2012 = list(  
+           # sgp.content.areas=c('US_HISTORY', 'US_HISTORY'), 
+           # sgp.panel.years=c('2011', '2012'),
+           # sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
 
-#  The ECONOMICS repeaters does not have enough kids ( < 1,000).  I would recomend NOT using this group.  
-        ECONOMICS.2012 = list(
-           sgp.content.areas=c('ECONOMICS', 'ECONOMICS'), 
-           sgp.panel.years=c('2011', '2012'),
-           sgp.grade.sequences=list(c('EOCT', 'EOCT'))))
+# #  The ECONOMICS repeaters does not have enough kids ( < 1,000).  I would recomend NOT using this group.  
+        # ECONOMICS.2012 = list(
+           # sgp.content.areas=c('ECONOMICS', 'ECONOMICS'), 
+           # sgp.panel.years=c('2011', '2012'),
+           # sgp.grade.sequences=list(c('EOCT', 'EOCT'))))
 
 
 Georgia_SGP <- analyzeSGP(Georgia_SGP,
@@ -419,32 +431,61 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
             simulate.sgps=FALSE,
             parallel.config=list(
                 BACKEND="PARALLEL", 
-                WORKERS=list(PERCENTILES=12, BASELINE_PERCENTILES=12)))      
-
-	Goodness_of_Fit[["EOCT_Repeaters"]] <- Georgia_SGP@SGP[["Goodness_of_Fit"]]
-	Georgia_SGP@SGP[["Goodness_of_Fit"]] <- Goodness_of_Fit #  Finally replace this slot with the temp list we've kept updated
+                WORKERS=list(PERCENTILES=4, BASELINE_PERCENTILES=4)))      
 
 	SGPercentiles <- Georgia_SGP@SGP[['SGPercentiles']]
 	
 	for (ca in sapply(names(GA.config), function(x) strsplit(x, "[.]")[[1]][1])) {
-		# SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']])] <- 0 # Only BASELINE SGPs produced
-		if (ca %in% names(SGPercentiles)) {
-			SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']])] <- 0
-		} else SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']] <- 0
+		SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]][['PREFERRED_SGP']])] <- 0
 	}
 
-	###  Copy US history, Math I and Math II repeaters to the "cohort" referenced SGP results.  
-	###  All other results for these 3 subjects are Cohort referenced, and this will force the merge in combineSGP to put them in the SGP_BASELINE column anyway, 
-	###  which will be the official SGP for Georgia anyway.  Issue here is that combineSGP does not deal with subjects that may have EITHER Cohort OR Baseline SGPs 
-	###  for certain grade progressions, but not all/both cohort or baseline SGPs...
-
-	for (ca in c("MATHEMATICS_I", "MATHEMATICS_II", "US_HISTORY")) {
-		names(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]]) <- sapply(names(SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]]), function(f) strsplit(f, "_BASELINE")[[1]][1])
-		SGPercentiles[[paste(ca, 2012, sep='.')]] <- rbind.fill(SGPercentiles[[paste(ca, 2012, sep='.')]], SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]])
-		SGPercentiles[[paste(ca, 2012, 'BASELINE', sep='.')]] <- NULL
-	}
-	
 	Georgia_SGP@SGP[['SGPercentiles']] <- SGPercentiles
+
+	Goodness_of_Fit[["EOCT_Repeaters_Baseline"]] <- Georgia_SGP@SGP[["Goodness_of_Fit"]]
+	Georgia_SGP@SGP[["Goodness_of_Fit"]] <- NULL
+
+##  Math I and Math II Have enough kids to do a cohort analysis, and this matches their other analyses
+
+	setwd("../")
+	dir.create('EOCT_Repeaters_Cohort')
+	setwd('EOCT_Repeaters_Cohort')
+
+GA.config <- list(
+       MATHEMATICS_I.2012 = list(
+           sgp.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_I'),
+           sgp.panel.years=c('2011', '2012'),
+           sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
+       MATHEMATICS_II.2012 = list(
+           sgp.content.areas=c('MATHEMATICS_II', 'MATHEMATICS_II'),
+           sgp.panel.years=c('2011', '2012'),
+           sgp.grade.sequences=list(c('EOCT', 'EOCT'))))
+
+Georgia_SGP <- analyzeSGP(Georgia_SGP,
+            sgp.config=GA.config, 
+            sgp.percentiles=TRUE,
+            sgp.projections=FALSE,
+            sgp.projections.lagged=FALSE,
+            sgp.percentiles.baseline=FALSE,
+            sgp.projections.baseline= FALSE,
+            sgp.projections.lagged.baseline=FALSE,
+            simulate.sgps=FALSE,
+            parallel.config=list(
+                BACKEND="PARALLEL", 
+                WORKERS=list(PERCENTILES=2, BASELINE_PERCENTILES=2)))      
+
+	SGPercentiles <- Georgia_SGP@SGP[['SGPercentiles']]
+	
+	for (ca in sapply(names(GA.config), function(x) strsplit(x, "[.]")[[1]][1])) {
+		SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']][is.na(SGPercentiles[[paste(ca, 2012, sep='.')]][['PREFERRED_SGP']])] <- 0
+	}
+
+	Georgia_SGP@SGP[['SGPercentiles']] <- SGPercentiles
+
+	Goodness_of_Fit[["EOCT_Repeaters_Cohort"]] <- Georgia_SGP@SGP[["Goodness_of_Fit"]]
+	Georgia_SGP@SGP[["Goodness_of_Fit"]] <- Goodness_of_Fit #  Finally replace this slot with the temp list we've kept updated
+
+
+	save(Georgia_SGP, file="Data/Georgia_SGP-2012.Rdata")
 
 
 ###
@@ -453,18 +494,18 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
 
 
 
-###  THIS SECTION STILL NEEDS TO BE DONE AS OF 12/14/12
+###  THIS SECTION STILL NEEDS TO BE DONE AS OF 12/18/12
 
 
 
 
 #  Check to see the N on each Content Area analysis as well as the Median SGP
 tot<-0
-for(i in names(Georgia_SGP@SGP[['SGPercentiles']])[grep("BASELINE", names(Georgia_SGP@SGP[['SGPercentiles']]))]) {
+for(i in names(Georgia_SGP@SGP[['SGPercentiles']])[-grep("BASELINE", names(Georgia_SGP@SGP[['SGPercentiles']]))]) {
 	print(paste(i, "N =", dim(Georgia_SGP@SGP[['SGPercentiles']][[i]])[1], " :  Median SGP,", median(Georgia_SGP@SGP[['SGPercentiles']][[i]][["SGP"]])))
 	tot <- tot+(dim(Georgia_SGP@SGP[['SGPercentiles']][[i]])[1])
 }
-tot #  9,967,929 Baseline / 11,392,901 Cohort
+tot #  9,961,147 Baseline / 11,462,222 Cohort
 
 
 
@@ -501,10 +542,8 @@ for(i in names(Georgia_SGP@SGP[['SGPercentiles']])[-grep("BASELINE", names(Georg
 		tot <- tot+(dim(Georgia_SGP@SGP[['SGPercentiles']][[i]])[1])
 	}
 }
-tot #  9,696,808 Baseline / 11,121,477 Cohort.  Note this is for ALL years SGPs have been produced
+tot #  2,827,192 Baseline / 3,734,429 Cohort in 2012.
 
-#  271121 Baseline SGP duplicates removed in 2012
-#  271424 Cohort SGP duplicates removed in 2012
 
 ###
 ###		combineSGP and outputSGP to produce .txt file of LONG data fro review
@@ -515,7 +554,7 @@ tot #  9,696,808 Baseline / 11,121,477 Cohort.  Note this is for ALL years SGPs 
 Georgia_SGP <- combineSGP(Georgia_SGP, year='2012')
 
 
-save(Georgia_SGP, file="Data/Georgia_SGP-2012.Rdata")
+# save(Georgia_SGP, file="Data/Georgia_SGP-2012.Rdata")
 
 
 ###  Reduce file size for outputSGP (don't save SGP object after this!)
