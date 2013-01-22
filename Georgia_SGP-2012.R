@@ -5,13 +5,16 @@
 ##########################################################
 
 ### Load SGP Package
+
 require(SGP)
 
 ### Load Georgia SGP object
+
 setwd("/media/Data/SGP/Georgia")
 load("Data/Georgia_SGP-2012.Rdata")
 
 #  Remove all the Old EOCT and all Baseline Matrices from object (keeping 2009-2011)
+
 Georgia_SGP@SGP[['Coefficient_Matrices']] <- Georgia_SGP@SGP[['Coefficient_Matrices']][1:13]
 
 ##############################################################################
@@ -54,7 +57,7 @@ outputSGP(Georgia_SGP, output.type="LONG_Data", outputSGP.directory="CRCT_Result
 
 ##############################################################################
 ###
-### Grade level EOC tests
+### Grade level EOC tests 2012
 ###
 ##############################################################################
 
