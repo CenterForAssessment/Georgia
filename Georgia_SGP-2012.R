@@ -85,6 +85,7 @@ Georgia_SGP@Data[['GRADE']][is.na(Georgia_SGP@Data[['GRADE']]) &
 ###
 
 GA.config <- list(
+	#  These must be seperated from the 
         GRADE_9_LIT.2012 = list(
            sgp.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
            sgp.panel.years=c('2010', '2010', '2012'),
@@ -111,9 +112,9 @@ GA.config <- list(
            sgp.panel.years=c('2009', '2010', '2012'),
            sgp.grade.sequences=list(c(7:8, 'EOCT'))),
         MATHEMATICS_II.2012 = list(
-           sgp.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_II'),
-           sgp.panel.years=c('2010', '2012'),
-           sgp.grade.sequences=list(c('EOCT', 'EOCT'))),
+           sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS_I', 'MATHEMATICS_II'),
+           sgp.panel.years=c('2009', '2010', '2012'),
+           sgp.grade.sequences=list(c(8, 'EOCT', 'EOCT'))),
 
         PHYSICAL_SCIENCE.2012 = list(
            sgp.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
@@ -493,10 +494,8 @@ Georgia_SGP <- analyzeSGP(Georgia_SGP,
 ###
 
 
-
-###  THIS SECTION STILL NEEDS TO BE DONE AS OF 12/18/12
-
-
+###  THIS SECTION DONE AS SEPERATE ANALYSIS: 1/22/13
+###	See Georgia_Data_LONG-Same_Year_Analyses.R & Georgia_SGP-Same_Year_Anlayses.R
 
 
 #  Check to see the N on each Content Area analysis as well as the Median SGP

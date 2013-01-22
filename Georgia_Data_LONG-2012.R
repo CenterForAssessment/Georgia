@@ -197,7 +197,7 @@ SUMMER_EOC[['VALID_CASE']][is.na(SUMMER_EOC[['GTID']])] <- "INVALID_CASE"
 
 SUMMER_EOC[['GTID']] <- as.character(SUMMER_EOC[['GTID']])
 SUMMER_EOC[['VALID_CASE']][which(nchar(SUMMER_EOC[['GTID']]) < 10)] <- "INVALID_CASE"
-summary(as.factor(SUMMER_EOC[['VALID_CASE']]))
+table(SUMMER_EOC[['VALID_CASE']])
 
 #  Missing GRADE level:
 SUMMER_EOC[['VALID_CASE']][!SUMMER_EOC[['GRADE']] %in% 8:12] <- "INVALID_CASE" # Still no 7th graders right?  Verify on progressions doc.
@@ -220,7 +220,7 @@ SUMMER_EOC[['ADMIN_INVALIDATION']][SUMMER_EOC[['INVALID_ADMINISTRATION_INDICATOR
 # levels(SUMMER_EOC[['PTNA_INDICATOR']]) <- c(NA, 'PTNA', NA)
 # SUMMER_EOC[['ADMIN_INVALIDATION']] <- paste(SUMMER_EOC[['DNA_INDICATOR']], SUMMER_EOC[['PTNA_INDICATOR']], SUMMER_EOC[['INVALID_ADMINISTRATION_INDICATOR']]) # allow for multiple flags -  NOT NEEDED HERE.
 
-summary(as.factor(SUMMER_EOC[['ADMIN_INVALIDATION']]))
+table(SUMMER_EOC[['ADMIN_INVALIDATION']])
 
 ##  EOCT pre-2012
 SUMMER_EOC[['VALID_CASE']][!is.na(SUMMER_EOC[['ADMIN_INVALIDATION']])] <- "INVALID_CASE"
@@ -327,7 +327,7 @@ UNM_PRIORS[['ADMIN_INVALIDATION']][UNM_PRIORS[['PTNA']]=='Y'] <- "PTNA"
 	# UNM_PRIORS[['DNA_INDICATOR']][!is.na(UNM_PRIORS[['ADMIN_INVALIDATION']])], 
 	# UNM_PRIORS[['PTNA']][!is.na(UNM_PRIORS[['ADMIN_INVALIDATION']])], 
 	# UNM_PRIORS[['IRREG_ADMIN_INVALID']][!is.na(UNM_PRIORS[['ADMIN_INVALIDATION']])]) # allow for multiple flags.  Not needed here.
-summary(as.factor(UNM_PRIORS[['ADMIN_INVALIDATION']]))
+table(UNM_PRIORS[['ADMIN_INVALIDATION']])
 
 UNM_PRIORS[['SR_STUDENT_ID']] <- NULL
 UNM_PRIORS[['GRADE_CONVERSION']] <- NULL
@@ -517,7 +517,7 @@ eoct.subjs <- c("ALGEBRA", "GEOMETRY", "GRADE_9_LIT", "AMERICAN_LIT", "BIOLOGY",
 Georgia_Data_LONG[['VALID_CASE']][!is.na(Georgia_Data_LONG[['ADMIN_INVALIDATION']]) & Georgia_Data_LONG[['SUBJECT_CODE']] %in% eoct.subjs] <- "INVALID_CASE"
 Georgia_Data_LONG[['VC_2011_CORRECTED']][!is.na(Georgia_Data_LONG[['ADMIN_INVALIDATION']]) & Georgia_Data_LONG[['SUBJECT_CODE']] %in% eoct.subjs] <- "INVALID_CASE"
 
-summary(as.factor(Georgia_Data_LONG[['VALID_CASE']]))
+table(Georgia_Data_LONG[['VALID_CASE']])
 
 ### Invalidate NA scores and GTID's with fewer than 10 digits (or NA)
 Georgia_Data_LONG[['GTID']] <- as.character(as.numeric(Georgia_Data_LONG[['GTID']])) # remove leading zeros and other invalid ID's
@@ -529,15 +529,14 @@ Georgia_Data_LONG[['VC_2011_CORRECTED']][is.na(Georgia_Data_LONG[['GTID']])] <- 
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(nchar(Georgia_Data_LONG[['GTID']]) != 10)] <- "INVALID_CASE"
 Georgia_Data_LONG[['VC_2011_CORRECTED']][is.na(Georgia_Data_LONG[['SCALE_SCORE']])] <- "INVALID_CASE"
 
-summary(as.factor(Georgia_Data_LONG[['VALID_CASE']]))
-summary(as.factor(Georgia_Data_LONG[['VC_2011_CORRECTED']]))
+table(Georgia_Data_LONG[['VALID_CASE']]) # 22,181 Invalid
+table(Georgia_Data_LONG[['table(Georgia_Data_LONG[['VC_2011_CORRECTED']])']])
 
 
-# Invalidate cases from schools in Schools_To_Remove and Schools_To_Remove_RETEST
+##  Invalidate cases from schools in Schools_To_Remove and Schools_To_Remove_RETEST
+
 load("Data/Base_Files/Schools_to_Remove.Rdata")
 load("Data/Base_Files/Schools_to_Remove_RETEST.Rdata")
-
-crct.subjs <- c("ELA", "READING", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES")
 
 attach(Schools_to_Remove_RETEST)
 Schools_to_Remove_RETEST <- data.table(data.frame(
@@ -552,6 +551,8 @@ index.tmp <- Georgia_Data_LONG[Schools_to_Remove_RETEST, which=TRUE]
 Georgia_Data_LONG[['VALID_CASE']][index.tmp] <- "INVALID_CASE"
 Georgia_Data_LONG[['VC_2011_CORRECTED']][index.tmp] <- "INVALID_CASE"
 
+crct.subjs <- c("ELA", "READING", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES")
+
 levels(Schools_to_Remove[['YEAR']]) <- as.character(c(1:3,5:7,8,8:10))
 Schools_to_Remove[['YEAR']] <- as.character(type.convert(as.character(Schools_to_Remove[['YEAR']]))+2000L)
 attach(Schools_to_Remove)
@@ -561,14 +562,11 @@ Schools_to_Remove <- data.table(data.frame(
         SUBJECT_CODE=rep(crct.subjs, each=dim(Schools_to_Remove)[1]), stringsAsFactors=FALSE), key=c('SCHOOL_YEAR', 'SCHOOL_NUMBER', 'SUBJECT_CODE'))
 detach(Schools_to_Remove)
 
-
 setkey(Georgia_Data_LONG, SCHOOL_YEAR, SCHOOL_NUMBER, SUBJECT_CODE)
 index.tmp <- Georgia_Data_LONG[Schools_to_Remove, which=TRUE]
 index.tmp <- index.tmp[!is.na(index.tmp)]
 Georgia_Data_LONG[['VALID_CASE']][index.tmp] <- "INVALID_CASE"
 Georgia_Data_LONG[['VC_2011_CORRECTED']][index.tmp] <- "INVALID_CASE"
-
-#	66,880 Invalidated
 
 ###  Duplicate case invalidation/removal:
 
@@ -576,7 +574,7 @@ Georgia_Data_LONG[['VC_2011_CORRECTED']][index.tmp] <- "INVALID_CASE"
 #  Two different variables will be needed - 1 to sort duplicates for use as a prior and another to sort for use as the current year.
 
 Georgia_Data_LONG[['ADMIN_ORDER']] <- factor(Georgia_Data_LONG[['ADMINISTRATION_PERIOD']])
-levels(Georgia_Data_LONG[['ADMIN_ORDER']]) <- c("2", "1", "3") # Order so that the LAST period is on top to select it (per Allison)
+levels(Georgia_Data_LONG[['ADMIN_ORDER']]) <- c("2", "3", "1") # Order to correspond to time
 Georgia_Data_LONG[['ADMIN_ORDER']] <- as.integer(as.character(Georgia_Data_LONG[['ADMIN_ORDER']]))
 
 
@@ -601,7 +599,7 @@ dim(dups["VALID_CASE"]) # 339,408 duplicate cases
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
 Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
 
-#  Different scale score AND Admin Period.  Take LAST score
+#  Different scale score AND Admin Period.  Take LAST score for priors, and first score for Current year
 #  Note that this is done differently for scores to be used as PRIORS for 2012 (VALID_CASE) and those for re-running 2011 SGPs (VC_2011_CORRECTED)
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GRADE", "GTID", "MATCH_STATUS"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
@@ -637,7 +635,7 @@ dim(dups["VALID_CASE"]) # 307 duplicate cases (only 3 with same scale score - co
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
 Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))-1] <- "INVALID_CASE" # Take the highest score if same grade and same Admin period
 
-#  Different scale score AND Admin Period.  Take LAST score
+#  Different scale score AND Admin Period.  Take LAST score for priors, and first score for Current year
 #  Note that this is done differently for scores to be used as PRIORS for 2012 (VALID_CASE) and those for re-running 2011 SGPs (VC_2011_CORRECTED)
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "MATCH_STATUS"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
@@ -660,8 +658,8 @@ dim(dups["VALID_CASE"]) # 617 duplicate cases
 Georgia_Data_LONG[['VC_2011_CORRECTED']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched case for all years.
 Georgia_Data_LONG[['VALID_CASE']][which(duplicated(Georgia_Data_LONG))] <- "INVALID_CASE" # Keep matched Case.
 
-summary(as.factor(Georgia_Data_LONG[['VALID_CASE']]))
-summary(as.factor(Georgia_Data_LONG[['VC_2011_CORRECTED']])) #  Same number of Valids/Invalids
+table(Georgia_Data_LONG[['VALID_CASE']])
+table(Georgia_Data_LONG[['VC_2011_CORRECTED']]) #  Same number of Valids/Invalids
 table(Georgia_Data_LONG[['VC_2011_CORRECTED']], Georgia_Data_LONG[['VALID_CASE']])
 table(Georgia_Data_LONG[['VC_2011_ORIGINAL']], Georgia_Data_LONG[['VALID_CASE']])
 table(Georgia_Data_LONG[['VC_2011_CORRECTED']], Georgia_Data_LONG[['VC_2011_ORIGINAL']])
@@ -749,7 +747,7 @@ CRC[['ADMIN_INVALIDATION']][CRC[['DNA']]==1] <- "DNA"
 #CRC[['ADMIN_INVALIDATION']][CRC[['AYP_CTBRC']] %in% c(1,2,3,4)] <- "AYP_CTBRC" # Does't provide new info: 1=PTNA, 2 & 4 = TAR, 3=DNA
 # CRC[['ADMIN_INVALIDATION']][!is.na(CRC[['ADMIN_INVALIDATION']])] <- paste(CRC[['DNA']], CRC[['PTNA']], CRC[['TAR']]) #multiple flags?  Not needed
 
-summary(as.factor(CRC[['ADMIN_INVALIDATION']]))
+table(CRC[['ADMIN_INVALIDATION']])
 
 ## NULL out extraneous variables that are no longer needed
 CRC[['TAR']] <- NULL
@@ -764,7 +762,7 @@ CRC[['VALID_CASE']][which(nchar(CRC[['GTID']]) != 10)] <- "INVALID_CASE"
 
 CRC[['VALID_CASE']][is.na(CRC[['AYP_SCALE_SCORE']])] <- "INVALID_CASE"
 
-summary(as.factor(CRC[['VALID_CASE']]))
+table(CRC[['VALID_CASE']])
 
 #  21 kids switched schools and have a (different) score in both schools...
 #  Take highest score.
@@ -813,7 +811,7 @@ dim(dups[VALID_CASE=="VALID_CASE"]) # 42 cases
 
 CRC[['VALID_CASE']][which(duplicated(CRC) & CRC[['MATCH_STATUS']] == 'U')] <- "INVALID_CASE" # Unmatched is on bottom, so invalidate it (take the matched case)
 
-summary(as.factor(CRC[['VALID_CASE']]))
+table(CRC[['VALID_CASE']])
 table(CRC[['VALID_CASE']], CRC[['MATCH_STATUS']])
 
 
@@ -889,7 +887,7 @@ EOC[['ADMIN_TYPE']] <- as.character(EOC[['ADMIN_TYPE']])
 
 EOC[['ASSESSMENT_SUBJECT_CODE']] <- as.character(EOC[['ASSESSMENT_SUBJECT_CODE']])
 
-length(EOC$GTID[which(nchar(EOC[['GTID']]) < 10)]); summary(as.factor(nchar(EOC[['GTID']])))
+length(EOC$GTID[which(nchar(EOC[['GTID']]) < 10)]); table(nchar(EOC[['GTID']]))
 EOC <- EOC[!is.na(EOC[['GTID']]),]
 EOC <- EOC[which(nchar(EOC[['GTID']]) == 10),]
 EOC[['GTID']] <- as.character(EOC[['GTID']])
@@ -922,7 +920,7 @@ EOC[['PIV_INDICATOR']] <- NULL # All NA's
 ### Invalidate NA scores
 EOC[['VALID_CASE']][is.na(EOC[['SCALE_SCORE']])] <- "INVALID_CASE"
 
-summary(as.factor(EOC[['VALID_CASE']]))
+table(EOC[['VALID_CASE']])
 
 ###  Duplicate case invalidation/removal:
 
@@ -986,7 +984,7 @@ setkeyv(dups, key(EOC))
 dim(dups["VALID_CASE"]) # 232
 
 #  Take the MATCHED record.
-EOC[['VALID_CASE']][which(duplicated(EOC))] <- "INVALID_CASE" # summary(as.factor(EOC[['VALID_CASE']]))  46,999 cases invalidated (47,003 originally)
+EOC[['VALID_CASE']][which(duplicated(EOC))] <- "INVALID_CASE" # table(EOC[['VALID_CASE']])  46,999 cases invalidated (47,003 originally)
 
 
 ###  Clean up other issues:
