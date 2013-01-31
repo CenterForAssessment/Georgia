@@ -113,12 +113,12 @@ my.baseline.config <- list(
 			list( #  Enough kids to do an 8th grade baseline here
 				baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('7', '8'),
+				baseline.grade.sequences=c('7', 'EOCT'), # Originally run as 7, 8
 				baseline.grade.sequences.lags=1),
 			list(
 				baseline.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
 				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				baseline.grade.sequences=c('6', '7', '8'),
+				baseline.grade.sequences=c('6', '7', 'EOCT'), # Originally run as 6, 7, 8
 				baseline.grade.sequences.lags=c(1, 1)),
 
 			list(
