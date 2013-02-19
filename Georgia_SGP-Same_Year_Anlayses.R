@@ -62,6 +62,7 @@ Georgia_SGP_SameYear <- analyzeSGP(Georgia_SGP_SameYear,
 	Georgia_SGP_SameYear@SGP[['SGPercentiles']] <- NULL # Only keep the matrices for now.  All results here are from different years...
 	names(Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']]) <- gsub("2", "BASELINE", names(Georgia_SGP_SameYear@SGP$Coefficient_Matrices))
 	for (a in 1:4) Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][[a]][[1]]@Time[[1]] <- c("BASELINE", "BASELINE")
+  for (a in 1:4) Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][[a]][[1]]@Time_Lags[[1]] <- 0L # added 2/18/13
 
 	SGPstateData[['GA']][['Baseline_splineMatrix']][['Coefficient_Matrices']] <- Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']]
 
@@ -261,8 +262,11 @@ Georgia_SGP_SameYear <- analyzeSGP(Georgia_SGP_SameYear,
 
 	Georgia_SGP_SameYear@SGP[['SGPercentiles']][1:4] <- NULL # Only keep the matrices for now.  All results here are from different years...
 
+  for (a in 1:4) Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][[a]][[2]] <- NULL # Added 2/18/13 to remove duplicate created in run above (?)
+
 	for (a in 11:14) Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][[a]][[1]]@Time[[1]] <- c("BASELINE", "BASELINE")
-	
+  for (a in 11:14) Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][[a]][[1]]@Time_Lags[[1]] <- 0L  # Added 2/18/13 
+
 	Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][['PHYSICAL_SCIENCE.BASELINE']] <- 
 		c(Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][['PHYSICAL_SCIENCE.BASELINE']], Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][['PHYSICAL_SCIENCE.102']])
 	Georgia_SGP_SameYear@SGP[['Coefficient_Matrices']][['BIOLOGY.BASELINE']] <- 
