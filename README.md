@@ -1,18 +1,13 @@
 Georgia
 =======
 
-Repository for R source code and documentation associated with Georgia SGP analyses.
-
-1. Our first step
-2. Our second step
+SGP source code and documentation associated with Georgia SGP analyses
 
 ```R
 ###############################################################################################
 ####
 ####		Georgia Student Growth Percentiles Analysis 
 ####		Criterion-Referenced Competency Tests (CRCT) & End of Course Tests (EOCT)
-####		Data preparation and formating
-####		Adam VanIwaarden/Damian Betebenner - NCIEA
 ####
 ###############################################################################################
 
@@ -21,8 +16,17 @@ Repository for R source code and documentation associated with Georgia SGP analy
 require(SGP)
 
 
-### Set base directory
+### Create LONG data file
 
-setwd("root/SGP/Georgia")
+source("Georgia_Data_LONG.R")
+
+
+### Create CRCT SGPs
+
+source("Georgia_CRCT_SGP.R")
+
+
+### Create EOCT SGPs
+
+source("Georgia_EOCT_SGP.R")
 ```
-
