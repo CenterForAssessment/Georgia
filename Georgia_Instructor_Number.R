@@ -122,6 +122,7 @@ save(EOCT_2012_INSTRUCTOR, file="EOCT_2012_INSTRUCTOR.Rdata")
 ### Merge together 2011 and 2012 CRCT/EOCT files
 
 INSTRUCTOR_NUMBER <- rbind(CRCT_2011_INSTRUCTOR, EOCT_2011_INSTRUCTOR, CRCT_2012_INSTRUCTOR, EOCT_2012_INSTRUCTOR)
+INSTRUCTOR_NUMBER$INSTRUCTOR_ENROLLMENT_STATUS <- factor(1, levels=0:1, labels=c("Enrolled Instructor: No", "Enrolled Instructor: Yes"))
 
 
 ### Remove duplicates
