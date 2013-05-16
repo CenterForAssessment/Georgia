@@ -34,7 +34,7 @@ ALGEBRA_2012.config <- list(
 		sgp.grade.sequences=list(c('7', '8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=1),
+		sgp.norm.group.preference=1)
 	ALGEBRA.2012 = list( # 18
 		sgp.content.areas=c('ALGEBRA', 'ALGEBRA'),
 		sgp.panel.years=c('2012', '2012'),
@@ -82,7 +82,7 @@ GEOMETRY_2012.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=1),
+		sgp.norm.group.preference=1)
 	GEOMETRY.2012 = list( # 24
 		sgp.content.areas=c('GEOMETRY', 'GEOMETRY'),
 		sgp.panel.years=c('2012', '2012'),
