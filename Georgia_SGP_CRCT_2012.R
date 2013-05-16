@@ -52,5 +52,3 @@ dim(Georgia_SGP@Data)
 Georgia_SGP <- combineSGP(Georgia_SGP, year='2012')
 
 outputSGP(Georgia_SGP, output.type="LONG_Data", outputSGP.directory="CRCT_Results")
-
-
