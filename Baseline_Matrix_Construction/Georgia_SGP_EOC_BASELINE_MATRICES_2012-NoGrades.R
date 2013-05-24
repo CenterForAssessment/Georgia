@@ -19,13 +19,13 @@ setwd("/media/Data/SGP/Georgia")
 load("Data/Georgia_Data_LONG-2012_FINAL.Rdata")
 
 #  Reduce data to only what we'll be using
-summary(as.factor(Georgia_Data_LONG$CONTENT_AREA[Georgia_Data_LONG$SCALE_SCORE < 199]))
+summary(as.factor(Georgia_Data_LONG$SUBJECT_CODE[Georgia_Data_LONG$SCALE_SCORE < 199]))
 Georgia_Data_LONG$VALID_CASE[Georgia_Data_LONG$SCALE_SCORE == 0] <- "INVALID_CASE"
 
 Georgia_Data_LONG <- Georgia_Data_LONG[!Georgia_Data_LONG$SUBJECT_CODE %in% c("MATHEMATICS", "ALGEBRA", "GEOMETRY", "SOCIAL_STUDIES") &
 	Georgia_Data_LONG$GRADE %in% 6:12 & Georgia_Data_LONG$VALID_CASE == 'VALID_CASE',]
 
-Georgia_Data_LONG$GRADE[Georgia_Data_LONG$GRADE > 8] <- 'EOCT'
+Georgia_Data_LONG$GRADE[!Georgia_Data_LONG$SUBJECT_CODE %in% c("ELA", "READING", "SCIENCE")] <- 'EOCT'
 
 ### prepareSGP
 
@@ -71,6 +71,12 @@ my.baseline.config <- list(
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # can only go back to 2008 with 8th grade GPS
 				baseline.grade.sequences=c(8, 'EOCT', 'EOCT'),
 				baseline.grade.sequences.lags=c(1, 2)), # 8:10				
+
+			list(
+				baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
+				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'), # Added 5/22/13
+				baseline.grade.sequences=c(7, 'EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=c(1, 1)), # 8:10				
 
 			list(
 				baseline.content.areas=c('PHYSICAL_SCIENCE', 'BIOLOGY'),
@@ -383,10 +389,10 @@ save(GA_ECON_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_Baseline_Ma
 ###		Replace Baseline Matrices in SGPstateData
 ###
 
-load('/home/avi/Dropbox/GitHub_Repos/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata')
+load('/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata')
 GA_Baseline_Matrices <- GA_Baseline_Matrices[1:4]
 GA_Baseline_Matrices[['AMERICAN_LIT.BASELINE']] <- GA_AMERICAN_LIT_Baseline_Matrices$AMERICAN_LIT.BASELINE
-GA_Baseline_Matrices[['BIOLOGY.BASELINE']] <- GA_BIOLOGY_Baseline_Matrices$BIOLOGY.BASELINE
+GA_Baseline_Matrices[['BIOLOGY.BASELINE']] <- c(GA_Baseline_Matrices[['BIOLOGY.BASELINE']], GA_BIOLOGY_Baseline_Matrices$BIOLOGY.BASELINE) # Add in 5/22/13
 GA_Baseline_Matrices[['ECONOMICS.BASELINE']] <- GA_ECON_Baseline_Matrices$ECONOMICS.BASELINE
 GA_Baseline_Matrices[['GRADE_9_LIT.BASELINE']] <- GA_GRADE_9_LIT_Baseline_Matrices$GRADE_9_LIT.BASELINE
 # GA_Baseline_Matrices[['MATHEMATICS_I.BASELINE']] <- GA_MATHEMATICS_I_Baseline_Matrices$MATHEMATICS_I.BASELINE
@@ -394,4 +400,4 @@ GA_Baseline_Matrices[['GRADE_9_LIT.BASELINE']] <- GA_GRADE_9_LIT_Baseline_Matric
 GA_Baseline_Matrices[['PHYSICAL_SCIENCE.BASELINE']] <- GA_PHYSICAL_SCIENCE_Baseline_Matrices$PHYSICAL_SCIENCE.BASELINE
 # GA_Baseline_Matrices[['US_HISTORY.BASELINE']] <- GA_USHIST_Baseline_Matrices$US_HISTORY.BASELINE
 
-save(GA_Baseline_Matrices, file='/home/avi/Dropbox/GitHub_Repos/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata', compress='bzip2')
+save(GA_Baseline_Matrices, file='/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata', compress='bzip2')
