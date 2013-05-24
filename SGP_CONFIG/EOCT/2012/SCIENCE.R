@@ -152,21 +152,21 @@ BIOLOGY_2012.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=5),
+		sgp.norm.group.preference=3), ### NOTE: Original sgp.norm.group.preference=5, set to 3 to make results reproducible for 2012
 	BIOLOGY.2012 = list( # 60
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
 		sgp.panel.years=c('2010', '2011', '2012'),
 		sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=4),
+		sgp.norm.group.preference=5), ### NOTE: Original sgp.norm.group.preference=4, set to 5 to make results reproducible for 2012
 	BIOLOGY.2012 = list( # 61
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
 		sgp.panel.years=c('2010', '2011', '2012'),
 		sgp.grade.sequences=list(c('7', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=3),
+		sgp.norm.group.preference=4), ### NOTE: Original sgp.norm.group.preference=3, set to 4 to make results reproducible for 2012
 	BIOLOGY.2012 = list( # 62
 		sgp.content.areas=c('BIOLOGY', 'BIOLOGY'),
 		sgp.panel.years=c('2011', '2012'),

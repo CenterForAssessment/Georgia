@@ -158,21 +158,21 @@ BIOLOGY_2010.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=5),
+		sgp.norm.group.preference=3), ### NOTE: Original sgp.norm.group.preference=5, set to 3 to make results reproducible for 2010
 	BIOLOGY.2010 = list( # 42
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
 		sgp.panel.years=c('2008', '2009', '2010'),
 		sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=4),
+		sgp.norm.group.preference=5), ### NOTE: Original sgp.norm.group.preference=4, set to 5 to make results reproducible for 2010
 	BIOLOGY.2010 = list( # 43
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
 		sgp.panel.years=c('2008', '2009', '2010'),
 		sgp.grade.sequences=list(c('7', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=3),
+		sgp.norm.group.preference=4), ### NOTE: Original sgp.norm.group.preference=3, set to 4 to make results reproducible for 2010
 	BIOLOGY.2010 = list( # 44
 		sgp.content.areas=c('BIOLOGY', 'BIOLOGY'),
 		sgp.panel.years=c('2009', '2010'),
