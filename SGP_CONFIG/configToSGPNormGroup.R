@@ -23,7 +23,7 @@ configToSGPNormGroup <- function(sgp.config) {
 }
 
 
-### Load and create 2010, 2011, and 2012 EOCT Configuration
+### Load and create 2010, 2011, 2012 and 2013 EOCT Configuration
 
 source("EOCT/2010/ELA.R")
 source("EOCT/2010/MATHEMATICS.R")
@@ -37,6 +37,10 @@ source("EOCT/2012/ELA.R")
 source("EOCT/2012/MATHEMATICS.R")
 source("EOCT/2012/SCIENCE.R")
 source("EOCT/2012/SOCIAL_STUDIES.R")
+source("EOCT/2013/ELA.R")
+source("EOCT/2013/MATHEMATICS.R")
+source("EOCT/2013/SCIENCE.R")
+source("EOCT/2013/SOCIAL_STUDIES.R")
 
 GA_EOCT_2010.config <- c(
                 AMERICAN_LIT_2010.config,
@@ -69,6 +73,18 @@ GA_EOCT_2012.config <- c(
                 PHYSICAL_SCIENCE_2012.config,
                 US_HISTORY_2012.config)
 
+GA_EOCT_2013.config <- c(
+		ALGEBRA_2013.config,
+                AMERICAN_LIT_2013.config,
+                BIOLOGY_2013.config,
+                ECONOMICS_2013.config,
+		GEOMETRY_2013.config,
+                GRADE_9_LIT_2013.config,
+                MATHEMATICS_I_2013.config,
+                MATHEMATICS_II_2013.config,
+                PHYSICAL_SCIENCE_2013.config,
+                US_HISTORY_2013.config)
+
 
 ### Create configToNormGroup data.frame
 
@@ -92,10 +108,18 @@ GA_SGP_Norm_Group_Preference_2012 <- data.table(
 					YEAR="2012",
 					rbindlist(tmp.configToNormGroup))
 
+
+tmp.configToNormGroup <- lapply(GA_EOCT_2013.config, configToSGPNormGroup)
+
+GA_SGP_Norm_Group_Preference_2013 <- data.table(
+					YEAR="2013",
+					rbindlist(tmp.configToNormGroup))
+
 GA_SGP_Norm_Group_Preference <- rbind(
 			GA_SGP_Norm_Group_Preference_2010,
 			GA_SGP_Norm_Group_Preference_2011,
-			GA_SGP_Norm_Group_Preference_2012
+			GA_SGP_Norm_Group_Preference_2012,
+			GA_SGP_Norm_Group_Preference_2013
 			)
 
 GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP <- as.factor(GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP)
