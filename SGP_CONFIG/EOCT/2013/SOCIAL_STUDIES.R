@@ -21,13 +21,6 @@ US_HISTORY_2013.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=2),
-#	US_HISTORY.2013 = list( # 79
-#		sgp.content.areas=c('SOCIAL_STUDIES','US_HISTORY'),
-#		sgp.panel.years=c('2012','2013'),
-#		sgp.grade.sequences=list(c('8','EOCT')),
-#		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-#		sgp.exact.grade.progression=TRUE,
-#		sgp.norm.group.preference=2),
 	US_HISTORY.2013 = list( # 80
 		sgp.content.areas=c('US_HISTORY','US_HISTORY'),
 		sgp.panel.years=c('2012','2013'),
