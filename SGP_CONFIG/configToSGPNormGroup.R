@@ -74,7 +74,6 @@ GA_EOCT_2012.config <- c(
                 US_HISTORY_2012.config)
 
 GA_EOCT_2013.config <- c(
-#		ALGEBRA_2013.config,
                 AMERICAN_LIT_2013.config,
                 BIOLOGY_2013.config,
 		COORDINATE_ALGEBRA_2013.config,
