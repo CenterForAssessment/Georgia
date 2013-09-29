@@ -300,14 +300,14 @@ my.baseline.config <- list(
 				baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
 				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
 				baseline.grade.sequences=c('EOCT', 'EOCT'),
-				baseline.grade.sequences.lags=2))
+				baseline.grade.sequences.lags=2),
 
-#  ECON doesn't have enough kids to run repeaters...
-			# list(
-				# baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT'),
-				# baseline.grade.sequences.lags=1))
+#  ECON repeaters - run "Thu Feb 21 12:50:30 2013"
+			list(
+				baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
+				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.grade.sequences=c('EOCT', 'EOCT'),
+				baseline.grade.sequences.lags=1))
 
 
 GA_ECON_Baseline_Matrices <- baselineSGP(
@@ -324,30 +324,58 @@ GA_ECON_Baseline_Matrices <- baselineSGP(
 save(GA_ECON_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_Baseline_Matrices.Rdata")
 
 
+###  US History
+
+my.baseline.config <- list(
+	# list( #  Not run.  Too few students (1,341 in "supercohort") and removed by Qi from 2013 EOCT Course Sequence list
+		# sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
+		# sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+		# sgp.baseline.grade.sequences=c('8', 'EOCT'),
+		# sgp.baseline.grade.sequences.lags=1,
+		# sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+	list(  #  67,610 students
+		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
+		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('8', 'EOCT'),
+		sgp.baseline.grade.sequences.lags=2,
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+	list(  # 225,409 students
+		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
+		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('8', 'EOCT'),
+		sgp.baseline.grade.sequences.lags=3,
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+	list(  # 21,504 students
+		sgp.baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
+		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+		sgp.baseline.grade.sequences.lags=1,
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+	list(  # 6,104 students
+		sgp.baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
+		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+		sgp.baseline.grade.sequences.lags=0,
+		sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
+
+
+GA_USHIST_Baseline_Matrices <- baselineSGP(
+	Georgia_SGP,
+	sgp.baseline.config=my.baseline.config,
+	sgp.percentiles.baseline.max.order=1,
+	return.matrices.only=TRUE,
+	calculate.baseline.sgps=FALSE,
+	goodness.of.fit.print=FALSE,
+	parallel.config=list(
+		BACKEND="PARALLEL",
+		WORKERS=list(TAUS=20)))
+
+save(GA_USHIST_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_Baseline_Matrices.Rdata")
+
 
 ###
-###		Repeaters (different year).  Tried US Hist, Math I & II, but wierd fit for US Hist, 
-###		and have enough kids to do Math I and II with cohort ref (which matches other analyses)
+###		Repeaters (different year).
 ### 
-
-# # my.baseline.config <- list(
-			# list(
-				# baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
-				# baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				# baseline.grade.sequences=c('EOCT', 'EOCT'),
-				# baseline.grade.sequences.lags=1))
-
-
-# GA_USHIST_Baseline_Matrices <- baselineSGP(
-	# Georgia_SGP,
-	# sgp.baseline.config=my.baseline.config,
-	# sgp.percentiles.baseline.max.order=1,
-	# return.matrices.only=TRUE,
-	# calculate.baseline.sgps=FALSE,
-	# goodness.of.fit.print=FALSE)
-
-# save(GA_USHIST_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_Baseline_Matrices.Rdata")
-
 
 # my.baseline.config <- list(
 			# list(
@@ -389,7 +417,7 @@ save(GA_ECON_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_Baseline_Ma
 ###		Replace Baseline Matrices in SGPstateData
 ###
 
-load('/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata')
+load('GA_Baseline_Matrices.Rdata')
 GA_Baseline_Matrices <- GA_Baseline_Matrices[1:4]
 GA_Baseline_Matrices[['AMERICAN_LIT.BASELINE']] <- GA_AMERICAN_LIT_Baseline_Matrices$AMERICAN_LIT.BASELINE
 GA_Baseline_Matrices[['BIOLOGY.BASELINE']] <- c(GA_Baseline_Matrices[['BIOLOGY.BASELINE']], GA_BIOLOGY_Baseline_Matrices$BIOLOGY.BASELINE) # Add in 5/22/13
@@ -398,6 +426,6 @@ GA_Baseline_Matrices[['GRADE_9_LIT.BASELINE']] <- GA_GRADE_9_LIT_Baseline_Matric
 # GA_Baseline_Matrices[['MATHEMATICS_I.BASELINE']] <- GA_MATHEMATICS_I_Baseline_Matrices$MATHEMATICS_I.BASELINE
 # GA_Baseline_Matrices[['MATHEMATICS_II.BASELINE']] <- GA_MATHEMATICS_II_Baseline_Matrices$MATHEMATICS_II.BASELINE
 GA_Baseline_Matrices[['PHYSICAL_SCIENCE.BASELINE']] <- GA_PHYSICAL_SCIENCE_Baseline_Matrices$PHYSICAL_SCIENCE.BASELINE
-# GA_Baseline_Matrices[['US_HISTORY.BASELINE']] <- GA_USHIST_Baseline_Matrices$US_HISTORY.BASELINE
+GA_Baseline_Matrices[['US_HISTORY.BASELINE']] <- GA_USHIST_Baseline_Matrices$US_HISTORY.BASELINE
 
 save(GA_Baseline_Matrices, file='/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata', compress='bzip2')
