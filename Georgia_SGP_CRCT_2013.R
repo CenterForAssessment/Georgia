@@ -10,7 +10,7 @@ require(SGP)
 
 ### Load Georgia SGP object
 
-load("Data/Georgia_SGP.Rdata")
+#load("Data/Georgia_SGP.Rdata")
 
 
 ### prepareSGP
@@ -35,4 +35,4 @@ Georgia_SGP <- analyzeSGP(
 
 ### Save Results
 
-save(Georgia_SGP, file="Data/Georgia_SGP-2013_CRCT.Rdata")
+#save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
