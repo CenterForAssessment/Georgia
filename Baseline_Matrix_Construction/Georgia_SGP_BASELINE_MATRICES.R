@@ -373,6 +373,48 @@ GA_USHIST_Baseline_Matrices <- baselineSGP(
 save(GA_USHIST_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_Baseline_Matrices.Rdata")
 
 
+### SOCIAL STUDIES
+
+my.baseline.config <- list(
+	list( 
+		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('3', '4'),
+		sgp.baseline.grade.sequences.lags=1,
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+	list( 
+		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('3', '4', '5'),
+		sgp.baseline.grade.sequences.lags=c(1,1),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+	list( 
+		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('4', '5', '6'),
+		sgp.baseline.grade.sequences.lags=c(1,1),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+	list( 
+		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('5', '6', '7'),
+		sgp.baseline.grade.sequences.lags=c(1,1),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+	list( 
+		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+		sgp.baseline.grade.sequences=c('6', '7', '8'),
+		sgp.baseline.grade.sequences.lags=c(1,1),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')))
+
+GA_SOCIAL_STUDIES_Baseline_Matrices <- baselineSGP(
+	Georgia_SGP,
+	sgp.baseline.config=my.baseline.config,
+	return.matrices.only=TRUE,
+	calculate.baseline.sgps=FALSE,
+	goodness.of.fit.print=FALSE,
+	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(TAUS=20)))
+
 ###
 ###		Repeaters (different year).
 ### 
@@ -427,5 +469,6 @@ GA_Baseline_Matrices[['GRADE_9_LIT.BASELINE']] <- GA_GRADE_9_LIT_Baseline_Matric
 # GA_Baseline_Matrices[['MATHEMATICS_II.BASELINE']] <- GA_MATHEMATICS_II_Baseline_Matrices$MATHEMATICS_II.BASELINE
 GA_Baseline_Matrices[['PHYSICAL_SCIENCE.BASELINE']] <- GA_PHYSICAL_SCIENCE_Baseline_Matrices$PHYSICAL_SCIENCE.BASELINE
 GA_Baseline_Matrices[['US_HISTORY.BASELINE']] <- GA_USHIST_Baseline_Matrices$US_HISTORY.BASELINE
+GA_Baseline_Matrices[['SOCIAL_STUDIES']] <- GA_SOCIAL_STUDIES_Baseline_Matrices$SOCIAL_STUDIES
 
 save(GA_Baseline_Matrices, file='/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/Baseline_Coefficient_Matrices/GA_Baseline_Matrices.Rdata', compress='bzip2')
