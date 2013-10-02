@@ -7,7 +7,9 @@
 require(data.table)
 require(plyr)
 
-setwd('~/SGP_Projects/Georgia/Data/Base_Files')
+#setwd('~/SGP_Projects/Georgia/Data/Base_Files')
+setwd('Data/Base_Files')
+
 
 ###
 ###		2013 CRCT Data
@@ -75,7 +77,7 @@ names(UNM_EOC)[2:5] <- c('SR_SYSTEM_ID', 'SR_SCHOOL_ID', 'STUDENT_ID', 'STUDENT_
 names(UNM_EOC)[7:9] <- c("LAST_NAME", "FIRST_NAME", "MID_INITIAL") # Change name variables to correspong to matched file
 
 ##  Remove non-Alternative Schools and districts other than GA Virtual School and Dept of Juv Justice
-UNM_EOC <- UNM_EOC[UNM_EOC[['SR_SCHOOL_ID']] > 6000 | UNM_EOC[['SR_SYSTEM_ID']] %in% c(794, 891),]
+#UNM_EOC <- UNM_EOC[UNM_EOC[['SR_SCHOOL_ID']] > 6000 | UNM_EOC[['SR_SYSTEM_ID']] %in% c(794, 891),]
 # table(UNM_EOC[['SR_SCHOOL_ID']], UNM_EOC[['SR_SYSTEM_ID']])
 
 EOC[['MATCH_STATUS']] <- 'M'
@@ -248,7 +250,8 @@ Georgia_Data_LONG[, BIRTH_DATE := NULL]
 Georgia_Data_LONG[, SR_SCHOOL_ID := NULL]
 Georgia_Data_LONG[, STUDENT_GRADE_LEVEL := NULL]
 
-save(Georgia_Data_LONG, file="Georgia_Data_LONG-2013.Rdata")
+Georgia_Data_LONG_2013 <- Georgia_Data_LONG
+save(Georgia_Data_LONG_2013, file="Georgia_Data_LONG_2013.Rdata")
 
 ###############################################################################################
 ###
@@ -256,7 +259,7 @@ save(Georgia_Data_LONG, file="Georgia_Data_LONG-2013.Rdata")
 ###
 ###############################################################################################
 
-load('../Georgia_SGP.Rdata')
-Georgia_SGP <- updateSGP(what_sgp_object=Georgia_SGP, with_sgp_data_LONG=Georgia_Data_LONG, steps='prepareSGP')
+#load('../Georgia_SGP.Rdata')
+#Georgia_SGP <- updateSGP(what_sgp_object=Georgia_SGP, with_sgp_data_LONG=Georgia_Data_LONG, steps='prepareSGP')
 
-save(Georgia_SGP, file="../Georgia_SGP.Rdata")
+#save(Georgia_SGP, file="../Georgia_SGP.Rdata")

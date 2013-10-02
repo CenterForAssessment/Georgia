@@ -95,14 +95,14 @@ MATHEMATICS_I_2013.config <- list(
 		sgp.grade.sequences=list(c('7', '8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=1)
+		sgp.norm.group.preference=1),
 	MATHEMATICS_I.2013 = list( #25
 		sgp.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_I'),
 		sgp.panel.years=c('2012', '2013'),
 		sgp.grade.sequences=list(c('8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=0),
+		sgp.norm.group.preference=0)
 ) ### END MATHEMATICS_I_2013.config
 
 
