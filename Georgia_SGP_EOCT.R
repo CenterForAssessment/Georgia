@@ -7,13 +7,11 @@
 ### Load SGP Package
 
 require(SGP)
-require(data.table)
-options(error=recover)
 
 
 ### Load Georgia SGP object
 
-load("Data/Data_to_Start/Georgia_SGP.Rdata")
+load("Data/Georgia_SGP.Rdata")
 
 
 ### Load EOCT configurations
@@ -95,3 +93,8 @@ Georgia_SGP <- analyzeSGP(
 ### combineSGP
 
 Georgia_SGP <- combineSGP(Georgia_SGP)
+
+
+### Save results
+
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
