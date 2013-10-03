@@ -86,7 +86,7 @@ Georgia_SGP <- analyzeSGP(
 		sgp.percentiles.baseline=TRUE,
 		sgp.projections.baseline= FALSE,
 		sgp.projections.lagged.baseline=FALSE,
-		simulate.sgps=FALSE,
+		simulate.sgps=TRUE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(PERCENTILES=14, BASELINE_PERCENTILES=14)))
 
 
