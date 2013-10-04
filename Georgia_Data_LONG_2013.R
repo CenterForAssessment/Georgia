@@ -65,10 +65,6 @@ CRC[, TEST_TYPE := NULL]
 ## Fix names to correspond with what we will have in @Names
 setnames(CRC, c('AYP_GRADE', 'AYP_SCALE_SCORE', 'AYP_PERF_LEVEL'), c('GRADE', 'SCALE_SCORE', 'PERFORMANCE_LEVEL'))
 
-## Create YEAR_WITHIN
-
-CRC[, YEAR_WITHIN := as.character(2)]
-
 ###
 ###		2013 EOCT Data
 ###
