@@ -226,7 +226,9 @@ setkeyv(dups, key(Georgia_Data_LONG))
 
 Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG)), VALID_CASE := 'INVALID_CASE'] # (236,489 Total)
 
+# Create YEAR_WITHIN for CRCT
 
+Georgia_Data_LONG$YEAR_WITHIN[Georgia_Data_LONG$SUBJECT_CODE %in% c("MATHEMATICS", "ELA", "READING", "SCIENCE", "SOCIAL_STUDIES") & Georgia_Data_LONG$YEAR=="2013" & Georgia_Data_LONG$VALID_CASE=="VALID_CASE"] <- "2"
 #  Different GRADE.  (Keep "ADMINISTRATION_PERIOD" in key/sort for EOCT Tests.  All CRCT are NA)
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "ADMINISTRATION_PERIOD"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
