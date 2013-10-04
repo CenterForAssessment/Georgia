@@ -65,6 +65,10 @@ CRC[, TEST_TYPE := NULL]
 ## Fix names to correspond with what we will have in @Names
 setnames(CRC, c('AYP_GRADE', 'AYP_SCALE_SCORE', 'AYP_PERF_LEVEL'), c('GRADE', 'SCALE_SCORE', 'PERFORMANCE_LEVEL'))
 
+## Create YEAR_WITHIN
+
+CRC[, YEAR_WITHIN := as.character(2)]
+
 ###
 ###		2013 EOCT Data
 ###
@@ -226,7 +230,9 @@ setkeyv(dups, key(Georgia_Data_LONG))
 
 Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG)), VALID_CASE := 'INVALID_CASE'] # (236,489 Total)
 
+# Create YEAR_WITHIN for CRCT
 
+Georgia_Data_LONG$YEAR_WITHIN[Georgia_Data_LONG$SUBJECT_CODE %in% c("MATHEMATICS", "ELA", "READING", "SCIENCE", "SOCIAL_STUDIES") & Georgia_Data_LONG$YEAR=="2013" & Georgia_Data_LONG$VALID_CASE=="VALID_CASE"] <- "2"
 #  Different GRADE.  (Keep "ADMINISTRATION_PERIOD" in key/sort for EOCT Tests.  All CRCT are NA)
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "ADMINISTRATION_PERIOD"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
