@@ -8,14 +8,14 @@
 
 GEOMETRY_2013.config <- list(
 	GEOMETRY.2013 = list( #14
-		sgp.content.areas=c('ALGEBRA_I', 'GEOMETRY'),
+		sgp.content.areas=c('ALGEBRA', 'GEOMETRY'),
 		sgp.panel.years=c('2012', '2013'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1),
 	GEOMETRY.2013 = list( #15
-		sgp.content.areas=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
+		sgp.content.areas=c('MATHEMATICS', 'ALGEBRA', 'GEOMETRY'),
 		sgp.panel.years=c('2011', '2012', '2013'),
 		sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
