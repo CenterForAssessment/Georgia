@@ -248,7 +248,7 @@ table(Georgia_Data_LONG$VALID_CASE)
 
 Georgia_Data_LONG[, LAST_NAME := NULL]
 Georgia_Data_LONG[, FIRST_NAME := NULL]
-Georgia_Data_LONG[, BIRTH_DATE := NULL]
+#Georgia_Data_LONG[, BIRTH_DATE := NULL]
 Georgia_Data_LONG[, SR_SCHOOL_ID := NULL]
 Georgia_Data_LONG[, STUDENT_GRADE_LEVEL := NULL]
 
