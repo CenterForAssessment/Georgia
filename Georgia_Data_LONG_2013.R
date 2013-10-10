@@ -17,11 +17,11 @@ setwd('Data/Base_Files')
 
 ###  Read in 2013 CRCT pipe delimited text files:
 
-SPR <- read.delim('fy2013_crct-spring_run20130920_pipe.txt', sep='|', header=TRUE, comment.char="\'")
+SPR <- read.delim('fy2013_crct-spring_run20130920_pipe.txt', sep='|', header=TRUE)
 UNM_SPR <- read.delim('fy2013_crct-UNMATCHED-spring_run20130920_pipe.txt', sep='|', header=TRUE)
 
 SPR[['MATCH_STATUS']] <- 'M'
-levels(SPR[['SUBJECT_CODE']]) <- c(NA, 'ELA', 'MATHEMATICS', 'READING', 'SCIENCE', 'SOCIAL_STUDIES')  # ALL NA SUBJECT_CODE's are NA SCORES: table(SPR$SUBJECT_CODE, is.na(SPR$AYP_SCALE_SCORE)) 
+levels(SPR[['SUBJECT_CODE']]) <- c('ELA', 'MATHEMATICS', 'READING', 'SCIENCE', 'SOCIAL_STUDIES')  # ALL NA SUBJECT_CODE's are NA SCORES: table(SPR$SUBJECT_CODE, is.na(SPR$AYP_SCALE_SCORE)) 
 SPR[['SUBJECT_CODE']] <- as.character(SPR[['SUBJECT_CODE']])
 SPR[['GTID']] <- as.character(SPR[['GTID']])
 
@@ -191,12 +191,12 @@ Georgia_Data_LONG[, VALID_CASE := 'VALID_CASE']
 Georgia_Data_LONG[grep('[.]', Georgia_Data_LONG[['GTID']]), GTID := gsub('[.]', '', GTID)]
 
 Georgia_Data_LONG[which(is.na(Georgia_Data_LONG[['GTID']])), VALID_CASE := 'INVALID_CASE']
-Georgia_Data_LONG[which(nchar(Georgia_Data_LONG[['GTID']]) != 10), VALID_CASE := 'INVALID_CASE'] # 21,879 total INVALID
+Georgia_Data_LONG[which(nchar(Georgia_Data_LONG[['GTID']]) != 10), VALID_CASE := 'INVALID_CASE']
 
 ## Invalidate NA and 0 scores
 Georgia_Data_LONG[which(is.na(Georgia_Data_LONG[['SCALE_SCORE']]) | Georgia_Data_LONG[['SCALE_SCORE']]==0), VALID_CASE := 'INVALID_CASE']
 
-table(Georgia_Data_LONG[['VALID_CASE']])
+table(Georgia_Data_LONG[['VALID_CASE']]) # 75,208
 
 ###  Duplicate case invalidation/removal:
 
@@ -206,7 +206,7 @@ dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplic
 setkeyv(dups, key(Georgia_Data_LONG))
 (dim(dups["VALID_CASE"])[1])/2 # 31 duplicate cases
 
-Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG))-1, VALID_CASE := 'INVALID_CASE'] # (235,651 Total)
+Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG))-1, VALID_CASE := 'INVALID_CASE']
 
 
 #  Different scale score, but duplicate in the same GRADE and Admin Period.  Take highest Grade
@@ -215,16 +215,16 @@ dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplic
 setkeyv(dups, key(Georgia_Data_LONG))
 (dim(dups["VALID_CASE"])[1])/2 # 817 ADDITIONAL duplicate cases 
 
-Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG))-1, VALID_CASE := 'INVALID_CASE'] # (236,468 Total)
+Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG))-1, VALID_CASE := 'INVALID_CASE']
 
 
 #  Different matched case status (same "ADMINISTRATION_PERIOD").  Take the matched case if available.
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "GRADE", "SUBJECT_CODE", "GTID", "ADMINISTRATION_PERIOD"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
-(dim(dups["VALID_CASE"])[1])/2 # 21 ADDITIONAL duplicate cases 
+(dim(dups["VALID_CASE"])[1])/2 # 27 ADDITIONAL duplicate cases 
 
-Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG)), VALID_CASE := 'INVALID_CASE'] # (236,489 Total)
+Georgia_Data_LONG[which(duplicated(Georgia_Data_LONG)), VALID_CASE := 'INVALID_CASE']
 
 # Create YEAR_WITHIN for CRCT
 
@@ -240,9 +240,9 @@ setkeyv(dups, key(Georgia_Data_LONG))
 
 #  Given BIRTH_DATE and STUDENT_GRADE_LEVEL, take grade that matches the STUDENT_GRADE_LEVEL
 Georgia_Data_LONG[intersect(c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))), 
-	which(STUDENT_GRADE_LEVEL != GRADE)), VALID_CASE := 'INVALID_CASE'] # (Total 236,493)
+	which(STUDENT_GRADE_LEVEL != GRADE)), VALID_CASE := 'INVALID_CASE']
 
-table(Georgia_Data_LONG$VALID_CASE)
+table(Georgia_Data_LONG$VALID_CASE) # 76,087 total cases (10/9/13)
 
 ###  Final removal of extraneous variables and save LONG data
 
@@ -262,6 +262,6 @@ save(Georgia_Data_LONG_2013, file="Georgia_Data_LONG_2013.Rdata")
 ###############################################################################################
 
 #load('../Georgia_SGP.Rdata')
-#Georgia_SGP <- updateSGP(what_sgp_object=Georgia_SGP, with_sgp_data_LONG=Georgia_Data_LONG, steps='prepareSGP')
+#Georgia_SGP <- updateSGP(what_sgp_object=Georgia_SGP, with_sgp_data_LONG=Georgia_Data_LONG_2013, steps='prepareSGP')
 
 #save(Georgia_SGP, file="../Georgia_SGP.Rdata")
