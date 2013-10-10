@@ -17,7 +17,7 @@ setwd('Data/Base_Files')
 
 ###  Read in 2013 CRCT pipe delimited text files:
 
-SPR <- read.delim('fy2013_crct-spring_run20130920_pipe.txt', sep='|', header=TRUE, comment.char="\'")
+SPR <- read.delim('fy2013_crct-spring_run20130920_pipe.txt', sep='|', header=TRUE)
 UNM_SPR <- read.delim('fy2013_crct-UNMATCHED-spring_run20130920_pipe.txt', sep='|', header=TRUE)
 
 SPR[['MATCH_STATUS']] <- 'M'
