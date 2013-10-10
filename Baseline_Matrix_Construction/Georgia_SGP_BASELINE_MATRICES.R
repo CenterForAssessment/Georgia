@@ -381,31 +381,31 @@ my.baseline.config <- list(
 		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
 		sgp.baseline.grade.sequences=c('3', '4'),
 		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
 	list( 
 		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
 		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
 		sgp.baseline.grade.sequences=c('3', '4', '5'),
 		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
 	list( 
 		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
 		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
 		sgp.baseline.grade.sequences=c('4', '5', '6'),
 		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
 	list( 
 		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
 		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
 		sgp.baseline.grade.sequences=c('5', '6', '7'),
 		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
 	list( 
 		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
 		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
 		sgp.baseline.grade.sequences=c('6', '7', '8'),
 		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')))
+		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')))
 
 GA_SOCIAL_STUDIES_Baseline_Matrices <- baselineSGP(
 	Georgia_SGP,
