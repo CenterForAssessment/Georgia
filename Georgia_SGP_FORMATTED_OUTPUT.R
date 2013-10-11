@@ -88,4 +88,4 @@ tmp.long.data.merged <- tmp.projections[tmp.long.data]
 
 Georgia_SGP_Data_LONG_2013_FORMATTED <- tmp.long.data.merged
 save(Georgia_SGP_Data_LONG_2013_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2013_FORMATTED.Rdata")
-write.table(Georgia_SGP_Data_LONG_2013_FORMATTED, file="Georgia_SGP_Data_LONG_2013_FORMATTED.txt", sep="|", row.names=FALSE, na="", quote=FALSE)
+write.table(Georgia_SGP_Data_LONG_2013_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2013_FORMATTED.txt", sep="|", row.names=FALSE, na="", quote=FALSE)
