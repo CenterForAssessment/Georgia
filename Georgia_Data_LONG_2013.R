@@ -253,7 +253,7 @@ Georgia_Data_LONG[, STUDENT_GRADE_LEVEL := NULL]
 Georgia_Data_LONG[, SCHOOL_YEAR:=as.character(SCHOOL_YEAR)]
 
 Georgia_Data_LONG_2013 <- Georgia_Data_LONG
-save(Georgia_Data_LONG_2013, file="Georgia_Data_LONG_2013.Rdata")
+save(Georgia_Data_LONG_2013, file="../Georgia_Data_LONG_2013.Rdata")
 
 ###############################################################################################
 ###
