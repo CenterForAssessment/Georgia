@@ -169,13 +169,11 @@ Georgia_Data_LONG[, SCALE_SCORE := as.numeric(SCALE_SCORE)]
 Georgia_Data_LONG[, PERFORMANCE_LEVEL := factor(PERFORMANCE_LEVEL, levels=1:3, 
 	labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"), ordered=TRUE)]
 
-##  Construct a numeric variable to use for sorting duplicates
-Georgia_Data_LONG[['ADMINISTRATION_PERIOD']] <- factor(Georgia_Data_LONG[['ADMINISTRATION_PERIOD']])
-levels(Georgia_Data_LONG[['ADMINISTRATION_PERIOD']]) <- c("2: SPRING", "3: SUMMER", "1: WINTER") # Order to correspond to time
-table(Georgia_Data_LONG$ADMINISTRATION_PERIOD)
-
 ## Create YEAR_WITHIN (1 = Winter, 2 = Spring, 3 = Summer)
-Georgia_Data_LONG[, YEAR_WITHIN := as.character(as.integer(ADMINISTRATION_PERIOD))]
+
+Georgia_Data_LONG[ADMINISTRATION_PERIOD=="WINTER", YEAR_WITHIN:="1"]
+Georgia_Data_LONG[ADMINISTRATION_PERIOD=="SPRING", YEAR_WITHIN:="2"]
+Georgia_Data_LONG[ADMINISTRATION_PERIOD=="SUMMER", YEAR_WITHIN:="3"]
 
 
 ###
@@ -252,6 +250,7 @@ table(Georgia_Data_LONG$VALID_CASE) # 76,087 total cases (10/9/13)
 # Georgia_Data_LONG[, BIRTH_DATE := NULL]
 Georgia_Data_LONG[, SR_SCHOOL_ID := NULL]
 Georgia_Data_LONG[, STUDENT_GRADE_LEVEL := NULL]
+Georgia_Data_LONG[, SCHOOL_YEAR:=as.character(SCHOOL_YEAR)]
 
 Georgia_Data_LONG_2013 <- Georgia_Data_LONG
 save(Georgia_Data_LONG_2013, file="Georgia_Data_LONG_2013.Rdata")
