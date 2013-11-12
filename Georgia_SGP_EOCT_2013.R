@@ -65,6 +65,11 @@ Georgia_SGP <- analyzeSGP(
 Georgia_SGP <- combineSGP(Georgia_SGP)
 
 
+### outputSGP
+
+outputSGP(Georgia_SGP, output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"))
+
+
 ### Save results
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")

@@ -56,7 +56,7 @@ CRC[, PTNA := NULL]
 CRC[, DNA := NULL]
 CRC[, AYP_CTBRC := NULL]
 
-CRC[, MIDDLE_NAME := NULL]
+# CRC[, MIDDLE_NAME := NULL]
 CRC[, SR_STUDENT_ID := NULL]
 CRC[, ADMIN_TYPE := NULL] # RETEST_INDICATOR has same info now (N ~= 'Spring')
 CRC[, TEST_TYPE := NULL]
@@ -74,7 +74,8 @@ setnames(CRC, c('AYP_GRADE', 'AYP_SCALE_SCORE', 'AYP_PERF_LEVEL'), c('GRADE', 'S
 EOC <- read.delim('fy2013_eoct_run20130917_pipe_woRetest.txt', sep='|', header=TRUE)
 UNM_EOC <- read.delim('fy2013_eoct-unmatched_run20130917_pipe.txt', sep='|', header=TRUE)
 names(UNM_EOC)[2:5] <- c('SR_SYSTEM_ID', 'SR_SCHOOL_ID', 'STUDENT_ID', 'STUDENT_GRADE_LEVEL') # Change from 'TEST_*_ID' to correspond to the "matched" files
-names(UNM_EOC)[7:9] <- c("LAST_NAME", "FIRST_NAME", "MID_INITIAL") # Change name variables to correspong to matched file
+names(UNM_EOC)[7:9] <- c("LAST_NAME", "FIRST_NAME", "MIDDLE_NAME") # Change name variables to correspong to matched file
+EOC$MID_INITIAL <- NULL # remove this variable - all NA's
 
 ##  Remove non-Alternative Schools and districts other than GA Virtual School and Dept of Juv Justice
 #UNM_EOC <- UNM_EOC[UNM_EOC[['SR_SCHOOL_ID']] > 6000 | UNM_EOC[['SR_SYSTEM_ID']] %in% c(794, 891),]
@@ -118,7 +119,7 @@ EOC[, DNA_INDICATOR := NULL]
 EOC[, PTNA_INDICATOR := NULL]
 EOC[, PIV_INDICATOR := NULL]
 
-EOC[, MID_INITIAL := NULL]
+# EOC[, MID_INITIAL := NULL]
 EOC[, STUDENT_ID := NULL]
 EOC[, TEST_RECORD_GRADE_FIELD := NULL]
 EOC[, GRADE_CONVERSION := NULL]
@@ -145,11 +146,11 @@ Georgia_Data_LONG[which(Georgia_Data_LONG[['SUBJECT_CODE']] %in% c('GRADE_9_LIT'
 ###  Clean up other issues:
 
 ##  Clean up demographic variables
-levels(Georgia_Data_LONG[['RACE_CODE']]) <- c(NA, "African-American/Black", "African-American/Black", "Hispanic", "American Indian/Alaskan Native", "Two or More Races", "Pacific Islander", "Asian", "White", NA, NA)
-levels(Georgia_Data_LONG[['GENDER_CODE']]) <- c(NA, "Female", "Male", NA)
-levels(Georgia_Data_LONG[['ED']]) <- c(NA, "Economically Disadvantaged: No", "Economically Disadvantaged: Yes")
-levels(Georgia_Data_LONG[['SWD']]) <- c(NA, "Student with Disability: No", "Student with Disability: Yes")
-levels(Georgia_Data_LONG[['LEP']]) <- c(NA, "LEP: No", "LEP: Yes")
+levels(Georgia_Data_LONG[['RACE_CODE']]) <- c("Asian/Pacific Islander", "African-American/Black", "Hispanic", "American Indian/Alaskan Native", "Two or More Races", "Pacific Islander", "Asian", "White", NA, NA)
+levels(Georgia_Data_LONG[['GENDER_CODE']]) <- c("Female", "Male", NA, NA)
+levels(Georgia_Data_LONG[['ED']]) <- c("Economically Disadvantaged: No", "Economically Disadvantaged: Yes")
+levels(Georgia_Data_LONG[['SWD']]) <- c("Student with Disability: No", "Student with Disability: Yes")
+levels(Georgia_Data_LONG[['LEP']]) <- c("LEP: No", "LEP: Yes")
 
 #  Create an Enrollment status inclusion variable dummies:  
 Georgia_Data_LONG[['SCHOOL_ENROLLMENT_STATUS']] <- factor(2, levels=1:2, labels=c("Enrolled School: No", "Enrolled School: Yes"))
@@ -158,7 +159,7 @@ Georgia_Data_LONG[['STATE_ENROLLMENT_STATUS']] <- factor(2, levels=1:2, labels=c
 
 ##  Unique School Identifier.  Continue to do this for consistency...
 
-Georgia_Data_LONG[, SCHOOL_NUMBER := SR_SYSTEM_ID*10000 + SR_SCHOOL_ID]
+Georgia_Data_LONG$SCHOOL_NUMBER <- Georgia_Data_LONG$SR_SYSTEM_ID*10000 + Georgia_Data_LONG$SR_SCHOOL_ID
 Georgia_Data_LONG[which(SR_SYSTEM_ID >1000), SCHOOL_NUMBER := SR_SYSTEM_ID]
 Georgia_Data_LONG[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
 
@@ -242,17 +243,17 @@ Georgia_Data_LONG[intersect(c(which(duplicated(Georgia_Data_LONG))-1, which(dupl
 
 table(Georgia_Data_LONG$VALID_CASE) # 76,087 total cases (10/9/13)
 
-###  Final removal of extraneous variables and save LONG data
+###  Final removal of extraneous variables and save LONG data.  LEAVE NAMES AND BDAY - per Qi.
 
-Georgia_Data_LONG[, LAST_NAME := NULL]
-Georgia_Data_LONG[, FIRST_NAME := NULL]
-#Georgia_Data_LONG[, BIRTH_DATE := NULL]
+# Georgia_Data_LONG[, LAST_NAME := NULL]
+# Georgia_Data_LONG[, FIRST_NAME := NULL]
+# Georgia_Data_LONG[, BIRTH_DATE := NULL]
 Georgia_Data_LONG[, SR_SCHOOL_ID := NULL]
 Georgia_Data_LONG[, STUDENT_GRADE_LEVEL := NULL]
 Georgia_Data_LONG[, SCHOOL_YEAR:=as.character(SCHOOL_YEAR)]
 
 Georgia_Data_LONG_2013 <- Georgia_Data_LONG
-save(Georgia_Data_LONG_2013, file="Georgia_Data_LONG_2013.Rdata")
+save(Georgia_Data_LONG_2013, file="../Georgia_Data_LONG_2013.Rdata")
 
 ###############################################################################################
 ###
