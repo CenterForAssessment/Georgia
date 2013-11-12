@@ -146,7 +146,7 @@ Georgia_Data_LONG[which(Georgia_Data_LONG[['SUBJECT_CODE']] %in% c('GRADE_9_LIT'
 ###  Clean up other issues:
 
 ##  Clean up demographic variables
-levels(Georgia_Data_LONG[['RACE_CODE']]) <- c("Asian", "African-American/Black", "Hispanic", "American Indian/Alaskan Native", "Two or More Races", "Pacific Islander", "Asian", "White", NA, NA)
+levels(Georgia_Data_LONG[['RACE_CODE']]) <- c("Asian/Pacific Islander", "African-American/Black", "Hispanic", "American Indian/Alaskan Native", "Two or More Races", "Pacific Islander", "Asian", "White", NA, NA)
 levels(Georgia_Data_LONG[['GENDER_CODE']]) <- c("Female", "Male", NA, NA)
 levels(Georgia_Data_LONG[['ED']]) <- c("Economically Disadvantaged: No", "Economically Disadvantaged: Yes")
 levels(Georgia_Data_LONG[['SWD']]) <- c("Student with Disability: No", "Student with Disability: Yes")
@@ -159,7 +159,7 @@ Georgia_Data_LONG[['STATE_ENROLLMENT_STATUS']] <- factor(2, levels=1:2, labels=c
 
 ##  Unique School Identifier.  Continue to do this for consistency...
 
-Georgia_Data_LONG[, SCHOOL_NUMBER := SR_SYSTEM_ID*10000 + SR_SCHOOL_ID]
+Georgia_Data_LONG$SCHOOL_NUMBER <- Georgia_Data_LONG$SR_SYSTEM_ID*10000 + Georgia_Data_LONG$SR_SCHOOL_ID
 Georgia_Data_LONG[which(SR_SYSTEM_ID >1000), SCHOOL_NUMBER := SR_SYSTEM_ID]
 Georgia_Data_LONG[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
 
