@@ -444,6 +444,8 @@ GA_SOCIAL_STUDIES_Baseline_Matrices <- baselineSGP(
 	goodness.of.fit.print=FALSE,
 	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(TAUS=24)))
 
+save(GA_SOCIAL_STUDIES_Baseline_Matrices, file="Data/Baseline_Matrices/GA_SOCIAL_STUDIES_Baseline_Matrices.Rdata")
+
 ###
 ###		Repeaters (different year).
 ### 
