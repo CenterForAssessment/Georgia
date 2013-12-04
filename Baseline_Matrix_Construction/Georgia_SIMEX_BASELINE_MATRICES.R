@@ -31,7 +31,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 
 ###		BIOLOGY
 
-my.baseline.config <- list(
+	my.baseline.config <- list(
 
 	##  Science Priors
 		list(
@@ -101,24 +101,24 @@ my.baseline.config <- list(
 			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
 
 
-GA_BIOLOGY_SIMEX_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=2,
-	return.matrices.only=TRUE,
-	calculate.baseline.sgps=FALSE,
-	calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
-	goodness.of.fit.print=FALSE,
-	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25, TAUS=25)))
-
-save(GA_BIOLOGY_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_BIOLOGY_SIMEX_Baseline_Matrices.Rdata")
+	GA_BIOLOGY_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP,
+		sgp.baseline.config=my.baseline.config,
+		sgp.percentiles.baseline.max.order=2,
+		return.matrices.only=TRUE,
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25, TAUS=25)))
+	
+	save(GA_BIOLOGY_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_BIOLOGY_SIMEX_Baseline_Matrices.Rdata")
 
 
 ### PHYSICAL_SCIENCE 
 
 #   RE-RUN THESE TO GET THE Time_Lags FOR 8TH GRADE MATRICES  ( OR PLUG IN MANUALLY )
 
-my.baseline.config <- list(
+	my.baseline.config <- list(
 	#  Science Priors
 		list( #  Enough kids to do an 8th grade baseline here
 			sgp.baseline.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
@@ -195,274 +195,269 @@ my.baseline.config <- list(
 			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
 
 
-GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=2,
-	return.matrices.only=TRUE,
-		calculate.baseline.sgps=FALSE,
-	calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
-	goodness.of.fit.print=FALSE,
-	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
-
-save(GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices.Rdata")
+	GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP,
+		sgp.baseline.config=my.baseline.config,
+		sgp.percentiles.baseline.max.order=2,
+		return.matrices.only=TRUE,
+			calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+	
+	save(GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices.Rdata")
 
 
 ### GRADE_9_LIT 
 
-my.baseline.config <- list(
-			list(
-				sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c(8,8, 'EOCT'),
-				sgp.baseline.grade.sequences.lags=c(0, 1),
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-			list(
-				sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
-				sgp.baseline.grade.sequences.lags=c(0, 1, 0, 1),
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')), # Dual/Continuous
+	my.baseline.config <- list(
+		list(
+			sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c(8,8, 'EOCT'),
+			sgp.baseline.grade.sequences.lags=c(0, 1),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(
+			sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
+			sgp.baseline.grade.sequences.lags=c(0, 1, 0, 1),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')), # Dual/Continuous
 
-			list(
-				sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c(8,8, 'EOCT'),
-				sgp.baseline.grade.sequences.lags=c(0, 2),
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-			list(
-				sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
-				sgp.baseline.grade.sequences.lags=c(0, 1, 0, 2),
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')), # Dual/SKIP
+		list(
+			sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c(8,8, 'EOCT'),
+			sgp.baseline.grade.sequences.lags=c(0, 2),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(
+			sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
+			sgp.baseline.grade.sequences.lags=c(0, 1, 0, 2),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')), # Dual/SKIP
 
 	 # Repeaters
-			list(
-				sgp.baseline.content.areas=c('GRADE_9_LIT', 'GRADE_9_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=1,
-				sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
+		list(
+			sgp.baseline.content.areas=c('GRADE_9_LIT', 'GRADE_9_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
 
-GA_GRADE_9_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=4,  ## NOTE Change here
-	return.matrices.only=TRUE,
-	calculate.baseline.sgps=FALSE,
-	calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
-	goodness.of.fit.print=FALSE,
-	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25, TAUS=25)))
-
-save(GA_GRADE_9_LIT_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_GRADE_9_LIT_SIMEX_Baseline_Matrices.Rdata")
+	GA_GRADE_9_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP,
+		sgp.baseline.config=my.baseline.config,
+		sgp.percentiles.baseline.max.order=4,  ## NOTE Change here
+		return.matrices.only=TRUE,
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25, TAUS=25)))
+	
+	save(GA_GRADE_9_LIT_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_GRADE_9_LIT_SIMEX_Baseline_Matrices.Rdata")
 
 
 ### AMERICAN_LIT 
 
-my.baseline.config <- list(
+	my.baseline.config <- list(
 	#  Have 8th grade priors available:
-			list(
-				sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=c(0, 1, 1),
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-			list(
-				sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=c(0, 1, 2),
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(
+			sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=c(0, 1, 1),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(
+			sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=c(0, 1, 2),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION')),
 	#  EOCT prior only
-			list(
-				sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=1), # continuous
-			list(
-				sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=2,
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')), # skip year
+		list(
+			sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=1), # continuous
+		list(
+			sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=2,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')), # skip year
 
 	#  Repeaters
-			list(
-				sgp.baseline.content.areas=c('AMERICAN_LIT', 'AMERICAN_LIT'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=1,
-				sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
-				
-				
-GA_AMERICAN_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=3,  ## NOTE Change here
-	return.matrices.only=TRUE,
-		calculate.baseline.sgps=FALSE,
-	calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
-	goodness.of.fit.print=FALSE,
-	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
-
-save(GA_AMERICAN_LIT_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_AMERICAN_LIT_SIMEX_Baseline_Matrices.Rdata")
+		list(
+			sgp.baseline.content.areas=c('AMERICAN_LIT', 'AMERICAN_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
+						
+	GA_AMERICAN_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP,
+		sgp.baseline.config=my.baseline.config,
+		sgp.percentiles.baseline.max.order=3,  ## NOTE Change here
+		return.matrices.only=TRUE,
+			calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+	
+	save(GA_AMERICAN_LIT_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_AMERICAN_LIT_SIMEX_Baseline_Matrices.Rdata")
 
 
 ### Economics 
 
-my.baseline.config <- list(
-			list(
-				sgp.baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
-				sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=1,
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-			list(
-				sgp.baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
-				sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=2,
-				sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+	my.baseline.config <- list(
+		list(
+			sgp.baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(
+			sgp.baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=2,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
 
-#  ECON repeaters - run "Thu Feb 21 12:50:30 2013"
-			list(
-				sgp.baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
-				sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-				sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-				sgp.baseline.grade.sequences.lags=1,
-				sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
+	#  ECON repeaters - run "Thu Feb 21 12:50:30 2013"
+		list(
+			sgp.baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
 
-
-GA_ECON_SIMEX_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=1,  ## NOTE Change here
-	return.matrices.only=TRUE,
-		calculate.baseline.sgps=FALSE,
-	calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
-	goodness.of.fit.print=FALSE,
-	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
-
-save(GA_ECON_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_SIMEX_Baseline_Matrices.Rdata")
+	GA_ECON_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP,
+		sgp.baseline.config=my.baseline.config,
+		sgp.percentiles.baseline.max.order=1,  ## NOTE Change here
+		return.matrices.only=TRUE,
+			calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+	
+	save(GA_ECON_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_SIMEX_Baseline_Matrices.Rdata")
 
 
 ###  US History
 
-my.baseline.config <- list(
-	# list( #  Not run.  Too few students (1,341 in "supercohort") and removed by Qi from 2013 EOCT Course Sequence list
-		# sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
-		# sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		# sgp.baseline.grade.sequences=c('8', 'EOCT'),
-		# sgp.baseline.grade.sequences.lags=1,
-		# sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-	list(  #  67,610 students
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('8', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=2,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-	list(  # 225,409 students
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('8', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=3,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-	list(  # 21,504 students
-		sgp.baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-	list(  # 6,104 students
-		sgp.baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=0,
-		sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
+	my.baseline.config <- list(
+		# list( #  Not run.  Too few students (1,341 in "supercohort") and removed by Qi from 2013 EOCT Course Sequence list
+			# sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
+			# sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+			# sgp.baseline.grade.sequences=c('8', 'EOCT'),
+			# sgp.baseline.grade.sequences.lags=1,
+			# sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(  #  67,610 students
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('8', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=2,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(  # 225,409 students
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('8', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=3,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(  # 21,504 students
+			sgp.baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list(  # 6,104 students
+			sgp.baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
 
-
-GA_USHIST_SIMEX_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
-	sgp.percentiles.baseline.max.order=1,
-	return.matrices.only=TRUE,
-		calculate.baseline.sgps=FALSE,
-	calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
-	goodness.of.fit.print=FALSE,
-	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
-
-save(GA_USHIST_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_SIMEX_Baseline_Matrices.Rdata")
+	GA_USHIST_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP,
+		sgp.baseline.config=my.baseline.config,
+		sgp.percentiles.baseline.max.order=1,
+		return.matrices.only=TRUE,
+			calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+	
+	save(GA_USHIST_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_SIMEX_Baseline_Matrices.Rdata")
 
 
 ### SOCIAL STUDIES
 
+	my.baseline.config <- list(
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('3', '4'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('4', '5'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('3', '4', '5'),
+			sgp.baseline.grade.sequences.lags=c(1,1),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('5', '6'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('4', '5', '6'),
+			sgp.baseline.grade.sequences.lags=c(1,1),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('6', '7'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('5', '6', '7'),
+			sgp.baseline.grade.sequences.lags=c(1,1),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('7', '8'),
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
+		list( 
+			sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
+			sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('6', '7', '8'),
+			sgp.baseline.grade.sequences.lags=c(1,1),
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')))
 
-
-my.baseline.config <- list(
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('3', '4'),
-		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('4', '5'),
-		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('3', '4', '5'),
-		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('5', '6'),
-		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('4', '5', '6'),
-		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('6', '7'),
-		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('5', '6', '7'),
-		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('7', '8'),
-		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION')),
-	list( 
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'SOCIAL_STUDIES', 'SOCIAL_STUDIES'),
-		sgp.baseline.panel.years=c('2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('6', '7', '8'),
-		sgp.baseline.grade.sequences.lags=c(1,1),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION')))
-
-GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices <- baselineSGP(
-	Georgia_SGP, state="GA",
-	sgp.baseline.config=my.baseline.config,
-	return.matrices.only=TRUE,
-	calculate.baseline.sgps=FALSE,
-	calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
-	goodness.of.fit.print=FALSE,
-	parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
-
-save(GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices.Rdata")
-
+	GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP, state="GA",
+		sgp.baseline.config=my.baseline.config,
+		return.matrices.only=TRUE,
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+	
+	save(GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices.Rdata")
+	
