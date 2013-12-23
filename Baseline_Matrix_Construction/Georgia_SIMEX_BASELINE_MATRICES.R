@@ -29,6 +29,25 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 ###		SIMEX Baseline Matrix Construction
 ###
 
+###		CRCT Content Areas (except SOCIAL_STUDIES - produced in 2013)
+
+	Georgia_SGP <- analyzeSGP(
+		Georgia_SGP,
+		years='2013',
+		content_areas=c("ELA", "READING", "MATHEMATICS", "SCIENCE"), 
+		sgp.percentiles=FALSE,
+		sgp.projections=FALSE,
+		sgp.projections.lagged=FALSE,
+		sgp.percentiles.baseline=TRUE,
+		sgp.projections.baseline=FALSE,
+		sgp.projections.lagged.baseline=FALSE,
+		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011'), # should have been the default (4 panel years) when run in fall 2012 with 2008-2011 data
+		simulate.sgps = FALSE,
+		calculate.simex=TRUE,
+		parallel.config=list(BACKEND='PARALLEL', WORKERS=list(SIMEX=25)))
+
+###		EOCT Content Areas
+
 ###		BIOLOGY
 
 	my.baseline.config <- list(
@@ -107,9 +126,9 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=2,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.baseline.simex=TRUE,
 		goodness.of.fit.print=FALSE,
-		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25, TAUS=25)))
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
 	save(GA_BIOLOGY_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_BIOLOGY_SIMEX_Baseline_Matrices.Rdata")
 
@@ -200,10 +219,10 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.baseline.config=my.baseline.config,
 		sgp.percentiles.baseline.max.order=2,
 		return.matrices.only=TRUE,
-			calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=TRUE,
 		goodness.of.fit.print=FALSE,
-		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
 	save(GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices.Rdata")
 
@@ -251,9 +270,9 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=4,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.baseline.simex=TRUE,
 		goodness.of.fit.print=FALSE,
-		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25, TAUS=25)))
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
 	save(GA_GRADE_9_LIT_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_GRADE_9_LIT_SIMEX_Baseline_Matrices.Rdata")
 
@@ -279,7 +298,8 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 			sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
 			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
 			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-			sgp.baseline.grade.sequences.lags=1), # continuous
+			sgp.baseline.grade.sequences.lags=1,
+			sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')), # continuous
 		list(
 			sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
 			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
@@ -300,10 +320,10 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.baseline.config=my.baseline.config,
 		sgp.percentiles.baseline.max.order=3,  ## NOTE Change here
 		return.matrices.only=TRUE,
-			calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=TRUE,
 		goodness.of.fit.print=FALSE,
-		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
 	save(GA_AMERICAN_LIT_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_AMERICAN_LIT_SIMEX_Baseline_Matrices.Rdata")
 
@@ -327,7 +347,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 	#  ECON repeaters - run "Thu Feb 21 12:50:30 2013"
 		list(
 			sgp.baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
-			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
 			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
 			sgp.baseline.grade.sequences.lags=1,
 			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
@@ -337,10 +357,10 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.baseline.config=my.baseline.config,
 		sgp.percentiles.baseline.max.order=1,  ## NOTE Change here
 		return.matrices.only=TRUE,
-			calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=TRUE,
 		goodness.of.fit.print=FALSE,
-		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
 	save(GA_ECON_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_ECON_SIMEX_Baseline_Matrices.Rdata")
 
@@ -384,10 +404,10 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.baseline.config=my.baseline.config,
 		sgp.percentiles.baseline.max.order=1,
 		return.matrices.only=TRUE,
-			calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=TRUE,
 		goodness.of.fit.print=FALSE,
-		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
 	save(GA_USHIST_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_USHIST_SIMEX_Baseline_Matrices.Rdata")
 
@@ -455,9 +475,109 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.baseline.config=my.baseline.config,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.baseline.simex=TRUE,
+		# calculate.baseline.simex now set to default:
+		# calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
 		goodness.of.fit.print=FALSE,
-		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16, TAUS=16)))
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
 	save(GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices, file="Data/Baseline_Matrices/GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices.Rdata")
+
+
+###  Same year (Block Schedule and Repeaters)
+
+
+
+	my.baseline.config <- list(
+		list(
+			sgp.baseline.content.areas=c('PHYSICAL_SCIENCE', 'BIOLOGY'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+
+		list(
+			sgp.baseline.content.areas=c('BIOLOGY', 'BIOLOGY'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+			
+		list(
+			sgp.baseline.content.areas=c('BIOLOGY', 'PHYSICAL_SCIENCE'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+
+		list(
+			sgp.baseline.content.areas=c('PHYSICAL_SCIENCE', 'PHYSICAL_SCIENCE'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+			
+		list(
+			sgp.baseline.content.areas=c('GRADE_9_LIT', 'GRADE_9_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+			
+		list(
+			sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+		list(
+			sgp.baseline.content.areas=c('AMERICAN_LIT', 'AMERICAN_LIT'),
+			sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+
+		list(
+			sgp.baseline.content.areas=c('US_HISTORY', 'US_HISTORY'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+
+		list(
+			sgp.baseline.content.areas=c('US_HISTORY', 'ECONOMICS'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')),
+		list(
+			sgp.baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
+			sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
+			sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
+			sgp.baseline.grade.sequences.lags=0,
+			sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
+			
+	GA_BLOCK_SCHED_SIMEX_Baseline_Matrices <- baselineSGP(
+		Georgia_SGP,
+		sgp.baseline.config=my.baseline.config,
+		sgp.percentiles.baseline.max.order=1,  ## NOTE Change here
+		return.matrices.only=TRUE,
+		calculate.baseline.sgps=FALSE,
+		calculate.baseline.simex=TRUE,
+		goodness.of.fit.print=FALSE,
+		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25)))
 	
+	save(GA_BLOCK_SCHED_SIMEX_Baseline_Matrices, file="GA_BLOCK_SCHED_SIMEX_Baseline_Matrices.Rdata")
+
+###
+###		Combine matrices
+###
+
+source('~/Dropbox/Github_Repos/Packages/SGP/R/mergeSGP.R')
+source('~/Dropbox/Github_Repos/Packages/SGP/R/unique.splineMatrix.R')
+
+GA_SIMEX_Baseline_Matrices <- c(GA_SIMEX_Baseline_Matrices, GA_SOCIAL_STUDIES_SIMEX_Baseline_Matrices, GA_BIOLOGY_SIMEX_Baseline_Matrices, GA_PHYSICAL_SCIENCE_SIMEX_Baseline_Matrices, GA_GRADE_9_LIT_SIMEX_Baseline_Matrices, GA_AMERICAN_LIT_SIMEX_Baseline_Matrices, GA_USHIST_SIMEX_Baseline_Matrices, GA_ECON_SIMEX_Baseline_Matrices)
+
+GA_SIMEX_Baseline_Matrices <- mergeSGP(list(Coefficient_Matrices= GA_SIMEX_Baseline_Matrices), list(Coefficient_Matrices= GA_BLOCK_SCHED_SIMEX_Baseline_Matrices))$Coefficient_Matrices
+
+save(GA_SIMEX_Baseline_Matrices, file = 'GA_SIMEX_Baseline_Matrices.Rdata')
