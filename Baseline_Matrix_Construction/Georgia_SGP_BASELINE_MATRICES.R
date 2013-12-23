@@ -305,7 +305,7 @@ my.baseline.config <- list(
 #  ECON repeaters - run "Thu Feb 21 12:50:30 2013"
 			list(
 				baseline.content.areas=c('ECONOMICS', 'ECONOMICS'),
-				baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
+				baseline.panel.years=c('2008', '2009', '2010', '2011', '2012'),
 				baseline.grade.sequences=c('EOCT', 'EOCT'),
 				baseline.grade.sequences.lags=1))
 
