@@ -19,12 +19,10 @@ my.col.classes.crct <- c("character", "integer", "factor", "integer", "factor", 
 my.col.classes.eoct <- c("character", "integer", "factor", "integer", "factor", "factor", "character", "character", "character", "character", "factor", "character", "character", 
 	"character", "character", "character", "integer", "factor", "factor", "factor", "factor", "factor", "factor", "integer", "integer", "factor", "character", "integer")
 
-CRCT_2013_INSTRUCTOR <- as.data.table(read.table(
-	"Data/Base_Files/2013_system_school_Teacher_Linked_SGP/2013_System_School_Teacher_Section_Student_CourseData_ForCRCT_FromSR2013_SGPLinked.txt", sep="|", quote="", header=TRUE, 
-	colClasses=my.col.classes.crct))
-EOCT_2013_INSTRUCTOR <- as.data.table(read.table(
-	"Data/Base_Files/2013_system_school_Teacher_Linked_SGP/2013_System_School_Teacher_Section_Student_CourseData_ForEOCT_FromSR2013_SGPLinked.txt", sep="|", quote="", header=TRUE, 
-	colClasses=my.col.classes.eoct))
+CRCT_2013_INSTRUCTOR <- fread("Data/Base_Files/2013_system_school_Teacher_Linked_SGP/2013_System_School_Teacher_Section_Student_CourseData_ForCRCT_FromSR2013_SGPLinked.txt", 
+	sep="|", header=TRUE, colClasses=my.col.classes.crct)
+EOCT_2013_INSTRUCTOR <- fread("Data/Base_Files/2013_system_school_Teacher_Linked_SGP/2013_System_School_Teacher_Section_Student_CourseData_ForEOCT_FromSR2013_SGPLinked.txt", 
+	sep="|", header=TRUE, colClasses=my.col.classes.eoct)
 
 
 ### Clean up names
@@ -58,18 +56,18 @@ EOCT_2013_INSTRUCTOR$INSTRUCTOR_LAST_NAME <- my.tmp.last_name
 
 ### Create YEAR_WITHIN Varaible
 
-CRCT_2013_INSTRUCTOR$YEAR_WITHIN_INSTRUCTOR <- "2"
+CRCT_2013_INSTRUCTOR$YEAR_WITHIN <- "2"
 
-setnames(EOCT_2013_INSTRUCTOR, "MARKING_PERIOD", "YEAR_WITHIN_INSTRUCTOR")
-EOCT_2013_INSTRUCTOR$YEAR_WITHIN_INSTRUCTOR <- as.factor(EOCT_2013_INSTRUCTOR$YEAR_WITHIN_INSTRUCTOR)
-levels(EOCT_2013_INSTRUCTOR$YEAR_WITHIN_INSTRUCTOR) <- c("2", "1")
-EOCT_2013_INSTRUCTOR[, YEAR_WITHIN_INSTRUCTOR := as.character(YEAR_WITHIN_INSTRUCTOR)]
+setnames(EOCT_2013_INSTRUCTOR, "MARKING_PERIOD", "YEAR_WITHIN")
+EOCT_2013_INSTRUCTOR$YEAR_WITHIN <- as.factor(EOCT_2013_INSTRUCTOR$YEAR_WITHIN)
+levels(EOCT_2013_INSTRUCTOR$YEAR_WITHIN) <- c("2", "1")
+EOCT_2013_INSTRUCTOR[, YEAR_WITHIN := as.character(YEAR_WITHIN)]
 
 ### Merge together CRCT/EOCT files
 
 INSTRUCTOR_NUMBER <- as.data.table(rbind.fill(CRCT_2013_INSTRUCTOR, EOCT_2013_INSTRUCTOR))
 INSTRUCTOR_NUMBER[,INSTRUCTOR_ENROLLMENT_STATUS:=factor(1, levels=0:1, labels=c("Enrolled Instructor: No", "Enrolled Instructor: Yes"))]
-INSTRUCTOR_NUMBER <- INSTRUCTOR_NUMBER[, list(CONTENT_AREA, YEAR, YEAR_WITHIN_INSTRUCTOR, ID, DISTRICT_NUMBER, DISTRICT_NAME, SCHOOL_NUMBER, SCHOOL_NAME,  INSTRUCTOR_NUMBER, INSTRUCTOR_FIRST_NAME, INSTRUCTOR_LAST_NAME, INSTRUCTOR_ENROLLMENT_STATUS)]
+INSTRUCTOR_NUMBER <- INSTRUCTOR_NUMBER[, list(CONTENT_AREA, YEAR, YEAR_WITHIN, ID, DISTRICT_NUMBER, DISTRICT_NAME, SCHOOL_NUMBER, SCHOOL_NAME,  INSTRUCTOR_NUMBER, INSTRUCTOR_FIRST_NAME, INSTRUCTOR_LAST_NAME, INSTRUCTOR_ENROLLMENT_STATUS)]
 
 ###  Set up SCHOOL_NUMBER to match @Data
 
@@ -80,14 +78,15 @@ INSTRUCTOR_NUMBER[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
 
 ### Remove duplicates
 
-setkey(INSTRUCTOR_NUMBER, CONTENT_AREA, YEAR, YEAR_WITHIN_INSTRUCTOR, INSTRUCTOR_NUMBER, ID)
+setkey(INSTRUCTOR_NUMBER, CONTENT_AREA, YEAR, YEAR_WITHIN, INSTRUCTOR_NUMBER, ID)
 INSTRUCTOR_NUMBER <- unique(INSTRUCTOR_NUMBER)
 setkey(INSTRUCTOR_NUMBER, ID, CONTENT_AREA, YEAR)
+
+INSTRUCTOR_NUMBER[, VALID_CASE := "VALID_CASE"]
 
 ### Save results
 
 save(INSTRUCTOR_NUMBER, file="../INSTRUCTOR_NUMBER-2013.Rdata")
-
 
 ###	Merge 2013 data with existing (2011 & 12) Data_Supplementary
 
@@ -95,5 +94,4 @@ load('/home/avi/SGP_Projects/Georgia/Data/Georgia_SGP.Rdata')
 
 Georgia_SGP@Data_Supplementary$INSTRUCTOR_NUMBER <- as.data.table(rbind.fill(Georgia_SGP@Data_Supplementary$INSTRUCTOR_NUMBER, INSTRUCTOR_NUMBER))
 
-outputSGP(Georgia_SGP, output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data", "INSTRUCTOR_Data"))
 save(Georgia_SGP, file='/home/avi/SGP_Projects/Georgia/Data/Georgia_SGP.Rdata')
