@@ -32,6 +32,7 @@ Georgia_SGP <- analyzeSGP(
 			sgp.projections.lagged.baseline=TRUE,
 			simulate.sgps=TRUE,
 			calculate.simex=TRUE,
+			calculate.simex.baseline=TRUE,
 			parallel.config=list(BACKEND="PARALLEL", WORKERS=list(PERCENTILES=10, BASELINE_PERCENTILES=10, PROJECTIONS=5, LAGGED_PROJECTIONS=5, SIMEX=10)))
 
 ### Save Results
