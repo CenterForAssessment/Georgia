@@ -65,6 +65,11 @@ Georgia_SGP <- analyzeSGP(
 Georgia_SGP <- combineSGP(Georgia_SGP)
 
 
+### summarizeSGP
+
+Georgia_SGP <- summarizeSGP(Georgia_SGP, parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SUMMARY=20)))
+
+
 ### outputSGP
 
 outputSGP(Georgia_SGP, output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"))
