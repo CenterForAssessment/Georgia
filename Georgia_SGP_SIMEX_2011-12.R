@@ -1,6 +1,6 @@
 #########################################################
 ###
-### Calculate SIMEX SGPs for Georgia for 2013
+### Calculate SIMEX SGPs for Georgia for 2011 & 2012
 ###
 ##########################################################
 
@@ -19,7 +19,7 @@ load("Georgia_SGP.Rdata")
 
 Georgia_SGP <- analyzeSGP(
 		Georgia_SGP,
-		years=c('2012'), #'2011', 
+		years=c('2011'), #'2012', # Run seperate
 		content_areas=c("ELA", "READING", "MATHEMATICS", "SCIENCE"), # NO BASELINE SOCIAL_STUDIES in 2011 or 2012
 		sgp.percentiles= FALSE,
 		sgp.projections=FALSE,
@@ -54,7 +54,6 @@ GA_EOCT_2011.config <- c(
                 PHYSICAL_SCIENCE_2011.config)
 
 GA_EOCT_2012.config <- c(
-		ALGEBRA_2012.config,
                 AMERICAN_LIT_2012.config,
                 BIOLOGY_2012.config,
                 ECONOMICS_2012.config,
@@ -74,41 +73,39 @@ Georgia_SGP <- analyzeSGP(
 		sgp.projections.lagged.baseline=FALSE,
 		simulate.sgps = FALSE,
 		calculate.simex.baseline = TRUE,
-		parallel.config=list(BACKEND='PARALLEL', WORKERS=list(BASELINE_PERCENTILES=11)))
+		parallel.config=list(BACKEND='PARALLEL', WORKERS=list(SIMEX=25)))
+
+### 2012 contains duplicates in math and reading, so remove those from Georgia_SGP@SGP$SGProjections before saving.
+
+dup.subjects <- c("READING", "MATHEMATICS", "SCIENCE")
+dup.var.names <- c("ID", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT")
+valid.var.names <- c("ID", "LEVEL_1_SGP_TARGET_YEAR_1", "LEVEL_2_SGP_TARGET_YEAR_1")
+
+for (n in dup.subjects) {
+	### Find ALL duplicates
+	tmp.dups <- data.table(Georgia_SGP@SGP$SGProjections[[paste(n, ".2012.BASELINE", sep="")]][, dup.var.names], key="ID")
+	tmp.dups <- data.table(tmp.dups[c(which(duplicated(tmp.dups))-1, which(duplicated(tmp.dups)))], key="ID")
+	
+	### Narrow down dups to find which one is
+	tmp.valid <- data.table(Georgia_SGP@SGP$SGProjections[[paste(n, ".2013.LAGGED.BASELINE", sep="")]][, valid.var.names], key="ID")
+	tmp.valid <- tmp.dups[tmp.valid, allow.cartesian=TRUE]
+	tmp.valid <- data.table(tmp.valid[LEVEL_1_SGP_TARGET_YEAR_1_CURRENT==LEVEL_1_SGP_TARGET_YEAR_1 & LEVEL_2_SGP_TARGET_YEAR_1_CURRENT==LEVEL_2_SGP_TARGET_YEAR_1][, 
+		list(ID, LEVEL_1_SGP_TARGET_YEAR_1, LEVEL_2_SGP_TARGET_YEAR_1)], key="ID")
+	
+	tmp.dups <- tmp.valid[data.table(Georgia_SGP@SGP$SGProjections[[paste(n, ".2012.BASELINE", sep="")]], key="ID")]
+	tmp.dups <- tmp.dups[is.na(LEVEL_1_SGP_TARGET_YEAR_1) | LEVEL_1_SGP_TARGET_YEAR_1_CURRENT == LEVEL_1_SGP_TARGET_YEAR_1]
+	Georgia_SGP@SGP$SGProjections[[paste(n, ".2012.BASELINE", sep="")]] <- data.frame(
+		tmp.dups[-c(which(duplicated(tmp.dups))-1, which(duplicated(tmp.dups)))])[, -(2:3)]
+}
+
+for (j in c(grep(".2011.BASELINE", names(Georgia_SGP@SGP$SGPercentiles)), grep(".2012.BASELINE", names(Georgia_SGP@SGP$SGPercentiles)))) {
+	Georgia_SGP@SGP$SGPercentiles[[j]] <- Georgia_SGP@SGP$SGPercentiles[[j]][!is.na(Georgia_SGP@SGP$SGPercentiles[[j]]$SGP_SIMEX_BASELINE),]
+}
+
+Georgia_SGP <- combineSGP(Georgia_SGP, years=c('2011', '2012'), sgp.percentiles = FALSE, sgp.percentiles.baseline = TRUE, sgp.projections = FALSE, sgp.projections.baseline = FALSE, sgp.projections.lagged = FALSE, sgp.projections.lagged.baseline = FALSE)
 
 save(Georgia_SGP, file="Georgia_SGP.Rdata")
 
-# ### analyzeSGP:  Cohort referenced EOCT content areas
+outputSGP(Georgia_SGP, output.type = "LONG_Data")
 
-# ### Load EOCT configurations
-
-# source("SGP_CONFIG/EOCT/2013/MATHEMATICS.R")
-
-# GA_EOCT.config <- c(
-		# GEOMETRY_2013.config,
-		# COORDINATE_ALGEBRA_2013.config,
-		# MATHEMATICS_II_2013.config,
-		# MATHEMATICS_I_2013.config)
-
-# Georgia_SGP <- analyzeSGP(
-		# Georgia_SGP,
-		# sgp.config=GA_EOCT.config,
-		# sgp.percentiles=TRUE,
-		# sgp.projections=FALSE,
-		# sgp.projections.lagged=FALSE,
-		# sgp.percentiles.baseline= FALSE,
-		# sgp.projections.baseline= FALSE,
-		# sgp.projections.lagged.baseline=FALSE,
-		# simulate.sgps = FALSE,
-		# # calculate.sgps = FALSE,
-		# sgp.use.my.coefficient.matrices = TRUE,
-		# # calculate.simex = TRUE,
-		# calculate.simex = list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", simex.use.my.coefficient.matrices=TRUE),
-		# parallel.config=list(BACKEND='PARALLEL', WORKERS=list(SIMEX=15, TAUS=15)))
-
-# ### combineSGP
-
-# Georgia_SGP <- combineSGP(Georgia_SGP, years='2013')
-
-# ### Save results
-# save(Georgia_SGP, file="Georgia_SGP.Rdata")
+Georgia_SGP <- summarizeSGP(Georgia_SGP, parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SUMMARY=8)))
