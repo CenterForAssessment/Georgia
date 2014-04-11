@@ -1,6 +1,6 @@
 ###################################################################################################
 ###
-###   Georgia Baseline SGP matrix calculation  --  Second version, now without grade levels in HS
+###   Georgia Baseline SIMEX matrix calculation
 ###
 ###################################################################################################
 
@@ -43,7 +43,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.projections.lagged.baseline=FALSE,
 		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011'), # should have been the default (4 panel years) when run in fall 2012 with 2008-2011 data
 		simulate.sgps = FALSE,
-		calculate.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		parallel.config=list(BACKEND='PARALLEL', WORKERS=list(SIMEX=25)))
 
 ###		EOCT Content Areas
