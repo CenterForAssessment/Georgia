@@ -89,7 +89,7 @@ COORDINATE_ALGEBRA_2014.config <- list(
 
 ANALYTIC_GEOMETRY_2014.config <- list(
 	ANALYTIC_GEOMETRY.2014 = list( #28 - New Progression
-		sgp.content.areas=c('ALGEBRA', 'ANALYTIC_GEOMETRY'),
+		sgp.content.areas=c('COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
 		sgp.panel.years=c('2013', '2014'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
@@ -97,7 +97,7 @@ ANALYTIC_GEOMETRY_2014.config <- list(
 		sgp.calculate.simex=TRUE,
 		sgp.norm.group.preference=3),
 	ANALYTIC_GEOMETRY.2014 = list( #29 - New Progression
-		sgp.content.areas=c('MATHEMATICS', 'ALGEBRA', 'ANALYTIC_GEOMETRY'),
+		sgp.content.areas=c('MATHEMATICS', 'COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
 		sgp.panel.years=c('2012', '2013', '2014'),
 		sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
@@ -105,7 +105,7 @@ ANALYTIC_GEOMETRY_2014.config <- list(
 		sgp.calculate.simex=TRUE,
 		sgp.norm.group.preference=0),
 	ANALYTIC_GEOMETRY.2014 = list( #30 - New Progression
-		sgp.content.areas=c('MATHEMATICS', 'ALGEBRA', 'ANALYTIC_GEOMETRY'),
+		sgp.content.areas=c('MATHEMATICS', 'COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
 		sgp.panel.years=c('2012', '2013', '2014'),
 		sgp.grade.sequences=list(c('7', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
