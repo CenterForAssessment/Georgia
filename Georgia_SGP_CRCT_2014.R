@@ -10,12 +10,8 @@ require(SGP)
 
 ### Load Georgia SGP object
 
-load("Georgia_SGP.Rdata")
-load('Georgia/Data/Georgia_Baseline_Matrices.Rdata' )
-
-### prepareSGP
-
-Georgia_SGP <- prepareSGP(Georgia_SGP)
+load("Data/Georgia_SGP.Rdata")
+load('Data/Georgia_Baseline_Matrices.Rdata' )
 
 
 ### AnalyzeSGP : Grade level CRCT tests
@@ -33,9 +29,10 @@ Georgia_SGP <- analyzeSGP(
 			sgp.projections.baseline=TRUE,
 			sgp.projections.lagged.baseline=TRUE,
 			simulate.sgps=TRUE,
-			calculate.simex=TRUE, # TRUE or NULL (not FALSE!)
-			calculate.simex.baseline=TRUE,
-			parallel.config=list(BACKEND="PARALLEL", WORKERS=list(TAUS=25, SIMEX=5, PROJECTIONS=15, LAGGED_PROJECTIONS=10)))
+			calculate.simex=NULL, # TRUE or NULL (not FALSE!) - NULL now to avoid creating (unnecessary) Cohort referenced SIMEX
+			calculate.simex.baseline=TRUE, # TRUE or NULL (not FALSE!)
+			goodness.of.fit.print=FALSE, # Print all out once after running EOCTs
+			parallel.config=list(BACKEND="PARALLEL", WORKERS=list(PERCENTILES=12, BASELINE_PERCENTILES=12, PROJECTIONS=6, LAGGED_PROJECTIONS=6))) #TAUS=25, SIMEX=5
 
 ### Save Results
 
