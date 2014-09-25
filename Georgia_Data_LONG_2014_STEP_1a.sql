@@ -273,3 +273,6 @@ ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, Performance_level AS ACH
 STATE_ENROLLMENT_STATUS, FIRST_OBSERVATION, LAST_OBSERVATION  , GIFT
 from [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean3]
 where SCHOOL_YEAR='2014'
+
+
+/**Export "[All Data 2009_2014]..[2010_2014AllData]" to pipe delimited text file**/
