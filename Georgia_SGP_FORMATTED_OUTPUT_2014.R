@@ -31,9 +31,8 @@ variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "Y
 
 tmp.long.data <- subset(Georgia_SGP_LONG_Data_2014, select=intersect(variables.to.output, names(Georgia_SGP_LONG_Data_2014)))
 
-# ### Clean up ADMINISTRATION_PERIOD
+# ### Clean up ADMINISTRATION_PERIOD - Changed in Georgia_SGP@Data and Georgia_SGP_LONG_Data_2014 output, so not needed anymore
 # tmp.long.data[, ADMINISTRATION_PERIOD := paste(YEAR_WITHIN, ADMINISTRATION_PERIOD, sep=": ")]
-# tmp.long.data[, ADMINISTRATION_PERIOD := gsub("3: 3: ", "3: ", ADMINISTRATION_PERIOD)]
 
 ###		Create SGP_*_FINAL Variables
 ###		Start with baseline SGPs and then fill in missings (EOCT Math subjects) with cohort referenced SGPs
@@ -127,13 +126,6 @@ setkeyv(tmp.admin.period, c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1
 tmp.admin.period <- tmp.admin.period[which(!duplicated(tmp.admin.period))]
 
 setkeyv(tmp.long.data, c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "VALID_CASE"))
-
-# xx <- merge(tmp.long.data, tmp.admin.period, all.x=TRUE)
-
-# # xx <- tmp.admin.period[tmp.long.data]
-# xx[, ADMINISTRATION_PERIOD_PRIOR_1 := ADMIN_PERIOD_PRIOR]
-# xx[which(!is.na(GRADE_PRIOR_1) & is.na(ADMINISTRATION_PERIOD_PRIOR_1)), ADMINISTRATION_PERIOD_PRIOR_1 := "2: SPRING"]
-# table(xx[SCHOOL_YEAR_PRIOR_1 =='2014']$ADMINISTRATION_PERIOD_PRIOR_1, xx[SCHOOL_YEAR_PRIOR_1 =='2014']$ADMINISTRATION_PERIOD, exclude=NULL)
 
 tmp.long.data <- merge(tmp.long.data, tmp.admin.period, all.x=TRUE)
 
