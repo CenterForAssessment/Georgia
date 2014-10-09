@@ -3,6 +3,8 @@ load("Data/Georgia_SGP.Rdata")
 
 Georgia_Baseline_Matrices <- Georgia_SGP@SGP$Coefficient_Matrices[grep("BASELINE", names(Georgia_SGP@SGP$Coefficient_Matrices))]
 Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_SGP@SGP$Coefficient_Matrices[-grep("BASELINE", names(Georgia_SGP@SGP$Coefficient_Matrices))]
+
+SGPstateData][['GA']][['Baseline_splineMatrix']] <- NULL
  
 ### GRADE_9_LIT
 
@@ -10,14 +12,12 @@ my.baseline.config <- list(
 	list(  # 7,584 students #1
 		sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		# sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012', '2013'), #9503
 		sgp.baseline.grade.sequences=c(8,8, 'EOCT'),
 		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.baseline.grade.sequences.lags=c(0, 3)),
 	list(  # 4,399 students #2
 		sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		# sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012', '2013'), # 6149
 		sgp.baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
 		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.baseline.grade.sequences.lags=c(0, 1, 0, 3)),
@@ -25,14 +25,12 @@ my.baseline.config <- list(
 	list(  # 4,882 students #7
 		sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		# sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012', '2013'), #6434
 		sgp.baseline.grade.sequences=c(7,7, 'EOCT'),
 		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.baseline.grade.sequences.lags=c(0, 1)),
 	list(  # 3,813 students #8
 		sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		# sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012', '2013'), #5293
 		sgp.baseline.grade.sequences=c(6,6, 7,7, 'EOCT'),
 		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.baseline.grade.sequences.lags=c(0, 1, 0, 1))) # Continuous NO 8th grade ELA/Reading
@@ -63,7 +61,6 @@ my.baseline.config <- list(
 	list(  # 19,722 students #11
 		sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		# sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012', '2013'),
 		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
 		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.baseline.grade.sequences.lags=3), # skip 2 years
@@ -71,7 +68,6 @@ my.baseline.config <- list(
 	list(  # 11,293 students #12
 		sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		# sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012', '2013'),
 		sgp.baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
 		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.baseline.grade.sequences.lags=c(0, 1, 3))) # skip 2 years
