@@ -111,7 +111,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.content.areas=c('PHYSICAL_SCIENCE','PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2014', '2014'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('FIRST_OBSERVATION', c('LAST_OBSERVATION')),
+		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=1),

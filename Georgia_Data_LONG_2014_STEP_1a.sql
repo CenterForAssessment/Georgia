@@ -234,45 +234,16 @@ set VALID_CASE='INVALID_CASE'
 where  Rownumber_dup2<> 1 
 
 
-/** create first and last observation indicators for the same year repeater and block scheduler: 4763841**/
-
-drop table [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean3]
-select * 
-into [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean3]
-from (
-select *,
-case 
-when Rownumber_AdminType_Asc=1 then '1' 
-else ''
-end 
-as First_observation,
-case
-when Rownumber_AdminType_Desc=1 then '1'
-else ''
-end
-as Last_observation
-from (
-select *, ROW_NUMBER() over(partition by valid_case,Subject_code,GTID order by YEAR_WITHIN Asc) as Rownumber_AdminType_Asc,ROW_NUMBER() over(partition by valid_case,Subject_code,GTID order by YEAR_WITHIN Desc) as Rownumber_AdminType_Desc
+/**Generate 2014 data**/
+select VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SR_SCHOOL_ID as SCHOOL_NUMBER, GTID, FIRST_NAME, MIDDLE_NAME, LAST_NAME,BIRTH_DATE,GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
+ADMINISTRATION_PERIOD, RACE_CODE, GENDER_CODE, ED, SWD, Performance_level, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
+STATE_ENROLLMENT_STATUS, GIFT
+INTO [2014 SGP w SIMEX]..[2014_AllData_Final]
 from [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean2]
-) h
-) g
-
-
-/**Combine data with previous years 23504724**/
-
-drop table [All Data 2009_2014]..[2010_2014AllData]
-select VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SCHOOL_NUMBER, GTID, GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
-ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, Performance_level AS ACHIVEMENT_LEVEL, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
-STATE_ENROLLMENT_STATUS, FIRST_OBSERVATION, LAST_OBSERVATION,'' as GIFT 
-into [All Data 2009_2014]..[2010_2014AllData]
-from [2009_2013LongData]..Georgia_Data_LONG
-where valid_case='VALID_CASE' 
-union all
-select VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SR_SCHOOL_ID as SCHOOL_NUMBER, GTID, GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
-ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, Performance_level AS ACHIVEMENT_LEVEL, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
-STATE_ENROLLMENT_STATUS, FIRST_OBSERVATION, LAST_OBSERVATION  , GIFT
-from [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean3]
 where SCHOOL_YEAR='2014'
 
 
-/**Export "[All Data 2009_2014]..[2010_2014AllData]" to pipe delimited text file**/
+
+
+
+/**Export "[2014 SGP w SIMEX]..[2014_AllData_Final]" to pipe delimited text file**/

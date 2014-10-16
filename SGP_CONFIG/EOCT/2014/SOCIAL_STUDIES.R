@@ -95,6 +95,22 @@ US_HISTORY_2014.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=2),
+	# US_HISTORY.2014 = list( #72
+		# sgp.content.areas=c('US_HISTORY','US_HISTORY'),
+		# sgp.panel.years=c('2014', '2014'),
+		# sgp.grade.sequences=list(c('EOCT', 'EOCT')),
+		# sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
+		# sgp.exact.grade.progression=TRUE,
+		# sgp.calculate.simex.baseline=TRUE,
+		# sgp.norm.group.preference=1),
+	US_HISTORY.2014 = list( #73 - New Progression
+		sgp.content.areas=c('ECONOMICS', 'US_HISTORY'),
+		sgp.panel.years=c('2014', '2014'),
+		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
+		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
+		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex.baseline=TRUE,
+		sgp.norm.group.preference=0),
 	US_HISTORY.2014 = list( #72
 		sgp.content.areas=c('US_HISTORY','US_HISTORY'),
 		sgp.panel.years=c('2014', '2014'),
@@ -102,15 +118,7 @@ US_HISTORY_2014.config <- list(
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
-		sgp.norm.group.preference=1),
-	US_HISTORY.2014 = list( #73 - New Progression
-		sgp.content.areas=c('ECONOMICS', 'US_HISTORY'),
-		sgp.panel.years=c('2014', '2014'),
-		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'), # Should this be Last, First for "block schedule"?
-		sgp.exact.grade.progression=TRUE,
-		sgp.calculate.simex.baseline=TRUE,
-		sgp.norm.group.preference=0)
+		sgp.norm.group.preference=1)
 ) ### END US_HISTORY_2014.config
 
 

@@ -231,6 +231,7 @@ setkeyv(dups, key(Georgia_Data_LONG))
 Georgia_Data_LONG[intersect(c(which(duplicated(Georgia_Data_LONG)), which(duplicated(Georgia_Data_LONG))-1), which(Georgia_Data_LONG$MATCH_STATUS=="U")) , VALID_CASE := 'INVALID_CASE']
 
 #  Given BIRTH_DATE and STUDENT_GRADE_LEVEL, take grade that matches the STUDENT_GRADE_LEVEL
+#  Look into this further.  Might want to take the highest GRADE so that the kid gets an SGP next year.
 setkeyv(Georgia_Data_LONG, c("VALID_CASE", "SCHOOL_YEAR", "SUBJECT_CODE", "GTID", "BIRTH_DATE", "YEAR_WITHIN"))
 dups <- Georgia_Data_LONG[c(which(duplicated(Georgia_Data_LONG))-1, which(duplicated(Georgia_Data_LONG))),]
 setkeyv(dups, key(Georgia_Data_LONG))
@@ -274,4 +275,6 @@ Georgia_SGP@Data <- data.table(rbind.fill(Georgia_SGP@Data, GA_2014@Data), key=s
 
 Georgia_SGP <- prepareSGP(Georgia_SGP)
 
-save(Georgia_SGP, file="../Georgia_SGP.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+
+
