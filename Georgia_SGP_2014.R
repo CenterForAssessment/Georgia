@@ -30,7 +30,7 @@ Georgia_SGP@SGP$Coefficient_Matrices <- c(Georgia_SGP@SGP$Coefficient_Matrices, 
 
 
 ###
-###		Cohort referenced EOCT content areas - run seperate to keep SIMEX production limited to "official" version
+### Cohort referenced EOCT content areas - run seperate to keep SIMEX production limited to "official" version
 ###
 
 ### Load EOCT configurations
