@@ -32,6 +32,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(8, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=9),
 	GRADE_9_LIT.2014 = list( # 2 - New Progression
@@ -40,6 +41,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(7, 7, 8, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=8),
 	GRADE_9_LIT.2014 = list( # 3
@@ -48,6 +50,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(8, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=7),
 	GRADE_9_LIT.2014 = list( # 4
@@ -56,6 +59,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(7, 7, 8, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=6),
 	GRADE_9_LIT.2014 = list( # 5
@@ -64,6 +68,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(8, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=5),
 	GRADE_9_LIT.2014 = list( # 6
@@ -72,6 +77,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(7, 7, 8, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=4),
 	GRADE_9_LIT.2014 = list( # 7 - New Progression
@@ -80,6 +86,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(7, 7, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=3),
 	GRADE_9_LIT.2014 = list( # 8 - New Progression
@@ -88,6 +95,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c(6, 6, 7, 7, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=2),
 	GRADE_9_LIT.2014 = list( # 9
@@ -96,6 +104,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=1),
 	GRADE_9_LIT.2014 = list( # 10
@@ -104,6 +113,7 @@ GRADE_9_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END GRADE_9_LIT_2014.config
@@ -118,6 +128,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=8),
 	AMERICAN_LIT.2014 = list( # 12 - New Progression
@@ -126,6 +137,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('8', '8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=7),
 
@@ -135,6 +147,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=6),
 	AMERICAN_LIT.2014 = list( # 14
@@ -143,6 +156,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('8', '8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=5),
 	AMERICAN_LIT.2014 = list( # 15
@@ -151,6 +165,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=4),
 	AMERICAN_LIT.2014 = list( # 16
@@ -159,6 +174,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('8', '8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=3),
 	AMERICAN_LIT.2014 = list( # 17
@@ -167,6 +183,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=2),
 	AMERICAN_LIT.2014 = list( # 18
@@ -175,6 +192,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=1),
 	AMERICAN_LIT.2014 = list( # 19
@@ -183,6 +201,7 @@ AMERICAN_LIT_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END AMERICAN_LIT.2014.config

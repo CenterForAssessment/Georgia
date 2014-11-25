@@ -25,6 +25,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('8','EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=12),
 	PHYSICAL_SCIENCE.2014 = list( #38
@@ -33,6 +34,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('7','8','EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=11),
 	PHYSICAL_SCIENCE.2014 = list( #39
@@ -41,6 +43,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('8','EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=10),
 	PHYSICAL_SCIENCE.2014 = list( #40
@@ -49,6 +52,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('7','8','EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=9),
 	PHYSICAL_SCIENCE.2014 = list( #41
@@ -57,6 +61,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('7','EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=8),
 	PHYSICAL_SCIENCE.2014 = list( #42
@@ -73,6 +78,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=6),
 	PHYSICAL_SCIENCE.2014 = list( #44
@@ -81,6 +87,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('8','EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=5),
 	PHYSICAL_SCIENCE.2014 = list( #45
@@ -89,6 +96,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=4),
 	PHYSICAL_SCIENCE.2014 = list( #46
@@ -97,6 +105,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('8','EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=3),
 	PHYSICAL_SCIENCE.2014 = list( #47
@@ -105,6 +114,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=2),
 	PHYSICAL_SCIENCE.2014 = list( #48
@@ -113,6 +123,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=1),
 	PHYSICAL_SCIENCE.2014 = list( #49
@@ -121,6 +132,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END PHYSICAL_SCIENCE_2014.config
@@ -135,6 +147,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=11),
 	BIOLOGY.2014 = list( #51
@@ -143,6 +156,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('7', '8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=10),
 	BIOLOGY.2014 = list( #52
@@ -151,6 +165,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=9),
 	BIOLOGY.2014 = list( #53
@@ -159,6 +174,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('7', '8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=8),
 	BIOLOGY.2014 = list( #54
@@ -167,6 +183,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=7),
 	BIOLOGY.2014 = list( #55
@@ -175,6 +192,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=6),
 	BIOLOGY.2014 = list( #56
@@ -183,6 +201,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=5), 
 	BIOLOGY.2014 = list( #57
@@ -191,6 +210,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=4), 
 	BIOLOGY.2014 = list( #58
@@ -199,6 +219,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('7', 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=3), 
 	BIOLOGY.2014 = list( #59
@@ -207,6 +228,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=2),
 	BIOLOGY.2014 = list( #60
@@ -215,6 +237,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=1),
 	BIOLOGY.2014 = list( #61
@@ -223,6 +246,7 @@ BIOLOGY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END BIOLOGY_2014.config

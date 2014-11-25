@@ -23,6 +23,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=11),
 	US_HISTORY.2014 = list( #63
@@ -31,6 +32,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=10),
 	# US_HISTORY.2014 = list( #64 - New Progression - 7th grade GPS Soc Stds only available from 2010 forward.  Could do cohort referenced this year, but not enough to build baseline
@@ -46,6 +48,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=8),
 	# US_HISTORY.2014 = list( #66 - New Progression - 7th grade GPS Soc Stds only available from 2010 forward.  Could do cohort referenced this year, but not enough to build baseline
@@ -62,6 +65,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=6),
 	# US_HISTORY.2014 = list( #68 - New Progression - Only 900 kids in baseline cohort - not enough to establish good baseline and kids are already covered in progression 67 above
@@ -77,6 +81,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=4),
 	# US_HISTORY.2014 = list( #70 - New Progression - 3,400 kids in baseline cohort - MARGINAL baseline cohort size and this would be the ONLY US history analysis with more than one prior.  kids are already covered in progression 69 above
@@ -93,6 +98,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=2),
 	# US_HISTORY.2014 = list( #72
@@ -109,6 +115,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=0),
 	US_HISTORY.2014 = list( #72
@@ -117,6 +124,7 @@ US_HISTORY_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=1)
 ) ### END US_HISTORY_2014.config
@@ -131,6 +139,7 @@ ECONOMICS_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=4),
 	ECONOMICS.2014 = list( #75
@@ -139,6 +148,7 @@ ECONOMICS_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=3),
 	ECONOMICS.2014 = list( #76
@@ -147,6 +157,7 @@ ECONOMICS_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=2),
 	ECONOMICS.2014 = list( #77
@@ -155,6 +166,7 @@ ECONOMICS_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=1),
 	ECONOMICS.2014 = list( #78
@@ -163,6 +175,7 @@ ECONOMICS_2014.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END ECONOMICS_2014.config
