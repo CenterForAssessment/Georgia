@@ -28,14 +28,14 @@ Georgia_SGP <- analyzeSGP(
 			years='2014',
 			content_areas=c("ELA", "READING", "MATHEMATICS", "SOCIAL_STUDIES", "SCIENCE"),
 			sgp.percentiles=TRUE,
-			sgp.projections=TRUE,
-			sgp.projections.lagged=TRUE,
+			sgp.projections = FALSE,
+			sgp.projections.lagged = FALSE,
 			sgp.percentiles.baseline=TRUE,
-			sgp.projections.baseline=TRUE,
-			sgp.projections.lagged.baseline=TRUE,
-			simulate.sgps= FALSE,
+			sgp.projections.baseline = FALSE,
+			sgp.projections.lagged.baseline = FALSE,
+			simulate.sgps = FALSE,
 			calculate.simex = NULL, # Only produce BASELINE SIMEX for CRCT.
-			calculate.simex.baseline=TRUE, 
+			calculate.simex.baseline = TRUE, 
 			goodness.of.fit.print=FALSE, # Print all out once after running EOCTs
 			parallel.config=list(BACKEND="PARALLEL", WORKERS=list(PERCENTILES=1, BASELINE_PERCENTILES=1, TAUS=13, SIMEX=5))) # Parallel config as run by Adam for official results
 

@@ -54,9 +54,9 @@ Georgia_SGP <- analyzeSGP(
 		Georgia_SGP,
 		sgp.config = GA_EOCT.config,
 		sgp.percentiles = TRUE,
-		sgp.projections = TRUE,
-		sgp.projections.lagged = TRUE,
-		sgp.percentiles.baseline = FALSE,
+		sgp.projections = FALSE,
+		sgp.projections.lagged = FALSE,
+		sgp.percentiles.baseline = TRUE,
 		sgp.projections.baseline = FALSE,
 		sgp.projections.lagged.baseline = FALSE,
 		# calculate.simex = TRUE, # SIMEX arguments no longer need to be specified.  Now included in CONFIG scripts.
@@ -69,7 +69,7 @@ Georgia_SGP <- analyzeSGP(
 Georgia_SGP <- combineSGP(Georgia_SGP, years='2014')
 
 ### Save results
-save(Georgia_SGP, file="Georgia_SGP.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 
 ### summarizeSGP (Produces aggregate tables)
