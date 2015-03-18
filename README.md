@@ -1,32 +1,23 @@
 Georgia
 =======
 
-SGP source code and documentation associated with Georgia SGP analyses
+SGP analysis source code & documentation
+-----------------------------------------
 
-```R
-###############################################################################################
-####
-####		Georgia Student Growth Percentiles Analysis 
-####		Criterion-Referenced Competency Tests (CRCT) & End of Course Tests (EOCT)
-####
-###############################################################################################
+[![Join the chat at https://gitter.im/CenterForAssessment/Georgia](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/CenterForAssessment/Georgia?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![License](http://img.shields.io/badge/license-GPL%203-brightgreen.svg?style=flat)](https://github.com/CenterForAssessment/Georgia/blob/master/LICENSE.md)
 
-### Load required packages
+### Analysis source code
 
-require(SGP)
+Source code provided utilizes the [**R** software environment](http://cran.r-project.org/) in conjunction with the [SGP Package](https://github.com/CenterForAssessment/SGP).
 
+### Analysis documentation
 
-### Create LONG data file
+Detailed documentation and instructions associated with the SGP analyses conducted for Georgia are available on the [Georgia SGP Analysis Wiki](https://github.com/CenterForAssessment/Georgia/wiki). 
+For more basic information on how to run SGP analyses please see the [SGP Package Wiki](https://github.com/CenterForAssessment/SGP/wiki/Home) which contains instructions on how to 
+prepare data and run SGP analyses.
 
-source("Georgia_Data_LONG.R")
+### Prepared with :heart: by:
 
+* [Damian Betebenner](https://github.com/dbetebenner)
+* [Adam VanIwaarden](https://github.com/adamvi)
 
-### Create CRCT SGPs
-
-source("Georgia_CRCT_SGP.R")
-
-
-### Create EOCT SGPs
-
-source("Georgia_EOCT_SGP.R")
-```
