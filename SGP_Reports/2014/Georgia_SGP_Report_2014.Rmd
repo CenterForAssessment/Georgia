@@ -1,0 +1,2242 @@
+---
+title: "The Georgia Student Growth Model"
+subtitle: "A Technical Overview of the Student Growth Percentile Methodology"
+author:
+  - name: Damian W.  Betebenner
+    affiliation: National Center for the Improvement of Educational Assessment (NCIEA)
+    email: DBetebenner@nciea.org
+  - name: Adam R.  VanIwaarden
+    email: avaniwaarden@gmail.com
+date: March 2015
+abstract:  "DRAFT REPORT - DO NOT CITE! <br> This report provides methodological
+  details about the Georgia Student Growth Model methodology and presents a descriptive
+  analysis of the 2014 SGP results."
+bibliography: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/Tech_Report/resources/educ.bib
+output: 
+  rmarkdown::html_document:
+    keep_md: TRUE
+    dev: "png"
+    css: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/Tech_Report/resources/report.css
+    toc: TRUE
+    toc_depth: 2
+    number_sections: TRUE
+    template: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/Tech_Report/resources/report.html
+    theme: null
+    mathjax: null
+    pandoc_args: [--webtex]
+---
+
+<!--SGPreport-->
+
+<!-- 
+This document was written by Damian Betebenner & Adam VanIwaarden for the State of Georgia Department of Education (DOE).
+
+	Original Draft:  February 20, 2015
+	Second Draft:    March 18, 2015
+	...
+-->
+
+<!-- load some R packages and functions required for HTML table creation silently.  Load SGP and other packages here to avoid messages.  -->
+
+```{r, echo=FALSE, include=FALSE}
+	require(SGP)
+	require(data.table)
+	require(plyr)
+	require(Gmisc)
+	require(rmarkdown)
+
+	options("table_counter"=0)
+  options(table_counter_str = "<strong>Table %s:</strong> ")
+	options("fig_caption_no"=0)
+	options(fig_caption_no_sprintf = "**Fig.  %s:**   %s")
+	options("fig_caption_no_roman"=FALSE)
+	options("equation_counter" = 0)
+	eqnNumNext <- function() {options("equation_counter" = getOption("equation_counter")+1); return(getOption("equation_counter"))}
+	eqnNum <- function(eqn.name="t1", em.space=150) {
+		if (!is.null(eqn.name)) assign(eqn.name, eqnNumNext(), envir=.GlobalEnv) else eqnNumNext()
+		return(cat('\\hspace{', em.space, 'em} \\text{(', getOption('equation_counter'), ')}', sep=""))
+	}
+
+	subject_order <- c("READING", "ELA","SOCIAL_STUDIES", "SCIENCE",  "MATHEMATICS", 
+										 "GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY", "BIOLOGY", "PHYSICAL_SCIENCE", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "MATHEMATICS_II")
+	CRCT_subjects <- c("READING", "ELA","SOCIAL_STUDIES", "SCIENCE",  "MATHEMATICS")
+	EOCT_subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY", "BIOLOGY", "PHYSICAL_SCIENCE", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "MATHEMATICS_II")
+	cohort_subjects <- c("COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "MATHEMATICS_II")
+	baseline_subjects <- c("READING", "ELA","SOCIAL_STUDIES", "SCIENCE",  "MATHEMATICS", 
+										 "GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY", "BIOLOGY", "PHYSICAL_SCIENCE")
+
+	###
+	### Lists of EOCT and CRCT subjects and reference types.  Used to subset summary tables and data below.
+	###
+	eoct.subj <- c('GRADE_9_LIT', 'AMERICAN_LIT', 'US_HISTORY', 'ECONOMICS', 'BIOLOGY', 'PHYSICAL_SCIENCE', 'COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY', 'MATHEMATICS_II')
+	eoct.domain <- c("LIT", "LIT", "SOC_SCI", "SOC_SCI", "SCI", "SCI", "MATH", "MATH", "MATH")
+	eoct.sgp.ref <- c("BASE", "BASE", "BASE", "BASE", "BASE", "BASE", "COHORT", "COHORT", "COHORT")
+	crct.subj <- c('READING', 'ELA', 'MATHEMATICS', 'SCIENCE', 'SOCIAL_STUDIES')
+	crct.domain <- c("LIT", "LIT", "MATH", "SCI", "SOC_SCI")
+	crct.sgp.ref <- c("BASE", "BASE", "BASE", "BASE", "BASE")
+
+	###  Load Data
+	#  Set working directory to Georgia - must be done internally
+#	setwd("~/Dropbox (CenterforAssessment)/SGP/Georgia")
+#	load("Data/Georgia_Summary_2014.Rdata")
+#	load("Data/Georgia_SGP.Rdata")
+	
+	# Rename the LONG data output
+#	variable.names <- SGPstateData[["GA"]][["Variable_Name_Lookup"]]
+#	setnames(Georgia_SGP@Data, 
+#			variable.names$names.provided[variable.names$names.sgp != variable.names$names.provided], 
+#			variable.names$names.sgp[variable.names$names.sgp != variable.names$names.provided])
+#	setkeyv(Georgia_SGP@Data, c("VALID_CASE", "CONTENT_AREA", "YEAR", "ID", "YEAR_WITHIN"))
+
+	###  Set working directory to GH-PAGES
+	setwd("/media/Data/Dropbox/Github_Repos/GH-PAGES/Georgia")
+```
+
+# Introduction
+
+This report contains details on the implementation of the student growth percentiles (SGP) model for the state of Georgia.  The National Center for the Improvement of Educational Assessment (NCIEA) contracted with the Georgia Department of Education (DOE) to implement the SGP methodology using data derived from the Georgia Student Assessment Program to create the Georgia Student Growth Model.  The goal of the engagement with DOE is to create a set of open source analytics techniques and conduct a set of initial analyses that will eventually be conducted by DOE in following years.
+
+The SGP methodology is an open source norm- and criterion-referenced student growth analysis that produces student growth percentiles and student growth projections/targets for each student with longitudinal data in the state.  The methodology is currently used for many purposes.  States and districts have used the results in various ways including parent/student diagnostic reporting, institutional improvement, and school and educator accountability.  Specifics about the manner in which growth is included in school and educator accountability can be found in documents related to those accountability systems.  
+
+The report includes three sections covering Data, SGP Results, and Goodness of Fit:
+
+* *Data* includes details on the decision rules used in the raw data preparation and student record validation.
+* *SGP Results* provides basic descriptive statistics from the 2014 analyses.
+* *Goodness of Fit* describes how well the statistical models used to produce SGPs fit Georgia students' data.  This includes discussion of goodness of fit plots and the student- and school-level correlations between SGP and prior achievement.
+
+Additionally, multiple appendices are included.  Appendix A includes Goodness of Fit plots for all content areas and grades.  Appendices B and C provide more technical descriptions of the statistical concepts, including the SGP methodology (B) and SIMEX correction for measurement error (C).
+
+# Data
+
+Data for the Georgia Criterion-Referenced Competency Tests (CRCT) and End of Course Tests (EOCT) used in the SGP analyses were supplied by the Georgia DOE to the NCIEA for analysis in the fall of 2014.  The current longitudinal data set includes academic years 2006-2007 through 2013-2014.  Subsequent years' analyses will augment this multi-year data set allowing DOE to maintain a comprehensive longitudinal data set for all students taking the CRCT and EOCT assessments and transitioning to the [Georgia Milestones Assessment System.](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx)
+
+Student Growth Percentiles have been produced for students that have a current score and at least one prior score in the same subject or a related content area.  SGPs were produced for grade-level (CRCT) Reading, English Language Arts (ELA), Social Studies, Science and Mathematics.  For the 2014 academic year SGPs were produced for EOCT courses including Grade 9 Literature, American Literature,  U.S.  History, Economics, Biology, Physical Science, Mathematics II, Coordinate Algebra and Analytic Geometry.
+
+## Longitudinal Data
+Growth analyses on assessment data require data which are linked to individual students over time.  Student growth percentile analyses require, at a minimum two, and preferably three years of assessment data for analysis of student progress.  To this end it is necessary that a unique student identifier be available so that student data records across years can be merged with one another and subsequently examined.  Because some records in the assessment data set contain students with more than one test score in a content area in a given year, a process to create unique student records in each content area by year combination was required in order to carry out subsequent growth analyses.  Furthermore, student records may be invalidated for other reasons.  The following business rules were used to either invalidate particular student records or select the appropriate record for use in the analyses.
+
+### General business rules
+
+1.  Student records are invalidated if the student identifier is not exactly 10 digits long.
+2.  Student records with missing ("NA") scores or scale scores outside of the possible range (usually 0) are invalidated.
+3.  Duplicate records that originated from the "unmatched" data files are invalidated.^[Both "Matched" (where student to school/district links have been verified) and "Unmatched" data files are available.  Unmatched data is added to the initial data file in hopes that it will possibly fill holes in students' score histories, but any current year SGPs produced will not be linked to any school, district or teacher.]
+4.  If a student has a main and a retest score^[Retests were available in 2011-12 but retest data are no longer used in SGP calculations as of the 2012-13 school year.], the record with the lower score is invalidated.
+5.  Student records with any administrative invalidation flag (for example, identifying test irregularities, students that did not attempt the test, or other issues) are invalidated.
+6.  Students who have tested out of assessment administration are invalidated.
+
+Beginning in 2014 the majority of the selection and invalidation of student records was performed by GADOE.  Whereas in previous years NCIEA staff conducted the data cleaning using `R` prior to running the data analytics, GADOE incorporated these business rules into the `SQL` code used to pull data from the IT warehouse.
+
+### CRCT specific business rules
+
+1.  If a student has multiple records (duplicate from the same subject, grade and administration period), their highest score was selected.
+2.  Student records from schools identified by the Governor’s Office of Student Achievement (GOSA) as having artificially inflated student test scores from the 2008-2010 are invalidated.
+3.  If a student took more than one assessment in the same subject and school year but was identified as being in two different grades, the record with the highest grade level was selected.
+4.  School years for which CRCT tests were aligned to QCC curriculum are invalidated (SGPs were not produced in previous years and have not been used as prior scores subsequently).
+
+Table 1 shows the number of valid CRCT student records available for analysis after applying the general and CRCT specific business rules.^[This number does not represent the number of SGPs produced, however, because students are required to have at least one prior score available as well.]
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	n.tbl.crct <- table(Georgia_SGP@Data[YEAR=='2014' & CONTENT_AREA %in% CRCT_subjects & VALID_CASE=='VALID_CASE']$CONTENT_AREA, Georgia_SGP@Data[YEAR=='2014' & CONTENT_AREA %in% CRCT_subjects & VALID_CASE=='VALID_CASE']$GRADE)
+```
+```{r, results='asis', echo=FALSE, N_tableCRCT}
+	n.tbl.crct <- n.tbl.crct[match(CRCT_subjects, row.names(n.tbl.crct)) ,]
+	n.tbl.crct <- cbind('Content Area'=sapply(CRCT_subjects, capwords, special.words=c("ELA")), n.tbl.crct)
+	n.tbl.crct <- prettyNum(n.tbl.crct, preserve.width = "individual",big.mark=',')
+	n.tbl.crct[which(n.tbl.crct==0)] <- ''
+# 	n.tbl.crct <- n.tbl.crct[, match(c('Content Area', sort(as.numeric(colnames(n.tbl.crct)[-1]))), colnames(n.tbl.crct))]
+# 	n.tbl.crct <- n.tbl.crct[, !is.na(colnames(n.tbl.crct))]
+	row.names(n.tbl.crct) <- NULL
+
+	cat(htmlTable(as.matrix(n.tbl.crct), title="", align=paste(rep('r', dim(n.tbl.crct)[2]), collapse=''), 
+		n.cgroup=c(1, dim(n.tbl.crct)[2]-1), cgroup=c("", "Grades"),
+		caption='Number of Valid CRCT Student Records by Grade and Subject for 2014'))
+```
+
+### EOCT specific business rules
+
+1.  If a student has multiple records (duplicate from the same subject and administration period), their highest score was selected.
+2.  For students who participate in two main administrations (i.e., students who failed and retook an EOCT course), the first attempt is used as a prior to produce an SGP for the final attempt.  In subsequent years, their final attempt may be used as a prior for other EOCT analyses.
+
+Table `r getOption("table_counter")+1` shows the total number of valid EOCT student records available for analysis after applying the general and EOCT specific business rules.
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	n.tbl.eoct <- table(Georgia_SGP@Data[YEAR=='2014' & CONTENT_AREA %in% EOCT_subjects & VALID_CASE=='VALID_CASE']$CONTENT_AREA, Georgia_SGP@Data[YEAR=='2014' & CONTENT_AREA %in% EOCT_subjects & VALID_CASE=='VALID_CASE']$GRADE)
+```
+```{r, results='asis', echo=FALSE, N_tableEOCT}
+	n.tbl.eoct <- n.tbl.eoct[match(EOCT_subjects, row.names(n.tbl.eoct)) ,]
+	n.tbl.eoct <- cbind('Content Area'=sapply(EOCT_subjects, capwords, special.words=c("ELA", "II")), 'Valid Records' = n.tbl.eoct)
+	n.tbl.eoct <- prettyNum(n.tbl.eoct, preserve.width = "individual",big.mark=',')
+	row.names(n.tbl.eoct) <- NULL
+
+  options("table_counter"=getOption("table_counter")-1)
+  cat(htmlTable(as.matrix(n.tbl.eoct), title="", align=paste(rep('r', dim(n.tbl.eoct)[2]), collapse=''), 
+		n.cgroup=c(1, dim(n.tbl.eoct)[2]-1), #cgroup=c("", "Grades"),
+		caption='Total Number of Valid EOCT Student Records by Subject for 2014'))
+```
+
+# SGP Results
+In the following sections basic descriptive statistics from the 2014 analyses are provided, including the state-level mean and median growth percentiles.  Currently Georgia uses either cohort or baseline referenced SGPs as the official student-level growth metric, depending upon the content area.  The goal is to eventually use only baseline referenced SGPs, however this requires an assessment program to have been established for several years.  Given that EOCT math courses have undergone changes in recent years, only cohort referenced SGPs are currently available for them.  Similarly, the upcoming transition from the CRCT and EOCT to [Georgia Milestones](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) assessments will require the exclusive use of cohort referenced analyses for at least two years until baseline referencing is again feasible.  
+
+Georgia DOE has also recently decided to implement the SIMEX measurement error correction method in the calculation of student-level SGPs.  This correction has been applied to both cohort and baseline referenced SGPs and the descriptive statistics from these analyses are also presented here.  The interested reader can find more in depth discussions of the cohort, baseline and SIMEX measurement error correction methodology in Appendices B and C of this report.
+
+## Cohort Referenced Median SGPs
+Growth percentiles, being quantities associated with each individual student, can be easily summarized across numerous grouping indicators to provide summary results regarding growth.  The median and mean of a collection of growth percentiles are used as measures of central tendency that summarize the distribution as a single number.  With perfect data fit, we expect the state median of all student growth percentiles in any grade to be 50 because the data are norm-referenced across all students in the state.  Median (and mean) growth percentiles well below 50 represent growth less than the state "average" and median growth percentiles well above 50 represent growth in excess of the state "average".
+
+To demonstrate the norm-referenced nature of the growth percentiles viewed at the state level, Table `r getOption("table_counter")+1` presents the cohort referenced growth percentile medians and means for the EOCT mathematics based content areas.  
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	chrt_eoct_smry <- Georgia_SGP@Data[CONTENT_AREA %in% cohort_subjects & YEAR=='2014'][,list("Median SGP"=median(as.numeric(SGP), na.rm=TRUE), "Mean SGP"=round(mean(SGP, na.rm=TRUE), 1)), by='CONTENT_AREA']
+	setkey(chrt_eoct_smry)
+```
+```{r, results='asis', echo=FALSE, cohortSmry}
+	chrt_eoct_smry_B <- chrt_eoct_smry[match(cohort_subjects, chrt_eoct_smry[["CONTENT_AREA"]]) ,]
+	chrt_eoct_smry_B <- chrt_eoct_smry_B[, CONTENT_AREA := sapply(CONTENT_AREA, capwords, special.words="II")] #  need to use <- assignment with := to avoid print out of DT...
+	setnames(chrt_eoct_smry_B, "CONTENT_AREA", "Content Area")
+	
+  options("table_counter"=getOption("table_counter")-1)
+  cat(htmlTable(as.matrix(chrt_eoct_smry_B), title="", align='rcc', 
+		n.cgroup=c(1, dim(chrt_eoct_smry_B)[2]-1), #cgroup=c("", "Grades"),
+		caption='EOCT Median and Mean <em>Cohort</em> Referenced Student Growth Percentile by Content Area for 2014'))
+```
+
+Based upon perfect model fit to the data, the median of all state growth percentiles in each grade by year by subject combination should be 50.  That is, in the conditional distributions, 50 percent of growth percentiles should be less than 50 and 50 percent should be greater than 50.  Deviations from 50 indicate imperfect model fit to the data.  Imperfect model fit can occur for a number of reasons, some due to issues with the data (e.g., floor and ceiling effects leading to a "bunching" up of the data) as well as issues due to the way that the SGP function fits the data.  The results in Table `r getOption("table_counter")` are close to perfect, with almost all values equal to 50.
+
+The results are coarse in that they are aggregated across tens of thousands of students.  More refined fit analyses are presented in the [Goodness-of-Fit section that follows](#goodness-of-fit).  Depending upon feedback from Georgia DOE, it may be desirable to tweak with some operational parameters and attempt to improve fit even further.  The impact upon the operational results based on better fit is expected to be extremely minor.
+
+It is important to note how, at the entire state level, the *norm-referenced* growth information returns little information on annual trends due to its norm-reference nature.  What the results indicate is that a typical (or average) student in the state demonstrates 50<sup>th</sup> percentile growth.  That is, "typical students" demonstrate "typical growth".  One benefit of the norm-referenced results follows when subgroups are examined (e.g., schools, district, demographic groups, etc.) Examining subgroups in terms of the median of their student growth percentiles, it is then possible to investigate why some subgroups display lower/higher student growth than others.  Moreover, because the subgroup summary statistic (i.e., the median) is composed of many individual student growth percentiles, one can break out the result and further examine the distribution of individual results.  
+
+## Baseline Referenced Median SGPs
+Baseline SGPs allow one to look at norm-referenced growth through another lens.  Rather than considering a single year's cohort, baseline SGPs are referenced against a "super-cohort" consisting of several years of students linked by common course/grade progressions.  This super-cohort serves as a baseline against which future annual cohorts can be compared, which allows for the examination of whether or not the system as a whole might be improving (or declining) in terms of growth over time relative to the baseline group.  If the system is improving over time, we would see those higher levels of effectiveness in the form of median SGPs that are greater than 50 (what *was* a higher rate of growth in the past is now typical growth).  An assumption required for the use of baseline referenced SGPs is that the scale scores are well anchored.  If this assumption is violated, then any deviation from "typical" growth may be purely an artifact of the test scaling procedure.  States transitioning from old test to new tests, for example, must reset their baseline growth because a new scale is in effect.  Table `r getOption("table_counter")+1` provides the median and mean baseline referenced results from Georgia's CRCT assessments and Table `r getOption("table_counter")+2` provides the EOCT results.
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	bsln_crct_smry <- Georgia_SGP@Data[CONTENT_AREA %in% CRCT_subjects & YEAR=='2014'][, list(MEDIAN = median(as.numeric(SGP_BASELINE), na.rm=TRUE), MEAN = round(mean(SGP_BASELINE, na.rm=TRUE), 1)), by=c('CONTENT_AREA', 'GRADE')][!is.na(MEDIAN)]
+	setkey(bsln_crct_smry)
+```{r, results='asis', echo=FALSE, baseSumCRCT}
+	bsln_crct_smryB <- data.frame()
+	for (ca in CRCT_subjects){
+		tmp.bsln_crct_smry <- paste(t(as.matrix(bsln_crct_smry[CONTENT_AREA==ca,][, list(MEDIAN)])), " (", t(as.matrix(bsln_crct_smry[CONTENT_AREA==ca,][, list(MEAN)])), ")", sep="")
+		tmp.bsln_crct_smry <- data.frame(matrix(c(capwords(ca), tmp.bsln_crct_smry), 1, length(tmp.bsln_crct_smry)+1))
+		names(tmp.bsln_crct_smry) <- c("Content Area", t(as.matrix(bsln_crct_smry[CONTENT_AREA==ca,][, list(GRADE)])))
+		bsln_crct_smryB <- rbind.fill(bsln_crct_smryB, tmp.bsln_crct_smry)
+	}
+	bsln_crct_smryB[is.na(bsln_crct_smryB)] <- ""
+	
+  options("table_counter"=getOption("table_counter")-1)
+  cat(htmlTable(as.matrix(bsln_crct_smryB), title="", align=paste(rep('r', dim(bsln_crct_smryB)[2]), collapse=''), 
+		n.cgroup=c(1, dim(bsln_crct_smryB)[2]-1), cgroup=c("", "Grades"),
+		# n.rgroup=c(rep(length(unique(bsln_crct_smry$CONTENT_AREA)), length(unique(bsln_crct_smry$YEAR)))), rgroup= gsub('_', ' - ', unique(bsln_crct_smry$YEAR)),
+		caption='CRCT Median (Mean) <em>Baseline</em> Student Growth Percentile by Grade and Content Area for 2014'))
+```
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	bsln_eoct_smry <- Georgia_SGP@Data[CONTENT_AREA %in% intersect(baseline_subjects, EOCT_subjects) & YEAR=='2014'][,list("Median SGP"=median(as.numeric(SGP_BASELINE), na.rm=TRUE), "Mean SGP"=round(mean(SGP_BASELINE, na.rm=TRUE), 1)), by='CONTENT_AREA']
+	setkey(bsln_eoct_smry)
+```
+```{r, results='asis', echo=FALSE, bslnSmry}
+	bsln_eoct_smry_B <- bsln_eoct_smry[match(intersect(baseline_subjects, EOCT_subjects), bsln_eoct_smry[["CONTENT_AREA"]]) ,]
+	bsln_eoct_smry_B <- bsln_eoct_smry_B[, CONTENT_AREA := sapply(CONTENT_AREA, capwords, special.words="II")]
+	setnames(bsln_eoct_smry_B, "CONTENT_AREA", "Content Area")
+	
+  options("table_counter"=getOption("table_counter")-1)
+  cat(htmlTable(as.matrix(bsln_eoct_smry_B), title="", align='rcc', 
+		n.cgroup=c(1, dim(bsln_eoct_smry_B)[2]-1), #cgroup=c("", "Grades"),
+		caption='EOCT Median and Mean <em>Baseline</em> Referenced Student Growth Percentile by Content Area for 2014'))
+```
+
+## SIMEX Adjusted Student Growth Percentiles
+The use of error-prone standardized test scores in statistical models can lead to numerous problems.  Understanding the effects of measurement error and correcting it is particularly difficult in the SGP model given that it is based on non-parametric quantile regression.  Preliminary investigations suggest that the use of error-prone measures may lead SGP estimates to be inflated for students with high prior achievement and underestimated for students with lower prior achievement.  This bias at the individual student-level can translate to bias in aggregate measures (such as median and mean SGPs) when student sorting based on prior achievement exists at the level of aggregation (e.g.  classrooms or schools).  As a result, growth and prior achievement are (positively) correlated, giving schools and teachers with higher achieving students an undue advantage and disadvantaging those with a preponderance of low achieving students.  
+
+Simulation-extrapolation (SIMEX) methods of correcting for measurement error induced bias in the SGP estimation has been proposed and recently tested in Georgia.  Descriptive statistics from these analyses are provided here and in the [Goodness-of-Fit](#goodness-of-fit) section.  Additional technical information about the SIMEX procedure in general and its use in the calculation of cohort and baseline referenced SGPs is provided in [Appendix C](#appendix-c---simex-correction) of this report.
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	chrt_SIMEX_smry <- Georgia_SGP@Data[CONTENT_AREA %in% cohort_subjects & YEAR=='2014'][,list("Median SGP"=median(as.numeric(SGP_SIMEX), na.rm=TRUE), "Mean SGP"=round(mean(SGP_SIMEX, na.rm=TRUE), 1)), by='CONTENT_AREA']
+	setkey(chrt_SIMEX_smry)
+```
+```{r, results='asis', echo=FALSE, chrt_SIMEX_smry_B}
+	chrt_SIMEX_smry_B <- chrt_SIMEX_smry[match(cohort_subjects, chrt_SIMEX_smry[["CONTENT_AREA"]]) ,]
+	chrt_SIMEX_smry_B <- chrt_SIMEX_smry_B[, CONTENT_AREA := sapply(CONTENT_AREA, capwords, special.words="II")]
+	setnames(chrt_SIMEX_smry_B, "CONTENT_AREA", "Content Area")
+	
+  options("table_counter"=getOption("table_counter")-1)
+  cat(htmlTable(as.matrix(chrt_SIMEX_smry_B), title="", align='rcc', 
+		n.cgroup=c(1, dim(chrt_SIMEX_smry_B)[2]-1), #cgroup=c("", "Grades"),
+		caption='SIMEX Corrected EOCT Median and Mean <em>Cohort</em> Referenced Student Growth Percentile by Content Area for 2014'))
+```
+
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	bsln_crct_SIMEX <- Georgia_SGP@Data[CONTENT_AREA %in% CRCT_subjects & YEAR=='2014'][, list(MEDIAN = median(as.numeric(SGP_SIMEX_BASELINE), na.rm=TRUE), MEAN = round(mean(SGP_SIMEX_BASELINE, na.rm=TRUE), 1)), by=c('CONTENT_AREA', 'GRADE')][!is.na(MEDIAN)]
+	setkey(bsln_crct_SIMEX)
+```{r, results='asis', echo=FALSE, baseSumCRCTsimex}
+	bsln_crct_SIMEXB <- data.frame()
+	for (ca in CRCT_subjects){
+		tmp.bsln_crct_SIMEX <- paste(t(as.matrix(bsln_crct_SIMEX[CONTENT_AREA==ca,][, list(MEDIAN)])), " (", t(as.matrix(bsln_crct_SIMEX[CONTENT_AREA==ca,][, list(MEAN)])), ")", sep="")
+		tmp.bsln_crct_SIMEX <- data.frame(matrix(c(capwords(ca), tmp.bsln_crct_SIMEX), 1, length(tmp.bsln_crct_SIMEX)+1))
+		names(tmp.bsln_crct_SIMEX) <- c("Content Area", t(as.matrix(bsln_crct_SIMEX[CONTENT_AREA==ca,][, list(GRADE)])))
+		bsln_crct_SIMEXB <- rbind.fill(bsln_crct_SIMEXB, tmp.bsln_crct_SIMEX)
+	}
+	bsln_crct_SIMEXB[is.na(bsln_crct_SIMEXB)] <- ""
+
+	options("table_counter"=getOption("table_counter")-1)
+  cat(htmlTable(as.matrix(bsln_crct_SIMEXB), title="", align=paste(rep('r', dim(bsln_crct_SIMEXB)[2]), collapse=''), 
+		n.cgroup=c(1, dim(bsln_crct_SIMEXB)[2]-1), cgroup=c("", "Grades"),
+		caption='SIMEX Corrected CRCT Median (Mean) <em>Baseline</em> Student Growth Percentile by Grade and Content Area for 2014'))
+```
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	bsln_eoct_SIMEX <- Georgia_SGP@Data[CONTENT_AREA %in% intersect(baseline_subjects, EOCT_subjects) & YEAR=='2014'][,list("Median SGP"=median(as.numeric(SGP_SIMEX_BASELINE), na.rm=TRUE), "Mean SGP"=round(mean(SGP_SIMEX_BASELINE, na.rm=TRUE), 1)), by='CONTENT_AREA']
+	setkey(bsln_eoct_SIMEX)
+```
+```{r, results='asis', echo=FALSE, bslnSmrySIMEX}
+	bsln_eoct_SIMEX_B <- bsln_eoct_SIMEX[match(intersect(baseline_subjects, EOCT_subjects), bsln_eoct_SIMEX[["CONTENT_AREA"]]) ,]
+	bsln_eoct_SIMEX_B <- bsln_eoct_SIMEX_B[, CONTENT_AREA := sapply(CONTENT_AREA, capwords, special.words="II")]
+	setnames(bsln_eoct_SIMEX_B, "CONTENT_AREA", "Content Area")
+
+  options("table_counter"=getOption("table_counter")-1)
+	cat(htmlTable(as.matrix(bsln_eoct_SIMEX_B), title="", align='rcc', 
+		n.cgroup=c(1, dim(bsln_eoct_SIMEX_B)[2]-1), #cgroup=c("", "Grades"),
+		caption='SIMEX Corrected EOCT Median and Mean <em>Baseline</em> Referenced Student Growth Percentile by Content Area'))
+```
+
+A comparison of the unadjusted (Tables 3 to 5) and SIMEX corrected (Tables 6 through 8) shows very little difference in the medians and means.  This is not surprising as the majority of the growth percentiles for students in the middle of the prior score distributions change very little, and the larger changes that occur for students in the extremes of the prior score distributions tend to even out.  
+
+# Goodness of Fit
+Examination of goodness-of-fit was conducted by comparing the estimated conditional density with the theoretical uniform density of the SGPs.  Despite the use of B-splines to accommodate heteroscedasticity and skewness of the conditional density, assumptions are made concerning the number and position of spline knots that impact the percentile curves that are fit.  With an infinite population of test takers, at each prior scaled score, with perfect model fit, the expectation is to have 10 percent of the estimated growth percentiles between 1 and 9, 10 and 19, 20 and 29, ..., and 90 and 99.  Deviations from 10 percent would be indicative of lack of model fit.  
+
+## Model Fit Plots
+Using all available CRCT and EOCT scores as the variables, estimation of student growth percentiles was conducted for each possible student (those with a current score and at least one prior score).  Percentages of student growth percentiles between the 10<sup>th</sup>, 20<sup>th</sup>, 30<sup>th</sup>, 40<sup>th</sup>, 50<sup>th</sup>, 60<sup>th</sup>, 70<sup>th</sup>, 80<sup>th</sup>, and 90<sup>th</sup> percentiles were calculated based upon the decile of the prior year's scaled score (the total students in each for the analyses varies depending on grade and subject).  Results for the B-spline parameterizations for all CRCT and EOCT analyses are given in [Appendix A](#appendix-a---model-fit-plots).  
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE, GOFplots}
+	setwd("img")
+	for (an in grep("2014", names(Georgia_SGP@SGP[['SGPercentiles']]), value=TRUE)) {
+		ca <- strsplit(an, "[.]")[[1]][1]
+		base_tf <- !is.na(strsplit(an, "[.]")[[1]][3])
+	
+		dat <- data.table(Georgia_SGP@SGP[['SGPercentiles']][[an]])
+		dat[, VALID_CASE := 'VALID_CASE']
+		dat[, YEAR := '2014']
+		dat[, CONTENT_AREA := ca]
+		if (!ca %in% CRCT_subjects) {
+			if (base_tf) {
+				my.tmp.split <- strsplit(as.character(dat$SGP_NORM_GROUP_BASELINE), "; ")
+			} else my.tmp.split <- strsplit(as.character(dat$SGP_NORM_GROUP), "; ")
+			dat[, CONTENT_AREA_PRIOR := sapply(sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), head, -1, simplify=FALSE), paste, collapse="_")]
+			dat[, GRADE_PRIOR := sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), tail, 1)]
+		} else {
+			dat[, CONTENT_AREA_PRIOR := ca]
+			dat[, GRADE_PRIOR := '5'] # all CRCT cuts are the same
+		}
+		dat[, ACHIEVEMENT_LEVEL_PRIOR := findInterval(SCALE_SCORE_PRIOR, SGPstateData[["GA"]][["Achievement"]][["Cutscores"]][[CONTENT_AREA_PRIOR[1]]][[paste("GRADE_", GRADE_PRIOR[1], sep="")]]), by=c("CONTENT_AREA_PRIOR", "GRADE_PRIOR")]
+		dat[, ACHIEVEMENT_LEVEL_PRIOR := ordered(ACHIEVEMENT_LEVEL_PRIOR, labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
+	
+		if (!ca %in% CRCT_subjects) {
+			if (base_tf) {
+				for(ng in levels(dat$SGP_NORM_GROUP_BASELINE)) {
+					gofSGP(dat[SGP_NORM_GROUP_BASELINE==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP_BASELINE==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_BASELINE", output.format="PNG")
+					gofSGP(dat[SGP_NORM_GROUP_BASELINE==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP_BASELINE==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
+				}
+			} else {
+				for(ng in levels(dat$SGP_NORM_GROUP)) {
+					gofSGP(dat[SGP_NORM_GROUP==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP", output.format="PNG")
+					if (!all(is.na(dat[SGP_NORM_GROUP==ng]$SGP_SIMEX))) gofSGP(dat[SGP_NORM_GROUP==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_SIMEX", output.format="PNG")
+				}
+			}
+		} else {
+			for(g in 4:8) {
+				if (base_tf) {
+					tmp.dat <- dat[grep(paste("2014/",ca, "_", g, sep=""), SGP_NORM_GROUP_BASELINE),]
+					tmp.dat[, GRADE := g]
+					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_BASELINE", output.format="PNG")
+					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
+					
+					if (g=="8" & ca == "ELA") {
+							setwd("./Examples")
+							tmp.dat[, ACHIEVEMENT_LEVEL_PRIOR := NULL]
+							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_BASELINE", output.format="PNG")
+							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
+							setwd("..")						
+					}
+				} else {
+					tmp.dat <- dat[grep(paste("2014/",ca, "_", g, sep=""), SGP_NORM_GROUP),]
+					tmp.dat[, GRADE := g]
+					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP", output.format="PNG")
+					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_SIMEX", output.format="PNG")
+
+						if (g=="8" & ca == "ELA") {
+							setwd("./Examples")
+							tmp.dat[, ACHIEVEMENT_LEVEL_PRIOR := NULL]
+							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP", output.format="PNG")
+							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_SIMEX", output.format="PNG")
+							setwd("..")
+					}
+				}
+			}
+		}
+	}
+	setwd("..")
+```
+
+###  Cohort referenced model fit
+The results in all subjects are excellent with a few exceptions.  Deviations from perfect fit are indicated by red and blue shading.  The further *above* 10 the darker the red, and the further *below* 10 the darker the blue.  In instances where large deviations from 10 occur, the likely cause is that there is a mass point associated with certain scale scores that makes it impossible to "split" the score at a dividing point forcing a majority of the scores into an adjacent cell.  This is the case with all large deviations observed in the Georgia data.  
+
+Figure `r getOption("fig_caption_no")+1` shows the results for 8<sup>th</sup> grade ELA.  Although this CRCT subject is officially a baseline referenced subject, we provide the plot here as an exemplar of cohort referenced model fit with which to compare with baseline and SIMEX model fit using the same student data in subsequent sections.
+
+##### `r figCapNo("Goodness of Fit Plot for 2014 ***Cohort*** Referenced 8<sup>th</sup> Grade ELA.")`
+![](img/Examples/Goodness_of_Fit/ELA.2014/gofSGP_Grade_8.png)
+
+
+###  Baseline referenced model fit
+
+Assumptions regarding model fit are much different for baseline referenced models.  Perfect model fit is not expected, or even desired, in these analyses because the data from the 2014 cohort was not used to produce the baseline model parameter estimates.  As discussed above, these models may allow us to see whether or not the system as a whole might be improving (or declining) over time.  These changes would be indicated by model *misfit* in the goodness of fit plots.  A greater number of students with high growth (red cells on the right hand side of the first plots) would suggest system improvement.  Ideally we would see this for students in the entire range prior achievement.
+
+Figure `r getOption("fig_caption_no")+1` shows how the baseline model fits the 2014 8<sup>th</sup> grade ELA student data.  Here we see that the model suggests student performance has declined relative to the established baseline.  This appears to be generally true for students from all prior achievement levels with the exception of students in the lowest decile of prior scores.
+
+<p></p>
+
+##### `r figCapNo("Goodness of Fit Plot for 2014 ***Baseline*** Referenced 8<sup>th</sup> Grade ELA.")`
+![](img/Examples/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_8.png)
+
+###  SIMEX model fit
+
+SIMEX model fit is also not expected to be perfect.  In this case we expect model misfit in the form of increased high SGPs for students with lower prior performance (and a complementary decrease in low SGPs for those students), and the reverse expectation for high achieving students.  This is visible in the goodness of fit plot in Figure `r getOption("fig_caption_no")+1` where the SIMEX correction method has been applied to the 8<sup>th</sup> grade ELA baseline model.
+
+<p></p>
+
+##### `r figCapNo("Goodness of Fit Plot for 2014 ***SIMEX Corrected,*** Baseline Referenced 8<sup>th</sup> Grade ELA.")`
+![](img/Examples/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+
+
+## Student Level Results
+To investigate the possibility that individual level misfit might impact summary level results, student growth percentile analyses were run on all students and the results were examined relative to prior achievement.  With perfect fit to data, the correlation between students' most recent prior achievement scores and their student growth percentiles is zero (i.e., the goodness of fit tables would have a uniform distribution of percentiles across all previous scale score levels).  To investigate in another way, correlations between prior student scale scores and student growth percentiles were calculated.^[In addition to providing information about model fit, these student-level correlations can assess potential impact of test ceiling effects.]
+
+Student-level correlations between the various SGP versions (uncorrected and SIMEX corrected cohort and baseline referenced estimates) and prior achievement are presented here.  The results are generally as expected.  With cohort referenced percentiles, when the model is perfectly fit to the data, the correlation between students' most recent prior achievement scores and their student growth percentiles is zero (i.e., there is a uniform distribution of percentiles across all previous scale score levels).  Correlations for Georgia cohort referenced SGPs are all essentially zero.  This provides assurance that the models have fit the data well, and indicate that students can demonstrate high (or low) growth regardless of prior achievement using cohort referenced SGPs.
+
+Baseline referenced growth percentiles relax assumptions about correlations and the aspiration for a uniform distribution of percentiles.  Rather than considering a single year's cohort, baseline SGPs are referenced against a "super-cohort" of several years of students linked by common course/grade progressions.  This allows us to examine whether or not the system as a whole might be improving (or declining) over time relative to the established baseline.  That is, if the system is improving over time, we would see that improvement in median SGPs that are greater than 50 (more than half of students would have growth greater than what *was* typical growth in the past).  Furthermore, if students at different levels of prior achievement experience differential growth a correlation greater or less than zero may be observed.^[A major assumption required in producing baseline referenced SGPs is that the scale scores are well anchored.  If this assumption does not hold, then any deviation from "typical" growth may be purely and artifact of the test scaling procedure.  However, it would seem that this type of "scale drift" would be consistent across scale score levels.  Therefore it isn't clear that this would cause a differential impact on growth, and thereby a positive or negative correlation at the student level between growth and prior achievement.]  For example, if lower achieving students had consistently higher growth relative to the baseline cohort and higher achieving students had consistently lower growth, then a negative correlation would be expected at the student-level.  Although small, many correlations between baseline SGPs and prior achievement deviate from zero.
+
+SIMEX corrected SGPs induce a negative correlation between growth and prior achievement (regardless of reference type) as shown in Table `r getOption("table_counter")+1` below.  Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students' growth is weighted upward and higher prior achieving students' growth is weighted down.  In theory this produces biased student-level SGPs but may decrease the bias in aggregate growth measures as has been documented previous SIMEX reports.  This in turn decreases the observed correlations between "uncorrected" SGPs and prior achievement^[Note that aggregate-level correlations that are initially negative also become increasingly negative rather than return to zero.  This has been noted in test results from other states not presented here.].
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	student.cor.grd <- Georgia_SGP@Data[YEAR=='2014' & VALID_CASE=='VALID_CASE'][, list(
+		COHORT_SGP = round(cor(SGP, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		COHORT_SIMEX = round(cor(SGP_SIMEX, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 		
+		BASELINE_SGP = round(cor(SGP_BASELINE, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		BASELINE_SIMEX = round(cor(SGP_SIMEX_BASELINE, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 		
+		# N = sum(!is.na(SGP_BASELINE))), by = c('CONTENT_AREA')]
+		N_Size = sum(!is.na(SGP))), by = c('CONTENT_AREA', 'GRADE')]
+		setkey(student.cor.grd, "GRADE")
+```
+<p></p>
+
+### CRCT
+
+```{r, results='asis', echo=FALSE, Student_CRCT}
+	tmp.tbl <- data.frame(student.cor.grd[CONTENT_AREA %in% crct.subj][order(match(student.cor.grd$CONTENT_AREA, crct.subj))][!is.na(BASELINE_SGP)]) # [, COHORT_SIMEX := NULL]
+	###  Number of "column groups" - here different aggregates correlated with standardized prior score (and blank for content area and N)
+	n.col.group <- c(1, dim(tmp.tbl)[2]-3, 1) # -3 :: 2 for CONTENT_AREA and GRADE, and 1 for N.
+	col.group <- c("", "Aggregate Group Type", "")
+	###  Number of "row groups" - here I'm breaking on Content area.  
+	n.row.group <- diff(c(match(crct.subj, tmp.tbl$CONTENT_AREA), dim(tmp.tbl)[1]+1))
+	row.group <- sapply(unique(tmp.tbl$CONTENT_AREA), capwords)
+	tmp.cap <- "CRCT Correlations between Student-Level Prior Standardized Scale Score and SGP Versions"
+	tmp.tbl <- tmp.tbl[, -1]
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+
+  options("table_counter"=getOption("table_counter")-1)
+	suppressWarnings(cat(htmlTable(as.matrix(prettyNum(tmp.tbl, preserve.width = "individual", big.mark=',')), 
+		title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''),
+		n.cgroup=n.col.group, cgroup= col.group, n.rgroup=n.row.group, rgroup= row.group, compatibility="CSS", caption = tmp.cap)))
+```
+<p></p>
+
+### EOCT Baseline Referenced Subjects
+
+```{r, results='asis', echo=FALSE, Student_EOCTBaseline}
+	tmp.tbl <- data.frame(student.cor.grd[match(eoct.subj[eoct.sgp.ref == "BASE"], student.cor.grd$CONTENT_AREA)])#[, COHORT_SIMEX := NULL])
+	###  Number of "column groups" - here different aggregates correlated with standardized prior score (and blank for content area and N)
+	n.col.group <- c(1, dim(tmp.tbl)[2]-3, 1) # -3 :: 2 for CONTENT_AREA and GRADE, and 1 for N.
+	col.group <- c("", "Aggregate Group Type", "")
+	###  Number of "row groups" - here I'm breaking on Content area.  
+	n.row.group <- NULL
+	row.group <- NULL
+	tmp.cap <- "Correlations between Student-Level Prior Standardized Scale Score and EOCT Baseline Referenced SGP Versions"
+	tmp.tbl <- tmp.tbl[, -2]
+	tmp.tbl$CONTENT_AREA <- sapply(tmp.tbl$CONTENT_AREA, capwords)
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+
+  options("table_counter"=getOption("table_counter")-1)
+	cat(htmlTable(as.matrix(prettyNum(tmp.tbl, preserve.width = "individual", big.mark=',')), 
+		title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''), 
+		n.cgroup=n.col.group, cgroup= col.group, compatibility="CSS", caption = tmp.cap))
+```
+<p></p>
+
+### EOCT Cohort Referenced Subjects
+
+```{r, results='asis', echo=FALSE, Student_EOCTCohort}
+	tmp.tbl <- student.cor.grd[match(eoct.subj[eoct.sgp.ref == "COHORT"], student.cor.grd$CONTENT_AREA)]
+	tmp.tbl <- data.frame(tmp.tbl[, list(CONTENT_AREA, COHORT_SGP, COHORT_SIMEX, N_Size)])
+	###  Number of "column groups" - here different aggregates correlated with standardized prior score (and blank for content area and N)
+	n.col.group <- c(1, dim(tmp.tbl)[2]-2, 1) # -2 :: 1 for CONTENT_AREA, and 1 for N.
+	col.group <- c("", "Aggregate Group Type", "")
+	###  Number of "row groups" - none here.  
+	n.row.group <- NULL
+	row.group <- NULL
+	tmp.cap <- "Correlations between Student-Level Prior Standardized Scale Score and EOCT Cohort Referenced SGP Versions"
+	tmp.tbl$CONTENT_AREA <- sapply(tmp.tbl$CONTENT_AREA, capwords)
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+
+  options("table_counter"=getOption("table_counter")-1)
+	cat(htmlTable(as.matrix(prettyNum(tmp.tbl, preserve.width = "individual", big.mark=',')), 
+		title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''), 
+		n.cgroup=n.col.group, cgroup= col.group, compatibility="CSS", caption = tmp.cap))
+```
+
+## Group Level Results
+Unlike when reporting SGPs at the individual level, when aggregating to the group level (e.g., school) the correlation between aggregate prior student achievement and aggregate growth is rarely zero.  The correlation between prior student achievement and growth at the school level is a compelling descriptive statistic because it indicates whether students attending schools serving higher achieving students grow faster (on average) than those students attending schools serving lower achieving students.  Results from previous state analyses show a correlation between prior achievement of students associated with a current school (quantified as percent at/above proficient) and the median SGP to be between 0.1 and 0.3.  That is, these results indicate that on average, students attending schools serving lower achieving students tend to demonstrate less exemplary growth than those attending schools serving higher achieving students.  Equivalently, based upon ordinary least squares (OLS) regression assumptions, the prior achievement level of students attending a school accounts for between 1 and 10 percent of the variability observed in student growth.  There are no definitive numbers on what this correlation should be, but studies on value-added models show similar results [@MccaLock:2008].
+
+### School Level Results
+
+To illustrate these relationships visually, the bubble charts in Figures `r getOption("fig_caption_no")+1` through `r getOption("fig_caption_no")+5` depict growth as quantified by the median SGP of students at the school against  achievement/status, quantified by percentage of student at/above proficient (advanced) at the school.  The charts have been successful in helping to motivate the discussion of the two qualities: student achievement and student growth.  Though the figures are not detailed enough to indicate strength of relationship between growth and achievement, they are suggestive and valuable for discussions with stakeholders who are being introduced to the growth model for the first time.
+
+```{r, echo=FALSE, include=FALSE, BubblePlots}
+	# can't set cache=TRUE, ??
+  Georgia_SGP@Summary <- Georgia_Summary
+
+	Georgia_SGP@Data$SCHOOL_NAME <- ""
+	Georgia_SGP@Data$DISTRICT_NAME <- ""
+
+	visualizeSGP(Georgia_SGP,
+		plot.types = c("bubblePlot"),
+		bPlot.years="2014",
+		bPlot.anonymize=TRUE,
+		bPlot.folder="img/Bubble_Plots",
+		bPlot.output = "PNG",
+		bPlot.content_areas=c("ELA", "READING", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES"))
+
+```
+
+##### `r figCapNo("School-level Bubble Plots for Georgia:  ELA, 2013-2014.")`
+![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_ELA_State_Bubble_Plot_(Prior_Achievement).png)
+
+<p></p>
+<p></p>
+
+##### `r figCapNo("School-level Bubble Plots for Georgia:  Reading, 2013-2014.")`
+![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Reading_State_Bubble_Plot_(Prior_Achievement).png)
+
+<p></p>
+<p></p>
+
+##### `r figCapNo("School-level Bubble Plots for Georgia:  Mathematics, 2013-2014.")`
+![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Mathematics_State_Bubble_Plot_(Prior_Achievement).png)
+
+<p></p>
+<p></p>
+
+##### `r figCapNo("School-level Bubble Plots for Georgia:  Science, 2013-2014.")`
+![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Science_State_Bubble_Plot_(Prior_Achievement).png)
+
+<p></p>
+<p></p>
+
+##### `r figCapNo("School-level Bubble Plots for Georgia:  Social Studies, 2013-2014.")`
+![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Social Studies_State_Bubble_Plot_(Prior_Achievement).png)
+
+The relationship between average prior student achievement and median SGP observed for Georgia is relatively strong compared to some other states for whom the Center has done SGP analyses.  Table `r getOption("table_counter")+1` shows correlations between prior achievement (measured as the mean prior standardized scale score as well as the percent at/above proficient at the school^[Percent Prior Proficient in this case is determined by the percent of student's that scored in the Proficient or Advanced range of all student's that received a score.  This measure does not reflect student's that did not receive a score but are included in the denominator of Percent Meeting Standard as displayed in the DOE Georgia Report Card.]).  All results shown here are for schools with 15 or more students.
+
+<p></p>
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+	sch.msgp <- Georgia_Summary$SCHOOL_NUMBER$SCHOOL_NUMBER__YEAR__SCHOOL_ENROLLMENT_STATUS[YEAR != '2011' & !is.na(SCHOOL_NUMBER) & MEDIAN_SGP_COUNT > 14] # Don't include 2011 in 2014
+	sch.msgp.subj <- Georgia_Summary$SCHOOL_NUMBER$SCHOOL_NUMBER__CONTENT_AREA__YEAR__SCHOOL_ENROLLMENT_STATUS[!is.na(SCHOOL_NUMBER) & MEDIAN_SGP_COUNT > 14]#__
+	sch.msgp.grd <- Georgia_Summary$SCHOOL_NUMBER$SCHOOL_NUMBER__CONTENT_AREA__YEAR__GRADE__SCHOOL_ENROLLMENT_STATUS[YEAR == '2014' & !is.na(SCHOOL_NUMBER) & MEDIAN_SGP_COUNT > 14]
+	sch.msgp.grd$CONTENT_AREA <- ordered(sch.msgp.grd$CONTENT_AREA, levels = c(crct.subj, eoct.subj)) #___
+
+	##  Table 12.  combined subjects - School_Cor_Grand
+	sch.cor <- sch.msgp[, list(
+			MEDIAN_SGP = round(cor(MEDIAN_SGP_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+			MEAN_SGP=round(cor(MEAN_SGP_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),## SIMEX use='complete' because no Soc Stds Baselines/SIMEX
+			MEDIAN_SIMEX = round(cor(MEDIAN_SGP_SIMEX_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2), 
+			MEAN_SIMEX = round(cor(MEAN_SGP_SIMEX_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2)), by = 'YEAR']
+
+	##  Multiple year - School_CRCT_Correlations, School_EOCTBaseline_Cor
+	sch.cor.subj <- data.table(sch.msgp.subj[, list(
+			MEDIAN_SGP = round(cor(MEDIAN_SGP_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+			MEAN_SGP = round(cor(MEAN_SGP_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+			MEDIAN_SIMEX = round(cor(MEDIAN_SGP_SIMEX_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+			MEAN_SIMEX = round(cor(MEAN_SGP_SIMEX_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2)), by = c('CONTENT_AREA', 'YEAR')]	,
+		key=c('CONTENT_AREA', 'YEAR'))
+
+  ##  Multiple year - School_EOCTCohort_Cor
+	sch.cor.subj.cohort <- data.table(sch.msgp.subj[, list(
+			MEDIAN_SGP = round(cor(MEDIAN_SGP, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+			MEAN_SGP = round(cor(MEAN_SGP, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+			MEDIAN_SIMEX = round(cor(MEDIAN_SGP_SIMEX, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+			MEAN_SIMEX = round(cor(MEAN_SGP_SIMEX, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2)), by = c('CONTENT_AREA', 'YEAR')]	,
+		key=c('CONTENT_AREA', 'YEAR'))
+
+	## 2014 by grade - School_Grade_CRCT_Correlations
+	sch.cor.grd <- sch.msgp.grd[, list(
+		MEDIAN_SGP = round(cor(MEDIAN_SGP_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+		MEDIAN_SIMEX = round(cor(MEDIAN_SGP_SIMEX_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+		MEAN_SGP = round(cor(MEAN_SGP_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
+		MEAN_SIMEX = round(cor(MEAN_SGP_SIMEX_BASELINE, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2)), by = c('CONTENT_AREA', 'GRADE')]
+	sch.cor.grd <- sch.cor.grd[order(match(sch.cor.grd$CONTENT_AREA, c(crct.subj, eoct.subj))),]
+```
+
+```{r, results='asis', echo=FALSE, School_Cor_Grand}
+	tmp.tbl <- data.frame(sch.cor)
+	###  Number of "column groups" - here different aggregates correlated with mean standardized prior score
+	n.col.group <- c(1,4)  # Just aggregate SGP groups.
+	col.group <- c("", "SGP Aggregate Type")
+	###  Number of "row groups" - none here  
+	n.row.group <- NULL
+	row.group <- NULL
+	tmp.cap <- "Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs - (Combined Subjects)"
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+
+  options("table_counter"=getOption("table_counter")-1)
+	cat(htmlTable(as.matrix(tmp.tbl), title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''), 
+		n.cgroup=n.col.group, cgroup= col.group, compatibility="CSS", caption  = tmp.cap))
+```
+
+<p></p>
+
+Correlation tables describing the relationship between prior achievement (defined here as mean prior standardized scale score) and aggregate growth percentiles are presented below in separate subsections for CRCT and EOCT subjects.  The first correlation table in the each subsection provides these overall SGP aggregates' relationships with mean prior standardized scale scores.  The additional correlation tables are dis-aggregated by content area, and content area and grade to provide more detail.
+
+<p></p>
+
+#### CRCT 
+```{r, results='asis', echo=FALSE, School_CRCT_Correlations}
+	tmp.tbl <- data.frame(sch.cor.subj[order(match(sch.cor.subj$CONTENT_AREA, crct.subj)),][CONTENT_AREA %in% crct.subj])
+	###  Number of "column groups" - here different aggregates correlated with standardized prior score
+	n.col.group <- c(1, dim(tmp.tbl)[2]-2) # -1 for CONTENT_AREA, -1 for YEAR
+	col.group <- c("", "Aggregate SGP Type")	
+	###  Number of "row groups" - none here.  
+	n.row.group <- diff(c(match(crct.subj, tmp.tbl$CONTENT_AREA), dim(tmp.tbl)[1]+1))
+	row.group <- sapply(unique(tmp.tbl$CONTENT_AREA), capwords)
+	tmp.cap <- "CRCT Correlations between School-Level Mean Prior Standardized Scale Score and (Baseline) SGP Aggregations."	
+	tmp.tbl$CONTENT_AREA <- NULL
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+	tmp.tbl[is.na(tmp.tbl)] <- ""
+
+  options("table_counter"=getOption("table_counter")-1)
+	suppressWarnings(cat(htmlTable(as.matrix(tmp.tbl), title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''), 
+		n.cgroup=n.col.group, cgroup= col.group, n.rgroup=n.row.group, rgroup= row.group, compatibility="CSS", caption  = tmp.cap)))
+```
+<p></p>
+
+```{r, results='asis', echo=FALSE, School_Grade_CRCT_Correlations}
+	###  CRCT Baseline
+	tmp.tbl <- data.frame(sch.cor.grd[CONTENT_AREA %in% crct.subj])
+	###  Number of "column groups" - here different aggregates correlated with standardized prior score
+	n.col.group <- c(1, dim(tmp.tbl)[2]-2) # -2 for both CONTENT_AREA and GRADE.  C_A nulled out below.
+	col.group <- c("", "Aggregate Group Type")
+	###  Number of "row groups" - here I'm breaking on Content area.  
+	n.row.group <- diff(c(match(crct.subj, tmp.tbl$CONTENT_AREA), dim(tmp.tbl)[1]+1))
+	row.group <- sapply(unique(tmp.tbl$CONTENT_AREA), capwords)
+	tmp.cap <- "2014 CRCT Correlations between School-Level prior standardized scale score and Aggregate (Baseline) SGPs by Grade."
+	tmp.tbl <- tmp.tbl[, -1]
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+
+  options("table_counter"=getOption("table_counter")-1)
+	suppressWarnings(cat(htmlTable(as.matrix(tmp.tbl), title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''), 
+		n.cgroup=n.col.group, cgroup= col.group, n.rgroup=n.row.group, rgroup= row.group, compatibility="CSS", caption = tmp.cap)))
+```
+<p></p>
+
+#### EOCT
+```{r, results='asis', echo=FALSE, School_EOCTBaseline_Cor}
+	tmp.tbl <- data.frame(sch.cor.subj[order(match(sch.cor.subj$CONTENT_AREA, eoct.subj)),][CONTENT_AREA %in% eoct.subj[eoct.sgp.ref == "BASE"]])
+	###  Number of "column groups" - here different aggregates correlated with standardized prior score
+	n.col.group <- c(1, dim(tmp.tbl)[2]-2) # -1 for CONTENT_AREA, -1 for YEAR
+	col.group <- c("", "Aggregate SGP Type")	
+	###  Number of "row groups" - none here.  
+	n.row.group <- diff(c(match(eoct.subj[eoct.sgp.ref == "BASE"], tmp.tbl$CONTENT_AREA), dim(tmp.tbl)[1]+1))
+	row.group <- sapply(unique(tmp.tbl$CONTENT_AREA), capwords)
+	tmp.cap <- "2011 to 2014 Correlations between Mean Prior Standardized Scale Score and Aggregate Baseline SGPs."
+	tmp.tbl$CONTENT_AREA <- NULL
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+	tmp.tbl[is.na(tmp.tbl)] <- ""
+
+  options("table_counter"=getOption("table_counter")-1)
+	suppressWarnings(cat(htmlTable(as.matrix(tmp.tbl), title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''), 
+		n.cgroup=n.col.group, cgroup= col.group, n.rgroup=n.row.group, rgroup= row.group, compatibility="CSS", caption = tmp.cap)))
+```
+<p></p>
+
+```{r, results='asis', echo=FALSE, School_EOCTCohort_Cor}
+
+  tmp.tbl <- data.frame(sch.cor.subj.cohort[order(match(sch.cor.subj.cohort$CONTENT_AREA, eoct.subj)),][CONTENT_AREA %in% eoct.subj[eoct.sgp.ref == "COHORT"]])
+	###  Number of "column groups" - here different aggregates correlated with standardized prior score
+	n.col.group <- c(1, dim(tmp.tbl)[2]-2) # -1 for CONTENT_AREA, -1 for YEAR
+	col.group <- c("", "Aggregate SGP Type")	
+	###  Number of "row groups" - none here.  
+	n.row.group <- diff(c(match(eoct.subj[eoct.sgp.ref == "COHORT"], tmp.tbl$CONTENT_AREA), dim(tmp.tbl)[1]+1))
+	row.group <- sapply(unique(tmp.tbl$CONTENT_AREA), capwords)
+	tmp.cap <- "2011 to 2014 Correlations between Mean Prior Standardized Scale Score and Cohort SGPs."
+	tmp.tbl$CONTENT_AREA <- NULL
+	names(tmp.tbl) <- sapply(names(tmp.tbl), capwords)
+	tmp.tbl[is.na(tmp.tbl)] <- ""
+
+  options("table_counter"=getOption("table_counter")-1)
+	suppressWarnings(cat(htmlTable(as.matrix(tmp.tbl), title="", align=paste(rep('r', dim(tmp.tbl)[2]), collapse=''), 
+		n.cgroup=n.col.group, cgroup= col.group, n.rgroup=n.row.group, rgroup= row.group, compatibility="CSS", caption = tmp.cap)))
+```
+<p></p>
+
+
+# Appendix A - Model Fit Plots
+
+This appendix serves as a continuation of the discussion from the [Model Fit Plots section](#model-fit-plots) of the report.  Deviations from perfect fit are indicated by red and blue shading. The further above 10 the darker the red, and the further below 10 the darker the blue. In instances where large deviations from 10 occur, the likely cause is that there is a mass point associated with certain scale scores that makes it impossible to “split” the score at a dividing point forcing a majority of the scores into an adjacent cell.  This occurs more often in lower grades where fewer prior scores are available (particularly in the lowest grade when only a single prior is available). 
+
+```{r, echo=FALSE, include=FALSE}
+  ##  Reset Table, Figure and Equation Counters
+  options("table_counter"=TRUE)
+  options(table_counter_str = "<strong>Table A.%s:</strong> ")
+  options("fig_caption_no"=0)
+	options(fig_caption_no_sprintf = "**Fig. A.%s:**   %s")
+	options("fig_caption_no_roman"=FALSE)
+	options("equation_counter" = 0)
+	eqnNumNext <- function() {options("equation_counter" = getOption("equation_counter")+1); return(getOption("equation_counter"))}
+	eqnNum <- function(eqn.name="t1", em.space=150) {
+		if (!is.null(eqn.name)) assign(eqn.name, eqnNumNext(), envir=.GlobalEnv) else eqnNumNext()
+		return(cat('\\hspace{', em.space, 'em} \\text{(', getOption('equation_counter'), ')}', sep=""))
+	}
+```
+
+## CRCT Baseline Referenced Plots, (Uncorrected and SIMEX Corrected)
+
+### Reading
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Reading, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_4.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Reading, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Reading, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_5.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Reading, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Reading, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_6.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Reading, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Reading, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_7.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Reading, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Reading, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_8.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Reading, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+
+
+### ELA
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 ELA, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_4.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 ELA, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 ELA, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_5.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 ELA, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 ELA, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_6.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 ELA, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 ELA, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_7.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 ELA, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 ELA, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_8.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 ELA, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+	
+
+### Mathematics
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Mathematics, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_4.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Mathematics, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Mathematics, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_5.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Mathematics, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Mathematics, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_6.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Mathematics, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Mathematics, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_7.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Mathematics, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Mathematics, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_8.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Mathematics, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+
+
+### Science
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Science, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_4.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Science, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Science, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_5.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Science, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Science, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_6.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Science, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Science, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_7.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Science, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Science, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_8.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Science, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+	
+
+### Social Studies
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Social Studies, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_4.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 4 Social Studies, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Social Studies, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_5.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 5 Social Studies, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Social Studies, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_6.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 6 Social Studies, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Social Studies, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_7.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 7 Social Studies, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+	
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Social Studies, 2014 (Uncorrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_8.png)
+
+##### `r figCapNo("Goodness of Fit Plot for Grade 8 Social Studies, 2014 (SIMEX Corrected).")` 
+![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+
+
+## EOCT - Baseline Referenced Course Plots, (Uncorrected and SIMEX Corrected)
+
+###  Grade 9 Literature
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_G9L}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE"), list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Grade 9 Lit (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE/", gof, ".png)
+
+", sep=""))
+}
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Grade 9 Lit (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+###  American Literature
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_AMLit}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE"), list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 American Lit (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 American Lit (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+###  Economics
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_Econ}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE"), list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Economics (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/ECONOMICS.2014.BASELINE/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Economics (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+###  US History
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_USHist}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE"), list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 US History (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/US_HISTORY.2014.BASELINE/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 US History (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+###  Biology
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_Biolgy}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE"), list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Biology (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/BIOLOGY.2014.BASELINE/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Biology (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+###  Physical Science
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_PhysSci}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE"), list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Physical Science (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Physical Science (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+setwd(".."); setwd("..")
+```
+
+## EOCT - Cohort Referenced Course Plots, (Uncorrected and SIMEX Corrected)
+
+###  Coordinate Algebra
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_CoordAlg}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014"), list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Coordinate Algebra (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Coordinate Algebra (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+###  Analytic Geometry
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_Geom}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014"), list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Analytic Geometry (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Analytic Geometry (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+
+###  Mathematics II
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_MathII}
+tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014"), list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX")))
+
+for (gof in tmp.files) {
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014")) {
+tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+
+tmp.priors <- gsub(" EOCT", "", tmp.priors)
+tmp.priors <- gsub("8", "Grade 8", tmp.priors)
+tmp.priors <- gsub("7", "Grade 7", tmp.priors)
+tmp.priors <- gsub("6", "Grade 6", tmp.priors)
+	
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Mathematics II (Priors ", tmp.priors, " - Uncorrected).", sep="")), "
+![](img/Goodness_of_Fit/MATHEMATICS_II.2014/", gof, ".png)
+
+", sep=""))
+}
+
+if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX")) {
+cat(paste("
+##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Mathematics II (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
+![](img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX/", gof, ".png)
+
+", sep=""))
+}
+}
+```
+
+
+# Appendix B - An Overview of the SGP Methodology
+
+```{r, echo=FALSE, include=FALSE}
+  ##  Reset Table, Figure and Equation Counters
+  options("table_counter"=TRUE)
+  options(table_counter_str = "<strong>Table B.%s:</strong> ")
+  options("fig_caption_no"=0)
+  options(fig_caption_no_sprintf = "**Fig. B.%s:**   %s")
+	options("fig_caption_no_roman"=FALSE)
+	options("equation_counter" = 0)
+	eqnNumNext <- function() {options("equation_counter" = getOption("equation_counter")+1); return(getOption("equation_counter"))}
+	eqnNum <- function(eqn.name="t1", em.space=150) {
+		if (!is.null(eqn.name)) assign(eqn.name, eqnNumNext(), envir=.GlobalEnv) else eqnNumNext()
+		return(cat('\\hspace{', em.space, 'em} \\text{(', getOption('equation_counter'), ')}', sep=""))
+	}
+```
+
+## Introduction - Why Student Growth?
+
+Accountability systems constructed according to federal adequate yearly progress (AYP) requirements currently rely upon annual "snap-shots" of student achievement to make judgments about school quality.  Since their adoption, such *status measures* have been the focus of persistent criticism [@Linn:2003a; @LinnBake:2002].  Though appropriate for making judgments about the achievement level of students at a school for a given year, they are inappropriate for judgments about educational *effectiveness*.  In this regard, status measures are blind to the possibility of low achieving students attending effective schools.  It is this possibility that has led some critics of No Child Left Behind (NCLB) to label its accountability provisions as unfair and misguided and to demand the use of growth analyses as a better means of auditing school quality.
+
+A fundamental premise associated with using student growth for school accountability is that "good" schools bring about student growth in excess of that found at "bad" schools.  Students attending such schools - commonly referred to as highly effective/ineffective schools - tend to demonstrate extraordinary growth that is causally attributed to the school or teachers instructing the students.  The inherent believability of this premise is at the heart of current enthusiasm to incorporate growth into accountability systems.  It is not surprising that the November 2005 announcement by Secretary of Education Spellings for the Growth Model Pilot Program (GMPP) permitting states to use growth model results as a means for compliance with NCLB achievement mandates and the Race to the top competitive grants program were met with great enthusiasm by states [@Spellings:2005].
+
+Following these use cases, the primary thrust of growth analyses over the last decade has been to determine, using sophisticated statistical techniques, the amount of student progress/growth that can be justifiably attributed to the school or teacher - that is, to disentangle current *aggregate* level achievement from effectiveness [@Braun:2005; @RubiStua:2004; @BallSand:2004; @Raudenbush:2004].  Such analyses, often called *value-added* analyses, attempt to estimate the teacher or school contribution to student achievement.  This contribution, called the *school* or *teacher effect*, purports to quantify the impact on achievement that this school or teacher would have, on average, upon similar students assigned to them for instruction.  Clearly, such analyses lend themselves to accountability systems that hold schools or teachers responsible for student achievement.  
+
+Despite their utility in high stakes accountability decisions, the causal claims of teacher/school effectiveness addressed by value-added models (VAM) often fail to address questions of primary interest to education stakeholders.  For example, VAM analyses generally ignore a fundamental interest of stakeholders regarding student growth: How much growth did a student make? The disconnect reflects a mismatch between questions of interest and the statistical model employed to answer those questions.  Along these lines, [@Harris:2007) distinguishes value-added for program evaluation (VAM-P) and value-added for accountability (VAM-A) - conceptualizing accountability as a difficult type of program evaluation.  Indeed, the current climate of high-stakes, test-based accountability has blurred the lines between program evaluation and accountability.  This, combined with the emphasis of value-added models toward causal claims regarding school and teacher effects has skewed discussions about growth models toward causal claims at the expense of description.  Research [@Yen:2007] and personal experience suggest stakeholders are more interested in the reverse: description first that can be used secondarily as part of causal fact finding.
+
+In a survey conducted by Yen[-@Yen:2007], supported by the author's own experience working with state departments of education to implement growth models, parents, teacher, and administrators were asked what "growth" questions were most of interest to them.  
+
+*  **Parent Questions:**
+    * Did my child make a year's worth of progress in a year?
+    * Is my child growing appropriately toward meeting state standards?
+    * Is my child growing as much in Math as Reading?
+    * Did my child grow as much this year as last year?
+
+*  **Teacher Questions:**
+    * Did my students make a year's worth of progress in a year?
+    * Did my students grow appropriately toward meeting state standards?
+    * How close are my students to becoming Proficient?
+    * Are there students with unusually low growth who need special attention?
+
+*  **Administrator Questions:**
+    * Did the students in our district/school make a year's worth of progress in all content areas?
+    * Are our students growing appropriately toward meeting state standards?
+    * Does this school/program show as much growth as that one?
+    * Can I measure student growth even for students who do not change proficiency categories?
+    * Can I pool together results from different grades to draw summary conclusions?
+
+As Yen remarks, all these questions rest upon a desire to understand whether observed student progress is "reasonable or appropriate" [@Yen:2007].  More broadly, the questions seek a description rather than a parsing of responsibility for student growth.  Ultimately, questions may turn to who/what is responsible.  However, as indicated by this list of questions, they are not the starting point for most stakeholders.
+
+In the following paragraphs, student growth percentiles and percentile growth projections/trajectories are introduced as a means of understanding student growth in both norm-referenced and criterion referenced ways.  With these values calculated we show how growth data can be utilized in both a norm- and in a criterion-referenced manner to inform discussion about education quality.  We assert that the establishment of a norm-referenced basis for student growth eliminates a number of the problems of incorporating growth into accountability systems providing needed insight to various stakeholders by addressing the basic question of how much a student has progressed [@Betebenner:2008; @Betebenner:2009].
+
+
+## Student Growth Percentiles
+
+It is a common misconception that to quantify student progress in education, the subject matter and grades over which growth is examined must be on the same scale - referred to as a vertical scale.  Not only is a vertical scale not necessary, but its existence obscures concepts necessary to fully understand student growth.  Growth, fundamentally, requires change to be examined for a single construct like math achievement across time - *growth in what?*
+
+Consider the familiar situation from pediatrics where the interest is on measuring the height and weight of children over time.  The scales on which height and weight are measured possess properties that educational assessment scales aspire towards but can never meet.^[The scales on which students are measured are often assumed to possess properties similar to height and weight but they don't.  Specifically, scales are assumed to be interval where it is assumed that a difference of 100 points at the lower end of the scale refers to the same difference in ability/achievement as 100 points at the upper end of the scale.  [See @Lord:1975; and @Yen:1986 for more detail on the interval scaling in educational measurement.]]
+
+>An infant male toddler is measured at 2 and 3 years of age and is shown to have grown 4 inches.  The magnitude of increase - 4 inches - is a well understood quantity that any parent can grasp and measure at home using a simple yardstick.  However, parents leaving their pediatrician's office knowing only how much their child has grown would likely be wanting for more information.  In this situation, parents are not interested in an absolute criterion of growth, but instead in a norm-referenced criterion locating that 4 inch increase alongside the height increases of similar children.  Examining this height increase relative to the increases of similar children permits one to diagnose how (a)typical such an increase is.
+
+Given this reality in the examination of change where scales of measurement are perfect, we argue that it is unreasonable to think that in education, where scales are at best quasi-interval [@Lord:1975; @Yen:1986] one can/should examine growth differently.
+
+Going further, suppose that scales did exist in education similar to height/weight scales that permitted the calculation of absolute measures of annual academic growth for students.  The response to a parent's question such as, "How much did my child progress?", would be a number of scale score points - an answer that would leave most parents confused wondering whether the number of points is good or bad.  As in pediatrics, the search for a description regarding changes in achievement over time (i.e., growth) is best served by considering a norm-referenced quantification of student growth - *a student growth percentile* [@Betebenner:2008; @Betebenner:2009].
+
+A student's growth percentile (SGP) describes how (a)typical a student's growth is by examining his/her current achievement relative to his/her *academic peers* - those students beginning at the same place.  That is, a student growth percentile examines the current achievement of a student relative to other students who have, in the past, "walked the same achievement path".  Heuristically, if the state assessment data set were extremely large (in fact, infinite) in size, one could open the infinite data set and select out those students with the exact same prior scores and compare how the selected student's current year score compares to the current year scores of those students with the same prior year's scores - his/her academic peers.  If the student's current year score exceeded the scores of most of his/her academic peers, in a norm-referenced sense they have done as well.  If the student's current year score was less than the scores of his/her academic peers, in a norm-referenced sense they have not done as well.  
+
+The four panels of Figure `r getOption("fig_caption_no")+1`.  depict what a student growth percentile represents in a situation considering students having only two consecutive achievement test scores.
+
+*  **Upper Left Panel** Considering all pairs of 2011 and 2012 scores for all students in the state yields a bivariate (two variable) distribution.  The higher the distribution, the more frequent the pair of scores.  
+*  **Upper Right Panel** Taking account of prior achievement (i.e., conditioning upon prior achievement) fixes the value of the 2011 scale score (in this case at approximately 460) and is represented by the red slice taken out of the bivariate distribution.
+*  **Lower Left Panel** Conditioning upon prior achievement defines a *conditional distribution* which represents the distribution of outcomes on the 2012 test assuming a 2011 score of 460.  This distribution is indicated by the solid red slice of the distribution.  
+*  **Lower Right Panel** The conditional distribution provides the context against which a student's 2012 achievement can be examined and provides the basis for a norm-referenced comparison.  Students with achievement in the upper tail of the conditional distribution have demonstrated high rates of growth relative to their academic peers whereas those students with achievement in the lower tail of the distribution have demonstrated low rates of growth.  Students with current achievement in the middle of the distribution could be described as demonstrating "average" or "typical" growth.  In the figure provided the student scores approximately 500 on the 2012 test.  Within the conditional distribution, the value of 500 lies at the 75<sup>th</sup> percentile.  Thus the student's progress from 460 in 2011 to 500 in 2012 met or exceeded that of 75 percent of students starting from the same place.  It is important to note that qualifying a student growth percentile as "adequate", "good", or "enough" is a standard setting procedure that requires stakeholders to examine a student's growth *vis-a-vis* external criteria such as performance standards/levels.
+
+###### ***Fig.  `r getOption("fig_caption_no")+1`:** Depiction of the distribution associated with 2011 and 2012 student scale scores together with the conditional distribution and associated growth percentile.*
+![](img/Appendices/SGP_Method/bidensity_p1.jpg "bidensity") ![](img/Appendices/SGP_Method/bidensity_p2.jpg) ![](img/Appendices/SGP_Method/bidensity_p3.jpg) ![](img/Appendices/SGP_Method/bidensity_p4.jpg)
+
+`r options("fig_caption_no" = getOption("fig_caption_no")+1)`
+
+Figure `r getOption("fig_caption_no")` also serves to illustrate the relationship between the state's assessment scale and student growth percentiles.  The scale used by Georgia depicted in the panels of Figure `r getOption("fig_caption_no")+1` is not vertical.  Thus the comparisons or subtraction of scale scores for individual students is not supported.  However, were such a scale in place, the figure would not change.  With or without a vertical scale, the conditional distribution can be constructed.  
+
+In situations where a vertical scale exists, the increase/decrease in scale score points can be calculated and the growth percentile can be understood alongside this change.  For example, were the scales presented in Figure `r getOption("fig_caption_no")` vertical, then one can calculate that the student grew 40 points (from 460 to 500) between 2011 and 2012.  This 40 points represents the absolute magnitude of change.  Quantifying the magnitude of change is scale dependent.  For example, different vertical achievement scales in 2011 and 2012 would yield different annual scale score increases: A scale score increase of 40 could be changed to a scale score increase of 10 using a simple transformation of the vertical scale on which all the students are measured.  However, relative to other students, their growth has not changed - their growth percentile is invariant to scale transformations common in educational assessment.  Student growth percentiles norm-referencedly situate achievement change bypassing questions associated with the magnitude of change, and directing attention toward relative standing which, we would assert, is what stakeholders are most interested in.  
+
+To fully understand how many states intend to use growth percentiles to make determinations about whether a student's growth is sufficient, the next section details specifics of how student growth percentiles are calculated.  These calculations are subsequently used to calculate percentile growth projections/trajectories that are used to establish how much growth it will take for each student to reach his/her achievement targets.  
+
+
+## SGP Calculation
+
+Quantile regression is used to establish curvilinear functional relationships between the cohort's prior scores and their current scores.  Specifically, for each grade by subject cohort, quantile regression is used to establish 100 (1 for each percentile) curvilinear functional relationships between the students prior score(s) and their current score.  For example, consider 7<sup>th</sup> graders in 2014.  Their grade 3, grade 4, grade 5, and grade 6 prior scores are used to describe the current year grade 7 score distribution.^[For the mathematical details underlying the use of quantile regression in calculating student growth percentiles, see the [*Student Growth Percentile Estimation* section of Appendix B](#student-growth-percentile-estimation)] The result of these 100 separate analyses is a single coefficient matrix that can be employed as a look-up table relating prior student achievement to current achievement for each percentile.  Using the coefficient matrix, one can plug in *any* grade 3, 4, 5, and 6 prior score combination to the functional relationship to get the percentile cutpoints for grade 7 conditional achievement distribution associated with that prior score combination.  These cutpoints are the percentiles of the conditional distribution associated with the individual's prior achievement.  Consider a student with the following mathematics scores:
+
+```{r, results='asis', echo=FALSE, scalescores}
+	ex.tbl <- matrix(data=c(819, 818, 822, 834, 836), nrow=1)
+	colnames(ex.tbl) <- c('Grade 3/2010', 'Grade 4/2011', 'Grade 5/2012', 'Grade 6/2013', 'Grade 7/2014')
+
+  options("table_counter"=getOption("table_counter")-1)
+	cat(htmlTable(ex.tbl, title="", align=paste(rep('r', dim(ex.tbl)[2]), collapse=''), 
+		caption='Scale scores for a hypothetical student across 5 years in mathematics.'))
+```
+
+Using the coefficient matrix derived from the quantile regression analyses based upon grade 3, 4, 5, and 6 scale scores as independent variables and the grade 7 scale score as the dependent variable together with this student's vector of grade 3, 4, 5, and 6 grade scale scores provides the scale score percentile cutpoints associated with the grade 7 conditional distribution for these prior scores.  
+
+```{r, results='asis', echo=FALSE, percentilecuts}
+	tmp_tnum <- getOption("table_counter")
+	t3 <- matrix(data=c(804.8, 814.9, 819.9, '...',  825.9, '...', 830.8, '...',  835.5, 836.3, '...',  868.9, '...', 887.1, '...', 909.8), nrow=1)
+	colnames(t3) <- c('1<sup>st</sup>', '2<sup>nd</sup>', '3<sup>rd</sup>', '...', '10<sup>th</sup>', '...', '25<sup>th</sup>', '...', '50<sup>th</sup>', '51<sup>st</sup>', '...', '75<sup>th</sup>', '...', '90<sup>th</sup>', '...', '99<sup>th</sup>')
+
+  options("table_counter"=getOption("table_counter")-1)
+	cat(htmlTable(t3, title="", align=paste(rep('r', dim(t3)[2]), collapse=''), 
+		caption=paste('Percentile cutscores for grade 7 mathematics based upon the grade 3, 4, 5, and 6 mathematics scale scores given in Table ', tmp_tnum, '.', sep="")))
+```
+
+The percentile cutscores for 7<sup>th</sup> grade mathematics in Table `r getOption("table_counter")` are used with the student's *actual* grade 7 mathematics scale score to establish his/her growth percentile.  In this case, the student's grade 7 scale score of 836 lies above the 50<sup>th</sup> percentile cut and below the 51<sup>st</sup> percentile cut, yielding a growth percentile of 50.  Thus, the progress demonstrated by this student between grade 6 and grade 7 exceeded that of 50 percent of his/her academic peers - those students with the same achievement history.  States can qualify student growth by defining ranges of growth percentiles.  For example, the Georgia Growth Model designates growth percentiles between 35 and 65 as being *typical*.  Using Table `r getOption("table_counter")`, another student with the exact same grade 3, 4, 5, and 6 prior scores but with a grade 7 scale score of 804, would have a growth percentile of 1, which is designated as *low*.  
+
+This example provides the basis for beginning to understand how growth percentiles in the SGP Methodology are used to determine whether a student's growth is *(in)adequate*.  Suppose that in grade 6 a one-year (i.e., 7<sup>th</sup> grade) achievement goal/target of proficiency was established for the student.  Using the lowest proficient scale score for 7<sup>th</sup> grade mathematics, this target corresponds to a scale score of 900.  Based upon the results of the growth percentile analysis, this one year target corresponds to 95<sup>th</sup> percentile growth.  Their growth, obviously, is less than this and the student has not met this individualized growth standard.  
+
+
+## SGP Estimation
+
+Calculation of a student's growth percentile is based upon the estimation of the conditional density associated with a student's score at time $t$ using the student's prior scores at times $1, 2, \ldots, t-1$ as the conditioning variables.  Given the conditional density for the student's score at time $t$, the student's growth percentile is defined as the percentile of the score within the time $t$ conditional density.  By examining a student's current achievement with regard to the conditional density, the student's growth percentile situates the student's outcome at time $t$ taking account of past student performance.  The percentile result reflects the likelihood of such an outcome given the student's prior achievement.  In the sense that the student growth percentile translates to the probability of such an outcome occurring (i.e., rarity), it is possible to compare the progress of individuals not beginning at the same starting point.  However, occurrences being equally rare does not necessarily imply that they are equally "good." Qualifying student growth percentiles as "(in)adequate," "good," or as satisfying "a year's growth" is a standard setting procedure requiring external criteria (e.g., growth relative to state performance standards) combined with the wisdom and judgments of stakeholders.
+
+Estimation of the conditional density is performed using quantile regression [@Koenker:2005].  Whereas linear regression methods model the conditional mean of a response variable $Y$, quantile regression is more generally concerned with the estimation of the family of conditional quantiles of $Y$.  Quantile regression provides a more complete picture of both the conditional distribution associated with the response variable(s).  The techniques are ideally suited for estimation of the family of conditional quantile functions (i.e., reference percentile curves).  Using quantile regression, the conditional density associated with each student's prior scores is derived and used to situate the student's most recent score.  Position of the student's most recent score within this density can then be used to characterize the student's growth.  Though many state assessments possess a vertical scale, such a scale is not necessary to produce student growth percentiles.
+
+In analogous fashion to the least squares regression line representing the solution to a minimization problem involving squared deviations, quantile regression functions represent the solution to the optimization of a loss function [@Koenker:2005].  Formally, given a class of suitably smooth functions, $\cal{G}$, one wishes to solve
+
+`r quantmin <- eqnNumNext()`
+$$\hspace{2pt} \text{(`r quantmin`)} \hspace{55pt} \textit{arg min}_ {g \in \cal{G}} \sum_ {i=1}^n \rho_ {\tau} (Y(t_ i) - g(t_ i)),$$
+
+where $t_i$ indexes time, $Y$ are the time dependent measurements, and $\rho_{\tau}$ denotes the piecewise linear loss function defined by
+
+$$\hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} \rho_ {\tau} (u) = u \cdot (\tau - I(u < 0)) = \begin{cases} u \cdot \tau & u \geq 0 \\ u \cdot (\tau - 1) & u < 0.  \end{cases}$$
+
+The elegance of the quantile regression Expression `r quantmin` can be seen by considering the more familiar least squares estimators.  For example, calculation of $\textit{arg min} \sum_ {i=1}^n (Y_ i - \mu)^2$ over $\mu \in \mathbb{R}$ yields the sample mean.  Similarly, if $\mu(x) = x^{\prime} \beta$ is the conditional mean represented as a linear combination of the components of $x$, calculation of $\textit{arg min} \sum_ {i=1}^n (Y_ i - x_ i^{\prime} \beta)^2$ over $\beta \in \mathbb{R}^p$ gives the familiar least squares regression line.  Analogously, when the class of candidate functions $\cal{G}$ consists solely of constant functions, the estimation of Expression 1 gives the $\tau$<sup>th</sup> sample quantile associated with $Y$.  By conditioning on a covariate $x$, the $\tau$<sup>th</sup> conditional quantile function is given by
+
+$$\hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} Q_y (\tau | x) = \textit{arg min}_{\beta \in \mathbb{R}^{^p}} \sum_{i=1}^n \rho_{\tau} (y_i - x_i^{\prime} \beta).$$
+
+In particular, if $\tau=0.5$, then the estimated conditional quantile line is the median regression line.^[For a detailed treatment of the procedures involved in solving the optimization problem associated with Expression `r quantmin`, see [@Koenker:2005], particularly Chapter 6.]
+
+Following Wei and He [-@WeiHe:2006], we parameterize the conditional quantile functions as a linear combination of B-spline cubic basis functions.  B-splines are employed to accommodate non-linearity, heteroscedasticity and skewness of the conditional densities associated with values of the independent variable(s).  B-splines are attractive both theoretically and computationally in that they provide excellent data fit, seldom lead to estimation problems [@Harrell:2001], and are simple to implement in available software.
+
+Figure `r getOption("table_counter")+1` gives a bivariate representation of linear and B-splines parameterization of decile growth curves.  The assumption of linearity imposes conditions upon the heteroscedasticity of the conditional densities.  Close examination of the linear deciles indicates slightly greater variability for higher grade 5 scale scores than for lower scores.  By contrast, the B-spline based decile functions better capture the greater variability at both ends of the scale score range together with a slight, non-linear trend to the data.
+
+###### `r figCapNo("Linear and B-spline conditional deciles based upon bivariate math data, grades 5 and 6.")`
+![](img/Appendices/SGP_Method/linearquantileplot.png) ![](img/Appendices/SGP_Method/bsplinequantileplot.png)
+
+Calculation of student growth percentiles is performed using `R` [@Rsoftware], a language and environment for statistical computing, with `SGP` package [@sgp2014].  Other possible software (untested with regard to student growth percentiles) with quantile regression capability include SAS and Stata.  Estimation of cohort referenced student growth percentiles is conducted using all available prior data, subject to certain suitability conditions.  Estimation of baseline referenced student growth percentiles typically uses a restricted number of prior years' data (for example, Georgia uses a maximum of two prior years' data).  Given assessment scores for $t$ occasions, ($t \geq 2$), the $\tau$<sup>th</sup> conditional quantile for $Y_ t$ based upon $Y_ {t-1}, Y_ {t-2}, \ldots, Y_1$ is given by
+
+$$\hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} Q_ {Y_ t} (\tau | Y_ {t-1}, \ldots, Y_ 1) = \sum_ {j=1}^{t-1} \sum_ {i=1}^3 \phi_ {ij}(Y_ j)\beta_ {ij}(\tau),$$
+
+where $\phi_ {i,j}$, $i=1,2,3$ and $j=1, \ldots, t-1$ denote the B-spline basis functions.  Currently, bases consisting of 7 cubic polynomials are used to "smooth" irregularities found in the multivariate assessment data.  A bivariate rendering of this is found is Figure `r getOption("fig_caption_no")` where linear and B-spline conditional deciles are presented.  The cubic polynomial B-spline basis functions model the heteroscedasticity and non-linearity of the data to a greater extent than is possible using a linear parameterization.  
+
+The B-spline basis functions require the selection of boundary and interior knots.  Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis.  These are generally selected by extending the range of scale scores by 10%.  That is, they are defined as lying 10% below the lowest obtainable (or observed) scale score (LOSS) and 10% above the highest obtainable scale score (HOSS).  The interior knots are the *internal* breakpoints that define the spline.  The default choice in the `SGP` package [@sgp2014] is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the observed scale score distribution.
+
+In general the knots and boundaries are computed from a distribution from several years of compiled test data (i.e.  multiple cohorts) so that any irregularities in a single year are smoothed out.  Subsequent annual analyses then use these same knots and boundaries as well.  All defaults were used to compile the knots and boundaries for Georgia from the CRT tests.  New knots and boundaries will be required for SAGE assessments beginning in 2015 when they will be used as the most recent dependent variables in the quantile regressions.
+
+Finally, it should be noted that the independent estimation of the regression functions can potentially result in the crossing of the quantile functions.  This occurs near the extremes of the distributions and is potentially more likely to occur given the use of non-linear functions.  The result of allowing the quantile functions to cross in this maner would be *lower* percentile estimations of growth for *higher* observed scale scores at the extremes (give all else equal in prior scores) and vice versa.  In order to deal with these contradictory estimates, quantile regression results are isotonized to prevent quantile crossing following the methods derived by Chernozhukov, Fernandez-Val and Glichon [-@chernozhukov2010quantile].
+
+
+## Discussion of Model Properties
+
+Student growth percentiles possess a number of attractive properties from both a theoretical as well as a practical perspective.  Foremost among practical considerations is that the percentile descriptions are familiar and easily communicated to teachers and other non-technical stakeholders.  Furthermore, implicit within the percentile quantification of student growth is a statement of probability.  Questions of "how much growth is enough?" or "how much is a year's growth?" ask stakeholders to establish growth percentile thresholds deemed adequate.  These thresholds establish growth standards that translate to probability statements.  In this manner, percentile based growth forms a basis for discussion of rigorous yet attainable growth standards for all children supplying a norm-referenced context for Linn's existence proof [@Linn:2003a] with regard to student level growth.
+
+In addition to practical utility, student growth percentiles possess a number of technical attributes well suited for use with assessment scores.  The more important theoretical properties of growth percentiles include:
+
+-  **Robustness to outliers.** Estimation of student growth percentiles are more robust to outliers than is traditionally the case with conditional mean estimation.  Analogous to the property of the median being less influenced by outliers than is the median, conditional quantiles are robust to extreme observations.  This is due to the fact that influence of a point on the $\tau$<sup>th</sup> conditional quantile function is not proportional (as is the case with the mean) to the distance of the point from the quantile function but only to its position above or below the function [@Koenker:2005, pp.  44].
+-  **Uncorrelated with prior achievement.** Analogous to least squares derived residuals being uncorrelated with independent variables, student growth percentiles are not correlated with prior achievement.  This property runs counter to current multilevel approaches to measuring growth with testing occasion nested within students [@SingWill:2003].  These models, requiring a vertical scale, fit lines with distinct slopes and intercepts to each student.  The slopes of these lines represent an average rate of increase, usually measured in scale score points per year, for the student.  Whereas a steeper slope represents more learning, it is important to understand that using a norm-referenced quantification of growth, one cannot necessarily  infer that a low achieving student with a growth percentile of 60 "learned as much" as a high achieving student with the same growth percentile.  Growth percentiles bypass questions associated with magnitude of learning and focus on norm-referencedly quantifying changes in achievement.  
+-  **Equivariance to monotone transformation of scale.** An important attribute of the quantile regression methodology used to calculate student growth percentiles is their invariance to monotone transformations of scale.  This property, denoted by [@Koenker:2005] as *equivariance to monotone transformations* is particularly helpful in educational assessment where a variety of scales are present for analysis, most of which are related by some monotone transformation.  For example, it is a common misconception that one needs a vertical scale in order to calculate growth.  Because vertical and non-vertical scales are related via a monotone transformation, the student growth percentiles do not change given such alterations in the underlying scale.  This result obviates much of the discussion concerning the need for a vertical scale in measuring growth.^[As already noted with regard to pediatrics, the existence of nice "vertical" scales for measuring height and weight still leads to observed changes being normed.]
+
+Formally, given a monotone transformation $h$ of a random variable $Y$,
+
+$$ \hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} Q_ h(Y)|X (\tau | X) = h(Q_ Y|X (\tau | X)).$$
+
+This result follows from the fact that $\Pr (T < t | X) = \Pr (h(T) < h(t) | X)$ for monotone $h$.  It is important to note that *equivariance to monotone transformation* does not, in general, hold with regard to least squares estimation of the conditional mean.  That is, except for affine transformations $h$, $E(h(Y)|X) \not= h(E(Y|X))$.  Thus, analyses built upon mean based regression methods are, to an extent, scale dependent.
+
+
+# Appendix C - Application of the SIMEX Method for Measurement Error Correction to the SGP Model
+
+Written by Yi Shang, Adam Van Iwaarden & Damian Betebenner
+
+```{r, echo=FALSE, include=FALSE}
+  ##  Reset Table, Figure and Equation Counters
+  options("table_counter"=TRUE)
+  options(table_counter_str = "<strong>Table C.%s:</strong> ")
+  options("fig_caption_no"=0)
+  options(fig_caption_no_sprintf = "**Fig. C.%s:**   %s")
+	options("fig_caption_no_roman"=FALSE)
+	options("equation_counter" = 0)
+	eqnNumNext <- function() {options("equation_counter" = getOption("equation_counter")+1); return(getOption("equation_counter"))}
+	eqnNum <- function(eqn.name="t1", em.space=150) {
+		if (!is.null(eqn.name)) assign(eqn.name, eqnNumNext(), envir=.GlobalEnv) else eqnNumNext()
+		return(cat('\\hspace{', em.space, 'em} \\text{(', getOption('equation_counter'), ')}', sep=""))
+	}
+```
+
+## The SIMEX Method
+ The SIMEX method was proposed by Cook and Stefanski [-@CookStef:1994] as a measurement error (ME) correction technique when the standard error of measurement (SEM) is known or can be reasonably well estimated.  The SIMEX method is a functional approach that does not make strong assumptions about variable distributions [@battauz2011covariate].  Compared with other methods, SIMEX is much easier to implement for measurement error models that are less understood, such as that involving nonparametric quantile regression (QR).  It relies on repeated random sampling to solve the problem, similar to bootstrap or jackknife, hence its simplicity and generality [@stefanski1995simulation].  For a detailed description and discussion of SIMEX see Carroll, Ruppert, Stefanski, & Crainiceanu [-@Carroll:2006].
+
+The basic idea of the method is to gauge the dependence of the ME effect on SEM through a series of experiments.  Increasing amounts of simulated ME are added to observed values, and results from these experiments are then used to extrapolate the relationship of interest to the point where SEM is equal to zero.  To explain further, let ${\sigma}^{2}_ {ui}$ stand for the variance of the ME term, $u_ i$.  In the simulation phase, additional ME with known variance is generated and added to the observed test scores, $w_ i$, to create increasingly error-prone "pseudo" data sets and then "pseudo" parameter estimates in the following steps.  First, choose a set of monotonically increasing small numbers, denoted as ${\lambda}$.  For example, let ${\lambda}$ = 0.5, 1, 1.5, 2.  Then, for each value of ${\lambda}$, produce an artificial error $\sqrt{\lambda}v_ i$, where $v_ i$ is randomly generated from the distribution of $u_ i$.  The inflated ME, $u_ i + \sqrt{\lambda}v_ i$, would have a variance equal to $(1+{\lambda}){\sigma}^{2}_ {ui}$.  Next, the "pseudo" data sets which are contaminated with the inflated ME are used to produce the "pseudo" parameter estimates with the chosen statistical model.  In order to reduce sampling noise, the simulation and "pseudo" estimation are repeated for $B$ times, and the sample mean of the $B$ "pseudo" parameter estimates is calculated at each given ${\lambda}$.  In the extrapolation stage, the averaged "pseudo" parameter estimates and the "naive" estimates (the original estimates obtained from the unperturbed data) are regressed on ${\lambda}$.  Finally, when ${\lambda}$ is set to be equal to -1, the predicted value of the extrapolant function would be the SIMEX estimate of the error-free parameter.
+
+In the SGP model, the interest lies in estimating ${\widehat{SGP}_ X}$, and these quantities are derived from the fitted values of the model, not its regression coefficients.  Following the example of Carroll et.  al.  (1999), the SIMEX process described above is carried out on the fitted values: "pseudo" fitted value estimates, $\hat{Q}^{({\tau})}_ W({\lambda},b)$, for each of the ${\tau}$ = 1, 2, ...  99 percentiles are obtained with the repeatedly perturbed "pseudo" data sets.  These values are averaged over $B$ at each ${\lambda}$, regressed on ${\lambda}$, and finally extrapolated to ${\lambda}=-1$ to produce the SIMEX estimate $\hat{Q}^{({\tau})}_ {(X, SIMEX)}$.  In the case of quantile crossing, $\hat{Q}^{({\tau})}_ {(X, SIMEX)}$ is sorted at the specific $x_ i$, as recommended in Dette and Volgushev [-@dette2008non] and Chernozhukov, Fernandez-Val and Glichon [-@chernozhukov2010quantile].
+
+The choices of ${\lambda}$, $B$, and extrapolation function demand explanations.  Various authors provided rules-of-thumb [see, for example, @stefanski1995simulation; @Carroll:2006, etc.].  The commonly adopted values for ${\lambda}$ are a few equally spaced numbers between 0 and 2; $B$ is usually fixed at 100; and the extrapolant function is often specified to be linear, quadratic, or non-linear regressions.  We conducted Monte Carlo experiments to compare linear with quadratic extrapolants under various ${\lambda}$ specifications.  Our results show that the linear extrapolation is generally a better choice than the quadratic.  With very fine ${\lambda}$ grid, such as ${\lambda}=0, 2/25, 4/25, \ldots, 50/25$, the quadratic SIMEX estimator of SGP is slightly less biased than the linear one, but, with a much larger variability, its MSE is still considerably higher than that of the linear estimator.  As for the choice of ${\lambda}$, a finer grid significantly improves the quadratic estimator but makes little difference for the linear one.  The MSE of the SIMEX estimator decreases monotonically as $B$ increases, but the return diminishes for $B > 30$.  The detailed results are omitted.
+
+## The Effect of the SIMEX Method on Individual SGPs
+The following sections examine the effect of the SIMEX method on individual SGP estimates and aggregations of them at the class/school level respectively.  Results from several simulation studies are presented, followed by a discussion section.  Findings from the application of the SIMEX method to Georgia 2012 assessment data and practical issues to consider based for production level application of SIMEX are also provided.
+
+The performance of the SIMEX method with the SGP model is tested in the following steps.  Scale scores in `sgpData` of the `SGP` package (a toy dataset extracted from longitudinal assessment data) were treated as the "true scores" for a two cohorts of students.  The first cohort consists of 6,977 4<sup>th</sup> grade students with a single 3<sup>rd</sup> grade prior scale score available.  The other consists of 6,468 5<sup>th</sup> grade students with 4<sup>th</sup> and 3<sup>rd</sup> grade priors scores available.  Missing values were excluded.  Normally distributed measurement errors were then generated using the conditional standard errors of measurement of the various grades provided in `SGPstateData` in the same package.  The "observed" scores are the sum of the "true" scores and the generated measurement errors.  SGP analysis on the "true" scores and the SGP with SIMEX analysis on the "observed" scores are then respectively to produce "true" SGPs, "observed" (or "naive") SGPs, and SIMEX corrected SGPs.  To minimize sampling errors, 100 "observed" data sets were generated using the above method.  Each student ultimately has a true SGP, 100 observed SGPs from the 100 generated data sets, and 100 SIMEX SGPs from the same data sets.  
+
+### Quantifying the Performance of the SIMEX Method
+
+Bias and Mean Squared Error (MSE) are the usual ways of quantifying the performance of statistical methods.  In a simulation study where the major outcome is the estimation of a few model parameters, both are usually straight forward to calculate—bias is the difference between the estimated and the true parameter averaged over simulation replications, and MSE is the squared difference between the estimated and the true parameter averaged over simulation replications.  
+
+In the simulation study of the SGP analysis, however, each replication of the analysis produces results for thousands of students.  To evaluate the estimators, a way to summarize across both students and replications is needed.  The following statistics to compare SGPs estimated with and without SIMEX are derived for this purpose:
+$$
+\textit{Total MSE } = \frac{1}{n} \sum_ {i=1}^n \frac{1}{R} \sum_ {r=1}^R (\widehat{SGP}_ {i,r} - SGP_ i)^2
+$$
+Where $i=1, 2,\text{ ...  },n$ indicates students, $r=1, 2,\text{ ...  },R$ indicates simulation replications, $\widehat{SGP}_ {i,r}$ denotes the estimated SGP (either with or without SIMEX) for student $\textit{i}$ in replication $\textit{r}$, and $SGP_ i$ denotes the "true" SGP for student $\textit{i}$.
+
+$$
+\textit{Total MSE } = \frac{1}{n} \sum {i=1}^n \frac{1}{R} \sum_ {r=1}^R (\widehat{SGP}_ {i,r} - SGP_ i )
+$$
+
+$$
+\textit{SD Bias = Standard Deviation}_ {\textit{ across }i} (\frac{1}{R} \sum_ {r=1}^R \widehat{SGP}_ {i,r} - SGP_ i)
+$$
+
+*Total MSE* is a comprehensive standard which accounts for both bias and variability.  *Mean Bias* is the bias averaged over students and replications, but since *Mean Bias* of either estimator is likely to be very close to 0, we also calculated *SD Bias*, which is derived by taking the difference between the estimated and the true SGPs averaged across replications, and then calculate the standard deviation of these differences across students.  *SD Bias* may be a better indicator of the magnitude of bias than *Mean Bias*, just like Standard Error of Measurement is a better indicator of the magnitude of measurement errors than the mean, which is usually 0.
+
+### Results
+The following table presents the results of the simulation study.
+
+#### **Table C.1**
+
+|    |**SGP**|  **Without**  |**SIMEX**|| **SGP With**   | **SIMEX** |
+|:-------------------- | ---------:| ---------:| -------:| ---------:| ---------:| -------:|
+|    |*Total MSE*|*Mean Bias*|*SD Bias*|*Total MSE*|*Mean Bias*|*SD Bias*|
+| Grade 4 ~ Grade 3    | 362.980   |  0.019    | 8.004   |393.244    | -0.107    | 6.612   |
+| Grade 5 ~ Grade 4, 3 | 360.795   | -0.001    | 7.512   |379.277    |  0.088    | 6.602   |
+
+
+### *Why Are the Total MSEs So Large?*
+The total MSEs are all very large.  The square roots of the MSEs, generally considered a measure of the average magnitude of errors, are around 19, far greater than the *Mean Bias* or the *SD Bias*.  
+
+Figure C.1 shows the density of the absolute values of the SGP (with and without SIMEX) errors with 1 and 2 prior year scores respectively from a single replication of the simulation study.  Plots of other replications are highly similar.  Figure C.1 shows that, in any given replication of the simulation study, the absolute differences between estimated and true SGPs are highly skewed with a thin but long tail to the right.  A small number of the errors in SGPs estimated with 1 prior are close to 100.  Among SGPs estimated with 2 priors, it seems that there are less extreme outliers.  SGPs estimated with SIMEX seem to mirror those without SIMEX closely, although the former tend to have more very large errors.  The relatively small number of outliers can have dramatic influence on the MSE because, when squared, they become *much* larger and the skewness of the distributions of the squared errors will dramatically increase compared with those in Figure C.1.
+
+##### **Fig.  C.1**     *Absolute values of SGP Errors with 1 and 2 Priors Used* 
+![](img/Appendices/SIMEX/Fig_1_TMP.jpg 'errorDensity')
+
+###  *Comparing the SIMEX Results with the Non-SIMEX Results*
+Due to the skewness discussed in the section above, the root mean square error is not a good measure of the magnitude of errors in this context.  The results of the SGP analysis with and without SIMEX are therefore based on two criteria—*SD Bias* and *MSE*.  The comparison is straightforward: the SIMEX results have smaller biases but larger MSEs which indicates larger variability across replications.  Furthermore it seems that in both scenarios (i.e.  with 1 and 2 priors) the increase of variability outweighs the reduction of bias.
+
+There is, however, something strange here.  In earlier studies of the SIMEX method for correcting biased model coefficients, we noticed much bigger bias reductions than those presented in Table C.1.  The SIMEX estimators do generally have larger variability, but usually this drawback is outweighed by the prominent gains in bias reduction.  Why is the SIMEX method not doing well this time?
+
+###  *Why Doesn’t the SIMEX Method Perform Well in Correcting Individual SGP?*
+The question about the validity of using the SIMEX method to correct individual level SGPs can be raised with the following rationale.  Suppose that the model $\hat{y}_ {GOOD}=a+bx_ {OBSERVED}$ is estimated when $x_ {OBSERVED}$ is measured with errors, but $\hat{y}_ {BETTER}=\alpha+\beta x_ {TRUE}$ is the actual model desired.  Now the SIMEX method, or any other measurement error correction, moves us from $a$ and $b$ closer to $\alpha$ and $\beta$, and often times the goal is achieved at this stage.  But in the SGP analysis, simply obtaining $\alpha$ and $\beta$ is not enough.  To get more accurate SGPs, we need to obtain $\hat{y}_ {BETTER}$, which is not obtainable unless we have $x_ {TRUE}$.
+
+Therefore, when estimating individual SGPs with SIMEX, what is roughly estimated is $\alpha+\beta x_ {TRUE}$, which is neither $\hat{y}_ {GOOD}$ nor $\hat{y}_ {BETTER}$.  Thus some bias reduction is achieved because the observed scores are usually not far from the true scores, but the effect is much discounted.
+
+To test this theory, the "true" scores were plugged into the SIMEX process.  Table C.2 presents the outcomes of SGP without SIMEX and with SIMEX combined with "true" scores from 100 simulation replications.
+
+#### **Table C.2**
+
+|    |**SGP**|  **Without**  |**SIMEX**|| **SGP With SIMEX**   | **and "True" Score** |
+|:-------------------- | ---------:| ---------:| -------:| ---------:| ---------:| -------:|
+|                      |*Total MSE*|*Mean Bias*|*SD Bias*|*Total MSE*|*Mean Bias*|*SD Bias*|
+| Grade 4 ~ Grade 3    | 362.980   |  0.019    | 8.004   |    248.836|     -0.428|    5.652|
+| Grade 5 ~ Grade 4, 3 | 360.795   | -0.001    | 7.512   |    287.078|     -0.057|    6.225|
+
+In Table C.2, the SIMEX method greatly reduces both bias and MSE when used in combination with true scores.  This shows that the fundamental reason for increased MSE in Table C.1 is the use of SIMEX in combination with observed scores.
+
+### *Can We Use Estimated True Scores?*
+Results in Table C.2 are obviously not obtainable in reality.  As a possible alternative, the estimated true scores were substituted:
+
+$$
+X_ {Est.  True}= \text{Reliability} \times (X_ {OBSERVED}-\bar{X}_ {OBSERVED})+\bar{X}_ {OBSERVED}
+$$
+
+The results obtained are almost exactly the same as those in Table C.1, which suggests that the inaccessibility of the true scores is a problem that is insurmountable without measurement replications.  The transformation of the observed scores to estimated true scores does not change the rank order of the observations, and so their use in the SIMEX model yields very similar results to the use of observed scores in that model.
+
+### Visual representations of the SIMEX method corrections
+
+Visualizations that highlight the impact of implementing the SIMEX method may provide a more intuitive understanding of the SIMEX SGP corrections and how they are obtained.  Figure C.2 shows true and observed score distributions with quantile regression models fit to those two distributions.  The simulated data points are bivariate normally distributed with homoscedastic, classical error structure in the prior year data.  As expected, the slopes of quantile regression lines fit to the observed data are attenuated.  Another notable feature is that the separation between the True 10<sup>th</sup> and 90<sup>th</sup> percentile lines is narrower than that between the corresponding lines fit to the observed data.
+
+##### **Fig.  C.2** 
+![](img/Appendices/SIMEX/Fig_2_True_Vs_Obs_Regression.png 'trueVobsRegression')
+
+The SIMEX method attempts to use quantile regression to produce a "map" of the observed score distribution that more closely resembles the map of the unobserved, True score map.  If the observed data (grey circles in Figure C.2) were fit with the True quantile regression models (green lines), a disproportionately large amount of high SGPs would be expected at the lower tail of the prior score distribution and, conversely, more low SGPs at the upper end of the prior score distribution.  Additionally, the compressed quantile lines in the SIMEX model of the distribution would likely create fewer than expected SGPs in the middle percentile ranges.  This would result in clustering of SGPs where the model cannot differentiate between similar (but not identical) score histories.
+
+##### **Figure C.3**     *Goodness of Fit plot for SIMEX SGPs obtained from one 4<sup>th</sup> grade simulation*
+![](img/Appendices/SIMEX/Fig_3_SIMEX_GoF.png 'simexGoF')
+
+These two expected features are present in Figure C.3, which is a goodness of fit plot produced from a 4th grade Math SIMEX simulation.  These plots obtained from the simulations conducted for this report suggest that the SIMEX method has produced a "better" map of what the True conditional distribution *may* look like.
+
+### Baseline Referenced SGPs
+
+In addition to the issues discussed above for individual cohort SGPs, there are some theoretical issues that should be taken into account for the decision to use SIMEX corrections for baseline referenced SGPs.  An ideal baseline model would show perfect fit (10 percent of kids in each cell of the left hand table in Figure 3).  From this baseline model we hope to find evidence of system wide improvement when future scores are fit to it.  That is, the baseline-referenced model can be seen as a predictive model in which we use past *observed* score distributions to predict the distribution of current *observed* scores.  Unlike predictive models that attempt to predict future observations with the greatest accuracy possible, we hope that fitting the current data with this model will show misfit due to systemic changes in the student population.  In particular, we hope to see higher growth in the present than what was expected (typical) in the past.  This would be show up as red cells on the right side of the fit table in Figure C.3.  Starting from a baseline that is already shifted due to measurement error "correction" can muddle this picture.
+
+The measurement error literature suggests that predictive models should not use correction methods for measurement error when error prone data will be used to produce predicted values.  Carroll et al.  [-@Carroll:2006, pp.  38] provide this explanation, 
+
+>Generally, there is no need for the modeling of measurement error to play a role in the prediction problem.  If a predictor, $X$, is measured with error and one wants to predict a response based on the error-prone version $W$ of $X$, then … it rarely makes any sense to worry about measurement error.  The reason for this is quite simple:  $W$ is an error-free as a measurement of itself! If one has an original set of data $[Y, W]$, one can fit a convenient model to $Y$ as a function of $[W]$.  Predicting $Y$ from $[W]$ is merely a mater of using this model for prediction, that is substituting known values of $W$ into the regression model for $Y$ on $[W]$; the prediction errors from this model will minimize the expected squared prediction errors in the class of all linear unbiased predictors.  Predications with $W$ naively substituted for $X$ in the regression of $Y$ on $[X]$ will be biased and can have large prediction errors.
+
+In the SIMEX SGP analyses, using observed scores in place of true scores in a SIMEX corrected baseline model is equivalent to making "[p]redications with $W$ naively substituted for $X$ in the regression of $Y$ on $[X]$".  The large prediction errors would be evidenced in the initial non-uniform distribution of SGPs expected in the SIMEX model as shown in figure 3.  These "prediction errors" would confound any information about system wide improvement (or decline) that we hope to see through model misfit as detailed above.
+
+On the other hand, Carroll et al.  [-@Carroll:2006] also specify an exception: "The one situation requiring that we correctly model the measurement error occurs when we develop a prediction model using data from one population but we wish to predict in another population.  A naïve prediction model that ignores measurement error may not be transportable" (p.  39).  We do not presently believe that this situation applies to the baseline-referenced analysis.  We begin by assuming that current and future annual cohorts come from the baseline cohort population.  If the model shows that this assumption is not reasonable, then we potentially have evidence that the system may be changing.  Further research and simulations may provide some empirical evidence to clarify the issue.
+ 
+## The Effect of the SIMEX Method on Aggregated SGPs at the Class or School Level
+
+Our conclusion that the SIMEX method should not be used to estimate individual SGPs does not automatically lead to the conclusion that the SIMEX method is not useful for correcting SGP aggregations (e.g.  median growth percentiles, or MGPs), either.  On the one hand, the aggregated mean/median prior scores of a class/school should be much closer to the true aggregated scores compared with individual scores, which means that the problem mentioned in preceding sections is partially solved and the SIMEX correction could be beneficial.  On the other hand, the aggregated mean/median SGPs of a class/school should also be close to the true aggregated SGPs, which raises the question whether the SIMEX correction is necessary.
+
+To investigate the utility of the SIMEX method at the school level, we examined three scenarios—randomly assigned schools, perfectly sorted schools, and actual schools which are usually somewhere in the middle.  In each scenario, we looked at the bias of aggregated scale scores and SGPs, the MSE of MGPs estimated with and without SIMEX, and the correlation between MGP (with and without SIMEX) and prior aggregated scores.  From now on, we use the word "school" to refer to a collective student body which may be a class or a school.  Since we simulate schools of small and large sizes (as small as 10 students, and as large as 100), the investigation may generalize to both classes and schools.
+
+###  Randomly Assigned Schools
+Because measurement errors are random and independent of each other *aggregated* scale scores or SGPs are much more accurate than *individual* scale scores or SGPs.  We test this claim empirically in the simulation described in the [first section of this appendix](#simex-and-individual-sgps).  Students are randomly sampled without replacement into schools of various sizes.  We calculated the difference between mean observed and true scores, the difference between median observed and true scores, and the difference between individual observed and true scores.  Figure C.4 plots the errors of Grade 3 scores with school sizes of 10, 20, and 50.  Figure C.5 plots the errors of aggregated and individual SGPs of Grade 4.  The data are drawn from a single replication of the simulation study.  Plots of other grades and other replications are similar.  The same plots drawn in the other scenarios, i.e.  perfectly sorted schools and actual schools, are also highly similar and are not presented.
+
+##### **Figure C.4**   *Errors of Aggregated and Individual Scale Scores of Grade 3*
+![](img/Appendices/SIMEX/Fig_4_Aggregate_Errors_G3.png 'aggError3')
+
+##### **Figure C.5**  *Errors of Aggregated and Individual SGPs of Grade 4*
+![](img/Appendices/SIMEX/Fig_5_Aggregate_Errors_G4.png 'aggError4')
+
+Figure C.4 and C.5 show that, when error-prone scores and SGPs are aggregated, even in schools of just 10 students, the magnitudes of errors are greatly reduced.  The error reduction improves considerably as school sizes go up.
+
+The next question is, can the SIMEX method improve the accuracy and precision of aggregated SGPs when students are randomly assigned to schools? Table C.3 presents MSE of mean and median SGPs of schools of various sizes.
+
+#### **Table C.3:**  *Mean Squared Errors of Aggregated SGPs of Randomized Schools of Various Sizes*
+
+<div>
+<table class='gmisc_table' style='border-collapse: collapse;'>
+    <a name='Table C.3.'></a>
+    <thead>
+    <tr>
+        <th style='font-weight: 900; border-top: 4px double grey;'></th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Mean School SGP</th><th style='border-top: 4px double grey;'>&nbsp;</th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Median School SGP </th>
+    </tr>
+    <tr>
+        <th style=';'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 10*</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 100</th>
+        <th style='border-bottom: 1px solid grey;'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 10</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 100</th>
+    </tr>
+    </thead><tbody>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 4 ~ 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 36.39</td>
+        <td align='right' style=';'> 17.82</td>
+        <td align='right' style=';'>  7.15</td>
+        <td align='right' style=';'>  3.57</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>131.21</td>
+        <td align='right' style=';'> 83.29</td>
+        <td align='right' style=';'> 39.07</td>
+        <td align='right' style=';'> 18.49</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td>
+        <td align='right' style=';'> 39.29</td>
+        <td align='right' style=';'> 19.45</td>
+        <td align='right' style=';'>  7.79</td>
+        <td align='right' style=';'>  3.96</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>142.2</td>
+        <td align='right' style=';'> 89.92</td>
+        <td align='right' style=';'> 42.82</td>
+        <td align='right' style=';'> 20.48</td>
+    </tr>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 5 ~ 4 and 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 35.95</td>
+        <td align='right' style=';'> 17.94</td>
+        <td align='right' style=';'>  7.10</td>
+        <td align='right' style=';'>  3.50</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>129.90</td>
+        <td align='right' style=';'> 83.99</td>
+        <td align='right' style=';'> 35.50</td>
+        <td align='right' style=';'> 18.89</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td> 
+        <td align='right' style=';'> 37.78</td>
+        <td align='right' style=';'> 18.85</td>
+        <td align='right' style=';'>  7.49</td>
+        <td align='right' style=';'>  3.69</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>137.00</td>
+        <td align='right' style=';'> 88.66</td>
+        <td align='right' style=';'> 38.32</td>
+        <td align='right' style=';'> 20.11</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+**MSE 10 Means "Mean Squared Error for schools of 10 Students"*
+
+Table C.3 shows that MSE of aggregated SGP_SIMEX are very close to and always slightly larger than MSE of non-corrected SGPs.  It also shows that mean SGP seems to have much smaller MSE than median SGPs.
+
+Lastly, we look at the correlation between aggregated SGP and prior scale scores.  Table C.4 presents the correlations between aggregated observed SGP (No SIMEX) and prior scores, the correlations between SGP_SIMEX and prior scores, and the correlations between error-free SGP (true) and prior scores for schools of various sizes.  Table C.4 shows that aggregated SGPs hardly correlate with aggregated prior scores in randomly assigned schools, and that the SIMEX correction tends to make the correlation estimations more erroneous rather than accurate, if only at a small scale.
+
+#### **Table C.4:**  *Correlations of Aggregated SGPs and prior scores of Randomized Schools of Various Sizes*
+
+<div>
+<table class='gmisc_table' style='border-collapse: collapse;'>
+    <a name='Table C.4.'></a>
+    <thead>
+    <tr>
+        <th style='font-weight: 900; border-top: 4px double grey;'></th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Correlation of <em>Mean</em> SGP and prior score</th><th style='border-top: 4px double grey;'>&nbsp;</th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Correlation of <em>Median</em> SGP and prior score</th>
+    </tr>
+    <tr>
+        <th style=';'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 10*</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 100</th>
+        <th style='border-bottom: 1px solid grey;'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 10</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 100</th>
+    </tr>
+    </thead><tbody>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 4 ~ 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 0.061</td>
+        <td align='right' style=';'> 0.018</td>
+        <td align='right' style=';'> 0.014</td>
+        <td align='right' style=';'>-0.004</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.045</td>
+        <td align='right' style=';'> 0.028</td>
+        <td align='right' style=';'>-0.004</td>
+        <td align='right' style=';'> 0.036</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td>
+        <td align='right' style=';'> 0.040</td>
+        <td align='right' style=';'>-0.084</td>
+        <td align='right' style=';'>-0.083</td>
+        <td align='right' style=';'>-0.117</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>-0.029</td>
+        <td align='right' style=';'>-0.040</td>
+        <td align='right' style=';'>-0.067</td>
+        <td align='right' style=';'>-0.033</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>True </td>
+        <td align='right' style=';'> 0.071</td>
+        <td align='right' style=';'> 0.025</td>
+        <td align='right' style=';'> 0.016</td>
+        <td align='right' style=';'>-0.026</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.057</td>
+        <td align='right' style=';'> 0.027</td>
+        <td align='right' style=';'> 0.107</td>
+        <td align='right' style=';'>-0.062</td>
+    </tr>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 5 ~ 4 and 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 0.003</td>
+        <td align='right' style=';'> 0.062</td>
+        <td align='right' style=';'> 0.122</td>
+        <td align='right' style=';'> 0.040</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>-0.016</td>
+        <td align='right' style=';'> 0.013</td>
+        <td align='right' style=';'> 0.104</td>
+        <td align='right' style=';'> 0.051</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td> 
+        <td align='right' style=';'>-0.058</td>
+        <td align='right' style=';'> 0.002</td>
+        <td align='right' style=';'> 0.066</td>
+        <td align='right' style=';'>-0.019</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>-0.062</td>
+        <td align='right' style=';'>-0.029</td>
+        <td align='right' style=';'> 0.062</td>
+        <td align='right' style=';'> 0.020</td>
+    </tr>
+        <td align='right' style=';'>True </td> 
+        <td align='right' style=';'> 0.003</td>
+        <td align='right' style=';'> 0.078</td>
+        <td align='right' style=';'> 0.167</td>
+        <td align='right' style=';'> 0.031</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>-0.039</td>
+        <td align='right' style=';'> 0.000</td>
+        <td align='right' style=';'> 0.130</td>
+        <td align='right' style=';'> 0.059</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+**Size 10 Means schools of 10 Students*
+
+### Perfectly Sorted Schools
+
+For the second scenario, we assume that the assignment of students to different schools is completely based on the ranking of their prior true scores.  Table C.5 and C.6 present the MSE and correlations calculated in this scenario similar to that of Tables C.3 and C.4.  These tables show that MSE of aggregated SGPs increases dramatically when students are sorted compared with random assignment into schools.  The large MSEs are somewhat mitigated when SGPs are conditioned on more than one prior scores.  
+
+Correlations between aggregated SGPs and prior scores are also greatly inflated, suggesting underestimation of MGP for under-achieving schools and overestimation of MGP at the other end.  The good news is that the SIMEX method seems to be effective to a certain degree in reducing MSE, especially for larger schools.  The SIMEX method also performs well in reducing the correlation between MGP and prior scores.  In fact, it almost completely removes the inflation of the correlations.  This confirms our earlier expectation that the SIMEX method might not be able to eliminate errors, but it can, under the right circumstances, quite effectively turn systematic bias into random errors.
+
+#### **Table C.5:**  *Mean Squared Errors of Aggregated SGPs of Sorted Schools of Various Sizes*
+
+<div>
+<table class='gmisc_table' style='border-collapse: collapse;'>
+    <a name='Table C.5.'></a>
+    <thead>
+    <tr>
+        <th style='font-weight: 900; border-top: 4px double grey;'></th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Mean School SGP</th><th style='border-top: 4px double grey;'>&nbsp;</th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Median School SGP </th>
+    </tr>
+    <tr>
+        <th style=';'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 10*</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 100</th>
+        <th style='border-bottom: 1px solid grey;'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 10</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>MSE 100</th>
+    </tr>
+    </thead><tbody>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 4 ~ 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'>161.88</td>
+        <td align='right' style=';'> 95.51</td>
+        <td align='right' style=';'> 47.97</td>
+        <td align='right' style=';'> 32.29</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>376.52</td>
+        <td align='right' style=';'>238.27</td>
+        <td align='right' style=';'>126.00</td>
+        <td align='right' style=';'> 84.25</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td>
+        <td align='right' style=';'>159.43</td>
+        <td align='right' style=';'> 85.32</td>
+        <td align='right' style=';'> 40.57</td>
+        <td align='right' style=';'> 24.12</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>388.88</td>
+        <td align='right' style=';'>231.30</td>
+        <td align='right' style=';'>114.85</td>
+        <td align='right' style=';'> 69.78</td>
+    </tr>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 5 ~ 4 and 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'>161.93</td>
+        <td align='right' style=';'> 81.13</td>
+        <td align='right' style=';'> 36.93</td>
+        <td align='right' style=';'> 25.73</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>350.78</td>
+        <td align='right' style=';'>206.40</td>
+        <td align='right' style=';'> 97.86</td>
+        <td align='right' style=';'> 67.87</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td> 
+        <td align='right' style=';'>161.87</td>
+        <td align='right' style=';'> 78.91</td>
+        <td align='right' style=';'> 32.44</td>
+        <td align='right' style=';'> 19.32</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>360.49</td>
+        <td align='right' style=';'>209.31</td>
+        <td align='right' style=';'> 90.24</td>
+        <td align='right' style=';'> 57.81</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+**MSE 10 Means "Mean Squared Error for schools of 10 Students"*
+
+#### **Table C.6:**  *Correlations of Aggregated SGPs and prior scores of Sorted Schools of Various Sizes*
+
+<div>
+<table class='gmisc_table' style='border-collapse: collapse;'>
+    <a name='Table C.6.'></a>
+    <thead>
+    <tr>
+        <th style='font-weight: 900; border-top: 4px double grey;'></th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Correlation of <em>Mean</em> SGP and prior score</th><th style='border-top: 4px double grey;'>&nbsp;</th>
+        <th align='center' colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Correlation of <em>Median</em> SGP and prior score</th>
+    </tr>
+    <tr>
+        <th style=';'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 10*</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 100</th>
+        <th style='border-bottom: 1px solid grey;'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 10</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 20</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 50</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Size 100</th>
+    </tr>
+    </thead><tbody>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 4 ~ 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 0.305</td>
+        <td align='right' style=';'> 0.420</td>
+        <td align='right' style=';'> 0.577</td>
+        <td align='right' style=';'> 0.645</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.263</td>
+        <td align='right' style=';'> 0.364</td>
+        <td align='right' style=';'> 0.515</td>
+        <td align='right' style=';'> 0.602</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td>
+        <td align='right' style=';'> 0.018</td>
+        <td align='right' style=';'> 0.057</td>
+        <td align='right' style=';'> 0.113</td>
+        <td align='right' style=';'> 0.133</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.011</td>
+        <td align='right' style=';'> 0.047</td>
+        <td align='right' style=';'> 0.100</td>
+        <td align='right' style=';'> 0.120</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>True </td>
+        <td align='right' style=';'> 0.005</td>
+        <td align='right' style=';'>-0.058</td>
+        <td align='right' style=';'> 0.077</td>
+        <td align='right' style=';'> 0.107</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.007</td>
+        <td align='right' style=';'>-0.039</td>
+        <td align='right' style=';'> 0.006</td>
+        <td align='right' style=';'> 0.029</td>
+    </tr>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 5 ~ 4 and 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 0.203</td>
+        <td align='right' style=';'> 0.298</td>
+        <td align='right' style=';'> 0.415</td>
+        <td align='right' style=';'> 0.496</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.173</td>
+        <td align='right' style=';'> 0.252</td>
+        <td align='right' style=';'> 0.356</td>
+        <td align='right' style=';'> 0.443</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td> 
+        <td align='right' style=';'> 0.021</td>
+        <td align='right' style=';'> 0.047</td>
+        <td align='right' style=';'> 0.070</td>
+        <td align='right' style=';'> 0.084</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.013</td>
+        <td align='right' style=';'> 0.036</td>
+        <td align='right' style=';'> 0.054</td>
+        <td align='right' style=';'> 0.076</td>
+    </tr>
+        <td align='right' style=';'>True </td> 
+        <td align='right' style=';'> 0.005</td>
+        <td align='right' style=';'> 0.009</td>
+        <td align='right' style=';'>-0.011</td>
+        <td align='right' style=';'>-0.220</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>-0.015</td>
+        <td align='right' style=';'> 0.005</td>
+        <td align='right' style=';'>-0.111</td>
+        <td align='right' style=';'>-0.192</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+**Size 10 Means schools of 10 Students*
+
+### Actual Classes/Schools
+
+Neither the randomized or perfectly sorted schools scenarios are very realistic.  To get a sense of what may happen in reality, we turn to the `sgpData_LONG` dataset contained in the `SGP` R package, which is a toy dataset based on real schools in a different state.  We consider scale scores in this dataset as "true" scores, and perturb them in the same way as in the previous simulations.  For each perturbed data, individual and aggregated SGP and SGP_SIMEX are estimated.  We calculated the total MSE, the Mean Bias, and the SD Bias, defined in equations (1), (2), and (3).  Results from the Reading test in Grades 4 and 5 conditioning on 1 and 2 priors respectively are presented in Table C.7.  Correlations of aggregated SGP and prior scores are presented in Table C.8.  
+
+#### **Table C.7:**  *Mean Squared Errors of Aggregated SGPs of Actual Schools of Various Sizes*
+
+<div>
+<table class='gmisc_table' style='border-collapse: collapse;'>
+    <a name='Table C.7.'></a>
+    <thead>
+    <tr>
+        <th style='font-weight: 900; border-top: 4px double grey;'></th>
+        <th align='center' colspan='3' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Mean School SGP</th><th style='border-top: 4px double grey;'>&nbsp;</th>
+        <th align='center' colspan='3' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Median School SGP </th>
+    </tr>
+    <tr>
+        <th style=';'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Total MSE</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Mean Bias</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>SD Bias</th>
+        <th style='border-bottom: 1px solid grey;'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Total MSE</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Mean Bias</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>SD Bias</th>
+    </tr>
+    </thead><tbody>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 4 ~ 3</td></tr>
+    <tr>
+        <td align='right' style=';'>Without SIMEX </td>
+        <td align='right' style=';'> 5.574</td>
+        <td align='right' style=';'>-0.196</td>
+        <td align='right' style=';'> 2.360</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>23.366</td>
+        <td align='right' style=';'>-0.104</td>
+        <td align='right' style=';'> 5.137</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>With SIMEX </td>
+        <td align='right' style=';'> 4.741</td>
+        <td align='right' style=';'>-0.075</td>
+        <td align='right' style=';'> 2.177</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>28.364</td>
+        <td align='right' style=';'> 0.034</td>
+        <td align='right' style=';'> 5.329</td>
+    </tr>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 5 ~ 4 and 3</td></tr>
+    <tr>
+        <td align='right' style=';'>Without SIMEX </td>
+        <td align='right' style=';'> 5.948</td>
+        <td align='right' style=';'>-0.263</td>
+        <td align='right' style=';'> 2.433</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>27.101</td>
+        <td align='right' style=';'>-0.266</td>
+        <td align='right' style=';'> 5.199</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>With SIMEX </td> 
+        <td align='right' style=';'> 4.519</td>
+        <td align='right' style=';'> 0.094</td>
+        <td align='right' style=';'> 2.125</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'>25.679</td>
+        <td align='right' style=';'> 0.084</td>
+        <td align='right' style=';'> 5.060</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+
+Table C.7 shows that MSEs of mean SGP from actual schools are quite small to begin with, and the SIMEX method is able to further reduce it to a limited extent.  Bias and MSEs of median SGPs are much larger, and the effect of the SIMEX method on median SGPs seems to be mixed.  Table C.8 shows that there are considerable correlations between observed aggregated SGPs and prior scores, and that even the error-free SGPs correlate significantly with prior scores.  This indicates that measurement error is not the only source of the correlation.  When conditioned on more than one prior score, the correlations are much reduced.  When the SIMEX method is applied, the correlations are further reduced to a level that is quite close to the correlation between error-free SGPs and prior scores.
+
+#### **Table C.8:**  *Correlations of Aggregated SGPs and prior scores of Actual Schools of Various Sizes*
+
+<div>
+<table class='gmisc_table' style='border-collapse: collapse;'>
+    <a name='Table C.8.'></a>
+    <thead>
+    <tr>
+        <th style='font-weight: 900; border-top: 4px double grey;'></th>
+        <th align='center' colspan='2' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Correlation of <em>Mean</em> SGP and prior score</th><th style='border-top: 4px double grey;'>&nbsp;</th>
+        <th align='center' colspan='2' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Correlation of <em>Median</em> SGP and prior score</th>
+    </tr>
+    <tr>
+        <th style=';'>&nbsp;</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Mathematics</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Reading</th>
+        <th style='border-bottom: 1px solid grey;'>&nbsp;</th>
+         <th align='center' style='border-bottom: 1px solid grey;'>Mathematics</th>
+        <th align='center' style='border-bottom: 1px solid grey;'>Reading</th>
+    </tr>
+    </thead><tbody>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 4 ~ 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 0.384</td>
+        <td align='right' style=';'> 0.403</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.372</td>
+        <td align='right' style=';'> 0.404</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td>
+        <td align='right' style=';'> 0.294</td>
+        <td align='right' style=';'> 0.291</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.281</td>
+        <td align='right' style=';'> 0.299</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>True </td>
+        <td align='right' style=';'> 0.292</td>
+        <td align='right' style=';'> 0.301</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.284</td>
+        <td align='right' style=';'> 0.330</td>
+    </tr>
+    <tr><td align='left' style='border-bottom: 1px solid grey; font-weight: 900;'>Grade 5 ~ 4 and 3</td></tr>
+    <tr>
+        <td align='right' style=';'>No SIMEX </td>
+        <td align='right' style=';'> 0.220</td>
+        <td align='right' style=';'> 0.256</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.172</td>
+        <td align='right' style=';'> 0.252</td>
+    </tr>
+    <tr>
+        <td align='right' style=';'>SIMEX </td> 
+        <td align='right' style=';'> 0.152</td>
+        <td align='right' style=';'> 0.138</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.105</td>
+        <td align='right' style=';'> 0.140</td>
+    </tr>
+        <td align='right' style=';'>True </td> 
+        <td align='right' style=';'> 0.159</td>
+        <td align='right' style=';'> 0.121</td>
+        <th style=';'>&nbsp;</th>
+        <td align='right' style=';'> 0.093</td>
+        <td align='right' style=';'> 0.119</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+
+## Summary of Preliminary Results of Georgia SIMEX Analyses (2012)
+
+The following sections provide summaries of the preliminary results of SIMEX analyses run using 2012 data.
+
+### *How much does the SIMEX-corrected SGP differ from non-corrected SGP?*
+
+**Answer:** Not much.  And when more priors are included, SGP and SGP_SIMEX appear to converge to each other, i.e.  their differences have smaller means and standard deviations.  The pattern is clear and consistent in Tables C.9 to C.13 which present the median, mean, and standard deviation of the SIMEX corrected SGP minus the uncorrected SGP for all students.
+
+#### **Table C.9:**  *Reading*
+
+|     *2012*          | **Median** |  **Mean**  |**Std.  Dev.**|
+|:--------------------|:----------:|:----------:|:-----------:|
+|.........................|...............|.................|..................|
+| Grade 4, 1 prior    |      0     |    1.41    |     5.44    |
+|Grade 5, 1 prior     |0|1.43|5.55
+|Grade 5, 2 priors    |0|0.4|5.62|
+|Grade 6, 1 prior     |0|1.21|5.9|
+|Grade 6, 2 priors    |0|0.34|4.9|
+|Grade 6, 3 priors    |0|0.14|4.41|
+|Grade 7, 1 prior     |0|1.4|6.15|
+|Grade 7, 2 priors    |0|0.39|5.43|
+|Grade 7, 3 priors    |0|0.2|4.72|
+|Grade 7, 4 priors    |0|0.15|4.35|
+|Grade 8, 1 prior     |0|1.49|5.77|
+|Grade 8, 2 priors    |0|0.45|4.91|
+|Grade 8, 5 priors    |0|0.16|3.7|
+|.........................|...............|.................|..................|
+
+
+#### **Table C.10:**  *ELA*
+
+|     *2012*          | **Median** |  **Mean**  |**Std.  Dev.**|
+|:--------------------|:----------:|:----------:|:-----------:|
+|.........................|...............|.................|..................|
+|Grade 4, 1 prior|0|1.16|5.43|
+|Grade 5, 2 priors|0|0.25|4.67|
+|Grade 6, 2 priors|0|0.27|4.69|
+|Grade 7, 2 priors|0|0.41|4.89|
+|Grade 8, 2 priors|0|0.44|5.33|
+|.........................|...............|.................|..................|
+
+
+#### **Table C.11:**  *Mathematics*
+
+|     *2012*          | **Median** |  **Mean**  |**Std.  Dev.**|
+|:--------------------|:----------:|:----------:|:-----------:|
+|.........................|...............|.................|..................|
+|Grade 4, 1 prior|0|0.62|6.66|
+|Grade 5, 1 prior|0|0.82|4.75|
+|Grade 5, 2 priors|0|0.29|3.58|
+|Grade 6, 1 prior|0|0.71|5.47|
+|Grade 6, 2 priors|0|0.27|4.63|
+|Grade 7, 1 prior|0|0.65|5.35|
+|Grade 7, 2 priors|0|0.25|4.6|
+|Grade 8, 1 prior|0|0.75|4.91|
+|Grade 8, 2 priors|0|0.25|3.99|
+|.........................|...............|.................|..................|
+
+#### **Table C.12:**  *Science*
+
+|     *2012*          | **Median** |  **Mean**  |**Std.  Dev.**|
+|:--------------------|:----------:|:----------:|:-----------:|
+|.........................|...............|.................|..................|
+|Grade 4, 1 prior|0|0.48|5.13|
+|Grade 5, 2 priors|0|0.15|4.37|
+|Grade 6, 2 priors|0|0.1|4.17|
+|Grade 7, 2 priors|0|0.18|4.39|
+|Grade 8, 2 priors|0|0.15|3.87|
+|.........................|...............|.................|..................|
+
+#### **Table C.13:**  *Social Studies*
+
+|     *2012*          | **Median** |  **Mean**  |**Std.  Dev.**|
+|:--------------------|:----------:|:----------:|:-----------:|
+|.........................|...............|.................|..................|
+|Grade 4, 1 prior|0|0.47|4.72|
+|Grade 5, 2 priors|0|0.11|4.31|
+|Grade 6, 2 priors|0|0.21|3.71|
+|Grade 7, 2 priors|0|0.15|4.2|
+|Grade 8, 2 priors|0|0.11|3.5|
+|.........................|...............|.................|..................|
+
+### *Does the SIMEX correction work differently for different schools?*
+
+**Answer:** Yes.  For schools with lower mean scores, the SIMEX correction tends to raise their corrected mean and median SGP, whereas for schools with higher mean scores, the SIMEX correction tends to lower their corrected mean and median SGP.  This shows that SIMEX is correcting the attenuation created by measurement errors.  
+
+##### **Figure C.6**  *SGP_SIMEX minus SGP Plotted against School Mean Standardized Prior Scores for American Literature*
+![](img/Appendices/SIMEX/Fig_6_School_MGP_Diff.png "mgpDiff")
+
+
+### *Can the SIMEX correction lower correlations between aggregated school SGP and school prior scores?*
+
+**Answer:** Yes, SIMEX does reduce the correlations between aggregated SGP and prior mean scores at the school level (Tables C.14 - C.18).  To be more specific:
+
+* The magnitude of reduction ranges from 21% to close to 70%.  The median magnitude of reduction is 38% for Median SGP and 40% for Mean SGP in READING, and 44% for Median and 38% for Mean in MATHEMATICS.
+* SIMEX achieves this correlation reduction by generally raising the aggregated SGP for lower-performing schools and lowering the aggregated SGP for high-performing schools, as illustrated in Figure C.1.  
+* In a few cases, such as grades 5 and 7 for Science, and grades 5 and 8 for Social Studies, the correlations between SGP and prior scores are quite small to begin with, and SIMEX correction leads to negative correlations.  In these cases, both the original and the corrected correlations are insignificant.
+
+#### **Table C.14:**  *Reading*
+
+|     *2012*          | **Median SGP** |  **Mean SGP**  | **Median SIMEX** |  **Mean SIMEX**  |
+|:--------------------|:----------:|:----------:|:-----------:|:-----------:|
+|.........................|..................|....................|......................|....................|
+|Grade 4, 1 prior|0.325|0.357|0.139|0.157|
+|Grade 5, 1 prior|0.336|0.35|0.16|0.165|
+|Grade 5, 2 priors|0.255|0.277|0.08|0.091|
+|Grade 6, 1 prior|0.459|0.476|0.286|0.286|
+|Grade 6, 2 priors|0.368|0.387|0.209|0.214|
+|Grade 6, 3 priors|0.331|0.358|0.187|0.203|
+|Grade 7, 1 prior|0.648|0.661|0.499|0.525|
+|Grade 7, 2 priors|0.499|0.521|0.354|0.363|
+|Grade 7, 3 priors|0.472|0.493|0.348|0.369|
+|Grade 7, 4 priors|0.456|0.472|0.351|0.364|
+|Grade 8, 1 prior|0.546|0.566|0.346|0.365|
+|Grade 8, 2 priors|0.457|0.484|0.253|0.277|
+|Grade 8, 5 priors|0.383|0.394|0.253|0.265|
+|.........................|..................|....................|......................|....................|
+
+
+#### **Table C.15:**  *ELA*
+
+|     *2012*          | **Median SGP** |  **Mean SGP**  | **Median SIMEX** |  **Mean SIMEX**  |
+|:--------------------|:----------:|:----------:|:-----------:|:-----------:|
+|.........................|..................|....................|......................|....................|
+|Grade 4, 1 prior|0.233|0.24|0.105|0.11|
+|Grade 5, 2 priors|0.314|0.324|0.191|0.205|
+|Grade 6, 2 priors|0.406|0.41|0.302|0.306|
+|Grade 7, 2 priors|0.338|0.34|0.194|0.207|
+|Grade 8, 2 priors|0.399|0.418|0.223|0.246|
+|.........................|..................|....................|......................|....................|
+
+#### **Table C.16:**  *Mathematics*
+
+|     *2012*          | **Median SGP** |  **Mean SGP**  | **Median SIMEX** |  **Mean SIMEX**  |
+|:--------------------|:----------:|:----------:|:-----------:|:-----------:|
+|.........................|..................|....................|......................|....................|
+|Grade 4, 1 prior|0.268|0.28|0.159|0.175|
+|Grade 5, 1 prior|0.216|0.23|0.122|0.139|
+|Grade 5, 2 priors|0.176|0.193|0.098|0.119|
+|Grade 6, 1 prior|0.208|0.225|0.088|0.099|
+|Grade 6, 2 priors|0.156|0.168|0.063|0.071|
+|Grade 7, 1 prior|0.298|0.293|0.161|0.164|
+|Grade 7, 2 priors|0.296|0.29|0.187|0.184|
+|Grade 8, 1 prior|0.309|0.319|0.215|0.229|
+|Grade 8, 2 priors|0.272|0.283|0.196|0.212|
+|.........................|..................|....................|......................|....................|
+
+
+#### **Table C.17:**  *Science*
+
+|     *2012*          | **Median SGP** |  **Mean SGP**  | **Median SIMEX** |  **Mean SIMEX**  |
+|:--------------------|:----------:|:----------:|:-----------:|:-----------:|
+|.........................|..................|....................|......................|....................|
+|Grade 4, 1 prior|0.269|0.294|0.14|0.164|
+|Grade 5, 2 priors|0.064|0.076|-0.033|-0.029|
+|Grade 6, 2 priors|0.2|0.221|0.12|0.14|
+|Grade 7, 2 priors|0.05|0.068|-0.06|-0.042|
+|Grade 8, 2 priors|0.277|0.286|0.205|0.215|
+|.........................|..................|....................|......................|....................|
+
+
+#### **Table C.18:**  *Social Studies*
+
+|     *2012*          | **Median SGP** |  **Mean SGP**  | **Median SIMEX** |  **Mean SIMEX**  |
+|:--------------------|:----------:|:----------:|:-----------:|:-----------:|
+|.........................|..................|....................|......................|....................|
+|Grade 4, 1 prior |0.24 |0.252|0.147 | 0.154|
+|Grade 5, 2 priors|0.041|0.059|-0.054|-0.039|
+|Grade 6, 2 priors|0.132|0.152|0.071|0.091|
+|Grade 7, 2 priors|0.196|0.222|0.117|0.136|
+|Grade 8, 2 priors|0.007|0.013|-0.059|-0.052|
+|.........................|..................|....................|......................|....................|
+
+### *4.4	What about the correlations between Grand Aggregated SGP and Prior Grand Mean School Scale Scores?*
+
+**Answer:** Tables C.19 and C.20 show that SIMEX does reduce correlation at the aggregate level across grades and subjects.  The magnitude of reduction is about 1/5 to 1/3 depending on how many subjects are included.
+
+#### **Table C.19:**  *Reading and Mathematics*
+
+|     *2012*          | **Median SGP** |  **Mean SGP**  | **Median SIMEX** |  **Mean SIMEX**  |  **School Count**  |
+|:--------------------|:----------:|:----------:|:-----------:|:-----------:|
+|.........................|..................|....................|......................|....................|....................|
+|Grades 4-5, priors 1-2|0.449|0.466|0.297|0.314|1,266|
+|.........................|..................|....................|......................|....................|....................|
+
+#### **Table C.20:**  *Reading, ELA, Mathematics, Science and Social Studies*
+
+|     *2012*          | **Median SGP** |  **Mean SGP**  | **Median SIMEX** |  **Mean SIMEX**  |  **School Count**  |
+|:--------------------|:----------:|:----------:|:-----------:|:-----------:|
+|.........................|..................|....................|......................|....................|....................|
+|Grades 4-8, priors 1-2|0.576|0.586|0.447|0.463|1,792|
+|.........................|..................|....................|......................|....................|....................|
+
+
+### *How stable are the SIMEX results?*
+
+**Answer:** The stability depends on the methods of aggregation, school size, and number of SIMEX iterations.  Specifically,
+
+* With 20 SIMEX iterations, school Median SGP_SIMEX correlate with each other at above 0.95.
+* With 20 SIMEX iterations, school Mean SGP_SIMEX correlate with each other at above 0.99.
+* Because many schools are very close in terms of their median or mean SGP, we could see rather large difference in school rankings even if the difference in MGP is small, especially when school size is small, as illustrated in Figure 2.  
+* Figure 2 also shows that Mean SGP_SIMEX is much more stable than Median SGP_SIMEX.
+
+##### **Figure C.7**  *Difference in School Ranking in Different SIMEX Trials Plotted Against School Size for American Literature*
+![](img/Appendices/SIMEX/Fig_7_School_Rank_Diff.png "stabilityMGP")
+### *What are the consequences of including more priors?*
+
+* Without SIMEX correction, including more priors leads to the mitigation of correlations between aggregated SGP and prior mean scores.  The pattern is obvious and consistent in Tables C.14 - C.18, especially Table C.14, since it includes the same grade with different numbers of priors.
+* Including more priors generally makes the SIMEX correction more powerful.  The pattern is not always consistent (Tables C.14 - C.18).
+
+### *What about Goodness-of-Fit?*
+The uncorrected SGP generally has better fit than the SIMEX corrected SGP.  This is expected because goodness-of-fit means the extent to which the model fits the observed data, which is error-prone.  Since SIMEX aims to adjust for measurement error, it naturally deviates from the observed data to a limited degree.  Our confidence that SIMEX corrected SGP gets closer to the "true" results comes from the outcome of the simulation studies presented in the second section of this report.
+
+
+## SIMEX implementation in the SGP package
+The `SGP` package (Betebenner, VanIwaarden, Domingue & Shang, 2014) allows the user to specify many of the parameters used in the production of SIMEX SGP estimates.  The `calculate.simex` argument of the `studentGrowthPercentiles` function requires the user to specify the following SIMEX parameters in a list with the following named elements:
+
+* **`state`** identifies the two letter state abbreviation under which the test specific CSEMs are located in `SGPstateData`, 
+* **`lambda`** and **`simulation.iterations`** specify the desired values of ${\lambda}$ and $B$ respectively, and
+* **`extrapolation`** to select a "linear" or "quadratic" extrapolant function.
+
+The user may also request optional functionality, including
+
+* **`simex.sample.size`** to specify a sample size of the data to be used in the production of the coefficient matrices^[Because the time taken to produce a coefficient matrix increases exponentially as the number of students increases a sample size smaller than the population can allow for satisfactory coefficient matrices to be produced in a more time efficient manner.  When specified, the student population must be greater than the argument value.  Note that the sample is only used to produce these matrices, and all students still receive SIMEX corrected SGP estimates.], 
+* **`save.matrices`** to choose to save the coefficient matrices produced during each simulation experiment (`TRUE` or left `NULL` if not desired), and
+* **`simex.use.my.coefficient.matrices`** to use previously computed coefficient matrices, if available (`TRUE` or left `NULL` if not), to produce fitted value estimates.
+
+When the `calculate.simex` argument is `TRUE` in the high-level function `analyzeSGP` (rather than providing a list as described above) the package defaults are used.  These defaults are to set ${\lambda}$ to 0.5, 1, 1.5, 2 and $B$ as 50, the sample size is set at 25,000, and the linear extrapolant is used.  When computing cohort referenced SIMEX SGPs new coefficient matrices will be produced, used and saved.  Previously computed coefficient matrices are used for baseline referenced SGPs (see the section below regarding SIMEX baseline matrix construction).  These defaults were used in producing all Georgia's SIMEX corrected SGPs.  
+
+Internally, the `studentGrowthPercentiles` function first uses the "naive" coefficient matrices (either calculated previously or during the current run) to obtain the "naive" fitted values from the unperturbed observed test scores.  The (non-zero) values of ${\lambda}$ are then iterated over, simulating $B$ new data sets from the observed values each time.  New coefficient matrices are produced if requested using each of the $B$ data sets.^[This includes producing the knots and boundaries used in the quantile regressions.]  The function then finds the appropriate coefficient matrix that was either just produced, or is available in the `panel.data` list provided by the user or included in the package's `SGPstateData`.  Once the appropriate matrices have been located, the fitted value predictions at each percentile value are produced and then averaged over the $B$ simulation iterations.  Once these averages are obtained for each value of ${\lambda}$, the extrapolant function is applied to them to estimate the predicted value at ${\lambda} = -1$ is extrapolated for each student.  These (extrapolated) predicted value estimates and the original observed scores are then used to produce SGP values in the typical manner.^[From documentation sections not included here - the observed score is compared to all 100 predicted values.  A students' SGP is equal to the highest percentile at which the students observed score is greater than or equal to the corresponding predicted (fitted) value.]
+
+###  Baseline referenced coefficient matrix production
+As with the construction of the "naive" baseline coefficient matrices, Georgia's SIMEX adjusted coefficient matrices were produced using a "super-cohort" of students.  That is, students with the same grade progression and/or course sequence from four or five academic year cohorts are combined into a single baseline norm group.  The process of constructing the "naive" baseline coefficient matrices has been spread out over the years due to the availability of adequate prior test types for the various content areas, and care was taken to ensure that the same years' data were used in the construction of the SIMEX matrices.  For example, baseline referenced SGPs for Social Science were first produced in 2014 using data from 2010 through 2013 while the other CRCT subjects used data from 2008 to 2011 and *only* these same years were used to produce the SIMEX baseline matrices as well.
+
+These combined cohort norm groups can range in size from several thousand in some of the less typical EOCT course progressions to well over 400,000 in the CRCT norm groups.  Initial tests of the SIMEX SGP routine on the larger super-cohorts proved to be impossible in the `R` environment, causing numerous technical issues including total memory consumption and other memory related seg-faults.  In order to deal with these issues, the ability to take a random sample of the student score histories for construction of the matrices was added to the `SGP` package.  The sample size of 25,000 students was found to be adequate for providing consistent results, and the number of simulation iterations, $B$, was increased to 50 in order to compensate for added error from the sampling process (up from 30, the number identified earlier as the point at which the returns to reducing the MSE diminished).
+
+The production of these SIMEX adjusted baseline matrices required several days to produce despite the use of parallel processing.  After their construction, the matrices were added to the `SGPstateData` object and used to produce SIMEX adjusted SGPs for the 2011 - 2014 academic years.  
+
+
+# References
+#
