@@ -223,7 +223,7 @@ my.baseline.config <- list(
 		sgp.percentiles.baseline.max.order=4,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25)))
 	
@@ -251,7 +251,7 @@ my.baseline.config <- list(
 		sgp.percentiles.baseline.max.order=3,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25))) #16
 
@@ -292,7 +292,7 @@ my.baseline.config <- list(
 		sgp.percentiles.baseline.max.order=1,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25)))
 

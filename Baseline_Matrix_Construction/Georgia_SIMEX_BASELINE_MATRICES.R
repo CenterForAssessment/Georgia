@@ -8,21 +8,20 @@
 
 require(SGP)
 
-### Load Long Data exported from 2013 SGP analyses to create a smaller object
-load('/home/avi/SGP_Projects/Georgia/Data/Georgia_SGP_LONG_Data.Rdata')
+### Load Long Data exported from SGP analyses
+load('Data/Georgia_SGP_LONG_Data.Rdata')
 
-###  Reduce data to only what we'll be using
-Georgia_SGP_LONG_Data <- Georgia_SGP_LONG_Data[, c(1:4, 11, 18:21, 36, 47:48), with=FALSE]
-
-### prepareSGP
-
-Georgia_SGP <- prepareSGP(Georgia_SGP_LONG_Data, create.additional.variables=FALSE)
+### prepareSGP to create temporary SGP object using only the bare minimum data needed
+Georgia_SGP <- prepareSGP(state="GA", create.additional.variables=FALSE,
+  Georgia_SGP_LONG_Data[, list(
+    VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID, GRADE, SCALE_SCORE, PERFORMANCE_LEVEL)])
 
 ###  Save SGP object with data only.
 save(Georgia_SGP, file='Georgia_SGP_SIMEX_BASELINE.Rdata')
 
 ###  Add in existing BASELINE splineMatrices for the Naive estimates
-Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
+load('Data/Georgia_Baseline_Matrices.Rdata' )
+SGPstateData[["GA"]][["Baseline_splineMatrix"]][["Coefficient_Matrices"]] <- Georgia_Baseline_Matrices[-grep("SIMEX", names(Georgia_Baseline_Matrices))]
 
 
 ###
@@ -126,7 +125,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=2,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
@@ -220,7 +219,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=2,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
@@ -270,7 +269,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=4,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
@@ -321,7 +320,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=3,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
@@ -358,7 +357,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=1,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
@@ -405,7 +404,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=1,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
@@ -475,9 +474,9 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.baseline.config=my.baseline.config,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
-		# calculate.baseline.simex now set to default:
-		# calculate.baseline.simex=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
+		calculate.simex.baseline=TRUE,
+		# calculate.simex.baseline now set to default:
+		# calculate.simex.baseline=list(state="GA", lambda=seq(0,2,0.5), simulation.iterations=50, simex.sample.size=25000, extrapolation="linear", save.matrices=TRUE),
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=16)))
 	
@@ -563,7 +562,7 @@ Georgia_SGP@SGP <- SGPstateData$GA$Baseline_splineMatrix
 		sgp.percentiles.baseline.max.order=1,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
-		calculate.baseline.simex=TRUE,
+		calculate.simex.baseline=TRUE,
 		goodness.of.fit.print=FALSE,
 		parallel.config=list(BACKEND="PARALLEL", WORKERS=list(SIMEX=25)))
 	
