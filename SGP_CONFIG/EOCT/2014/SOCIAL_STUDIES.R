@@ -4,7 +4,9 @@
 ###
 ##################################################################################
 
-### GRADE-LEVEL CRCT SOCIAL_STUDIES - run together with EOCT to get all coefficient matrices for projections
+#### GRADE-LEVEL CRCT SOCIAL_STUDIES - run together with EOCT to get all coefficient matrices for projections
+
+###   NOT USED IN 2014 -- CRCT RUN SEPERATELY FROM EOCT
 
 SOCIAL_STUDIES_2014.config <- list(
 	SOCIAL_STUDIES.2014 = list(
@@ -12,7 +14,12 @@ SOCIAL_STUDIES_2014.config <- list(
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
 		sgp.panel.years=as.character(2009:2014),
 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8')),
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE))
+
+####
+#### EOCT SOCIAL_STUDIES - RUN SEPERATELY FROM CRCT IN2014
+####
 
 ### US HISTORY
 
@@ -107,7 +114,8 @@ US_HISTORY_2014.config <- list(
 		# sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		# sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		# sgp.exact.grade.progression=TRUE,
-		# sgp.calculate.simex.baseline=TRUE,
+	  # sgp.calculate.simex=TRUE,
+	  # sgp.calculate.simex.baseline=TRUE,
 		# sgp.norm.group.preference=1),
 	US_HISTORY.2014 = list( #73 - New Progression
 		sgp.content.areas=c('ECONOMICS', 'US_HISTORY'),

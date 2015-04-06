@@ -6,13 +6,20 @@
 
 ### GRADE-LEVEL CRCT MATHEMATICS - run together with EOCT to get all coefficient matrices for projections
 
+###   NOT USED IN 2014 -- CRCT RUN SEPERATELY FROM EOCT
+
 MATHEMATICS_2014.config <- list(
 	MATHEMATICS.2014 = list(
 		sgp.content.areas=rep('MATHEMATICS', 6),
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
 		sgp.panel.years=as.character(2009:2014),
 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8')),
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE))
+
+####
+####    EOCT MATHEMATICS - RUN SEPERATELY FROM CRCT IN2014
+####
 
 
 ### Coordinate Algebra

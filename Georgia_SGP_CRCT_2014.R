@@ -34,9 +34,10 @@ Georgia_SGP <- analyzeSGP(
 			sgp.projections.baseline = FALSE,
 			sgp.projections.lagged.baseline = FALSE,
 			simulate.sgps = FALSE,
-			calculate.simex = NULL, # Only produce BASELINE SIMEX for CRCT.
+			calculate.simex = TRUE, # Produce Cohort SIMEX for CRCT now.
+# 			calculate.simex = NULL, # Originally we only produced BASELINE SIMEX for CRCT. Went back and add them later.
 			calculate.simex.baseline = TRUE, 
-			goodness.of.fit.print=FALSE, # Print all out once after running EOCTs
+			goodness.of.fit.print="GROB", # Print all out once after running EOCTs - "GROB" produces R graphical object, but doesn't print.
 			parallel.config=list(BACKEND="PARALLEL", WORKERS=list(PERCENTILES=1, BASELINE_PERCENTILES=1, TAUS=13, SIMEX=5))) # Parallel config as run by Adam for official results
 
 ### Save Results

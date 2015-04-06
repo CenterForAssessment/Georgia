@@ -8,7 +8,7 @@ SGPstateData][['GA']][['Baseline_splineMatrix']] <- NULL
  
 ### GRADE_9_LIT
 
-my.baseline.config <- list(
+g9l.baseline.config <- list(
 	list(  # 7,584 students #1
 		sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
@@ -37,7 +37,7 @@ my.baseline.config <- list(
 
 GA_GRADE_9_LIT_Baseline_Matrices <- baselineSGP(
 	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
+	sgp.baseline.config=g9l.baseline.config,
 	sgp.percentiles.baseline.max.order=4,  ## NOTE Change here
 	return.matrices.only=TRUE,
 	calculate.baseline.sgps=FALSE,
@@ -57,7 +57,7 @@ for (i in 1:length(GA_GRADE_9_LIT_Baseline_Matrices[[1]])) {
 
 ### AMERICAN_LIT 
 
-my.baseline.config <- list(
+aml.baseline.config <- list(
 	list(  # 19,722 students #11
 		sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
 		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
@@ -75,7 +75,7 @@ my.baseline.config <- list(
 				
 GA_AMERICAN_LIT_Baseline_Matrices <- baselineSGP(
 	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
+	sgp.baseline.config=aml.baseline.config,
 	sgp.percentiles.baseline.max.order=3,  ## NOTE Change here
 	return.matrices.only=TRUE,
 	calculate.baseline.sgps=FALSE,
@@ -95,7 +95,7 @@ for (i in 1:length(GA_AMERICAN_LIT_Baseline_Matrices[[1]])) {
 
 ###  US History
 
-my.baseline.config <- list(
+ush.baseline.config <- list(
 	list(  # 11,507 students #62
 		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
 		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
@@ -152,7 +152,7 @@ my.baseline.config <- list(
 
 GA_USHIST_Baseline_Matrices <- baselineSGP(
 	Georgia_SGP,
-	sgp.baseline.config=my.baseline.config,
+	sgp.baseline.config=ush.baseline.config,
 	sgp.percentiles.baseline.max.order=1,
 	return.matrices.only=TRUE,
 	calculate.baseline.sgps=FALSE,
@@ -189,37 +189,9 @@ SGPstateData[["GA"]][["Baseline_splineMatrix"]][["Coefficient_Matrices"]] <-
 
 ### GRADE_9_LIT
 
-my.baseline.config <- list(
-	list(  # 7,584 students #1
-		sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
-		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		sgp.baseline.grade.sequences=c(8,8, 'EOCT'),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.baseline.grade.sequences.lags=c(0, 3)),
-	list(  # 4,399 students #2
-		sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
-		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		sgp.baseline.grade.sequences=c(7,7, 8,8, 'EOCT'),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.baseline.grade.sequences.lags=c(0, 1, 0, 3)),
-
-	list(  # 4,882 students #7
-		sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT'),
-		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		sgp.baseline.grade.sequences=c(7,7, 'EOCT'),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.baseline.grade.sequences.lags=c(0, 1)),
-	list(  # 3,813 students #8
-		sgp.baseline.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
-		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		sgp.baseline.grade.sequences=c(6,6, 7,7, 'EOCT'),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.baseline.grade.sequences.lags=c(0, 1, 0, 1))) # Continuous NO 8th grade ELA/Reading
-
-
-	GA_GRADE_9_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
+  GA_GRADE_9_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
 		Georgia_SGP,
-		sgp.baseline.config=my.baseline.config,
+		sgp.baseline.config=g9l.baseline.config,
 		sgp.percentiles.baseline.max.order=4,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
@@ -230,24 +202,9 @@ my.baseline.config <- list(
 
 ### AMERICAN_LIT 
 
-my.baseline.config <- list(
-	list(  # 19,722 students #11
-		sgp.baseline.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
-		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.baseline.grade.sequences.lags=3), # skip 2 years
-
-	list(  # 11,293 students #12
-		sgp.baseline.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
-		sgp.baseline.panel.years=c('2007', '2008', '2009', '2010', '2011', '2012'),
-		sgp.baseline.grade.sequences=c(8,8, 'EOCT', 'EOCT'),
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.baseline.grade.sequences.lags=c(0, 1, 3))) # skip 2 years
-						
-	GA_AMERICAN_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
+  GA_AMERICAN_LIT_SIMEX_Baseline_Matrices <- baselineSGP(
 		Georgia_SGP,
-		sgp.baseline.config=my.baseline.config,
+		sgp.baseline.config=aml.baseline.config,
 		sgp.percentiles.baseline.max.order=3,  ## NOTE Change here
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,
@@ -258,37 +215,9 @@ my.baseline.config <- list(
 
 ###  US History
 
-my.baseline.config <- list(
-	list(  # 11,507 students #62
-		sgp.baseline.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('8', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=4,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-
-	list(  # 15,155 students #67
-		sgp.baseline.content.areas=c('ECONOMICS', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=1,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-	list(  # 5,938 students #69
-		sgp.baseline.content.areas=c('ECONOMICS', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=2,
-		sgp.baseline.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION')),
-
-	list(  # 12,060 students #73
-		sgp.baseline.content.areas=c('ECONOMICS', 'US_HISTORY'),
-		sgp.baseline.panel.years=c('2008', '2009', '2010', '2011', '2012', '2013'),
-		sgp.baseline.grade.sequences=c('EOCT', 'EOCT'),
-		sgp.baseline.grade.sequences.lags=0,
-		sgp.baseline.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION')))
-
 	GA_USHIST_SIMEX_Baseline_Matrices <- baselineSGP(
 		Georgia_SGP,
-		sgp.baseline.config=my.baseline.config,
+		sgp.baseline.config=ush.baseline.config,
 		sgp.percentiles.baseline.max.order=1,
 		return.matrices.only=TRUE,
 		calculate.baseline.sgps=FALSE,

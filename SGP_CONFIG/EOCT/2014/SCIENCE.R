@@ -6,15 +6,21 @@
 
 ### GRADE-LEVEL CRCT SCIENCE - run as custom config to get correct projections sequences
 
+###   NOT USED IN 2014 -- CRCT RUN SEPERATELY FROM EOCT
+
 SCIENCE_2014.config <- list(
 	SCIENCE.2014 = list(
 		sgp.content.areas=rep('SCIENCE', 6),
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
 		sgp.panel.years=as.character(2009:2014),
 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8')),
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
-		sgp.projection.sequence = c("SCIENCE_BIO", "SCIENCE_PHYSCI")))
+		sgp.projection.sequence = c("SCIENCE_BIO", "SCIENCE_PHYSCI"))) # Not a factor in 2015, but may be again once projections are calculated.
 
+####
+#### EOCT SCIENCES - RUN SEPERATELY FROM CRCT IN2014
+####
 
 ### PHYSICAL_SCIENCE
 
@@ -70,6 +76,7 @@ PHYSICAL_SCIENCE_2014.config <- list(
 		sgp.grade.sequences=list(c('6','7','EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
+		sgp.calculate.simex=TRUE,
 		sgp.calculate.simex.baseline=TRUE,
 		sgp.norm.group.preference=7),
 	PHYSICAL_SCIENCE.2014 = list( #43
