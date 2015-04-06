@@ -484,15 +484,15 @@ LaTeX_End -->
 <div id="data-preparation" class="section level2">
 <h2><span class="header-section-number">3.1</span> Data Preparation</h2>
 <p>The data preparation step involves taking data provided by the GaDOE and producing a <code>.Rdata</code> file that will subsequently be analyzed in Step 2. This process is carried out annually as new data becomes available from the state assessment program. The data supplied by the GaDOE Information Technology department and subsequently cleaned and processed using a two step process:</p>
-<div id="step-1a.-initial-data-extraction-and-cleaning" class="section level3">
-<h3><span class="header-section-number">3.1.1</span> Step 1a. Initial data extraction and cleaning</h3>
-<p>In this first step a clean data set is extracted from the Georgia student data warehouse using an internal <code>SQL</code> connection and command script. Through this process, student records are selected and invalidated based upon the <a href="#general-business-rules">business rules discussed above</a>. The end result is an exported, pipe-delimited file where a each valid student record is unique by content area, school year, student identifier (GTID), and test administration period.</p>
+<div class="caption">
+<strong>Step 1a.</strong> Initial data extraction and cleaning
 </div>
-<div id="step-1b.-final-data-cleaning-and-preparation-in-r" class="section level3">
-<h3><span class="header-section-number">3.1.2</span> Step 1b. Final data cleaning and preparation in <code>R</code></h3>
+<p>In this first step a clean data set is extracted from the Georgia student data warehouse using an internal <code>SQL</code> connection and command script. Through this process, student records are selected and invalidated based upon the <a href="#general-business-rules">business rules discussed above</a>. The end result is an exported, pipe-delimited file where a each valid student record is unique by content area, school year, student identifier (GTID), and test administration period.</p>
+<div class="caption">
+<strong>Step 1b.</strong> Final data cleaning and preparation in <code>R</code>
+</div>
 <p>In this step the clean data from step 1a is read into <a href="http://www.r-project.org/"><code>R</code></a> and modified slightly with regard to variable types/classes. The result is an <code>.Rdata</code> file that is suitable for analysis with the <a href="http://www.sgp.io">SGP Package</a>. In previous years’ analyses the bulk of the data cleaning and implimentation of business rule validation from step 1a was also performed in <code>R</code> by NCIEA staff. However, the division of the cleaning and validation tasks used in 2014 is an important step in moving towards GaDOE self-sufficiency in calculating growth percentiles in subsequent years.</p>
 <p>The cleaned and formatted data is finally combined with the existing data housed in the Georgia <a href="http://cran.r-project.org/web/packages/SGP/SGP.pdf">SGP class object</a>, which was created through the 2013 analyses. With an appropriate longitudinal data prepared, we move to the calculation and estimation of student-level SGPs.</p>
-</div>
 </div>
 <div id="data-analysis" class="section level2">
 <h2><span class="header-section-number">3.2</span> 2014 Data Analysis</h2>
@@ -509,25 +509,26 @@ LaTeX_End -->
 <div id="update-georgia-meta-data-in-sgp-package" class="section level3">
 <h3><span class="header-section-number">3.2.1</span> Update Georgia meta-data in <code>SGP</code> Package</h3>
 <p>The use of higher-level functions included in the SGP package (e.g. <code>analyzeSGP</code>) requires the availability of state specific assessment information. This meta-data is compiled in a <code>R</code> object named <code>SGPstateData</code> that is housed in the package. The required updates for the 2014 analyses included a) the additions of knots and boundaries, proficiency level cutscores, and conditional standard errors of measurement (CSEMs) for Analytic Geometry, b) adding a new variable to the Variable Name Lookup table, and c) updating the norm group preferences object.</p>
-<div id="calculation-and-addition-of-knots-and-boundaries" class="section level4">
-<h4> Calculation and addition of knots and boundaries</h4>
+<div class="caption">
+<strong>Calculation and addition of knots and boundaries</strong>
+</div>
 <p>Calculation of SGPs includes the use of cubic B-spline basis functions to more adequately model the heteroscedasticity and non-linearity found in assessment data.<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a> These functions require the selection of boundary and interior knots. Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis. These are generally selected by extending the entire range of scale scores by 10%. That is, they are defined as lying 10% below the lowest obtainable (or observed) scale score (LOSS) and 10% above the highest obtainable scale score (HOSS). The interior knots are the <em>internal</em> breakpoints that define the spline. The default choice in the <code>SGP</code> package <span class="citation">(Betebenner et al. 2014)</span> is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the observed scale score distribution.</p>
 <p>In general the knots and boundaries are computed from a distribution comprised of several years of test data (i.e. multiple cohorts) so that any irregularities in a single year are smoothed out. This is important because subsequent annual analyses use these same knots and boundaries as well. All defaults were used to compile the knots and boundaries for Georgia from the CRCT and EOCT tests in previous years, and were also used in 2014 to compute the Analytic Geometry knots and boundaries. New knots and boundaries will be required for Georgia Milestones assessments beginning in 2016 at which point they will be used as the dependent variables in the quantile regressions.</p>
+<div class="caption">
+<strong>Proficiency level cutscores</strong>
 </div>
-<div id="proficiency-level-cutscores" class="section level4">
-<h4> Proficiency level cutscores</h4>
 <p>Cutscores, which are set externally by the GaDOE through standard-setting processes, are mainly required for student growth projections, which were not computed as part of the 2014 analyses.<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> However, they may likely be used in future years and so were added at this point.</p>
+<div class="caption">
+<strong>Conditional standard errors of measurement (CSEMs)</strong>
 </div>
-<div id="conditional-standard-errors-of-measurement-csems" class="section level4">
-<h4> Conditional standard errors of measurement (CSEMs)</h4>
 <p>The calculation of SIMEX adjusted student growth percentiles requires the availability of each assessments’ standard errors of measurement. The CSEM data for all other content areas had been compiled and added in previous years, but were required for Analytic Geometry in this initial year of testing. Raw CSEM data was provided by GaDOE in spreadsheets and the NCIEA compiled this into an appropriate <code>R</code> data object for inclusion in the <code>SGPstateData</code> file.</p>
+<div class="caption">
+<strong>The “Variable Name Lookup” table</strong>
 </div>
-<div id="the-variable-name-lookup-table" class="section level4">
-<h4> The “Variable Name Lookup” table</h4>
 <p>The <code>SGPstateData</code> file also includes a lookup table that allows various functions in the SGP package to translate between the naming conventions used within them and the variable names that the GaDOE uses. The 2014 data included an identifier for gifted and talented students, which was used in result summarizations.</p>
+<div class="caption">
+<strong>Norm group preferences</strong>
 </div>
-<div id="norm-group-preferences" class="section level4">
-<h4> Norm group preferences</h4>
 <p>The process through which EOCT analyses are run can produce multiple SGPs for some students. In order to identify which quantity will be used as the students’ “official” SGP and subsequently merged into the master longitudinal data set, a system of norm group preferencing is established and is encoded into a lookup table and included in the <code>SGPstateData</code>. In general, the preference is given to:</p>
 <ul>
 <li>Progressions with the greatest number of prior scale scores.</li>
@@ -536,7 +537,6 @@ LaTeX_End -->
 <li>Progressions that are set up for block-schedule course taking patterns.</li>
 </ul>
 <p>The next section descibes the process by which the individual course progression analyses are established and how the preferencing system is included within their configuration code.</p>
-</div>
 </div>
 <div id="create-annual-sgp-configurations." class="section level3">
 <h3><span class="header-section-number">3.2.2</span> Create annual SGP configurations.</h3>
