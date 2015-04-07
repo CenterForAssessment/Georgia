@@ -1,19 +1,20 @@
 ---
 title: "SGP Calculation Manual"
 author:
-  - name: Damian W. Betebenner
-    affiliation: National Center for the Improvement of Educational Assessment (NCIEA)
-    email: DBetebenner@nciea.org
-  - name: Adam R. VanIwaarden
-    email: avaniwaarden@gmail.com
-date: February 3, 2015
+- affiliation: National Center for the Improvement of Educational Assessment (NCIEA)
+  email: DBetebenner@nciea.org
+  name: Damian W. Betebenner
+- email: avaniwaarden@gmail.com
+  name: Adam R. VanIwaarden
+date: "February 3, 2015"
 output:
+  word_document: default
   html_document:
+    highlight: pygments
     number_sections: yes
+    self_contained: yes
     theme: default
     toc: no
-    highlight: pygments
-    self_contained: true
 ---
 
 
@@ -627,7 +628,7 @@ The use of higher-level functions included in the SGP package (e.g. `analyzeSGP`
 
 #### Calculation and addition of knots and boundaries
 
-Calculation of SGPs includes the use of cubic B-spline basis functions to more adequately model the heteroscedasticity and non-linearity found in assessment data.  These functions require the selection of boundary and interior knots.  Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis.  These are generally selected by extending the range of scale scores by 10%.  That is, they are defined as lying 10% below the lowest obtainable (or observed) scale score (LOSS) and 10% above the highest obtainable scale score (HOSS).  The interior knots are the *internal* breakpoints that define the spline.  The default choice in the `SGP` package [@sgp2014] is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the observed scale score distribution.
+Calculation of SGPs includes the use of cubic B-spline basis functions to more adequately model the heteroscedasticity and non-linearity found in assessment data.  These functions require the selection of boundary and interior knots.  Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis.  These are generally selected by extending the range of scale scores by 10%.  That is, they are defined as lying 10% below the lowest obtainable (or observed) scale score (LOSS) and 10% above the highest obtainable scale score (HOSS).  The interior knots are the *internal* breakpoints that define the spline.  The default choice in the `SGP` package [@sgp2015] is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the observed scale score distribution.
 
 In general the knots and boundaries are computed from a distribution comprised of several years of test data (i.e. multiple cohorts) so that any irregularities in a single year are smoothed out.  Subsequent annual analyses use these same knots and boundaries as well.  All defaults were used to compile the knots and boundaries for Georgia from the CRCT and EOCT tests in previous years, and were also used in 2014 to compute the Analytic Geometry knots and boundaries.  ***New knots and boundaries will be required for Georgia Milestones assessments beginning in 2016 at which point they will be used as the dependent variables in the quantile regressions.***
 
