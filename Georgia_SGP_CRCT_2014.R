@@ -33,7 +33,7 @@ Georgia_SGP <- analyzeSGP(
 			sgp.percentiles.baseline=TRUE,
 			sgp.projections.baseline = FALSE,
 			sgp.projections.lagged.baseline = FALSE,
-			simulate.sgps = FALSE,
+			simulate.sgps = TRUE,   # Needed for SGP_STANDARD_ERROR and SGP_BASELINE_STANDARD_ERROR
 			calculate.simex = TRUE, # Produce Cohort SIMEX for CRCT now.
 # 			calculate.simex = NULL, # Originally we only produced BASELINE SIMEX for CRCT. Went back and add them later.
 			calculate.simex.baseline = TRUE, 

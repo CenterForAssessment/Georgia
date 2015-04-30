@@ -60,7 +60,7 @@ Georgia_SGP <- analyzeSGP(
 		sgp.projections.baseline = FALSE,
 		sgp.projections.lagged.baseline = FALSE,
 		# calculate.simex = TRUE, # SIMEX arguments no longer need to be specified.  Now included in CONFIG scripts.
-		simulate.sgps = FALSE,
+		simulate.sgps = TRUE,   # Needed for SGP_STANDARD_ERROR and SGP_BASELINE_STANDARD_ERROR
 		parallel.config = list(BACKEND='PARALLEL', WORKERS=list(PERCENTILES=1, BASELINE_PERCENTILES=1, TAUS=13, SIMEX=5))) # Parallel config as run by Adam for official results
 
 
