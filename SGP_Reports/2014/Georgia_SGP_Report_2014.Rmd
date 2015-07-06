@@ -5,24 +5,8 @@ author:
   - name: Damian W. Betebenner
   - name: Adam R. VanIwaarden
   - name: <em>National Center for the Improvement <br></br> of Educational Assessment (NCIEA)</em>
-date: April 2015
-abstract:  "DRAFT REPORT - DO NOT CITE! 
-
-  This report provides details about the Georgia Student Growth Model methodology and presents a descriptive analysis of the 2014 SGP calculation process and results."
-bibliography: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/univ_resources/educ.bib
-output: 
-  rmarkdown::html_document:
-    keep_md: TRUE
-    self_contained: TRUE
-    dev: "png"
-    css: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/html_report/resources/report.css
-    toc: TRUE
-    toc_depth: 2
-    number_sections: TRUE
-    template: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/html_report/resources/report.html
-    theme: null
-    mathjax: null
-    pandoc_args: [--webtex]
+date: June 2015
+abstract: "This report provides details about the Georgia Student Growth Model methodology and presents a descriptive analysis of the 2014 SGP calculation process and results."
 ---
 
 <!--SGPreport-->
@@ -33,7 +17,6 @@ This document was written by Damian Betebenner & Adam VanIwaarden for the State 
 	Original Draft:  February 20, 2015
 	Second Draft:    March 18, 2015
   Third Draft:     April 6, 2015
-	...
 -->
 
 
@@ -47,51 +30,51 @@ This document was written by Damian Betebenner & Adam VanIwaarden for the State 
 	require(data.table)
 	require(plyr)
 	require(Gmisc)
-	require(rmarkdown)
-  require(Hmisc)
+	#require(rmarkdown)
+  require(htmlTable)
   require(ztable)
 
   ##  Set Table, Figure and Equation Counters
- 	options("table_counter"=FALSE)
-#   options(table_counter_str = "<strong>Table %s:</strong> ")
-  options(tbl_n=0)
-  tblNum <- function() {return(getOption("tbl_n"))}
-  tblNumNext <- function() {return(getOption("tbl_n")+1)}
-  tblNumIncrement <- function() {options("tbl_n" = getOption("tbl_n")+1); return(getOption("tbl_n"))}
-  tblCap <- function(caption.text) {
-    tblNumIncrement()
-    return(paste("**Table ", getOption("tbl_n"), ":** ", caption.text, sep=""))
-  }
-  tblCap_NO_Increment <- function(caption.text) {
-    return(paste("**Table ", getOption("tbl_n"), ":** ", caption.text, sep=""))
-  }
-  tblCapNULL <- function() {
-    options("tbl_n" = getOption("tbl_n")+1)
-    return(NULL)
-  }
+#  	options("table_counter"=FALSE)
+#   tblNum <- function() {return(getOption("table_counter"))}
+#   tblNumNext <- function() {return(getOption("table_counter")+1)}
+#   tblNumIncrement <- function() {options("table_counter" = getOption("table_counter")+1); return(getOption("table_counter"))}
+#   tblCap <- function(caption.text) {
+#     tblNumIncrement()
+#     return(paste("**Table ", getOption("table_counter"), ":** ", caption.text, sep=""))
+#   }
+#   tblCap_NO_Increment <- function(caption.text) {
+#     return(paste("**Table ", getOption("table_counter"), ":** ", caption.text, sep=""))
+#   }
+#   tblCapNULL <- function() {
+#     options("table_counter" = getOption("table_counter")+1)
+#     return(NULL)
+#   }
 
+  
+  options(table_number=0)
   options("fig_caption_no"=0)
 	options(fig_caption_no_sprintf = "**Figure %s:**   %s")
 	options("fig_caption_no_roman"=FALSE)
 	options("equation_counter" = 0)
-	eqnNumNext <- function() {options("equation_counter" = getOption("equation_counter")+1); return(getOption("equation_counter"))}
-	eqnNum <- function(eqn.name="t1", em.space=150) {
-		if (!is.null(eqn.name)) assign(eqn.name, eqnNumNext(), envir=.GlobalEnv) else eqnNumNext()
-		return(cat('\\hspace{', em.space, 'em} \\text{(', getOption('equation_counter'), ')}', sep=""))
-	}
+# 	eqnNumNext <- function() {options("equation_counter" = getOption("equation_counter")+1); return(getOption("equation_counter"))}
+# 	eqnNum <- function(eqn.name="t1", em.space=150) {
+# 		if (!is.null(eqn.name)) assign(eqn.name, eqnNumNext(), envir=.GlobalEnv) else eqnNumNext()
+# 		return(cat('\\hspace{', em.space, 'em} \\text{(', getOption('equation_counter'), ')}', sep=""))
+# 	}
 
-  ##  dualTable function for HTML and LaTeX output
-  dualTable <- function(my_tbl, where="H", caption, css.class = "gmisc_table breakboth", ...) { # , where="!htbp"
-    tmp_caption <- tblCap(caption)
-    cat("\n<!-- HTML_Start -->\n")
-    ## Use suppressWarnings() with htmlTable for incorrect warning asking rnames to be specified... 
-    html.text <- suppressWarnings(cat(htmlTable(my_tbl, title="", caption=tmp_caption, css.class=css.class,...)))
-    cat("\n<!-- LaTeX_Start\n")
-    latex.text<- print(latex(my_tbl, file="", where=where, caption=tmp_caption, ...))
-    cat("\nLaTeX_End -->\n")
-  
-    #return(c("\n<!-- HTML_Start -->\n", html.text, "\n<!-- LaTeX_Start\n", latex.text, "\nLaTeX_End -->\n"))
-  }
+# ##   dualTable function for HTML and LaTeX output
+#   dualTable <- function(my_tbl, where="H", caption, css.class = "gmisc_table breakboth", ...) { # , where="!htbp"
+#     tmp_caption <- tblCap(caption)
+#     cat("\n<!-- HTML_Start -->\n")
+#     ## Use suppressWarnings() with htmlTable for incorrect warning asking rnames to be specified... 
+#     html.text <- suppressWarnings(cat(htmlTable(my_tbl, title="", caption=tmp_caption, css.class=css.class,...)))
+#     cat("\n<!-- LaTeX_Start\n")
+#     latex.text<- print(latex(my_tbl, file="", where=where, caption=tmp_caption, ...))
+#     cat("\nLaTeX_End -->\n")
+#   
+#     #return(c("\n<!-- HTML_Start -->\n", html.text, "\n<!-- LaTeX_Start\n", latex.text, "\nLaTeX_End -->\n"))
+#   }
 
   ###
 	### Lists of EOCT and CRCT subjects and reference types.  Used to subset summary tables and data below.
@@ -112,8 +95,8 @@ This document was written by Damian Betebenner & Adam VanIwaarden for the State 
 	crct.domain <- c("LIT", "LIT", "MATH", "SCI", "SOC_SCI")
 	crct.sgp.ref <- c("BASE", "BASE", "BASE", "BASE", "BASE")
 
-	###  Set working directory to Georgia Github Repo for Documentation
-	setwd("/media/Data/Dropbox/Github_Repos/Documentation/Georgia/SGP_Reports/2014")
+#   ###  Set working directory to Georgia Github Repo for Documentation
+# 	setwd("/media/Data/Dropbox/Github_Repos/Documentation/Georgia/SGP_Reports/2014")
 ```
 
 # Introduction
@@ -232,7 +215,7 @@ Table `r tblNumNext()` shows the total number of valid EOCT student records avai
 
 # Analytics
 
-This section provides basic details about the calculation of student growth percentiles from Georgia state assessment data using the [R Software Environment](http://www.r-project.org/) in conjunction with the [SGP Package](https://github.com/CenterForAssessment/SGP).  More in depth treatment of the data analysis process, including code examples, has been provided to GaDOE staff in the 2014 Calculation Manual.
+This section provides basic details about the calculation of student growth percentiles from Georgia state assessment data using the [R Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [SGP Package](https://github.com/CenterForAssessment/SGP) [@sgp2015].  More in depth treatment of the data analysis process, including code examples, has been provided to GaDOE staff in the 2014 Calculation Manual.
 
 Broadly, the SGP analysis of the Georgia longitudinal student assessment data takes place in two steps:
 
@@ -358,7 +341,7 @@ Once all analyses are completed the results are merged into the master longitudi
 
 In the following sections basic descriptive statistics from the 2014 analyses are provided, including the state-level mean and median growth percentiles.  Currently Georgia uses either cohort or baseline-referenced SGPs as the official student-level growth metric, depending upon the content area.  The goal is to eventually use only baseline-referenced SGPs, however this requires an assessment program to have been established for several years.  Given that EOCT math courses have undergone changes in recent years, only cohort-referenced SGPs are currently available for them.  Similarly, the upcoming transition from the CRCT and EOCT to [Georgia Milestones](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) assessments will require the exclusive use of cohort-referenced analyses for several years until baseline referencing is again feasible.  
 
-Georgia DOE has also recently decided to implement the SIMEX measurement error correction method in the calculation of student-level SGPs.  This correction has been applied to both cohort and baseline-referenced SGPs and the descriptive statistics from these analyses are also presented here.  The interested reader can find more in depth discussions of the cohort and baseline-referenced SGP methodology in the [available literature](https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles), and information about the SIMEX measurement error correction methodology is available in Appendix B of this report as well as in recent academic articles [@ShangVanIBet:2015].
+Georgia DOE has also recently decided to implement the SIMEX measurement error correction method in the calculation of student-level SGPs.  This correction has been applied to both cohort and baseline-referenced SGPs and the descriptive statistics from these analyses are also presented here.  The interested reader can find more in depth discussions of the cohort- and baseline-referenced SGP methodology in the [available literature](https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles), and information about the SIMEX measurement error correction methodology is available in Appendix B of this report as well as in recent academic articles [@ShangVanIBet:2015].
 
 ## Cohort Referenced Median SGPs
 Growth percentiles, being quantities associated with each individual student, can be easily summarized across numerous grouping indicators to provide summary results regarding growth.  The median and mean of a collection of growth percentiles are used as measures of central tendency that summarize the distribution as a single number.  With perfect data fit, we expect the state median of all student growth percentiles in any grade to be 50 because the data are norm-referenced across all students in the state.  Median (and mean) growth percentiles well below 50 represent growth less than the state "average" and median growth percentiles well above 50 represent growth in excess of the state "average".
@@ -572,80 +555,81 @@ Examination of goodness-of-fit was conducted by comparing the estimated conditio
 ## Model Fit Plots
 Using all available CRCT and EOCT scores as the variables, estimation of student growth percentiles was conducted for each possible student (those with a current score and at least one prior score).  Percentages of student growth percentiles between the 10<sup>th</sup>, 20<sup>th</sup>, 30<sup>th</sup>, 40<sup>th</sup>, 50<sup>th</sup>, 60<sup>th</sup>, 70<sup>th</sup>, 80<sup>th</sup>, and 90<sup>th</sup> percentiles were calculated based upon the decile of the prior year's scaled score (the total students in each for the analyses varies depending on grade and subject).  Results for the B-spline parameterizations for all CRCT and EOCT analyses are given in Appendix A.  
 
+
 ```{r, cache=TRUE, echo=FALSE, include=FALSE, GOFplots}
 	##
   ##    Create goodness of fit plots for tech report examples and Appendix A
   ##
 
-	dir.create("img/Examples", recursive=TRUE, showWarnings=FALSE)
-
-  setwd("img")
-	for (an in grep("2014", names(Georgia_SGP@SGP[['SGPercentiles']]), value=TRUE)) {
-		ca <- strsplit(an, "[.]")[[1]][1]
-		base_tf <- !is.na(strsplit(an, "[.]")[[1]][3])
-	
-		dat <- data.table(Georgia_SGP@SGP[['SGPercentiles']][[an]])
-		dat[, VALID_CASE := 'VALID_CASE']
-		dat[, YEAR := '2014']
-		dat[, CONTENT_AREA := ca]
-		if (!ca %in% CRCT_subjects) {
-			if (base_tf) {
-				my.tmp.split <- strsplit(as.character(dat$SGP_NORM_GROUP_BASELINE), "; ")
-			} else my.tmp.split <- strsplit(as.character(dat$SGP_NORM_GROUP), "; ")
-			dat[, CONTENT_AREA_PRIOR := sapply(sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), head, -1, simplify=FALSE), paste, collapse="_")]
-			dat[, GRADE_PRIOR := sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), tail, 1)]
-		} else {
-			dat[, CONTENT_AREA_PRIOR := ca]
-			dat[, GRADE_PRIOR := '5'] # all CRCT cuts are the same
-		}
-		dat[, ACHIEVEMENT_LEVEL_PRIOR := findInterval(SCALE_SCORE_PRIOR, SGPstateData[["GA"]][["Achievement"]][["Cutscores"]][[CONTENT_AREA_PRIOR[1]]][[paste("GRADE_", GRADE_PRIOR[1], sep="")]]), by=c("CONTENT_AREA_PRIOR", "GRADE_PRIOR")]
-		dat[, ACHIEVEMENT_LEVEL_PRIOR := ordered(ACHIEVEMENT_LEVEL_PRIOR, labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
-	
-		if (!ca %in% CRCT_subjects) {
-			if (base_tf) {
-				for(ng in levels(dat$SGP_NORM_GROUP_BASELINE)) {
-					gofSGP(dat[SGP_NORM_GROUP_BASELINE==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP_BASELINE==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_BASELINE", output.format="PNG")
-					gofSGP(dat[SGP_NORM_GROUP_BASELINE==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP_BASELINE==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
-				}
-			} else {
-				for(ng in levels(dat$SGP_NORM_GROUP)) {
-					gofSGP(dat[SGP_NORM_GROUP==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP", output.format="PNG")
-					if (!all(is.na(dat[SGP_NORM_GROUP==ng]$SGP_SIMEX))) gofSGP(dat[SGP_NORM_GROUP==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_SIMEX", output.format="PNG")
-				}
-			}
-		} else {
-			for(g in 4:8) {
-				if (base_tf) {
-					tmp.dat <- dat[grep(paste("2014/",ca, "_", g, sep=""), SGP_NORM_GROUP_BASELINE),]
-					tmp.dat[, GRADE := g]
-					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_BASELINE", output.format="PNG")
-					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
-					
-					if (g=="8" & ca == "ELA") {
-							setwd("./Examples")
-							tmp.dat[, ACHIEVEMENT_LEVEL_PRIOR := NULL]
-							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_BASELINE", output.format="PNG")
-							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
-							setwd("..")						
-					}
-				} else {
-					tmp.dat <- dat[grep(paste("2014/",ca, "_", g, sep=""), SGP_NORM_GROUP),]
-					tmp.dat[, GRADE := g]
-					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP", output.format="PNG")
-					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_SIMEX", output.format="PNG")
-
-						if (g=="8" & ca == "ELA") {
-							setwd("./Examples")
-							tmp.dat[, ACHIEVEMENT_LEVEL_PRIOR := NULL]
-							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP", output.format="PNG")
-							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_SIMEX", output.format="PNG")
-							setwd("..")
-					}
-				}
-			}
-		}
-	}
-	setwd("..")
+# 	dir.create("../img/Examples", recursive=TRUE, showWarnings=FALSE)
+# 
+#   setwd("img")
+# 	for (an in grep("2014", names(Georgia_SGP@SGP[['SGPercentiles']]), value=TRUE)) {
+# 		ca <- strsplit(an, "[.]")[[1]][1]
+# 		base_tf <- !is.na(strsplit(an, "[.]")[[1]][3])
+# 	
+# 		dat <- data.table(Georgia_SGP@SGP[['SGPercentiles']][[an]])
+# 		dat[, VALID_CASE := 'VALID_CASE']
+# 		dat[, YEAR := '2014']
+# 		dat[, CONTENT_AREA := ca]
+# 		if (!ca %in% CRCT_subjects) {
+# 			if (base_tf) {
+# 				my.tmp.split <- strsplit(as.character(dat$SGP_NORM_GROUP_BASELINE), "; ")
+# 			} else my.tmp.split <- strsplit(as.character(dat$SGP_NORM_GROUP), "; ")
+# 			dat[, CONTENT_AREA_PRIOR := sapply(sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), head, -1, simplify=FALSE), paste, collapse="_")]
+# 			dat[, GRADE_PRIOR := sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), tail, 1)]
+# 		} else {
+# 			dat[, CONTENT_AREA_PRIOR := ca]
+# 			dat[, GRADE_PRIOR := '5'] # all CRCT cuts are the same
+# 		}
+# 		dat[, ACHIEVEMENT_LEVEL_PRIOR := findInterval(SCALE_SCORE_PRIOR, SGPstateData[["GA"]][["Achievement"]][["Cutscores"]][[CONTENT_AREA_PRIOR[1]]][[paste("GRADE_", GRADE_PRIOR[1], sep="")]]), by=c("CONTENT_AREA_PRIOR", "GRADE_PRIOR")]
+# 		dat[, ACHIEVEMENT_LEVEL_PRIOR := ordered(ACHIEVEMENT_LEVEL_PRIOR, labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
+# 	
+# 		if (!ca %in% CRCT_subjects) {
+# 			if (base_tf) {
+# 				for(ng in levels(dat$SGP_NORM_GROUP_BASELINE)) {
+# 					gofSGP(dat[SGP_NORM_GROUP_BASELINE==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP_BASELINE==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_BASELINE", output.format="PNG")
+# 					gofSGP(dat[SGP_NORM_GROUP_BASELINE==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP_BASELINE==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
+# 				}
+# 			} else {
+# 				for(ng in levels(dat$SGP_NORM_GROUP)) {
+# 					gofSGP(dat[SGP_NORM_GROUP==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP", output.format="PNG")
+# 					if (!all(is.na(dat[SGP_NORM_GROUP==ng]$SGP_SIMEX))) gofSGP(dat[SGP_NORM_GROUP==ng], state="GA", years='2014', content_areas=ca, content_areas_prior=dat[SGP_NORM_GROUP==ng][["CONTENT_AREA_PRIOR"]][1], grades="EOCT", use.sgp="SGP_SIMEX", output.format="PNG")
+# 				}
+# 			}
+# 		} else {
+# 			for(g in 4:8) {
+# 				if (base_tf) {
+# 					tmp.dat <- dat[grep(paste("2014/",ca, "_", g, sep=""), SGP_NORM_GROUP_BASELINE),]
+# 					tmp.dat[, GRADE := g]
+# 					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_BASELINE", output.format="PNG")
+# 					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
+# 					
+# 					if (g=="8" & ca == "ELA") {
+# 							setwd("./Examples")
+# 							tmp.dat[, ACHIEVEMENT_LEVEL_PRIOR := NULL]
+# 							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_BASELINE", output.format="PNG")
+# 							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_SIMEX_BASELINE", output.format="PNG")
+# 							setwd("..")						
+# 					}
+# 				} else {
+# 					tmp.dat <- dat[grep(paste("2014/",ca, "_", g, sep=""), SGP_NORM_GROUP),]
+# 					tmp.dat[, GRADE := g]
+# 					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP", output.format="PNG")
+# 					gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, content_areas_prior=ca, use.sgp="SGP_SIMEX", output.format="PNG")
+# 
+# 						if (g=="8" & ca == "ELA") {
+# 							setwd("./Examples")
+# 							tmp.dat[, ACHIEVEMENT_LEVEL_PRIOR := NULL]
+# 							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP", output.format="PNG")
+# 							gofSGP(tmp.dat, state="GA", years='2014', content_areas=ca, use.sgp="SGP_SIMEX", output.format="PNG")
+# 							setwd("..")
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
+# 	setwd("..")
 ```
 
 ###  Cohort referenced model fit
@@ -654,7 +638,7 @@ The results in all subjects are excellent with a few exceptions.  Deviations fro
 Figure `r getOption("fig_caption_no")+1` shows the results for 8<sup>th</sup> grade ELA.  Although this CRCT subject is officially a baseline-referenced subject, we provide the plot here as an exemplar of cohort-referenced model fit with which to compare with baseline and SIMEX model fit using the same student data in subsequent sections.
 
 ##### `r figCapNo("Goodness of Fit Plot for 2014 ***Cohort*** Referenced 8<sup>th</sup> Grade ELA.")`
-![](img/Examples/Goodness_of_Fit/ELA.2014/gofSGP_Grade_8.png)
+![](../img/Examples/Goodness_of_Fit/ELA.2014/gofSGP_Grade_8.png)
 
 
 ###  Baseline referenced model fit
@@ -666,7 +650,7 @@ Figure `r getOption("fig_caption_no")+1` shows how the baseline model fits the 2
 <p></p>
 
 ##### `r figCapNo("Goodness of Fit Plot for 2014 ***Baseline*** Referenced 8<sup>th</sup> Grade ELA.")`
-![](img/Examples/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_8.png)
+![](../img/Examples/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_8.png)
 
 ###  SIMEX model fit
 
@@ -675,7 +659,7 @@ SIMEX model fit is also not expected to be perfect.  In this case we expect mode
 <p></p>
 
 ##### `r figCapNo("Goodness of Fit Plot for 2014 ***SIMEX Corrected,*** Baseline Referenced 8<sup>th</sup> Grade ELA.")`
-![](img/Examples/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+![](../img/Examples/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
 
 
 ## Student Level Results
@@ -711,11 +695,12 @@ SIMEX corrected SGPs induce a negative correlation between growth and prior achi
 	row_group <- sapply(unique(tmp_tbl$CONTENT_AREA), capwords, USE.NAMES=FALSE)
 	tmp_capt <- "CRCT Correlations between Student-Level Prior Standardized Scale Score and SGP Versions"
 	tmp_tbl <- tmp_tbl[, -1]
-	names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
+	tmp_tbl$N_Size <- prettyNum(tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
+  names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
 
   cat("\n<!-- HTML_Start -->\n")
 #   options("table_counter"=getOption("table_counter")-1)
-	suppressWarnings(cat(htmlTable(as.matrix(prettyNum(tmp_tbl, preserve.width = "individual", big.mark=',')), 
+	suppressWarnings(cat(htmlTable(as.matrix(tmp_tbl), 
 		title="", align=paste(rep('r', dim(tmp_tbl)[2]), collapse=''),
 		n.cgroup=n_col_group, cgroup= col_group, n.rgroup=n_row_group, rgroup=row_group, compatibility="CSS", caption = tmp_capt)))
 
@@ -724,7 +709,7 @@ SIMEX corrected SGPs induce a negative correlation between growth and prior achi
 #		n.cgroup=n_col_group, cgroup= col_group, n.rgroup=n_row_group, rgroup=row_group, caption = 'SIMEX Corrected EOCT Median and Mean <em>Baseline</em> Referenced Student Growth Percentile by Content Area for 2014'))
     
   cat("\n<!-- LaTeX_Start\n")
-  z <- ztable(as.matrix(prettyNum(tmp_tbl, preserve.width = "individual", big.mark=',')), type="latex",
+  z <- ztable(as.matrix(tmp_tbl), type="latex",
     align=paste(rep('r', dim(tmp_tbl)[2]), collapse=''),include.rownames=FALSE, 
     caption=tblCap(tmp_capt))
 #     caption=capt <- paste("Table ", getOption("table_counter"),": ", tmp_capt, sep=""))
@@ -751,9 +736,10 @@ SIMEX corrected SGPs induce a negative correlation between growth and prior achi
 	tmp_capt <- "Correlations between Student-Level Prior Standardized Scale Score and EOCT Baseline Referenced SGP Versions"
 	tmp_tbl <- tmp_tbl[, -2]
 	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, special.words=c("II", "US"))
-	names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
+	tmp_tbl$N_Size <- prettyNum(tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
+  names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
 
-  cat(dualTable(as.matrix(prettyNum(tmp_tbl, preserve.width = "individual", big.mark=',')), 
+  cat(dualTable(as.matrix(tmp_tbl), 
 		align=paste(rep('r', dim(tmp_tbl)[2]), collapse=''), 
 		n.cgroup=n_col_group, cgroup= col_group, compatibility="CSS", caption = tmp_capt))
 
@@ -789,9 +775,10 @@ SIMEX corrected SGPs induce a negative correlation between growth and prior achi
 	row_group <- NULL
 	tmp_capt <- "Correlations between Student-Level Prior Standardized Scale Score and EOCT Cohort Referenced SGP Versions"
 	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, special.words=c("II", "US"))
-	names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
+	tmp_tbl$N_Size <- prettyNum(tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
+  names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
 
-  cat(dualTable(as.matrix(prettyNum(tmp_tbl, preserve.width = "individual", big.mark=',')), 
+  cat(dualTable(as.matrix(tmp_tbl), 
 		where="!htbp", align=paste(rep('r', dim(tmp_tbl)[2]), collapse=''), 
 		n.cgroup=n_col_group, cgroup= col_group, compatibility="CSS", caption = tmp_capt))
 
@@ -833,41 +820,41 @@ Unlike when reporting SGPs at the individual level, when aggregating to the grou
 To illustrate these relationships visually, the bubble charts in Figures `r getOption("fig_caption_no")+1` through `r getOption("fig_caption_no")+5` depict growth as quantified by the median SGP of students at the school against  achievement/status, quantified by percentage of student at/above proficient (advanced) at the school.  The charts have been successful in helping to motivate the discussion of the two qualities: student achievement and student growth.  Though the figures are not detailed enough to indicate strength of relationship between growth and achievement, they are suggestive and valuable for discussions with stakeholders who are being introduced to the growth model for the first time.
 
 ```{r, echo=FALSE, include=FALSE, cache=TRUE, BubblePlots}
-	visualizeSGP(Georgia_SGP,
-		plot.types = c("bubblePlot"),
-		bPlot.years="2014",
-		bPlot.anonymize=TRUE,
-		bPlot.folder="img/Bubble_Plots",
-		bPlot.output = "PNG",
-		bPlot.content_areas=c("ELA", "READING", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES"))
+# 	visualizeSGP(Georgia_SGP,
+# 		plot.types = c("bubblePlot"),
+# 		bPlot.years="2014",
+# 		bPlot.anonymize=TRUE,
+# 		bPlot.folder="../img/Bubble_Plots",
+# 		bPlot.output = "PNG",
+# 		bPlot.content_areas=c("ELA", "READING", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES"))
 ```
 
 ##### `r figCapNo("School-level Bubble Plots for Georgia:  ELA, 2013-2014.")`
-![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_ELA_State_Bubble_Plot_(Prior_Achievement).png)
+![](../img/Bubble_Plots/2014/State/Style_1/Georgia_2014_ELA_State_Bubble_Plot_(Prior_Achievement).png)
 
 <p></p>
 <p></p>
 
 ##### `r figCapNo("School-level Bubble Plots for Georgia:  Reading, 2013-2014.")`
-![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Reading_State_Bubble_Plot_(Prior_Achievement).png)
+![](../img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Reading_State_Bubble_Plot_(Prior_Achievement).png)
 
 <p></p>
 <p></p>
 
 ##### `r figCapNo("School-level Bubble Plots for Georgia:  Mathematics, 2013-2014.")`
-![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Mathematics_State_Bubble_Plot_(Prior_Achievement).png)
+![](../img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Mathematics_State_Bubble_Plot_(Prior_Achievement).png)
 
 <p></p>
 <p></p>
 
 ##### `r figCapNo("School-level Bubble Plots for Georgia:  Science, 2013-2014.")`
-![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Science_State_Bubble_Plot_(Prior_Achievement).png)
+![](../img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Science_State_Bubble_Plot_(Prior_Achievement).png)
 
 <p></p>
 <p></p>
 
 ##### `r figCapNo("School-level Bubble Plots for Georgia:  Social Studies, 2013-2014.")`
-![](img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Social Studies_State_Bubble_Plot_(Prior_Achievement).png)
+![](../img/Bubble_Plots/2014/State/Style_1/Georgia_2014_Social Studies_State_Bubble_Plot_(Prior_Achievement).png)
 
 The relationship between average prior student achievement and median SGP observed for Georgia is relatively strong compared to some other states for which the Center has done SGP analyses.  Table `r tblNumNext()` shows correlations between prior achievement (measured as the mean prior standardized scale score as well as the percent at/above proficient at the school^[Percent Prior Proficient in this case is determined by the percent of student's that scored in the Proficient or Advanced range of all student's that received a score.  This measure does not reflect student's that did not receive a score but are included in the denominator of Percent Meeting Standard as displayed in the DOE Georgia Report Card.]).  All results shown here are for schools with 15 or more students.
 
@@ -998,7 +985,7 @@ Correlation tables describing the relationship between prior achievement (define
 	###  Number of "row groups" - none here.  
 	n_row_group <- diff(c(match(eoct.subj[eoct.sgp.ref == "BASE"], tmp_tbl$CONTENT_AREA), dim(tmp_tbl)[1]+1))
 	row_group <- sapply(unique(tmp_tbl$CONTENT_AREA), capwords, special.words=c("II", "US"))
-	tmp_capt <- "2011 to 2014 Correlations between Mean Prior Standardized Scale Score and Aggregate Baseline SGPs."
+	tmp_capt <- "2012 to 2014 Correlations between Mean Prior Standardized Scale Score and Aggregate Baseline SGPs."
 	tmp_tbl$CONTENT_AREA <- NULL
 	names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
 	tmp_tbl[is.na(tmp_tbl)] <- ""
@@ -1023,7 +1010,7 @@ Correlation tables describing the relationship between prior achievement (define
 	###  Number of "row groups" - none here.  
 	n_row_group <- diff(c(match(eoct.subj[eoct.sgp.ref == "COHORT"], tmp_tbl$CONTENT_AREA), dim(tmp_tbl)[1]+1))
 	row_group <- sapply(unique(tmp_tbl$CONTENT_AREA), capwords, special.words=c("II", "US"))
-	tmp_capt <- "2011 to 2014 Correlations between Mean Prior Standardized Scale Score and Cohort SGPs."
+	tmp_capt <- "2012 to 2014 Correlations between Mean Prior Standardized Scale Score and Cohort SGPs."
 	tmp_tbl$CONTENT_AREA <- NULL
 	names(tmp_tbl) <- sapply(names(tmp_tbl), capwords)
 	tmp_tbl[is.na(tmp_tbl)] <- ""
