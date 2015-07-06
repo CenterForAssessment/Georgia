@@ -1,0 +1,1605 @@
+\documentclass[12pt]{article}
+\usepackage[margin=0.915in]{geometry}
+
+%%%
+%%%             BEGIN Damian Preamble
+%%%   Preface commands for pdfLaTeX output
+%%%
+
+%%
+%% Calling relevant packages
+%%
+
+\usepackage[%
+pdfstartview={FitV}, 
+colorlinks=true,
+menucolor=DarkGray,
+linkcolor=MidnightBlue,
+citecolor=MidnightBlue,
+urlcolor=OrangeRed]{hyperref}
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.pdf}
+
+%% From pandoc default: Begin
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+ %% From pandoc default: Begin
+
+%\usepackage[hyper]{apacite}
+\usepackage[svgnames]{xcolor}
+\usepackage{rotating,bm,amsmath,amsfonts,amssymb,indentfirst,lscape,fancybox,fancyvrb,listings,pdfpages}
+\usepackage[pagestyles]{titlesec}
+%\usepackage{ucs}
+
+%%
+%% Format changes for chapter and section commands
+%%
+
+%\input{onesidedheader.tex}
+
+%%
+%% Chapter declarations
+%%
+
+
+%%
+%% Section declarations
+%%
+
+%%
+%% Subsection declarations
+%%
+
+
+%%
+%% Subsubsection declarations
+%%
+
+%%
+%% Listings setup information
+%%
+
+\lstset{language=R, frame=ltrb, framesep=5pt, xleftmargin=12pt, xrightmargin=5pt,
+       numbers=none, breaklines=true, fancyvrb=true,
+       breakatwhitespace=true, captionpos=b, abovecaptionskip=1.5ex,
+       backgroundcolor=\color{Cornsilk},
+       basicstyle=\small\color{DarkSlateGrey},
+       keywordstyle=\ttfamily\color{DarkSlateGrey},
+       identifierstyle=\ttfamily\color{DarkSlateGrey}\bfseries, 
+       commentstyle=\color{Fuchsia},
+       stringstyle=\ttfamily,
+       showstringspaces=false}
+
+%%
+%% Header and Footer Specification 
+%% TO ACTIVATE THE HEADER/FOOTER, ONE MUST PLACE \pagestyle{plain} 
+%% followed by \pagestyle{damian} in the document
+%%
+
+\widenhead{0.14in}{0.14in}
+
+\renewpagestyle{plain}{}
+
+\newpagestyle{damian}[\sffamily]{
+\headrule
+\sethead[\sectiontitle][\chaptertitle][\thepage]
+  {\sectiontitle}{\chaptertitle}{\thepage}
+
+\footrule
+\setfoot[][\raisebox{-.85ex}[0pt]{\NavigationBar}][]
+{}{\raisebox{-.85ex}[0pt]{\NavigationBar}}{}
+	\newcommand{\NavigationBar}{%
+	  \Acrobatmenu{PrevPage}{Previous}\hspace{.5cm}
+	  \Acrobatmenu{NextPage}{Next}\hspace{.5cm}
+	  \Acrobatmenu{FirstPage}{First}\hspace{.5cm}
+	  \Acrobatmenu{LastPage}{Last}\hspace{.5cm}
+	  \Acrobatmenu{GoBack}{Back}\hspace{.5cm}
+	  \Acrobatmenu{Quit}{Quit}%
+}
+}
+
+%%
+%% Custom specifications, commands, and colors
+%%
+
+\definecolor{DarkGray}{cmyk}{0,0,0,.624}
+\newcommand{\R}{{\sffamily \textup{R}}}
+\newcommand{\MlwiN}{{\sffamily \textup{MlwiN}}}
+\newcommand{\Sweave}{{\sffamily \textup{Sweave}}}
+\newcommand{\sssty}{\scriptscriptstyle}
+\newcommand{\bigdot}{\ensuremath{\hspace{-.3ex}\bm{.}\hspace{-.05ex}}}
+\renewcommand{\abstractname}{Abstract}
+\renewcommand{\lstlistingname}{\R~Code Example}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\fboxsep}{4mm}
+\setlength{\fboxrule}{0.4pt}
+
+%%
+%%		END Damian Preamble
+%%
+
+\hypersetup{%
+  pdftitle={ Appendix A to the 2013 Georgia Growth Model Report },
+  pdfauthor={},
+  pdfcreator={},
+  pdfkeywords={},
+  bookmarks=true} % pdfproducer={pdfLaTeX}
+
+\usepackage{caption}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{dcolumn}
+
+\setcounter{secnumdepth}{3}
+
+
+
+
+%\usepackage{pdfdraftcopy}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% \usepackage{bbm}
+\DeclareMathAlphabet{\mathbbm}{U}{bbm}{m}{n}
+\SetMathAlphabet\mathbbm{bold}{U}{bbm}{bx}{n}
+\DeclareMathAlphabet{\mathbbmss}{U}{bbmss}{m}{n}
+\SetMathAlphabet\mathbbmss{bold}{U}{bbmss}{bx}{n}
+\DeclareMathAlphabet{\mathbbmtt}{U}{bbmtt}{m}{n}
+
+\begin{document}
+
+
+\newcommand{\pl}[1]{\textsf{PL#1}}
+\newcommand{\Cov}{\ensuremath{\mbox{\textsf{Cov}}}}
+\newcommand{\Diag}{\ensuremath{\mbox{\textsf{Diag}}}}
+\newcommand{\Bias}{\ensuremath{\mbox{\textsf{Bias}}}}
+\newcommand{\Astar}[1]{\ensuremath{#1^{^*}}}
+\thispagestyle{plain}
+\pagestyle{damian}
+
+\title{\textsf{\LARGE Appendix A to the 2013 Georgia Growth Model Report  \\\medskip Georgia Student Growth Model Fit Plots }}
+\author{}
+
+ \date{November 2014} 
+
+\maketitle
+
+\newpage
+
+
+\section{Student Growth Percentile Fit
+Plots}\label{student-growth-percentile-fit-plots}
+
+A goodness of fit plot is produced for each unique analysis run in 2013.
+Typically each analysis is defined by the norm-group reference type
+(cohort or baseline), the use of measurement error correction (SIMEX) or
+not, and, for the end of course test (EOCT) subjects, the unique course
+progression sequences.
+
+Each fit plot contains three panels. The top panel is a mosaic plot that
+shows the percentage of students that fall into each proficiency level,
+and the location of the 10\(^{th}\) through 90\(^{th}\) quantiles of the
+Student Growth Percentile (SGP) distribution represented as dashed white
+lines (with the exception of the solid white line for the
+median/50\(^{th}\) percentile). The bottom left panel shows the
+empirical distribution of SGPs given prior scale score deciles in the
+form of a 10 by 10 cell grid. Percentages of student growth percentiles
+between the 10\(^{th}\), 20\(^{th}\), 30\(^{th}\), 40\(^{th}\),
+50\(^{th}\), 60\(^{th}\), 70\(^{th}\), 80\(^{th}\), and 90\(^{th}\)
+percentiles were calculated based upon the decile of the prior year's
+scaled score (the total students in each for the analyses varies
+depending on grade and subject). Deviations from perfect fit are
+indicated by red and blue shading. The further above 10 the darker the
+red, and the further below 10 the darker the blue. A more detailed
+discussion about the reasons for and implications of model misfit for
+the various SGP analysis types can be found in the ``Goodness of Fit''
+section of the 2013 Georgia Student Growth Model report. The bottom
+right panel of each plot is a Q-Q plot which compares the observed
+distribution of SGPs with the theoretical (uniform) distribution.
+
+\newpage
+
+\section{CRCT Baseline Referenced Plots, (Uncorrected and SIMEX
+Corrected)}\label{crct-baseline-referenced-plots-uncorrected-and-simex-corrected}
+
+\subsection{Reading}\label{reading}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{../img/Goodness_of_Fit/READING.2013.BASELINE/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Reading, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE.SIMEX/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Reading, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Reading, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE.SIMEX/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Reading, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Reading, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE.SIMEX/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Reading, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Reading, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE.SIMEX/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Reading, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Reading, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/READING.2013.BASELINE.SIMEX/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Reading, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{ELA}\label{ela}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/ELA.2013.BASELINE/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 ELA, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE.SIMEX/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 ELA, 2013 (SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 ELA, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE.SIMEX/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 ELA, 2013 (SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 ELA, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE.SIMEX/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 ELA, 2013 (SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 ELA, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE.SIMEX/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 ELA, 2013 (SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 ELA, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ELA.2013.BASELINE.SIMEX/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 ELA, 2013 (SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Mathematics}\label{mathematics}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Mathematics, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE.SIMEX/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Mathematics, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Mathematics, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE.SIMEX/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Mathematics, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Mathematics, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE.SIMEX/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Mathematics, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Mathematics, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE.SIMEX/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Mathematics, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Mathematics, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS.2013.BASELINE.SIMEX/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Mathematics, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Science}\label{science}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Science, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE.SIMEX/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Science, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Science, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE.SIMEX/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Science, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Science, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE.SIMEX/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Science, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Science, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE.SIMEX/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Science, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Science, 2013 (Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SCIENCE.2013.BASELINE.SIMEX/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Science, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Social Studies}\label{social-studies}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Social Studies, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE.SIMEX/gofSGP_Grade_4.png}
+\caption{Goodness of Fit Plot for Grade 4 Social Studies, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Social Studies, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE.SIMEX/gofSGP_Grade_5.png}
+\caption{Goodness of Fit Plot for Grade 5 Social Studies, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Social Studies, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE.SIMEX/gofSGP_Grade_6.png}
+\caption{Goodness of Fit Plot for Grade 6 Social Studies, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Social Studies, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE.SIMEX/gofSGP_Grade_7.png}
+\caption{Goodness of Fit Plot for Grade 7 Social Studies, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Social Studies, 2013
+(Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/SOCIAL_STUDIES.2013.BASELINE.SIMEX/gofSGP_Grade_8.png}
+\caption{Goodness of Fit Plot for Grade 8 Social Studies, 2013 (SIMEX
+Corrected).}
+\end{figure}
+
+\clearpage 
+
+\section{EOCT - Baseline Referenced Course Plots, (Uncorrected and SIMEX
+Corrected)}\label{eoct---baseline-referenced-course-plots-uncorrected-and-simex-corrected}
+
+\subsection{Grade 9 Literature}\label{grade-9-literature}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE/2013_GRADE_9_LIT_EOCT;2011_READING_8;2011_ELA_8;2010_READING_7;2010_ELA_7.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2011 Reading
+Grade 8, 2011 ELA Grade 8, 2010 Reading Grade 7, 2010 ELA Grade 7 -
+Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE.SIMEX/2013_GRADE_9_LIT_EOCT;2011_READING_8;2011_ELA_8;2010_READING_7;2010_ELA_7.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2011 Reading
+Grade 8, 2011 ELA Grade 8, 2010 Reading Grade 7, 2010 ELA Grade 7 -
+SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE/2013_GRADE_9_LIT_EOCT;2011_READING_8;2011_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2011 Reading
+Grade 8, 2011 ELA Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE.SIMEX/2013_GRADE_9_LIT_EOCT;2011_READING_8;2011_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2011 Reading
+Grade 8, 2011 ELA Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE/2013_GRADE_9_LIT_EOCT;2012_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2012 Grade 9
+Lit - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE.SIMEX/2013_GRADE_9_LIT_EOCT;2012_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2012 Grade 9
+Lit - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE/2013_GRADE_9_LIT_EOCT;2012_READING_8;2012_ELA_8;2011_READING_7;2011_ELA_7.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2012 Reading
+Grade 8, 2012 ELA Grade 8, 2011 Reading Grade 7, 2011 ELA Grade 7 -
+Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE.SIMEX/2013_GRADE_9_LIT_EOCT;2012_READING_8;2012_ELA_8;2011_READING_7;2011_ELA_7.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2012 Reading
+Grade 8, 2012 ELA Grade 8, 2011 Reading Grade 7, 2011 ELA Grade 7 -
+SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE/2013_GRADE_9_LIT_EOCT;2012_READING_8;2012_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2012 Reading
+Grade 8, 2012 ELA Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE.SIMEX/2013_GRADE_9_LIT_EOCT;2012_READING_8;2012_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2012 Reading
+Grade 8, 2012 ELA Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE/2013_GRADE_9_LIT_EOCT;2013_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2013 Grade 9
+Lit - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GRADE_9_LIT.2013.BASELINE.SIMEX/2013_GRADE_9_LIT_EOCT;2013_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Grade 9 Lit (Priors 2013 Grade 9
+Lit - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{American Literature}\label{american-literature}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE/2013_AMERICAN_LIT_EOCT;2011_GRADE_9_LIT_EOCT;2010_READING_8;2010_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2011 Grade 9
+Lit, 2010 Reading Grade 8, 2010 ELA Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE.SIMEX/2013_AMERICAN_LIT_EOCT;2011_GRADE_9_LIT_EOCT;2010_READING_8;2010_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2011 Grade 9
+Lit, 2010 Reading Grade 8, 2010 ELA Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE/2013_AMERICAN_LIT_EOCT;2011_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2011 Grade 9
+Lit - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE.SIMEX/2013_AMERICAN_LIT_EOCT;2011_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2011 Grade 9
+Lit - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE/2013_AMERICAN_LIT_EOCT;2012_AMERICAN_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2012
+American Lit - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE.SIMEX/2013_AMERICAN_LIT_EOCT;2012_AMERICAN_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2012
+American Lit - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE/2013_AMERICAN_LIT_EOCT;2012_GRADE_9_LIT_EOCT;2011_READING_8;2011_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2012 Grade 9
+Lit, 2011 Reading Grade 8, 2011 ELA Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE.SIMEX/2013_AMERICAN_LIT_EOCT;2012_GRADE_9_LIT_EOCT;2011_READING_8;2011_ELA_8.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2012 Grade 9
+Lit, 2011 Reading Grade 8, 2011 ELA Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE/2013_AMERICAN_LIT_EOCT;2012_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2012 Grade 9
+Lit - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE.SIMEX/2013_AMERICAN_LIT_EOCT;2012_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2012 Grade 9
+Lit - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE/2013_AMERICAN_LIT_EOCT;2013_AMERICAN_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2013
+American Lit - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE.SIMEX/2013_AMERICAN_LIT_EOCT;2013_AMERICAN_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2013
+American Lit - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE/2013_AMERICAN_LIT_EOCT;2013_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2013 Grade 9
+Lit - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/AMERICAN_LIT.2013.BASELINE.SIMEX/2013_AMERICAN_LIT_EOCT;2013_GRADE_9_LIT_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 American Lit (Priors 2013 Grade 9
+Lit - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Economics}\label{economics}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE/2013_ECONOMICS_EOCT;2011_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2011 US History
+- Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE.SIMEX/2013_ECONOMICS_EOCT;2011_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2011 US History
+- SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE/2013_ECONOMICS_EOCT;2012_ECONOMICS_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2012 Economics
+- Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE.SIMEX/2013_ECONOMICS_EOCT;2012_ECONOMICS_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2012 Economics
+- SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE/2013_ECONOMICS_EOCT;2012_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2012 US History
+- Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE.SIMEX/2013_ECONOMICS_EOCT;2012_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2012 US History
+- SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE/2013_ECONOMICS_EOCT;2013_ECONOMICS_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2013 Economics
+- Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE.SIMEX/2013_ECONOMICS_EOCT;2013_ECONOMICS_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2013 Economics
+- SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE/2013_ECONOMICS_EOCT;2013_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2013 US History
+- Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/ECONOMICS.2013.BASELINE.SIMEX/2013_ECONOMICS_EOCT;2013_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Economics (Priors 2013 US History
+- SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{US History}\label{us-history}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE/2013_US_HISTORY_EOCT;2010_SOCIAL_STUDIES_8.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2010 Social
+Studies Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE.SIMEX/2013_US_HISTORY_EOCT;2010_SOCIAL_STUDIES_8.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2010 Social
+Studies Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE/2013_US_HISTORY_EOCT;2011_SOCIAL_STUDIES_8.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2011 Social
+Studies Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE.SIMEX/2013_US_HISTORY_EOCT;2011_SOCIAL_STUDIES_8.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2011 Social
+Studies Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE/2013_US_HISTORY_EOCT;2012_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2012 US
+History - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE.SIMEX/2013_US_HISTORY_EOCT;2012_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2012 US
+History - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE/2013_US_HISTORY_EOCT;2013_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2013 US
+History - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/US_HISTORY.2013.BASELINE.SIMEX/2013_US_HISTORY_EOCT;2013_US_HISTORY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 US History (Priors 2013 US
+History - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Biology}\label{biology}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2011_PHYSICAL_SCIENCE_EOCT;2010_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Physical
+Science, 2010 Science Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2011_PHYSICAL_SCIENCE_EOCT;2010_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Physical
+Science, 2010 Science Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2011_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Physical
+Science - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2011_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Physical
+Science - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2011_SCIENCE_8;2010_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Science
+Grade 8, 2010 Science Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2011_SCIENCE_8;2010_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Science
+Grade 8, 2010 Science Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Science
+Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2011 Science
+Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2012_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Biology -
+Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2012_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Biology -
+SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2012_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Physical
+Science, 2011 Science Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2012_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Physical
+Science, 2011 Science Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2012_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Physical
+Science, 2011 Science Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2012_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Physical
+Science, 2011 Science Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2012_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Physical
+Science - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2012_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Physical
+Science - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2012_SCIENCE_8;2011_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Science
+Grade 8, 2011 Science Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2012_SCIENCE_8;2011_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Science
+Grade 8, 2011 Science Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2012_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Science
+Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2012_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2012 Science
+Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2013_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2013 Biology -
+Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2013_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2013 Biology -
+SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE/2013_BIOLOGY_EOCT;2013_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2013 Physical
+Science - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/BIOLOGY.2013.BASELINE.SIMEX/2013_BIOLOGY_EOCT;2013_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Biology (Priors 2013 Physical
+Science - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Physical Science}\label{physical-science}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2011_BIOLOGY_EOCT;2010_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Biology, 2010 Science Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2011_BIOLOGY_EOCT;2010_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Biology, 2010 Science Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2011_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Biology - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2011_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Biology - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_8;2010_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Science Grade 8, 2010 Science Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_8;2010_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Science Grade 8, 2010 Science Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Science Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2011
+Science Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2012_BIOLOGY_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Biology, 2011 Science Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2012_BIOLOGY_EOCT;2011_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Biology, 2011 Science Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2012_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Biology - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2012_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Biology - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2012_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Physical Science - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2012_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Physical Science - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_7;2011_SCIENCE_6.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 7, 2011 Science Grade 6 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_7;2011_SCIENCE_6.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 7, 2011 Science Grade 6 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_8;2011_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 8, 2011 Science Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_8;2011_SCIENCE_7.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 8, 2011 Science Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2012_SCIENCE_8.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2012
+Science Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2013_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2013
+Biology - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2013_BIOLOGY_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2013
+Biology - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE/2013_PHYSICAL_SCIENCE_EOCT;2013_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2013
+Physical Science - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2013.BASELINE.SIMEX/2013_PHYSICAL_SCIENCE_EOCT;2013_PHYSICAL_SCIENCE_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Physical Science (Priors 2013
+Physical Science - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\section{EOCT - Cohort Referenced Course Plots, (Uncorrected and SIMEX
+Corrected)}\label{eoct---cohort-referenced-course-plots-uncorrected-and-simex-corrected}
+
+\subsection{Coordinate Algebra}\label{coordinate-algebra}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013/2013_COORDINATE_ALGEBRA_EOCT;2011_MATHEMATICS_8;2010_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2011
+Mathematics Grade 8, 2010 Mathematics Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013.SIMEX/2013_COORDINATE_ALGEBRA_EOCT;2011_MATHEMATICS_8;2010_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2011
+Mathematics Grade 8, 2010 Mathematics Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013/2013_COORDINATE_ALGEBRA_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2011
+Mathematics Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013.SIMEX/2013_COORDINATE_ALGEBRA_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2011
+Mathematics Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_7;2011_MATHEMATICS_6.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 7, 2011 Mathematics Grade 6 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013.SIMEX/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_7;2011_MATHEMATICS_6.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 7, 2011 Mathematics Grade 6 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013.SIMEX/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_8;2011_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 8, 2011 Mathematics Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013.SIMEX/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_8;2011_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 8, 2011 Mathematics Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013.SIMEX/2013_COORDINATE_ALGEBRA_EOCT;2012_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2012
+Mathematics Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013/2013_COORDINATE_ALGEBRA_EOCT;2013_COORDINATE_ALGEBRA_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2013
+Coordinate Algebra - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2013.SIMEX/2013_COORDINATE_ALGEBRA_EOCT;2013_COORDINATE_ALGEBRA_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Coordinate Algebra (Priors 2013
+Coordinate Algebra - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Geometry}\label{geometry}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/GEOMETRY.2013/2013_GEOMETRY_EOCT;2012_ALGEBRA_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Geometry (Priors 2012 Algebra,
+2011 Mathematics Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GEOMETRY.2013.SIMEX/2013_GEOMETRY_EOCT;2012_ALGEBRA_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Geometry (Priors 2012 Algebra,
+2011 Mathematics Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GEOMETRY.2013/2013_GEOMETRY_EOCT;2012_ALGEBRA_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Geometry (Priors 2012 Algebra -
+Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/GEOMETRY.2013.SIMEX/2013_GEOMETRY_EOCT;2012_ALGEBRA_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Geometry (Priors 2012 Algebra -
+SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Mathematics I}\label{mathematics-i}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/MATHEMATICS_I.2013/2013_MATHEMATICS_I_EOCT;2011_MATHEMATICS_8;2010_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics I (Priors 2011
+Mathematics Grade 8, 2010 Mathematics Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_I.2013.SIMEX/2013_MATHEMATICS_I_EOCT;2011_MATHEMATICS_8;2010_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics I (Priors 2011
+Mathematics Grade 8, 2010 Mathematics Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_I.2013/2013_MATHEMATICS_I_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics I (Priors 2011
+Mathematics Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_I.2013.SIMEX/2013_MATHEMATICS_I_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics I (Priors 2011
+Mathematics Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_I.2013/2013_MATHEMATICS_I_EOCT;2012_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics I (Priors 2012
+Mathematics I - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_I.2013.SIMEX/2013_MATHEMATICS_I_EOCT;2012_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics I (Priors 2012
+Mathematics I - SIMEX Corrected).}
+\end{figure}
+
+\clearpage 
+
+\subsection{Mathematics II}\label{mathematics-ii}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2011_MATHEMATICS_I_EOCT;2010_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2011
+Mathematics I, 2010 Mathematics Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2011_MATHEMATICS_I_EOCT;2010_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2011
+Mathematics I, 2010 Mathematics Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2011_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2011
+Mathematics I - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2011_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2011
+Mathematics I - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_I_EOCT;2011_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics I, 2011 Mathematics Grade 7 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_I_EOCT;2011_MATHEMATICS_7.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics I, 2011 Mathematics Grade 7 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_I_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics I, 2011 Mathematics Grade 8 - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_I_EOCT;2011_MATHEMATICS_8.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics I, 2011 Mathematics Grade 8 - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics I - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics I - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_II_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics II - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2012_MATHEMATICS_II_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2012
+Mathematics II - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2013_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2013
+Mathematics I - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2013_MATHEMATICS_I_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2013
+Mathematics I - SIMEX Corrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013/2013_MATHEMATICS_II_EOCT;2013_MATHEMATICS_II_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2013
+Mathematics II - Uncorrected).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{../img/Goodness_of_Fit/MATHEMATICS_II.2013.SIMEX/2013_MATHEMATICS_II_EOCT;2013_MATHEMATICS_II_EOCT.png}
+\caption{Goodness of Fit Plot for 2013 Mathematics II (Priors 2013
+Mathematics II - SIMEX Corrected).}
+\end{figure}
+
+\bibliographystyle{plainnat}
+\bibliography{/home/avi/R/x86_64-pc-linux-gnu-library/3.2/SGPreports/rmarkdown/templates/multi_document/resources/educ.bib}
+
+
+\end{document}
+
+
