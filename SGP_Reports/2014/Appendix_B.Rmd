@@ -15,27 +15,13 @@ abstract: "This Appendix to Georgia Student Growth Model Technical Reports
   provides methodological details about the SIMEX method for correcting for
   measurement error in assessment data.  Measurement error can lead to bias in
   statistical models and student growth estimates."
-bibliography: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/univ_resources/educ.bib
-output: 
-  rmarkdown::html_document:
-    keep_md: TRUE
-    self_contained: TRUE
-    dev: "png"
-    css: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/html_report/resources/report.css
-    toc: TRUE
-    toc_depth: 2
-    number_sections: TRUE
-    template: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/html_report/resources/report.html
-    theme: null
-    mathjax: null
-    pandoc_args: [--webtex]
 ---
 
 <!--SGPreport-->
 
 ```{r, echo=FALSE, include=FALSE}
   ##  Reset Table, Figure and Equation Counters
-  options("table_counter"=TRUE)
+  options("table_number"=0)
   options(table_counter_str = "<strong>Table B.%s:</strong> ")
   options("fig_caption_no"=0)
   options(fig_caption_no_sprintf = "**Fig. B.%s:**   %s")
@@ -72,7 +58,7 @@ $$\hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} \textit{Total MSE } = \fr
 
 Where $i=1, 2,\text{ ...  },n$ indicates students, $r=1, 2,\text{ ...  },R$ indicates simulation replications, $\widehat{SGP}_ {i,r}$ denotes the estimated SGP (either with or without SIMEX) for student $\textit{i}$ in replication $\textit{r}$, and $SGP_ i$ denotes the "true" SGP for student $\textit{i}$.
 
-$$\hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} \textit{Total MSE } = \frac{1}{n} \sum {i=1}^n \frac{1}{R} \sum_ {r=1}^R (\widehat{SGP}_ {i,r} - SGP_ i )$$
+$$\hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} \textit{Mean Bias } = \frac{1}{n} \sum_ {i=1}^n \frac{1}{R} \sum_ {r=1}^R (\widehat{SGP}_ {i,r} - SGP_ i )$$
 
 $$\hspace{2pt} \text{(`r eqnNumNext()`)} \hspace{55pt} \textit{SD Bias = Standard Deviation}_ {\textit{ across }i} (\frac{1}{R} \sum_ {r=1}^R \widehat{SGP}_ {i,r} - SGP_ i)$$
 

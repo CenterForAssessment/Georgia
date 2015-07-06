@@ -1,20 +1,7 @@
 ---
 title: "Appendix A to the 2014 Georgia Growth Model Report"
 subtitle: "Georgia Student Growth Model Fit Plots"
-abstract: "This appendix serves as a continuation of the discussion from the Model Fit Plots section of the 2014 Georgia Student Growth Model technical report."
-output: 
-  rmarkdown::html_document:
-    keep_md: TRUE
-    self_contained: TRUE
-    dev: "png"
-    css: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/html_report/resources/report.css
-    toc: TRUE
-    toc_depth: 2
-    number_sections: TRUE
-    template: /media/Data/Dropbox/Github_Repos/Packages/SGPreports/rmarkdown/templates/html_report/resources/report.html
-    theme: null
-    mathjax: null
-    pandoc_args: [--webtex]
+date: June 2015
 ---
 
 <!--SGPreport-->
@@ -22,6 +9,9 @@ output:
 <!-- Appendix A - Model Fit Plots -->
 
 ```{r, echo=FALSE, include=FALSE}
+  require(SGP)
+  require(Gmisc)
+
   ##  Set Table, Figure and Equation Counters
   options("table_counter"=TRUE)
   options(table_counter_str = "<strong>Table A.%s:</strong> ")
@@ -47,166 +37,182 @@ Each fit plot contains three panels.  The top panel is a mosaic plot that shows 
 ## Reading
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Reading, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_4.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Reading, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Reading, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_5.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Reading, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Reading, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_6.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Reading, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Reading, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_7.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Reading, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Reading, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE/gofSGP_Grade_8.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Reading, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/READING.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
 
 
 ## ELA
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 ELA, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_4.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 ELA, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 ELA, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_5.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 ELA, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 ELA, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_6.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 ELA, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 ELA, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_7.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 ELA, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 ELA, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE/gofSGP_Grade_8.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 ELA, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/ELA.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
 	
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
+
 
 ## Mathematics
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Mathematics, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_4.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Mathematics, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Mathematics, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_5.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Mathematics, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Mathematics, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_6.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Mathematics, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Mathematics, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_7.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Mathematics, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Mathematics, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE/gofSGP_Grade_8.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Mathematics, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/MATHEMATICS.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
 
 
-### Science
+## Science
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Science, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_4.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Science, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Science, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_5.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Science, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Science, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_6.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Science, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Science, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_7.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Science, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Science, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE/gofSGP_Grade_8.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Science, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/SCIENCE.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
 	
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
+
 
 ## Social Studies
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Social Studies, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_4.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 4 Social Studies, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_4.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Social Studies, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_5.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 5 Social Studies, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_5.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Social Studies, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_6.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 6 Social Studies, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_6.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Social Studies, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_7.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 7 Social Studies, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_7.png)
 	
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Social Studies, 2014 (Uncorrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE/gofSGP_Grade_8.png)
 
 ##### `r figCapNo("Goodness of Fit Plot for Grade 8 Social Studies, 2014 (SIMEX Corrected).")` 
-![](img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
+![](../img/Goodness_of_Fit/SOCIAL_STUDIES.2014.BASELINE.SIMEX/gofSGP_Grade_8.png)
 
 
 # EOCT - Baseline Referenced Course Plots, (Uncorrected and SIMEX Corrected)
@@ -214,10 +220,10 @@ Each fit plot contains three panels.  The top panel is a mosaic plot that shows 
 ##  Grade 9 Literature
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_G9L}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE"), list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE"), list.files("../img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -231,23 +237,28 @@ cat(paste("
 
 ", sep=""))
 }
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Grade 9 Lit (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/GRADE_9_LIT.2014.BASELINE.SIMEX/", gof, ".png)
 
 ", sep=""))
 }
+
+cat('<!-- LaTeX_Start 
+\\clearpage 
+LaTeX_End -->')
+
 }
 ```
 
 ##  American Literature
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_AMLit}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE"), list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE"), list.files("../img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -262,7 +273,7 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 American Lit (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/AMERICAN_LIT.2014.BASELINE.SIMEX/", gof, ".png)
@@ -272,13 +283,17 @@ cat(paste("
 }
 ```
 
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
+
 ##  Economics
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_Econ}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE"), list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/ECONOMICS.2014.BASELINE"), list.files("../img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/ECONOMICS.2014.BASELINE")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -293,7 +308,7 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Economics (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/ECONOMICS.2014.BASELINE.SIMEX/", gof, ".png)
@@ -303,13 +318,17 @@ cat(paste("
 }
 ```
 
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
+
 ##  US History
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_USHist}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE"), list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/US_HISTORY.2014.BASELINE"), list.files("../img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/US_HISTORY.2014.BASELINE")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -324,7 +343,7 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 US History (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/US_HISTORY.2014.BASELINE.SIMEX/", gof, ".png)
@@ -337,10 +356,10 @@ cat(paste("
 ##  Biology
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_Biolgy}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE"), list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/BIOLOGY.2014.BASELINE"), list.files("../img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/BIOLOGY.2014.BASELINE")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -355,23 +374,28 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Biology (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/BIOLOGY.2014.BASELINE.SIMEX/", gof, ".png)
 
 ", sep=""))
 }
+
+cat('<!-- LaTeX_Start 
+\\clearpage 
+LaTeX_End -->')
+
 }
 ```
 
 ##  Physical Science
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_PhysSci}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE"), list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE"), list.files("../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -386,15 +410,19 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Physical Science (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/PHYSICAL_SCIENCE.2014.BASELINE.SIMEX/", gof, ".png)
 
 ", sep=""))
 }
+
+cat('<!-- LaTeX_Start 
+\\clearpage 
+LaTeX_End -->')
+
 }
-setwd(".."); setwd("..")
 ```
 
 # EOCT - Cohort Referenced Course Plots, (Uncorrected and SIMEX Corrected)
@@ -402,10 +430,10 @@ setwd(".."); setwd("..")
 ##  Coordinate Algebra
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_CoordAlg}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014"), list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014"), list.files("../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -420,7 +448,7 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Coordinate Algebra (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/COORDINATE_ALGEBRA.2014.SIMEX/", gof, ".png)
@@ -430,13 +458,18 @@ cat(paste("
 }
 ```
 
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
+
+
 ##  Analytic Geometry
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_Geom}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014"), list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014"), list.files("../img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -451,7 +484,7 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Analytic Geometry (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/ANALYTIC_GEOMETRY.2014.SIMEX/", gof, ".png)
@@ -461,14 +494,18 @@ cat(paste("
 }
 ```
 
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
+
 
 ##  Mathematics II
 
 ```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_MathII}
-tmp.files <- gsub(".png", "", intersect(list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014"), list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX")))
+tmp.files <- gsub(".png", "", intersect(list.files("../img/Goodness_of_Fit/MATHEMATICS_II.2014"), list.files("../img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX")))
 
 for (gof in tmp.files) {
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/MATHEMATICS_II.2014")) {
 tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
 
 tmp.priors <- gsub(" EOCT", "", tmp.priors)
@@ -483,7 +520,7 @@ cat(paste("
 ", sep=""))
 }
 
-if (paste(gof, ".png", sep="") %in% list.files("./img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX")) {
+if (paste(gof, ".png", sep="") %in% list.files("../img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX")) {
 cat(paste("
 ##### ", figCapNo(paste("Goodness of Fit Plot for 2014 Mathematics II (Priors ", tmp.priors, " - SIMEX Corrected).", sep="")), "
 ![](img/Goodness_of_Fit/MATHEMATICS_II.2014.SIMEX/", gof, ".png)
