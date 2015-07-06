@@ -72,14 +72,14 @@ img {
 
 <div id="header">
 <h1 class="title">SGP Calculation Manual</h1>
+<h4 class="author"><em>National Center for the Improvement of Educational Assessment (NCIEA)</em></h4>
 <h4 class="author"><em>Damian W. Betebenner</em></h4>
-<address class="author_afil">
-National Center for the Improvement of Educational Assessment (NCIEA)<br><a class="author_email" href="mailto:#"><a href="mailto:DBetebenner@nciea.org">DBetebenner@nciea.org</a></a>
+<a class="author_email" href="mailto:#"><a href="mailto:DBetebenner@nciea.org">DBetebenner@nciea.org</a></a>
 </address>
 <h4 class="author"><em>Adam R. VanIwaarden</em></h4>
 <a class="author_email" href="mailto:#"><a href="mailto:avaniwaarden@gmail.com">avaniwaarden@gmail.com</a></a>
 </address>
-<h4 class="date"><em>February 3, 2015</em></h4>
+<h4 class="date"><em>June 2015</em></h4>
 </div>
 
 
@@ -112,7 +112,7 @@ output:
 <p><strong><em>1b.</em></strong> In the second step the clean data from step 1 is read into <a href="http://www.r-project.org/">R</a> and modified slightly with regard to variable types/classes. The result is an Rdata file that is suitable for analysis with the <a href="http://www.sgp.io">SGP Package</a>.</p>
 <div id="step-1a-cleaning-data-with-sql" class="section level4">
 <h4><span class="header-section-number">2.1.0.1</span> Step 1a: Cleaning data with SQL</h4>
-<pre class="sourceCode sql"><code class="sourceCode sql"><span class="co">/**Delete the retest data from the unmatched files**/</span>
+<pre class="sourceCode sql"><code class="sourceCode sql"><span class="co">/**Delete the retest data in the unmatched data file**/</span>
 <span class="kw">DELETE</span> <span class="kw">FROM</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT Final Matched <span class="kw">Data</span>]..[eoct2014_unmatched_sys777-89x_pipe]
 <span class="kw">WHERE</span> retest_indicator=<span class="st">'Y'</span>
 
@@ -293,47 +293,39 @@ PTNA_INDICATOR, DNA_INDICATOR,  IRREGULAR_ADMIN_INDICATOR, GRADE_CONVERSION, ADM
 ) I
 
 
-<span class="co">/**Clean the data**/</span>
+<span class="co">/**clean the data**/</span>
 
 
-<span class="co">/**step 1: invalidate test-out students and bad GTIDs**/</span>
+<span class="co">/**Step 1: invalidate test-out students and bad GTIDs**/</span>
 
 <span class="kw">ALTER</span> <span class="kw">TABLE</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData]
 <span class="kw">ADD</span> VALID_CASE <span class="dt">varchar</span>(<span class="dv">50</span>)
 
-<span class="co">/**4607 rows affected**/</span>
 <span class="kw">update</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData]
 <span class="kw">set</span> VALID_CASE=<span class="st">'INVALID_CASE'</span>
 <span class="kw">where</span> TEST_OUT_ADMINISTRATION=<span class="st">'Y'</span> <span class="kw">or</span>  SCALE_SCORE=<span class="st">''</span>
 
-<span class="kw">select</span> * <span class="kw">from</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData]
-<span class="kw">where</span> TEST_OUT_ADMINISTRATION=<span class="st">'Y'</span> <span class="kw">or</span> SCALE_SCORE=<span class="st">''</span>
-
-<span class="co">/**108 rows affected**/</span>
 <span class="kw">update</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData]
 <span class="kw">set</span> VALID_CASE=<span class="st">'INVALID_CASE'</span>
 <span class="kw">where</span> GTID=<span class="st">''</span> <span class="kw">or</span> GTID=<span class="st">'..........'</span>
 
 
-<span class="co">/**step 2: Invalidate the duplicate scores that are in the same admin period: 4763841**/</span>
+<span class="co">/**Step 2: Invalidate duplicate scores that are in the same admin period**/</span>
 
 <span class="kw">drop</span> <span class="kw">table</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean1]
 <span class="kw">select</span> *, <span class="fu">ROW_NUMBER</span>() <span class="kw">over</span>(<span class="kw">partition</span> <span class="kw">by</span> VALID_CASE,SCHOOL_YEAR, GRADE, SUBJECT_CODE, GTID, MATCH_STATUS, ADMINISTRATION_PERIOD <span class="kw">order</span> <span class="kw">by</span> Scale_Score <span class="kw">Desc</span>) <span class="kw">as</span> Rownumber_dup1
 <span class="kw">into</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean1]
 <span class="kw">from</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData]
 
-
-<span class="co">/**1781 row(s) affected**/</span>
 <span class="kw">update</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean1]
 <span class="kw">set</span> VALID_CASE=<span class="st">'INVALID_CASE'</span>
 <span class="kw">where</span>  Rownumber_dup1&lt;&gt; <span class="dv">1</span> 
 
-<span class="co">/**4757431 row(s) affected**/</span>
 <span class="kw">update</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean1]
 <span class="kw">set</span> VALID_CASE=<span class="st">'VALID_CASE'</span>
 <span class="kw">where</span>  VALID_CASE <span class="kw">is</span> <span class="kw">null</span>
 
-<span class="co">/**step 3: Invalidate students who have two difference grades**/</span>
+<span class="co">/**Step 3: Invalidate students who have two difference grades**/</span>
 
 
 <span class="kw">drop</span> <span class="kw">table</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean2]
@@ -341,59 +333,33 @@ PTNA_INDICATOR, DNA_INDICATOR,  IRREGULAR_ADMIN_INDICATOR, GRADE_CONVERSION, ADM
 <span class="kw">into</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean2]
 <span class="kw">from</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean1]
 
-
-<span class="co">/**348 row(s) affected**/</span>
 <span class="kw">update</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean2]
 <span class="kw">set</span> VALID_CASE=<span class="st">'INVALID_CASE'</span>
 <span class="kw">where</span>  Rownumber_dup2&lt;&gt; <span class="dv">1</span> 
 
 
-<span class="co">/** create first and last observation indicators for the same year repeater and block scheduler: 4763841**/</span>
 
-<span class="kw">drop</span> <span class="kw">table</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean3]
-<span class="kw">select</span> * 
-<span class="kw">into</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean3]
-<span class="kw">from</span> (
-<span class="kw">select</span> *,
-<span class="kw">case</span> 
-<span class="kw">when</span> Rownumber_AdminType_Asc=<span class="dv">1</span> <span class="kw">then</span> <span class="st">'1'</span> 
-<span class="kw">else</span> <span class="st">''</span>
-<span class="kw">end</span> 
-<span class="kw">as</span> First_observation,
-<span class="kw">case</span>
-<span class="kw">when</span> Rownumber_AdminType_Desc=<span class="dv">1</span> <span class="kw">then</span> <span class="st">'1'</span>
-<span class="kw">else</span> <span class="st">''</span>
-<span class="kw">end</span>
-<span class="kw">as</span> Last_observation
-<span class="kw">from</span> (
-<span class="kw">select</span> *, <span class="fu">ROW_NUMBER</span>() <span class="kw">over</span>(<span class="kw">partition</span> <span class="kw">by</span> valid_case,Subject_code,GTID <span class="kw">order</span> <span class="kw">by</span> YEAR_WITHIN <span class="kw">Asc</span>) <span class="kw">as</span> Rownumber_AdminType_Asc,<span class="fu">ROW_NUMBER</span>() <span class="kw">over</span>(<span class="kw">partition</span> <span class="kw">by</span> valid_case,Subject_code,GTID <span class="kw">order</span> <span class="kw">by</span> YEAR_WITHIN <span class="kw">Desc</span>) <span class="kw">as</span> Rownumber_AdminType_Desc
-<span class="kw">from</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean2]
-) h
-) g
+<span class="co">/**Combine current year's data with previous years**/</span>
 
-
-<span class="co">/**Combine data with previous years 23504724**/</span>
-
-<span class="kw">drop</span> <span class="kw">table</span> [<span class="kw">All</span> <span class="kw">Data</span> 2009_2014]..[2010_2014AllData]
+<span class="kw">drop</span> <span class="kw">table</span> [<span class="kw">All</span> <span class="kw">Data</span> 2009_2014]..[2009_2014AllData]
 <span class="kw">select</span> VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SCHOOL_NUMBER, GTID, GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
 ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, Performance_level <span class="kw">AS</span> ACHIVEMENT_LEVEL, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
 STATE_ENROLLMENT_STATUS, FIRST_OBSERVATION, LAST_OBSERVATION,<span class="st">''</span> <span class="kw">as</span> GIFT 
-<span class="kw">into</span> [<span class="kw">All</span> <span class="kw">Data</span> 2009_2014]..[2010_2014AllData]
+<span class="kw">into</span> [<span class="kw">All</span> <span class="kw">Data</span> 2009_2014]..[2009_2014AllData]
 <span class="kw">from</span> [2009_2013LongData]..Georgia_Data_LONG
 <span class="kw">where</span> valid_case=<span class="st">'VALID_CASE'</span> 
 <span class="kw">union</span> <span class="kw">all</span>
 <span class="kw">select</span> VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SR_SCHOOL_ID <span class="kw">as</span> SCHOOL_NUMBER, GTID, GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
 ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, Performance_level <span class="kw">AS</span> ACHIVEMENT_LEVEL, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
 STATE_ENROLLMENT_STATUS, FIRST_OBSERVATION, LAST_OBSERVATION  , GIFT
-<span class="kw">from</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean3]
+<span class="kw">from</span> [<span class="dv">2014</span> CRCT <span class="kw">and</span> EOCT <span class="kw">Data</span>]..[2014_AllMatchedData_clean2]
 <span class="kw">where</span> SCHOOL_YEAR=<span class="st">'2014'</span>
-
 
 <span class="co">/**Export &quot;[All Data 2009_2014]..[2010_2014AllData]&quot; to pipe delimited text file**/</span></code></pre>
 </div>
 <div id="step-1b-creating-an-r-version-of-the-cleaned-data" class="section level4">
 <h4><span class="header-section-number">2.1.0.2</span> Step 1b: Creating an R version of the cleaned data</h4>
-<p>After text data from the Information Technology department has been cleaned using the above SQL script, a pipe delimited text file is output and needs to be read into <a href="http://www.r-project.org/">R</a> in order to create an <a href="http://www.r-project.org/">R</a> based data set to be used for SGP calculations. The <a href="http://www.r-project.org/">R</a> script below reads pipe delimited data into <code>R</code> and variable by variable tidies up the data for subsequent analysis in the SGP package.</p>
+<p>After text data from the Information Technology department has been cleaned using the above <code>SQL</code> script, a pipe delimited text file is output and needs to be read into <a href="http://www.r-project.org/"><code>R</code></a> in order to create an <code>R</code> based data set to be used for SGP calculations. The <code>R</code> script below reads pipe delimited data into <code>R</code> and variable by variable tidies up the data for subsequent analysis in the <code>SGP</code> package.</p>
 <pre class="sourceCode r"><code class="sourceCode r">###################################################################################
 ###
 ### Script to read in data and create LONG data in R for 2014 Georgia CRCT/EOCT
@@ -831,7 +797,7 @@ Georgia_SGP &lt;-<span class="st"> </span><span class="kw">prepareSGP</span>(Geo
 <p>Data analysis is conducted using the <a href="http://www.r-project.org/">R Software Environment</a> in conjunction with the <a href="http://www.sgp.io">SGP Package</a>. The 2014 annual analysis scripts are provided below and describe the steps required to run the annual SGP analyses for the <a href="http://www.gadoe.org/School-Improvement/Teacher-and-Leader-Effectiveness/Pages/Student-Growth-Percentiles.aspx">Georgia Student Growth Model</a>. Information about additional steps that will be required in future years given the changes in assessment programs as expected at present are also provided.</p>
 <div id="sgp-analyses" class="section level2">
 <h2><span class="header-section-number">3.1</span> 2014 SGP Analyses</h2>
-<p>The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student’s growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her <em>academic peers</em> (see <a href="https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf">Section 2 of the GSGM FAQ</a>). The estimation of this norm-referenced growth quantity is conducted using quantile regression to model curvilinear functional relationships between student’s prior and current scores. One hundred such regression calculations are run for each seperate analysis (defined as a unique year by content area by grade by prior order combination). The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process utimately leads to the calculation of many tens-thousands calculations per year (and many more when SIMEX measurement error corrections are performed) for Georgia’s annual analyses. For a more in-depth discussion of the calculation and estimation of SGPs, see Betebenner (<span class="citation">[-@Betebenner:2009]</span>), and Shang, VanIwaarden and Betebenner (<span class="citation">[@ShangVanIBet:2015]</span>) and Appendix B of this report for SIMEX measurement error correction.</p>
+<p>The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student’s growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her <em>academic peers</em> (see <a href="https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf">Section 2 of the GSGM FAQ</a>). The estimation of this norm-referenced growth quantity is conducted using quantile regression to model curvilinear functional relationships between student’s prior and current scores. One hundred such regression calculations are run for each seperate analysis (defined as a unique year by content area by grade by prior order combination). The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process utimately leads to the calculation of many tens-thousands calculations per year (and many more when SIMEX measurement error corrections are performed) for Georgia’s annual analyses. For a more in-depth discussion of the calculation and estimation of SGPs, see Betebenner <span class="citation">(2009)</span>, and Shang, VanIwaarden and Betebenner <span class="citation">(Shang, VanIwaarden, and Betebenner 2015)</span> and Appendix B of this report for SIMEX measurement error correction.</p>
 <p>For the 2014 Georgia SGP analyses, we are following an analyses work flow established in previous years that includes the following 7 steps:</p>
 <ol style="list-style-type: decimal">
 <li>Update the Georgia meta-data elements in <code>SGPstateData</code>.</li>
@@ -844,15 +810,15 @@ Georgia_SGP &lt;-<span class="st"> </span><span class="kw">prepareSGP</span>(Geo
 </ol>
 <div id="update-the-georgia-entry-in-sgpstatedata." class="section level3">
 <h3><span class="header-section-number">3.1.1</span> 1. Update the Georgia entry in <code>SGPstateData</code>.</h3>
-<p>The use of higher-level functions included in the SGP package (e.g. <code>analyzeSGP</code>) requires the availability of state specific assessment information. This meta-data is compiled in a <code>R</code> object named <code>SGPstateData</code> that is housed in the package. The required updates for the 2014 analyses included <em>a)</em> the additions of knots and boundaries, proficiency level cutscores, and conditional standard errors of measurement (CSEMs) for Analytic Geometry, <em>b)</em> adding a new variable to the Variable Name Lookup table, and <em>c)</em> addubg thge updated norm group preferences object.</p>
+<p>The use of higher-level functions included in the SGP package (e.g. <code>analyzeSGP</code>) requires the availability of state specific assessment information. This meta-data is compiled in a <code>R</code> object named <code>SGPstateData</code> that is housed in the package. The required updates for the 2014 analyses included <em>a)</em> the additions of knots and boundaries, proficiency level cutscores, and conditional standard errors of measurement (CSEMs) for Analytic Geometry, <em>b)</em> adding a new variable to the Variable Name Lookup table, and <em>c)</em> adding the updated norm group preferences object.</p>
 <div id="calculation-and-addition-of-knots-and-boundaries" class="section level4">
 <h4><span class="header-section-number">3.1.1.1</span> Calculation and addition of knots and boundaries</h4>
-<p>Calculation of SGPs includes the use of cubic B-spline basis functions to more adequately model the heteroscedasticity and non-linearity found in assessment data. These functions require the selection of boundary and interior knots. Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis. These are generally selected by extending the range of scale scores by 10%. That is, they are defined as lying 10% below the lowest obtainable (or observed) scale score (LOSS) and 10% above the highest obtainable scale score (HOSS). The interior knots are the <em>internal</em> breakpoints that define the spline. The default choice in the <code>SGP</code> package <span class="citation">[@sgp2015]</span> is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the observed scale score distribution.</p>
+<p>Calculation of SGPs includes the use of cubic B-spline basis functions to more adequately model the heteroscedasticity and non-linearity found in assessment data. These functions require the selection of boundary and interior knots. Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis. These are generally selected by extending the range of scale scores by 10%. That is, they are defined as lying 10% below the lowest obtainable (or observed) scale score (LOSS) and 10% above the highest obtainable scale score (HOSS). The interior knots are the <em>internal</em> breakpoints that define the spline. The default choice in the <code>SGP</code> package <span class="citation">(Betebenner et al. 2015)</span> is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the observed scale score distribution.</p>
 <p>In general the knots and boundaries are computed from a distribution comprised of several years of test data (i.e. multiple cohorts) so that any irregularities in a single year are smoothed out. Subsequent annual analyses use these same knots and boundaries as well. All defaults were used to compile the knots and boundaries for Georgia from the CRCT and EOCT tests in previous years, and were also used in 2014 to compute the Analytic Geometry knots and boundaries. <strong><em>New knots and boundaries will be required for Georgia Milestones assessments beginning in 2016 at which point they will be used as the dependent variables in the quantile regressions.</em></strong></p>
 <pre class="sourceCode r"><code class="sourceCode r">###   Calculate Knots and Boundaries For ANALYTIC_GEOMETRY
 
 <span class="kw">createKnotsBoundaries</span>(Georgia_SGP@Data[CONTENT_AREA==<span class="st">'ANALYTIC_GEOMETRY'</span>])</code></pre>
-<p>The output from this was then manually added to the SGPstateData.R file and <a href="https://github.com/CenterForAssessment/SGPstateData/commit/403b3942caf51bec7aef578af092ea964f7c642d">committed to Github</a>. Note that these knots and boundaries were not used in the 2014 analyses becuase this was the first year in which the Analytic Geometry test was administered. Given that they were not used, and the fact that this calculation <strong><em>only a single year of data</em></strong>, it may be necessary to recalculate them next year and change them in <code>SGPstateData</code> if they values are quite different (small changes would likely not have a large impact on analyses going forward).</p>
+<p>The output from this was then manually added to the SGPstateData.R file and <a href="https://github.com/CenterForAssessment/SGPstateData/commit/403b3942caf51bec7aef578af092ea964f7c642d">committed to Github</a>. This process can be facilitated by the authors of the <code>SGP</code> package <a href="https://github.com/CenterForAssessment/SGPstateData/issues">upon request</a>. Note that these knots and boundaries were not used in the 2014 analyses becuase this was the first year in which the Analytic Geometry test was administered. Given that they were not used, and the fact that this calculation <strong><em>only a single year of data</em></strong>, it may be necessary to recalculate them next year and change them in <code>SGPstateData</code> if those values are quite different (small changes would likely not have a large impact on analyses going forward).</p>
 </div>
 <div id="proficiency-level-cutscores" class="section level4">
 <h4><span class="header-section-number">3.1.1.2</span> Proficiency level cutscores</h4>
@@ -880,7 +846,8 @@ Georgia_SGP &lt;-<span class="st"> </span><span class="kw">prepareSGP</span>(Geo
 </div>
 <div id="create-annual-sgp-configurations." class="section level3">
 <h3><span class="header-section-number">3.1.2</span> 2. Create annual SGP configurations.</h3>
-<p>Unlike CRCT analyses, EOCT analyses are specialized enough so that it is necessary to specify the analyses to be performed via a configuration. For several years, configurations have been employed to conduct EOCT SGP analyses for Georgia. The configurations associated with the 2014 annual EOCT SGP analyses are located in the Georgia Github repository folder named <a href="https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2014">SGP_CONFIG</a>. The configurations are broken up into four separate R scripts: <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/ELA.R">ELA</a>, <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/MATHEMATICS.R">MATHEMATICS</a>, <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/SCIENCE.R">SCIENCE</a>, and <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/SOCIAL_STUDIES.R">SOCIAL_STUDIES</a>.</p>
+<p>Unlike CRCT analyses, EOCT analyses are specialized enough so that it is necessary to specify the analyses to be performed via a configuration. For several years, configurations have been employed to conduct EOCT SGP analyses for Georgia. The configurations associated with the 2014 annual EOCT SGP analyses are located in the Georgia Github repository folder named <a href="https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2014">SGP_CONFIG</a>. This file should also be available on existing Georgia DOE hard and/or shared drives.</p>
+<p>The configurations are broken up into four separate R scripts: <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/ELA.R">ELA</a>, <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/MATHEMATICS.R">MATHEMATICS</a>, <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/SCIENCE.R">SCIENCE</a>, and <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/SOCIAL_STUDIES.R">SOCIAL_STUDIES</a>.</p>
 <p>Each configuration specifies a set of parameters that defines the norm group of students to be examined. Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level. Other parameters may also be defined. Each configuration used for the Georgia EOCT analyses contain these elements:</p>
 <ul>
 <li><strong><code>sgp.content.areas</code>:</strong> A progression of values that specifies the content areas to be looked at and the order in which the courses were taken.</li>
@@ -945,7 +912,7 @@ MATHEMATICS_II_2014.config &lt;-<span class="st"> </span><span class="kw">list</
 <p>Configurations are <code>R</code> scripts that are sourced as part of the larger SGP analysis to be discussed later. In addition, the <code>SGPstateData</code> needs to be updated with the norm group preference embedded within the configurations. To do this, an <code>.Rdata</code> object needs to be constructed that is embedded within <code>SGPstateData</code> (either manually or included in the package build itself). To create the Rdata object with the norm groups preferences utilize/source the R script <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/configToSGPNormGroup.R">configToSGPNormGroup.R</a> in the <a href="https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2014">SGP_CONFIG</a> folder as follows:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">source</span>(<span class="st">&quot;configToSGPNormGroup.R&quot;</span>)</code></pre>
 <p>This creates the Rdata object <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/GA_SGP_Norm_Group_Preference.Rdata">GA_SGP_Norm_Group_Preference.Rdata)</a> containing the norm group preferences (the <code>GA_SGP_Norm_Group_Preference</code> object is just a data.frame/data.table containing information about what the rank ordering of the configurations are in terms of preference).</p>
-<p>The <code>GA_SGP_Norm_Group_Preference</code> can either be embedded into <code>SGPstateData</code> manually (see Step 4 below) or submitted to the <a href="https://github.com/CenterForAssessment/SGP#contributors">SGP Package maintainers</a> for inclusion in the package so that it is contained in <code>SGPstateData</code> when the package is loaded.</p>
+<p>The <code>GA_SGP_Norm_Group_Preference</code> should be submitted to the <a href="https://github.com/CenterForAssessment/SGP#contributors">SGP Package maintainers</a> for inclusion in the package so that it is contained in <code>SGPstateData</code> when the package is loaded.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
 </div>
 <div id="create-baseline-and-simex-baseline-coefficient-matrices." class="section level3">
 <h3><span class="header-section-number">3.1.3</span> 3. Create baseline and SIMEX baseline coefficient matrices.</h3>
@@ -1201,9 +1168,8 @@ Georgia_Baseline_Matrices &lt;-<span class="st"> </span><span class="kw">c</span
 </div>
 <div id="conduct-crct-sgp-analyses." class="section level3">
 <h3><span class="header-section-number">3.1.4</span> 4. Conduct CRCT SGP analyses.</h3>
-<p>The CRCT grade level ELA, Reading, Math, Science and Social Studies analyses were conducted seperately from the EOCT course analyses. Mainly this is done because the CRCT analyses do not require custom configuation scripts like EOCT does. Given the simplistic use of only the same test as prior test scores in these analyses, the SGP package’s functions can identify the analyses to be conducted internally. This also allows the analyses to be completed and checked, and interim results saved which is sometimes necessary due to the computationally intensive nature of the analyse, particularly with a state the size of Georgia.</p>
-<p>Note that Science is not calculated here, but rather was analyzed along with the EOCT courses, as was also done in 2013. This is done because science growth projections can follow two different paths: the first projecting from 8th grade science to Biology, and the other to Physical Science (see the added <code>sgp.projection.sequence</code> <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/SCIENCE.R#L16">line in the configuration script</a>). This may be a part of future analyses and so this facet was preserved in 2014 even though it was not ultimately used and Science could have been analyzed along with the other CRCT content areas.</p>
-<p>Initial 2014 analyses included the baseline and SIMEX corrected baseline SGP production (the “official” SGPs), as well as annual cohort referenced SGPs.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> SIMEX corrected cohort referenced SGPs were produced subsequent to requests made by the Georgia Educator Effectiveness Technical Advisory Committee.</p>
+<p>The CRCT grade level ELA, Reading, Math, Science and Social Studies analyses were conducted seperately from the EOCT course analyses. Mainly this is done because the CRCT analyses do not require custom configuation scripts like EOCT does. Given the simplistic use of only the same test as prior test scores in these analyses, the SGP package’s functions can identify the analyses to be conducted internally. This also allows the analyses to be completed and checked, and interim results saved which is sometimes necessary due to the computationally intensive nature of the analyse, particularly with a state the size of Georgia.<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></p>
+<p>Initial 2014 analyses included the baseline and SIMEX corrected baseline SGP production (the “official” SGPs), as well as annual cohort referenced SGPs.<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> SIMEX corrected cohort referenced SGPs were produced subsequent to requests made by the Georgia Educator Effectiveness Technical Advisory Committee.</p>
 <pre class="sourceCode r"><code class="sourceCode r">#########################################################
 ###
 ### Calculate SGPs for Georgia - 2014
@@ -1219,35 +1185,39 @@ Georgia_Baseline_Matrices &lt;-<span class="st"> </span><span class="kw">c</span
 <span class="kw">load</span>(<span class="st">&quot;Data/Georgia_SGP.Rdata&quot;</span>)
 <span class="kw">load</span>(<span class="st">'Data/Georgia_Baseline_Matrices.Rdata'</span> )
 
-
-### AnalyzeSGP : Grade level CRCT tests
+###  Add baseline matrices to the SGPstateData (removed from 'public record' in Summer 2013)
+###  Replace original baseline matrices with updated matrices (original + additional US Hist and ELA progressions)
 
 SGPstateData[[<span class="st">&quot;GA&quot;</span>]][[<span class="st">&quot;Baseline_splineMatrix&quot;</span>]][[<span class="st">&quot;Coefficient_Matrices&quot;</span>]] &lt;-<span class="st"> </span>Georgia_Baseline_Matrices
+
+Georgia_SGP@SGP$Coefficient_Matrices &lt;-<span class="st"> </span>Georgia_SGP@SGP$Coefficient_Matrices[-<span class="kw">grep</span>(<span class="st">&quot;BASELINE&quot;</span>, <span class="kw">names</span>(Georgia_SGP@SGP$Coefficient_Matrices))]
+Georgia_SGP@SGP$Coefficient_Matrices &lt;-<span class="st"> </span><span class="kw">c</span>(Georgia_SGP@SGP$Coefficient_Matrices, Georgia_Baseline_Matrices)
+
+### AnalyzeSGP : Grade level CRCT tests
 
 Georgia_SGP &lt;-<span class="st"> </span><span class="kw">analyzeSGP</span>(
             Georgia_SGP,
             <span class="dt">years=</span><span class="st">'2014'</span>,
-            <span class="dt">content_areas=</span><span class="kw">c</span>(<span class="st">&quot;ELA&quot;</span>, <span class="st">&quot;READING&quot;</span>, <span class="st">&quot;MATHEMATICS&quot;</span>, <span class="st">&quot;SOCIAL_STUDIES&quot;</span>), <span class="co"># &quot;SCIENCE&quot; is produced in SGP_Config</span>
+            <span class="dt">content_areas=</span><span class="kw">c</span>(<span class="st">&quot;ELA&quot;</span>, <span class="st">&quot;READING&quot;</span>, <span class="st">&quot;MATHEMATICS&quot;</span>, <span class="st">&quot;SOCIAL_STUDIES&quot;</span>, <span class="st">&quot;SCIENCE&quot;</span>),
             <span class="dt">sgp.percentiles=</span><span class="ot">TRUE</span>,
-            <span class="dt">sgp.projections=</span><span class="ot">FALSE</span>,
-            <span class="dt">sgp.projections.lagged=</span><span class="ot">FALSE</span>,
+            <span class="dt">sgp.projections =</span> <span class="ot">FALSE</span>,
+            <span class="dt">sgp.projections.lagged =</span> <span class="ot">FALSE</span>,
             <span class="dt">sgp.percentiles.baseline=</span><span class="ot">TRUE</span>,
-            <span class="dt">sgp.projections.baseline=</span><span class="ot">FALSE</span>,
-            <span class="dt">sgp.projections.lagged.baseline=</span><span class="ot">FALSE</span>,
-            <span class="dt">simulate.sgps=</span><span class="ot">TRUE</span>,
-        <span class="dt">calculate.simex =</span> <span class="ot">TRUE</span>, <span class="co"># Produce Cohort SIMEX for CRCT now.</span>
-<span class="co">#           calculate.simex = NULL, # Originally we only produced BASELINE SIMEX for CRCT. Went back and added them later.</span>
-            <span class="dt">calculate.simex.baseline=</span><span class="ot">TRUE</span>, <span class="co"># TRUE or NULL</span>
+            <span class="dt">sgp.projections.baseline =</span> <span class="ot">FALSE</span>,
+            <span class="dt">sgp.projections.lagged.baseline =</span> <span class="ot">FALSE</span>,
+            <span class="dt">simulate.sgps =</span> <span class="ot">TRUE</span>,   <span class="co"># Needed for SGP_STANDARD_ERROR and SGP_BASELINE_STANDARD_ERROR</span>
+            <span class="dt">calculate.simex =</span> <span class="ot">TRUE</span>, <span class="co"># Produce Cohort SIMEX for CRCT now.</span>
+            <span class="dt">calculate.simex.baseline =</span> <span class="ot">TRUE</span>, 
             <span class="dt">goodness.of.fit.print=</span><span class="st">&quot;GROB&quot;</span>, <span class="co"># Print all out once after running EOCTs - &quot;GROB&quot; produces R graphical object, but doesn't print.</span>
-            <span class="dt">parallel.config=</span><span class="kw">list</span>(<span class="dt">BACKEND=</span><span class="st">&quot;PARALLEL&quot;</span>, <span class="dt">WORKERS=</span><span class="kw">list</span>(<span class="dt">PERCENTILES=</span><span class="dv">12</span>, <span class="dt">BASELINE_PERCENTILES=</span><span class="dv">12</span>, <span class="dt">PROJECTIONS=</span><span class="dv">6</span>, <span class="dt">LAGGED_PROJECTIONS=</span><span class="dv">6</span>)))
+            <span class="dt">parallel.config=</span><span class="kw">list</span>(<span class="dt">BACKEND=</span><span class="st">&quot;PARALLEL&quot;</span>, <span class="dt">WORKERS=</span><span class="kw">list</span>(<span class="dt">PERCENTILES=</span><span class="dv">1</span>, <span class="dt">BASELINE_PERCENTILES=</span><span class="dv">1</span>, <span class="dt">TAUS=</span><span class="dv">13</span>, <span class="dt">SIMEX=</span><span class="dv">5</span>))) <span class="co"># Parallel config as run by Adam for official results</span>
 
 ### Save Results
 
-<span class="co">#save(Georgia_SGP, file=&quot;Data/Georgia_SGP.Rdata&quot;)</span></code></pre>
+<span class="kw">save</span>(Georgia_SGP, <span class="dt">file=</span><span class="st">&quot;Data/Georgia_SGP.Rdata&quot;</span>)</code></pre>
 </div>
 <div id="conduct-eoct-sgp-analyses." class="section level3">
 <h3><span class="header-section-number">3.1.5</span> 5. Conduct EOCT SGP analyses.</h3>
-<p>The EOCT content area progressions specific analyses were then calculated using the configuration scripts. The baseline referenced content areas were analyzed seperately from the cohort referenced (mathematics domain) subjects. This was done due to the computationally intensive nature of the calculations rather than necessity, as all relevent argument controls are specified in the configuration scripts. As with the CRCT analyses, cohort referenced SIMEX corrected versions of all SGPs were eventually produced<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> by specifying both <code>sgp.calculate.simex = TRUE</code> and <code>sgp.calculate.simex.baseline = TRUE</code> in each configuration code chunk.</p>
+<p>The EOCT content area progressions specific analyses were then calculated using the configuration scripts. As with the CRCT analyses, cohort referenced SIMEX corrected versions of all SGPs were eventually produced<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a> by specifying both <code>sgp.calculate.simex = TRUE</code> and <code>sgp.calculate.simex.baseline = TRUE</code> in each configuration code chunk.</p>
 <pre class="sourceCode r"><code class="sourceCode r">#########################################################
 ###
 ### Calculate EOCT SGPs for Georgia for 2014
@@ -1263,14 +1233,20 @@ Georgia_SGP &lt;-<span class="st"> </span><span class="kw">analyzeSGP</span>(
 
 <span class="kw">load</span>(<span class="st">&quot;Data/Georgia_SGP.Rdata&quot;</span>)
 
+###  Add baseline matrices to the SGPstateData (removed from 'public record' in Summer 2013)
+###  Replacement of original matrices in Georgia_SGP not needed to be done again (done in CRCT)
+
+<span class="kw">load</span>(<span class="st">'Data/Georgia_Baseline_Matrices.Rdata'</span> )
+SGPstateData[[<span class="st">&quot;GA&quot;</span>]][[<span class="st">&quot;Baseline_splineMatrix&quot;</span>]][[<span class="st">&quot;Coefficient_Matrices&quot;</span>]] &lt;-<span class="st"> </span>Georgia_Baseline_Matrices
+
+
 ### Load EOCT configurations
 <span class="kw">require</span>(SGP)
-<span class="kw">setwd</span>(<span class="st">'Github_Repos/Projects/Georgia'</span>)
+<span class="kw">setwd</span>(<span class="st">'/media/Data/Dropbox/Github_Repos/Projects/Georgia'</span>)
 
 <span class="kw">source</span>(<span class="st">&quot;SGP_CONFIG/EOCT/2014/ELA.R&quot;</span>)
 <span class="kw">source</span>(<span class="st">&quot;SGP_CONFIG/EOCT/2014/SCIENCE.R&quot;</span>)
 <span class="kw">source</span>(<span class="st">&quot;SGP_CONFIG/EOCT/2014/SOCIAL_STUDIES.R&quot;</span>)
-
 <span class="kw">source</span>(<span class="st">&quot;SGP_CONFIG/EOCT/2014/MATHEMATICS.R&quot;</span>)
 
 ####################################################################################
@@ -1279,70 +1255,39 @@ Georgia_SGP &lt;-<span class="st"> </span><span class="kw">analyzeSGP</span>(
 ###
 ####################################################################################
 
-###
-###     Cohort referenced EOCT content areas
-###     - originally run seperate to keep SIMEX production limited to &quot;official&quot; version
-###
 
 GA_EOCT.config &lt;-<span class="st"> </span><span class="kw">c</span>(
         ANALYTIC_GEOMETRY_2014.config,
         COORDINATE_ALGEBRA_2014.config,
-        MATHEMATICS_II_2014.config)
+        MATHEMATICS_II_2014.config,
 
-Georgia_SGP &lt;-<span class="st"> </span><span class="kw">analyzeSGP</span>(
-        Georgia_SGP,
-        <span class="dt">sgp.config=</span>GA_EOCT.config,
-        <span class="dt">sgp.percentiles=</span><span class="ot">TRUE</span>,
-        <span class="dt">sgp.projections=</span> <span class="ot">TRUE</span>,
-        <span class="dt">sgp.projections.lagged=</span> <span class="ot">TRUE</span>,
-        <span class="dt">sgp.percentiles.baseline=</span> <span class="ot">FALSE</span>,
-        <span class="dt">sgp.projections.baseline=</span> <span class="ot">FALSE</span>,
-        <span class="dt">sgp.projections.lagged.baseline=</span><span class="ot">FALSE</span>,
-        <span class="dt">simulate.sgps =</span> <span class="ot">FALSE</span>,
-        <span class="dt">parallel.config=</span><span class="kw">list</span>(<span class="dt">BACKEND=</span><span class="st">'PARALLEL'</span>, <span class="dt">WORKERS=</span><span class="kw">list</span>(<span class="dt">SIMEX=</span><span class="dv">15</span>, <span class="dt">TAUS=</span><span class="dv">15</span>)))
-
-
-###
-###     BASELINE SGPs
-###
-
-GA_EOCT.config &lt;-<span class="st"> </span><span class="kw">c</span>(
-        AMERICAN_LIT_2014.config,
         BIOLOGY_2014.config,
-        ECONOMICS_2014.config,
-        GRADE_9_LIT_2014.config,
         PHYSICAL_SCIENCE_2014.config,
+
+        GRADE_9_LIT_2014.config,
+        AMERICAN_LIT_2014.config,
+
+        ECONOMICS_2014.config,
         US_HISTORY_2014.config)
 
-<span class="kw">load</span>(<span class="st">'Georgia_Baseline_Matrices.Rdata'</span> )
-SGPstateData[[<span class="st">&quot;GA&quot;</span>]][[<span class="st">&quot;Baseline_splineMatrix&quot;</span>]][[<span class="st">&quot;Coefficient_Matrices&quot;</span>]] &lt;-<span class="st"> </span>Georgia_Baseline_Matrices
-
-### Replace original baseline matrices with updated matrices (original + additional US Hist and ELA progressions)
-Georgia_SGP@SGP$Coefficient_Matrices &lt;-<span class="st"> </span>Georgia_SGP@SGP$Coefficient_Matrices[-<span class="kw">grep</span>(<span class="st">&quot;BASELINE&quot;</span>, <span class="kw">names</span>(Georgia_SGP@SGP$Coefficient_Matrices))]
-
-### analyzeSGP
-
 Georgia_SGP &lt;-<span class="st"> </span><span class="kw">analyzeSGP</span>(
         Georgia_SGP,
-        <span class="dt">sgp.config=</span>GA_EOCT.config,
-        <span class="dt">sgp.percentiles=</span> <span class="ot">FALSE</span>,
-        <span class="dt">sgp.projections=</span><span class="ot">FALSE</span>,
-        <span class="dt">sgp.projections.lagged=</span><span class="ot">FALSE</span>,
-        <span class="dt">sgp.percentiles.baseline=</span><span class="ot">TRUE</span>,
-        <span class="dt">sgp.projections.baseline=</span> <span class="ot">TRUE</span>,
-        <span class="dt">sgp.projections.lagged.baseline=</span> <span class="ot">TRUE</span>,
-        <span class="dt">simulate.sgps =</span> <span class="ot">FALSE</span>,
-        <span class="dt">goodness.of.fit.print=</span><span class="ot">FALSE</span>,
-        <span class="dt">parallel.config=</span><span class="kw">list</span>(<span class="dt">BACKEND=</span><span class="st">&quot;PARALLEL&quot;</span>, <span class="dt">WORKERS=</span><span class="kw">list</span>(<span class="dt">BASELINE_PERCENTILES=</span><span class="dv">6</span>, <span class="dt">PROJECTIONS=</span><span class="dv">3</span>, <span class="dt">LAGGED_PROJECTIONS=</span><span class="dv">2</span>)))
-
-<span class="kw">save</span>(Georgia_SGP, <span class="dt">file=</span><span class="st">&quot;Georgia_SGP.Rdata&quot;</span>)</code></pre>
+        <span class="dt">sgp.config =</span> GA_EOCT.config,
+        <span class="dt">sgp.percentiles =</span> <span class="ot">TRUE</span>,
+        <span class="dt">sgp.projections =</span> <span class="ot">FALSE</span>,
+        <span class="dt">sgp.projections.lagged =</span> <span class="ot">FALSE</span>,
+        <span class="dt">sgp.percentiles.baseline =</span> <span class="ot">TRUE</span>,
+        <span class="dt">sgp.projections.baseline =</span> <span class="ot">FALSE</span>,
+        <span class="dt">sgp.projections.lagged.baseline =</span> <span class="ot">FALSE</span>,
+        <span class="dt">simulate.sgps =</span> <span class="ot">TRUE</span>,   <span class="co"># Needed for SGP_STANDARD_ERROR and SGP_BASELINE_STANDARD_ERROR</span>
+        <span class="dt">parallel.config =</span> <span class="kw">list</span>(<span class="dt">BACKEND=</span><span class="st">'PARALLEL'</span>, <span class="dt">WORKERS=</span><span class="kw">list</span>(<span class="dt">PERCENTILES=</span><span class="dv">1</span>, <span class="dt">BASELINE_PERCENTILES=</span><span class="dv">1</span>, <span class="dt">TAUS=</span><span class="dv">13</span>, <span class="dt">SIMEX=</span><span class="dv">5</span>))) <span class="co"># Parallel config as run for official results</span></code></pre>
 </div>
 <div id="merge-2014-results-into-data-slot-summarize-and-output-data." class="section level3">
 <h3><span class="header-section-number">3.1.6</span> 6. Merge 2014 results into <code>@Data</code> slot, summarize and output data.</h3>
 <p>Once all analyses are completed the results are merged into the master longitudinal data set in the <code>@Data</code> slot of the SGP class object using the <code>combineSGP</code> function. The data is then summarized using the <code>summarizeSGP</code> function, which produced many tables of discriptive statistics which are disaggregated at the state, district, school and instructor levels. These basic summary tables are also further disaggregated by the demographic groups available in the data set and listed in <a href="https://github.com/CenterForAssessment/SGPstateData/blob/master/Variable_Name_Lookup/GA_Variable_Name_Lookup.csv">Georgia’s Variable Name Lookup table</a>.</p>
 <pre class="sourceCode r"><code class="sourceCode r">### combineSGP
 
-<span class="co">#  Add Norm Group Preferences if they have not been submitted to SGPstateData: </span>
+<span class="co">#  Add Norm Group Preferences if they have not been submitted to SGPstateData (NOT RECOMENDED!): </span>
 SGPstateData[[<span class="st">&quot;GA&quot;</span>]][[<span class="st">&quot;SGP_Norm_Group_Preference&quot;</span>]] &lt;-<span class="st"> </span>GA_SGP_Norm_Group_Preference
 
 Georgia_SGP &lt;-<span class="st"> </span><span class="kw">combineSGP</span>(Georgia_SGP, <span class="dt">years=</span><span class="st">'2014'</span>)
@@ -1558,22 +1503,33 @@ Georgia_SGP_Data_LONG_2014_FORMATTED &lt;-<span class="st"> </span>tmp.long.data
 <div id="additional-steps-for-future-ananlyses" class="section level2">
 <h2><span class="header-section-number">3.2</span> Additional Steps for Future Ananlyses</h2>
 <ul>
-<li>Update <code>SGPstateData</code> entry</li>
+<li>Update <code>SGPstateData</code> entry. Contact the package maintainers (Damian and Adam) directly or <a href="https://github.com/CenterForAssessment/SGPstateData/issues">file an issue</a>. Entry will include updated entries for the following data:</li>
 <li>Knots, boundary knots, and LOSS/HOSS Values</li>
 <li>Proficiency level cutscores</li>
 <li>CSEMs for each grade/subject</li>
-<li>baseline matrices</li>
-<li>SIMEX adjusted versions</li>
+<li>Baseline matrices. Number of prior scores required will have to be established first.
+<ul>
+<li>Unadjusted version created first</li>
+</ul></li>
+<li>SIMEX adjusted versions (require unadjusted matrices)</li>
 <li>Misc code adjustments to switch to cohort ref’d &amp; chrt SIMEX</li>
 </ul>
+<div class="references">
+<h1 id="references" class="unnumbered">References</h1>
+<p>Betebenner, Damian W. 2009. “Norm- and Criterion-Referenced Student Growth.” <em>Educational Measurement: Issues and Practice</em> 28 (4): 42–51.</p>
+<p>Betebenner, Damian W., Adam <span>VanIwaarden</span>, Ben Domingue, and Yi Shang. 2015. <em>SGP: An R Package for the Calculation and Visualization of Student Growth Percentiles &amp; Percentile Growth Trajectories.</em> <a href="https://github.com/CenterForAssessment/SGP" class="uri">https://github.com/CenterForAssessment/SGP</a>.</p>
+<p>Shang, Yi, Adam VanIwaarden, and Damian W. Betebenner. 2015. “Covariate Measurement Error Correction for Student Growth Percentiles Using the SIMEX Method.” <em>Educational Measurement: Issues and Practice</em> 34 (1): 4–14. doi:<a href="http://dx.doi.org/10.1111/emip.12058">10.1111/emip.12058</a>.</p>
+</div>
 </div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p>Projections were not included in the 2014 analyses due to the switch to Georgia Milestones Assessments in 2015. Student Growth Projections assume consistency in assessment programs, and would therefore would be nonsensical to project progress toward tests that will never be taken.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Cohort referenced SGPs are not used in a official capacity, but are calculated as an additional resource for GaDOE. Note that CRCT cohort referenced SGPs use all available prior information, whereas Baseline referenced SGPs use only 2 prior years of data.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>Unlike the CRCT, EOCT cohort referenced SGPs use only 2 prior years of data as specified in the configuration scripts.<a href="#fnref3">↩</a></p></li>
+<li id="fn2"><p>Alternatively, this <code>R</code> object can be directly embedded into the appropriate list slot in the <code>SGPstateData</code> object manually. This process is demonstrated in Step 6 below, but is not recommended<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Note that Science was analyzed along with the EOCT courses in 2013. This was done because science growth projections can follow two different paths: the first projecting from 8th grade science to Biology, and the other to Physical Science (see the added <code>sgp.projection.sequence</code> <a href="https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2014/SCIENCE.R#L16">line in the configuration script</a>). This dual projection process may be a part of future analyses.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Cohort referenced SGPs are not used in a official capacity, but are calculated as an additional resource for GaDOE. Note that CRCT cohort referenced SGPs use all available prior information, whereas Baseline referenced SGPs use only 2 prior years of data.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>Unlike the CRCT, EOCT cohort referenced SGPs use only 2 prior years of data as specified in the configuration scripts.<a href="#fnref5">↩</a></p></li>
 </ol>
 </div>
 
