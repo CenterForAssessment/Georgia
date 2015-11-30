@@ -1,4 +1,4 @@
-/**Delete the retest data from the unmatched files**/
+/**Delete the retest data in the unmatched data file**/
 DELETE FROM [2014 CRCT and EOCT Final Matched Data]..[eoct2014_unmatched_sys777-89x_pipe]
 WHERE retest_indicator='Y'
 
@@ -179,47 +179,39 @@ FROM [2014 CRCT and EOCT Final Matched Data]..[eoct2014_unmatched_sys777-89x_pip
 ) I
 
 
-/**Clean the data**/
+/**clean the data**/
 
 
-/**step 1: invalidate test-out students and bad GTIDs**/
+/**Step 1: invalidate test-out students and bad GTIDs**/
 
 ALTER TABLE [2014 CRCT and EOCT Data]..[2014_AllMatchedData]
 ADD VALID_CASE varchar(50)
 
-/**4607 rows affected**/
 update [2014 CRCT and EOCT Data]..[2014_AllMatchedData]
 set VALID_CASE='INVALID_CASE'
 where TEST_OUT_ADMINISTRATION='Y' or  SCALE_SCORE=''
 
-select * from [2014 CRCT and EOCT Data]..[2014_AllMatchedData]
-where TEST_OUT_ADMINISTRATION='Y' or SCALE_SCORE=''
-
-/**108 rows affected**/
 update [2014 CRCT and EOCT Data]..[2014_AllMatchedData]
 set VALID_CASE='INVALID_CASE'
 where GTID='' or GTID='..........'
 
 
-/**step 2: Invalidate the duplicate scores that are in the same admin period: 4763841**/
+/**Step 2: Invalidate duplicate scores that are in the same admin period**/
 
 drop table [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean1]
 select *, ROW_NUMBER() over(partition by VALID_CASE,SCHOOL_YEAR, GRADE, SUBJECT_CODE, GTID, MATCH_STATUS, ADMINISTRATION_PERIOD order by Scale_Score Desc) as Rownumber_dup1
 into [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean1]
 from [2014 CRCT and EOCT Data]..[2014_AllMatchedData]
 
-
-/**1781 row(s) affected**/
 update [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean1]
 set VALID_CASE='INVALID_CASE'
 where  Rownumber_dup1<> 1 
 
-/**4757431 row(s) affected**/
 update [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean1]
 set VALID_CASE='VALID_CASE'
 where  VALID_CASE is null
 
-/**step 3: Invalidate students who have two difference grades**/
+/**Step 3: Invalidate students who have two difference grades**/
 
 
 drop table [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean2]
@@ -227,23 +219,26 @@ select *, ROW_NUMBER() over(partition by VALID_CASE,SCHOOL_YEAR, SUBJECT_CODE, G
 into [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean2]
 from [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean1]
 
-
-/**348 row(s) affected**/
 update [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean2]
 set VALID_CASE='INVALID_CASE'
 where  Rownumber_dup2<> 1 
 
 
-/**Generate 2014 data**/
-select VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SR_SCHOOL_ID as SCHOOL_NUMBER, GTID, FIRST_NAME, MIDDLE_NAME, LAST_NAME,BIRTH_DATE,GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
-ADMINISTRATION_PERIOD, RACE_CODE, GENDER_CODE, ED, SWD, Performance_level, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
-STATE_ENROLLMENT_STATUS, GIFT
-INTO [2014 SGP w SIMEX]..[2014_AllData_Final]
+
+/**Combine current year's data with previous years**/
+
+drop table [All Data 2009_2014]..[2009_2014AllData]
+select VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SCHOOL_NUMBER, GTID, GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
+ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, Performance_level AS ACHIEVEMENT_LEVEL, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
+STATE_ENROLLMENT_STATUS, FIRST_OBSERVATION, LAST_OBSERVATION,'' as GIFT 
+into [All Data 2009_2014]..[2009_2014AllData]
+from [2009_2013LongData]..Georgia_Data_LONG
+where valid_case='VALID_CASE' 
+union all
+select VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SR_SCHOOL_ID as SCHOOL_NUMBER, GTID, GRADE, GRADE_REPORTED, SCALE_SCORE, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
+ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, Performance_level AS ACHIEVEMENT_LEVEL, LEP, YEAR_WITHIN, SCHOOL_ENROLLMENT_STATUS, DISTRICT_ENROLLMENT_STATUS, 
+STATE_ENROLLMENT_STATUS, FIRST_OBSERVATION, LAST_OBSERVATION  , GIFT
 from [2014 CRCT and EOCT Data]..[2014_AllMatchedData_clean2]
 where SCHOOL_YEAR='2014'
 
-
-
-
-
-/**Export "[2014 SGP w SIMEX]..[2014_AllData_Final]" to pipe delimited text file**/
+/**Export "[All Data 2009_2014]..[2010_2014AllData]" to pipe delimited text file**/

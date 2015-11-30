@@ -146,3 +146,6 @@ setkeyv(Georgia_SGP_Data_LONG_2014_FORMATTED, c("VALID_CASE", "SUBJECT_CODE", "S
 
 save(Georgia_SGP_Data_LONG_2014_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2014_FORMATTED.Rdata")
 write.table(Georgia_SGP_Data_LONG_2014_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2014_FORMATTED.txt", sep="|", row.names=FALSE, na="", quote=FALSE)
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2014_FORMATTED.txt.zip", files="Data/Georgia_SGP_Data_LONG_2014_FORMATTED.txt")
+unlink("Data/Georgia_SGP_Data_LONG_2014_FORMATTED.txt")
+
