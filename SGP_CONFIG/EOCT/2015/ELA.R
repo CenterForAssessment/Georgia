@@ -4,23 +4,17 @@
 ###
 ################################################################################
 
-### GRADE-LEVEL ELA - Use this code to run with EOCT & get all results at once.
+###  GRADE-LEVEL ELA - No READING in new Milestones Assessments
+###  Use CRCT ELA and Reading as priors for Milestones
 
 ELA_2015.config <- list(
 	ELA.2015 = list(
-		sgp.content.areas=rep('ELA', 6),
-		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
-		sgp.panel.years=as.character(2009:2015),
-		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8'))))
+		sgp.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'ELA'),
+		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 4), 'FIRST_OBSERVATION'),
+		sgp.panel.years=as.character(2013:2015),
+		sgp.grade.sequences=list(c('3', '3', '4'), c('3', '3', '4', '4', '5'), c('4', '4', '5', '5', '6'), c('5', '5', '6', '6', '7'), c('6', '6', '7', '7', '8'))))
 		# sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8'))))
 
-###  No READING in new Milestones Assessments
-# READING_2014.config <- list(
-# 	READING.2015 = list(
-# 		sgp.content.areas=rep('READING', 6),
-# 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
-# 		sgp.panel.years=as.character(2009:2015),
-# 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8'))))
 
 
 ### GRADE_9_LIT
