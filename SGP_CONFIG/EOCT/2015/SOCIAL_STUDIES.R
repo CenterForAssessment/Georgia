@@ -1,17 +1,18 @@
 ###########################################################################################
 ###
-### Scripts associated with 2015 CRCT and EOCT SOCIAL STUDIES (US History and Economics)
+### Scripts associated with 2015 EOGT and EOCT SOCIAL STUDIES (US History and Economics)
 ###
 ###########################################################################################
 
-### GRADE-LEVEL CRCT SOCIAL_STUDIES - run together with EOCT to get all coefficient matrices for projections
+### GRADE-LEVEL SOCIAL_STUDIES - Use this code to run with EOCT & get all results at once.
 
-# SOCIAL_STUDIES_2015.config <- list(
-# 	SOCIAL_STUDIES.2015 = list(
-# 		sgp.content.areas=rep('SOCIAL_STUDIES', 6),
-# 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
-# 		sgp.panel.years=as.character(2009:2015),
-# 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8'))))
+SOCIAL_STUDIES_2015.config <- list(
+	SOCIAL_STUDIES.2015 = list(
+		sgp.content.areas=rep('SOCIAL_STUDIES', 6),
+		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
+		sgp.panel.years=as.character(2009:2015),
+		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8'))))
+		# sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8'))))
 
 ### US HISTORY
 
@@ -22,8 +23,8 @@ US_HISTORY_2015.config <- list(
 		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY'), 
-			YEAR=c('2011', '2015'), GRADE=c(8, 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY', 'ECONOMICS'), 
+			YEAR=c('2012', '2012', '2012', '2013', '2013', '2013', '2014', '2014', '2014'), GRADE=c(8, 'EOCT', 'EOCT')),
 		sgp.norm.group.preference=6),
 	US_HISTORY.2015 = list( #52
 		sgp.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
@@ -31,8 +32,8 @@ US_HISTORY_2015.config <- list(
 		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY'), 
-			YEAR=c('2012', '2015'), GRADE=c(8, 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY', 'ECONOMICS'), 
+			YEAR=c('2013', '2013', '2013', '2014', '2014', '2014'), GRADE=c(8, 'EOCT', 'EOCT')),
 		sgp.norm.group.preference=5),
 	US_HISTORY.2015 = list( #53
 		sgp.content.areas=c('SOCIAL_STUDIES', 'US_HISTORY'),
@@ -40,8 +41,8 @@ US_HISTORY_2015.config <- list(
 		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY'), 
-			YEAR=c('2013', '2015'), GRADE=c(8, 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY', 'ECONOMICS'), 
+			YEAR=c('2014', '2014', '2014'), GRADE=c(8, 'EOCT', 'EOCT')),
 		sgp.norm.group.preference=4),
 
 	US_HISTORY.2015 = list( #54
@@ -50,8 +51,8 @@ US_HISTORY_2015.config <- list(
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ECONOMICS', 'US_HISTORY'), 
-			YEAR=c('2013', '2015'), GRADE=c('EOCT', 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('US_HISTORY', 'ECONOMICS'), 
+			YEAR=c('2014', '2014'), GRADE=c('EOCT', 'EOCT')),
 		sgp.norm.group.preference=3),
 	US_HISTORY.2015 = list( #55
 		sgp.content.areas=c('ECONOMICS', 'US_HISTORY'),
@@ -88,8 +89,8 @@ ECONOMICS_2015.config <- list(
 		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'ECONOMICS'), 
-			YEAR=c('2011', '2015'), GRADE=c(8, 'EOCT')),		
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY', 'ECONOMICS'), 
+			YEAR=c('2012', '2012', '2012', '2013', '2013', '2013', '2014', '2014', '2014'), GRADE=c(8, 'EOCT', 'EOCT')),
 		sgp.norm.group.preference=6),
 	ECONOMICS.2015 = list( #59
 		sgp.content.areas=c('SOCIAL_STUDIES', 'ECONOMICS'),
@@ -97,8 +98,8 @@ ECONOMICS_2015.config <- list(
 		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'ECONOMICS'), 
-			YEAR=c('2012', '2015'), GRADE=c(8, 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY', 'ECONOMICS'), 
+			YEAR=c('2013', '2013', '2013', '2014', '2014', '2014'), GRADE=c(8, 'EOCT', 'EOCT')),
 		sgp.norm.group.preference=5),
 	ECONOMICS.2015 = list( #60
 		sgp.content.areas=c('SOCIAL_STUDIES', 'ECONOMICS'),
@@ -106,8 +107,8 @@ ECONOMICS_2015.config <- list(
 		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'ECONOMICS'), 
-			YEAR=c('2013', '2015'), GRADE=c(8, 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('SOCIAL_STUDIES', 'US_HISTORY', 'ECONOMICS'), 
+			YEAR=c('2014', '2014', '2014'), GRADE=c(8, 'EOCT', 'EOCT')),
 		sgp.norm.group.preference=4),
 	ECONOMICS.2015 = list( #61
 		sgp.content.areas=c('SOCIAL_STUDIES', 'ECONOMICS'),
@@ -124,7 +125,7 @@ ECONOMICS_2015.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('US_HISTORY', 'ECONOMICS'), 
-			YEAR=c('2013', '2015'), GRADE=c('EOCT', 'EOCT')),
+			YEAR=c('2014', '2014'), GRADE=c('EOCT', 'EOCT')),
 		sgp.norm.group.preference=2),
 
 	ECONOMICS.2015 = list( #63
@@ -134,7 +135,7 @@ ECONOMICS_2015.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1),
-	ECONOMICS.2015 = list( #64 - Block Schedule
+	ECONOMICS.2015 = list( #64 - Block Schedule -- singular design matrix with prelim data
 		sgp.content.areas=c('US_HISTORY', 'ECONOMICS'),
 		sgp.panel.years=c('2015', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),

@@ -1,24 +1,26 @@
 ################################################################################
 ###
-### Scripts associated with 2015 CRCT & EOCT ELA (GRADE_9_LIT & AMERICAN_LIT)
+### Scripts associated with 2015 EOGT & EOCT ELA (GRADE_9_LIT & AMERICAN_LIT)
 ###
 ################################################################################
 
-### GRADE-LEVEL CRCT ELA & READING - run together with EOCT to get all coefficient matrices for projections
+### GRADE-LEVEL ELA - Use this code to run with EOCT & get all results at once.
 
-# ELA_2015.config <- list(
-# 	ELA.2015 = list(
-# 		sgp.content.areas=rep('ELA', 6),
-# 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
-# 		sgp.panel.years=as.character(2009:2015),
-# 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8'))))
+ELA_2015.config <- list(
+	ELA.2015 = list(
+		sgp.content.areas=rep('ELA', 6),
+		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
+		sgp.panel.years=as.character(2009:2015),
+		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8'))))
+		# sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8'))))
 
+###  No READING in new Milestones Assessments
 # READING_2014.config <- list(
 # 	READING.2015 = list(
 # 		sgp.content.areas=rep('READING', 6),
 # 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 5), 'FIRST_OBSERVATION'),
 # 		sgp.panel.years=as.character(2009:2015),
-# 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8'))))
+# 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8'))))
 
 
 ### GRADE_9_LIT
@@ -31,7 +33,7 @@ GRADE_9_LIT_2015.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA', 'READING', 'GRADE_9_LIT'), 
-			YEAR=c('2013', '2013', '2015'), GRADE=c(8, 8, 'EOCT')),
+			YEAR=c('2014', '2014', '2014'), GRADE=c(8, 8, 'EOCT')), # Add 8th Grade Science Filter
 		sgp.norm.group.preference=6),
 	GRADE_9_LIT.2015 = list( # 2
 		sgp.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'),
@@ -39,8 +41,8 @@ GRADE_9_LIT_2015.config <- list(
 		sgp.grade.sequences=list(c(7, 7, 8, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA', 'READING', 'ELA', 'READING', 'GRADE_9_LIT'), 
-			YEAR=c('2012', '2012', '2013', '2013', '2015'), GRADE=c(7, 7, 8, 8, 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA', 'READING', 'GRADE_9_LIT'), 
+			YEAR=c('2014', '2014', '2014'), GRADE=c(8, 8, 'EOCT')), # Add 8th Grade Science Filter
 		sgp.norm.group.preference=5),
 
 	GRADE_9_LIT.2015 = list( # 3
@@ -100,7 +102,7 @@ AMERICAN_LIT_2015.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('GRADE_9_LIT', 'AMERICAN_LIT'), 
-			YEAR=c('2012', '2015'), GRADE=c('EOCT', 'EOCT')),
+			YEAR=c('2013', '2013', '2014', '2014'), GRADE=c('EOCT', 'EOCT')),
 		sgp.norm.group.preference=5),
 	# AMERICAN_LIT.2015 = list( # 
 	# 	sgp.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
@@ -108,8 +110,8 @@ AMERICAN_LIT_2015.config <- list(
 	# 	sgp.grade.sequences=list(c(8, 8, 'EOCT', 'EOCT')),
 	# 	sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 	# 	sgp.exact.grade.progression=TRUE,
-	# 	sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'), 
-	# 		YEAR=c('2011', '2011', '2012', '2015'), GRADE=c(8, 8, 'EOCT', 'EOCT')),
+	# 	sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('GRADE_9_LIT', 'AMERICAN_LIT'), 
+	# 		YEAR=c('2013', '2013', '2014', '2014'), GRADE=c('EOCT', 'EOCT')),
 	# 	sgp.norm.group.preference=5),
 
 	AMERICAN_LIT.2015 = list( # 9
@@ -119,7 +121,7 @@ AMERICAN_LIT_2015.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('GRADE_9_LIT', 'AMERICAN_LIT'), 
-			YEAR=c('2013', '2015'), GRADE=c('EOCT', 'EOCT')),
+			YEAR=c('2014', '2014'), GRADE=c('EOCT', 'EOCT')),
 		sgp.norm.group.preference=4),
 	AMERICAN_LIT.2015 = list( # 10
 		sgp.content.areas=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'),
@@ -127,8 +129,8 @@ AMERICAN_LIT_2015.config <- list(
 		sgp.grade.sequences=list(c(8, 8, 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA', 'READING', 'GRADE_9_LIT', 'AMERICAN_LIT'), 
-			YEAR=c('2012', '2012', '2013', '2015'), GRADE=c(8, 8, 'EOCT', 'EOCT')),
+		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('GRADE_9_LIT', 'AMERICAN_LIT'), 
+			YEAR=c('2014', '2014'), GRADE=c('EOCT', 'EOCT')),
 		sgp.norm.group.preference=3),
 
 	AMERICAN_LIT.2015 = list( # 11
