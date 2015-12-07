@@ -69,7 +69,7 @@ Georgia_SGP <- updateSGP(
 		calculate.simex = TRUE,  # Produce Cohort SIMEX for all analyses now.
 		save.intermediate.results=FALSE,
 		goodness.of.fit.print="GROB",
-		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=25, SIMEX=25)))
+		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=10, SIMEX=10)))
 
 ### Save Results
 
