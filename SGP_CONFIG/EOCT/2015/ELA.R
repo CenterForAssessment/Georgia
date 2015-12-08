@@ -11,10 +11,8 @@ ELA_2015.config <- list(
 	ELA.2015 = list(
 		sgp.content.areas=c('ELA', 'READING', 'ELA', 'READING', 'ELA'),
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 4), 'FIRST_OBSERVATION'),
-		sgp.panel.years=as.character(2013:2015),
+		sgp.panel.years=c('2013', '2013', '2014', '2014', '2015'),
 		sgp.grade.sequences=list(c('3', '3', '4'), c('3', '3', '4', '4', '5'), c('4', '4', '5', '5', '6'), c('5', '5', '6', '6', '7'), c('6', '6', '7', '7', '8'))))
-		# sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('3', '4', '5', '6'), c('3', '4', '5', '6', '7'), c('3', '4', '5', '6', '7', '8'))))
-
 
 
 ### GRADE_9_LIT
@@ -71,7 +69,7 @@ GRADE_9_LIT_2015.config <- list(
 
 	GRADE_9_LIT.2015 = list( # 7
 		sgp.content.areas=c('GRADE_9_LIT', 'GRADE_9_LIT'),
-		sgp.panel.years=c('2013', '2015'),
+		sgp.panel.years=c('2014', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
