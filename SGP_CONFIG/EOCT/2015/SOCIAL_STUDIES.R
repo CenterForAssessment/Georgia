@@ -70,11 +70,11 @@ US_HISTORY_2015.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1),
 
-	US_HISTORY.2015 = list( #57 - Block Schedule
+	US_HISTORY.2015 = list( #57 - Block Schedule -- singular design matrix with prelim data
 		sgp.content.areas=c('ECONOMICS', 'US_HISTORY'),
 		sgp.panel.years=c('2015', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'), # Should this be Last, First for "block schedule"?
+		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END US_HISTORY_2015.config

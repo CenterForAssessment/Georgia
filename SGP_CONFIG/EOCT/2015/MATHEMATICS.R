@@ -132,10 +132,11 @@ ANALYTIC_GEOMETRY_2015.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=2),
 	ANALYTIC_GEOMETRY.2015 = list( #28 - Repeater (Same Year) -- From prelim data "NOTE: Supplied data together with grade progression contains no data ..."
+	  #  2nd attemp (with 2014 Long data and new object) had data (3382 cases), but threw "singular design matrix" error...
 		sgp.content.areas=c('ANALYTIC_GEOMETRY', 'ANALYTIC_GEOMETRY'),
 		sgp.panel.years=c('2015', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1),
 
@@ -143,7 +144,7 @@ ANALYTIC_GEOMETRY_2015.config <- list(
 		sgp.content.areas=c('COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
 		sgp.panel.years=c('2015', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END ANALYTIC_GEOMETRY_2015.config

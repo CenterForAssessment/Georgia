@@ -1,42 +1,33 @@
 #########################################################
 ###
-### Calculate SGPs for Georgia - 2014
+### Calculate SGPs for Georgia - 2015
 ###
 ##########################################################
 
-### Load SGP Package
+### Load required packages
 
 require(SGP)
+require(data.table)
 
-###  Load Georgia SGP object
+###  Load NEW Georgia SGP object and 2015 data (if starting new session after data cleaning and new object creation)
+###  Alternatively, use this to clean up working environment after running data prep and creating new SGP object:
+# rm(list=c(grep("Georgia_SGP|Georgia_Data_LONG_2015", ls(), invert=T, value=T), "Georgia_SGP_LONG_Data")); gc()
 
-load("Data/Georgia_SGP.Rdata")
-
-#    Remove HIGH_NEED_STATUS since this is not used by GA DOE (variable creation takes 40 minutes in prepareSGP step!)
-Georgia_SGP@Data[, HIGH_NEED_STATUS := NULL]
-
-###  Load 2015 data
-load("Data/Georgia_Data_LONG_2015.Rdata")
-
-
-###  Add Achievement/Proficiency levels to SGPstateData manually (for prelim -- to be added to SGP package by AVI)
-SGPstateData[["GA"]][["Achievement"]][["Levels"]] <- list(
-		Labels=c("Beginning Learner", "Developing Learner", "Distinguished Learner", "Proficient Learner"),
-		Proficient=c("Not Proficient", "Not Proficient", "Proficient", "Proficient"))
+# load("Data/Georgia_SGP.Rdata")
+# load("Data/Georgia_Data_LONG_2015.Rdata")
 
 
 ###  Read in 2015 SGP Configuration Scripts and Combine
-
 
 source("SGP_CONFIG/EOCT/2015/ELA.R")
 source("SGP_CONFIG/EOCT/2015/SCIENCE.R")
 source("SGP_CONFIG/EOCT/2015/SOCIAL_STUDIES.R")
 source("SGP_CONFIG/EOCT/2015/MATHEMATICS.R")
 
-GA_EOCT.config <- c(
+GA_2015.config <- c(
 		MATHEMATICS_2015.config,
-		ANALYTIC_GEOMETRY_2015.config,
 		COORDINATE_ALGEBRA_2015.config,
+		ANALYTIC_GEOMETRY_2015.config,
 
 		SCIENCE_2015.config,
 		BIOLOGY_2015.config,
@@ -47,8 +38,8 @@ GA_EOCT.config <- c(
 		AMERICAN_LIT_2015.config,
 
 		SOCIAL_STUDIES_2015.config,
-		ECONOMICS_2015.config,
-		US_HISTORY_2015.config)
+		US_HISTORY_2015.config,
+		ECONOMICS_2015.config)
 
 
 ### updateSGP
@@ -56,21 +47,24 @@ GA_EOCT.config <- c(
 Georgia_SGP <- updateSGP(
 		what_sgp_object=Georgia_SGP,
 		with_sgp_data_LONG=Georgia_Data_LONG_2015,
-		sgp.config = GA_EOCT.config,
-		# steps=c("prepareSGP", "analyzeSGP", "combineSGP", "summarizeSGP", "visualizeSGP", "outputSGP")
-		steps=c("prepareSGP", "analyzeSGP", "combineSGP"),
-		sgp.percentiles=TRUE,
-		sgp.projections = FALSE,
-		sgp.projections.lagged = FALSE,
+		sgp.config = GA_2015.config,
+		# Run summarizeSGP step AFTER we get Teacher-Student Links
+		steps=c("prepareSGP", "analyzeSGP", "combineSGP", "outputSGP"),
+		sgp.percentiles = TRUE,
+		sgp.projections = TRUE,
+		sgp.projections.lagged = TRUE,
 		sgp.percentiles.baseline=FALSE,
 		sgp.projections.baseline = FALSE,
 		sgp.projections.lagged.baseline = FALSE,
-		simulate.sgps = TRUE,    # Needed for SGP_STANDARD_ERROR and SGP_BASELINE_STANDARD_ERROR
-		calculate.simex = TRUE,  # Produce Cohort SIMEX for all analyses now.
+		sgp.percentiles.equated = TRUE,
+		simulate.sgps = TRUE,
+		calculate.simex = TRUE,
+		goodness.of.fit.print=TRUE,
 		save.intermediate.results=FALSE,
-		goodness.of.fit.print="GROB",
-		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=10, SIMEX=10)))
+		outputSGP.output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"),
+		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=11, SIMEX=11)))
+
 
 ### Save Results
 
-#save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
