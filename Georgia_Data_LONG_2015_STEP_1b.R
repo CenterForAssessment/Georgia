@@ -13,12 +13,14 @@ setwd('~/SGP_Projects/Georgia')
 ###
 
 Georgia_Data_LONG_2014 <- as.data.table(read.delim(unz('Data/Base_Files/2014_EOCT_TestOut_Data.zip', 
-							'2014_EOCT_TestOut_Data.txt'), sep='|', header=TRUE))
+							'2014_EOCT_TestOut_Data.txt'), sep='|', header=TRUE, stringsAsFactors=FALSE))
 
-Georgia_Data_LONG_2015 <- as.data.table(read.delim(unz('Data/Base_Files/2015 Georgia Milestones Preliminary Data_12072015.zip', 
-							'2015 Georgia Milestones Preliminary Data_wCSEM.txt'), sep='|', header=TRUE))
+Georgia_Data_LONG_2015 <- as.data.table(read.delim(unz('Data/Base_Files/2015_Georgia_Milestones_All_Data.zip', 
+							'2015_Georgia_Milestones_All_Data.txt'), sep='|', header=TRUE, stringsAsFactors=FALSE))
 
-setnames(Georgia_Data_LONG_2015, c('gender_code', 'CONDSEM'), c('GENDER_CODE', 'SCALE_SCORE_CSEM'))
+setnames(Georgia_Data_LONG_2014, 'ACHIVEMENT_LEVEL', 'ACHIEVEMENT_LEVEL')
+setnames(Georgia_Data_LONG_2015, 'CONDSEM', 'SCALE_SCORE_CSEM')
+# setnames(Georgia_Data_LONG_2015, c('gender_code', 'CONDSEM'), c('GENDER_CODE', 'SCALE_SCORE_CSEM'))
 
 
 ###  Add CSEM Data to 2014 Test Out Data
@@ -58,6 +60,9 @@ Georgia_Data_LONG_2015[, SCALE_SCORE_CSEM := as.numeric(SCALE_SCORE_CSEM)]
 
 Georgia_Data_LONG_2015[, ADMINISTRATION_PERIOD := toupper(ADMINISTRATION_PERIOD)]
 Georgia_Data_LONG_2015[, ADMINISTRATION_PERIOD := paste(YEAR_WITHIN, ADMINISTRATION_PERIOD, sep=": ")]
+Georgia_Data_LONG_2015[which(ADMINISTRATION_PERIOD == "1: "), ADMINISTRATION_PERIOD := "1: WINTER"]
+Georgia_Data_LONG_2015[which(ADMINISTRATION_PERIOD == "2: "), ADMINISTRATION_PERIOD := "2: SPRING"]
+Georgia_Data_LONG_2015[which(ADMINISTRATION_PERIOD == "3: "), ADMINISTRATION_PERIOD := "3: SUMMER"]
 
 Georgia_Data_LONG_2015[,SCHOOL_ENROLLMENT_STATUS := factor(1, levels=0:1, 
 	labels=c("Enrolled School: No", "Enrolled School: Yes"))]
@@ -79,7 +84,8 @@ save(Georgia_Data_LONG_2015, file="Data/Georgia_Data_LONG_2015.Rdata")
 ###
 
 ###  Use @Data from outputSGP in 2014 CRCT analyses as the base for the new object
-load("Data/Georgia_SGP_LONG_Data.Rdata")
+#load("Data/Georgia_SGP_LONG_Data.Rdata")
+load("Data/Archive/December_2015/Georgia_SGP_LONG_Data.Rdata")
 
 ###  Select out only a subset of the data - Only CRCT EOGT and EOCT subjects and years that will be used as priors.
 CRCT_Subjects <- c("ELA", "READING", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS")

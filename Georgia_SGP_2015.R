@@ -62,7 +62,8 @@ Georgia_SGP <- updateSGP(
 		goodness.of.fit.print=TRUE,
 		save.intermediate.results=FALSE,
 		outputSGP.output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"),
-		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=11, SIMEX=11)))
+		# parallel.config = list(BACKEND="PARALLEL", WORKERS=list(TAUS=25, SIMEX=25))) # Ubuntu/Linux
+		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=11, SIMEX=11))) # WINDOWS
 
 
 ### Save Results
