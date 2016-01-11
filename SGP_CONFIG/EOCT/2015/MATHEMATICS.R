@@ -144,7 +144,7 @@ ANALYTIC_GEOMETRY_2015.config <- list(
 		sgp.content.areas=c('COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
 		sgp.panel.years=c('2015', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END ANALYTIC_GEOMETRY_2015.config

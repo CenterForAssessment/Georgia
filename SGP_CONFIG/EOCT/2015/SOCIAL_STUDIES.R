@@ -74,7 +74,7 @@ US_HISTORY_2015.config <- list(
 		sgp.content.areas=c('ECONOMICS', 'US_HISTORY'),
 		sgp.panel.years=c('2015', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END US_HISTORY_2015.config
@@ -139,7 +139,7 @@ ECONOMICS_2015.config <- list(
 		sgp.content.areas=c('US_HISTORY', 'ECONOMICS'),
 		sgp.panel.years=c('2015', '2015'),
 		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+		sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
 ) ### END ECONOMICS_2015.config
