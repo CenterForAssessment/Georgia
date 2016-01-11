@@ -132,14 +132,14 @@ tmp.long.data[which(!is.na(GRADE_PRIOR_4)), ADMINISTRATION_PERIOD_PRIOR_4 := "2:
 ###  ASSESSMENT_TYPE_PRIOR_*
 tmp.long.data[, paste("ASSESSMENT_TYPE_PRIOR", 1:4, sep="_") := as.character(NA)]
 
-tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_1)), ASSESSMENT_TYPE_PRIOR_1 := "CRCT_EOCG"]
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_1)), ASSESSMENT_TYPE_PRIOR_1 := "CRCT_EOGT"]
 tmp.long.data[which(GRADE_PRIOR_1 == "EOCT"), ASSESSMENT_TYPE_PRIOR_1 := "CRCT_EOCT"]
 tmp.long.data[which(SCHOOL_YEAR_PRIOR_1 == "2015"), ASSESSMENT_TYPE_PRIOR_1 := "GMAS_EOCT"]
 
 ##   CRCT EOGT only in 2015 for priors 2 - 4
-tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_2)), ASSESSMENT_TYPE_PRIOR_2 := "CRCT_EOCG"]
-tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_3)), ASSESSMENT_TYPE_PRIOR_3 := "CRCT_EOCG"]
-tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_4)), ASSESSMENT_TYPE_PRIOR_4 := "CRCT_EOCG"]
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_2)), ASSESSMENT_TYPE_PRIOR_2 := "CRCT_EOGT"]
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_3)), ASSESSMENT_TYPE_PRIOR_3 := "CRCT_EOGT"]
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_4)), ASSESSMENT_TYPE_PRIOR_4 := "CRCT_EOGT"]
 
 
 ###  Final arrangement of variables
