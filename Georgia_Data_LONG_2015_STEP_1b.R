@@ -18,9 +18,8 @@ Georgia_Data_LONG_2014 <- as.data.table(read.delim(unz('Data/Base_Files/2014_EOC
 Georgia_Data_LONG_2015 <- as.data.table(read.delim(unz('Data/Base_Files/2015_Georgia_Milestones_All_Data.zip', 
 							'2015_Georgia_Milestones_All_Data.txt'), sep='|', header=TRUE, stringsAsFactors=FALSE))
 
-setnames(Georgia_Data_LONG_2014, 'ACHIVEMENT_LEVEL', 'ACHIEVEMENT_LEVEL')
+setnames(Georgia_Data_LONG_2014, 'ACHIVEMENT_LEVEL', 'PERFORMANCE_LEVEL')
 setnames(Georgia_Data_LONG_2015, 'CONDSEM', 'SCALE_SCORE_CSEM')
-# setnames(Georgia_Data_LONG_2015, c('gender_code', 'CONDSEM'), c('GENDER_CODE', 'SCALE_SCORE_CSEM'))
 
 
 ###  Add CSEM Data to 2014 Test Out Data
