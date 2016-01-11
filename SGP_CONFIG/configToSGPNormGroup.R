@@ -51,47 +51,47 @@ source("EOCT/2015/SCIENCE.R")
 source("EOCT/2015/SOCIAL_STUDIES.R")
 
 GA_EOCT_2010.config <- c(
-                AMERICAN_LIT_2010.config,
-                BIOLOGY_2010.config,
-                ECONOMICS_2010.config,
-                GRADE_9_LIT_2010.config,
-                MATHEMATICS_I_2010.config,
-                PHYSICAL_SCIENCE_2010.config,
-                US_HISTORY_2010.config)
+		AMERICAN_LIT_2010.config,
+		BIOLOGY_2010.config,
+		ECONOMICS_2010.config,
+		GRADE_9_LIT_2010.config,
+		MATHEMATICS_I_2010.config,
+		PHYSICAL_SCIENCE_2010.config,
+		US_HISTORY_2010.config)
 
 GA_EOCT_2011.config <- c(
-                AMERICAN_LIT_2011.config,
-                BIOLOGY_2011.config,
-                ECONOMICS_2011.config,
-                GRADE_9_LIT_2011.config,
-                MATHEMATICS_I_2011.config,
-                MATHEMATICS_II_2011.config,
-                PHYSICAL_SCIENCE_2011.config,
-                US_HISTORY_2011.config)
+		AMERICAN_LIT_2011.config,
+		BIOLOGY_2011.config,
+		ECONOMICS_2011.config,
+		GRADE_9_LIT_2011.config,
+		MATHEMATICS_I_2011.config,
+		MATHEMATICS_II_2011.config,
+		PHYSICAL_SCIENCE_2011.config,
+		US_HISTORY_2011.config)
 
 GA_EOCT_2012.config <- c(
 		ALGEBRA_2012.config,
-                AMERICAN_LIT_2012.config,
-                BIOLOGY_2012.config,
-                ECONOMICS_2012.config,
+		AMERICAN_LIT_2012.config,
+		BIOLOGY_2012.config,
+		ECONOMICS_2012.config,
 		GEOMETRY_2012.config,
-                GRADE_9_LIT_2012.config,
-                MATHEMATICS_I_2012.config,
-                MATHEMATICS_II_2012.config,
-                PHYSICAL_SCIENCE_2012.config,
-                US_HISTORY_2012.config)
+		GRADE_9_LIT_2012.config,
+		MATHEMATICS_I_2012.config,
+		MATHEMATICS_II_2012.config,
+		PHYSICAL_SCIENCE_2012.config,
+		US_HISTORY_2012.config)
 
 GA_EOCT_2013.config <- c(
-                AMERICAN_LIT_2013.config,
-                BIOLOGY_2013.config,
+		AMERICAN_LIT_2013.config,
+		BIOLOGY_2013.config,
 		COORDINATE_ALGEBRA_2013.config,
-                ECONOMICS_2013.config,
+		ECONOMICS_2013.config,
 		GEOMETRY_2013.config,
-                GRADE_9_LIT_2013.config,
-                MATHEMATICS_I_2013.config,
-                MATHEMATICS_II_2013.config,
-                PHYSICAL_SCIENCE_2013.config,
-                US_HISTORY_2013.config)
+		GRADE_9_LIT_2013.config,
+		MATHEMATICS_I_2013.config,
+		MATHEMATICS_II_2013.config,
+		PHYSICAL_SCIENCE_2013.config,
+		US_HISTORY_2013.config)
 
 GA_EOCT_2014.config <- c(
 		GRADE_9_LIT_2014.config,
