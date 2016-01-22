@@ -14,7 +14,7 @@ ELA_2015.config <- list(
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 2), 'FIRST_OBSERVATION'),
 		sgp.panel.years=c('2014', '2014', '2015'),
 		sgp.grade.sequences=list(c('3', '3', '4'), c('4', '4', '5'), c('5', '5', '6'), c('6', '6', '7'), c('7', '7', '8')),
-		sgp.exact.grade.progression=TRUE,
+		sgp.exact.grade.progression=list(TRUE, TRUE, TRUE, TRUE, TRUE),
 		sgp.projection.grade.sequences=list("NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS"),
 		sgp.norm.group.preference=2),
 	ELA.2015 = list(
@@ -22,7 +22,7 @@ ELA_2015.config <- list(
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 4), 'FIRST_OBSERVATION'),
 		sgp.panel.years=c('2013', '2013', '2014', '2014', '2015'),
 		sgp.grade.sequences=list(c('3', '3', '4', '4', '5'), c('4', '4', '5', '5', '6'), c('5', '5', '6', '6', '7'), c('6', '6', '7', '7', '8')),
-		sgp.exact.grade.progression=TRUE,
+		sgp.exact.grade.progression=list(TRUE, TRUE, TRUE, TRUE),
 		sgp.projection.grade.sequences=list("NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS"),
 		sgp.norm.group.preference=1))
 
