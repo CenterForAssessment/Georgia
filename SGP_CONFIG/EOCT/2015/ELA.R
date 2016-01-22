@@ -5,14 +5,22 @@
 ################################################################################
 
 ###  GRADE-LEVEL ELA - No READING in new Milestones Assessments
-###  Use CRCT ELA and Reading as priors for Milestones
+###  Use BOTH CRCT ELA and Reading as priors for Milestones
 
 ELA_2015.config <- list(
 	ELA.2015 = list(
 		sgp.content.areas=c('READING', 'ELA', 'READING', 'ELA', 'ELA'),
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 4), 'FIRST_OBSERVATION'),
 		sgp.panel.years=c('2013', '2013', '2014', '2014', '2015'),
-		sgp.grade.sequences=list(c('3', '3', '4'), c('3', '3', '4', '4', '5'), c('4', '4', '5', '5', '6'), c('5', '5', '6', '6', '7'), c('6', '6', '7', '7', '8')),
+		sgp.grade.sequences=list(c('3', '3', '4', '4', '5'), c('4', '4', '5', '5', '6'), c('5', '5', '6', '6', '7'), c('6', '6', '7', '7', '8')),
+		sgp.exact.grade.progression=TRUE,
+		sgp.projection.grade.sequences=list("NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS")),
+	ELA.2015 = list(
+		sgp.content.areas=c('READING', 'ELA', 'ELA'),
+		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 2), 'FIRST_OBSERVATION'),
+		sgp.panel.years=c('2014', '2014', '2015'),
+		sgp.grade.sequences=list(c('3', '3', '4'), c('4', '4', '5'), c('5', '5', '6'), c('6', '6', '7'), c('7', '7', '8')),
+		sgp.exact.grade.progression=TRUE,
 		sgp.projection.grade.sequences=list("NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS")))
 
 

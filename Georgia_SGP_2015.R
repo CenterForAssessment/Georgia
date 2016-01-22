@@ -13,8 +13,8 @@ require(data.table)
 ###  Alternatively, use this to clean up working environment after running data prep and creating new SGP object:
 # rm(list=c(grep("Georgia_SGP|Georgia_Data_LONG_2015", ls(), invert=T, value=T), "Georgia_SGP_LONG_Data")); gc()
 
-# load("Data/Georgia_SGP.Rdata")
-# load("Data/Georgia_Data_LONG_2015.Rdata")
+load("Data/Georgia_SGP.Rdata")
+load("Data/Georgia_Data_LONG_2015.Rdata")
 
 
 ###  Read in 2015 SGP Configuration Scripts and Combine
@@ -62,10 +62,20 @@ Georgia_SGP <- updateSGP(
 		goodness.of.fit.print=TRUE,
 		save.intermediate.results=FALSE,
 		outputSGP.output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"),
-		# parallel.config = list(BACKEND="PARALLEL", WORKERS=list(TAUS=25, SIMEX=25))) # Ubuntu/Linux
-		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=11, SIMEX=11))) # WINDOWS
+		# parallel.config = list(BACKEND="PARALLEL", WORKERS=list(TAUS=20, SIMEX=20))) # Ubuntu/Linux
+		parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=11, SIMEX=11))) # WINDOWS
 
 
 ### Save Results
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+
+require(SGP)
+Georgia_SGP <- summarizeSGP(
+	Georgia_SGP,
+	# highest.level.summary.grouping="SCHOOL", # Only need this for bubble plots right now.
+	parallel.config=list(
+		# BACKEND="PARALLEL",
+		BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, 
+		WORKERS=list(SUMMARY=6))
+)

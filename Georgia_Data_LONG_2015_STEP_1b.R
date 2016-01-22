@@ -17,9 +17,16 @@ Georgia_Data_LONG_2014 <- as.data.table(read.delim(unz('Data/Base_Files/2014_EOC
 
 Georgia_Data_LONG_2015 <- as.data.table(read.delim(unz('Data/Base_Files/2015_Georgia_Milestones_All_Data.zip', 
 							'2015_Georgia_Milestones_All_Data.txt'), sep='|', header=TRUE, stringsAsFactors=FALSE))
+Georgia_Data_LONG_2015[, RESCORE := 0]
+
+Georgia_2015_Rescores <- as.data.table(read.delim(unz('Data/Base_Files/2015_Georgia_Milestones_rescore.zip', 
+							'2015_Georgia_Milestones_rescore.txt'), sep='|', header=TRUE, stringsAsFactors=FALSE))
+Georgia_2015_Rescores[, RESCORE := 1]
 
 setnames(Georgia_Data_LONG_2014, 'ACHIVEMENT_LEVEL', 'PERFORMANCE_LEVEL')
 setnames(Georgia_Data_LONG_2015, 'CONDSEM', 'SCALE_SCORE_CSEM')
+setnames(Georgia_2015_Rescores, 'CONDSEM', 'SCALE_SCORE_CSEM')
+
 
 
 ###  Add CSEM Data to 2014 Test Out Data
@@ -42,7 +49,7 @@ summary(Georgia_Data_LONG_2014$SCALE_SCORE_CSEM)
 
 
 ###  Combine 2014 Test Out CRCT and 2015 Milestones data
-Georgia_Data_LONG_2015 <- rbindlist(list(Georgia_Data_LONG_2014, Georgia_Data_LONG_2015[SUBJECT_CODE != "NULL"]), fill=TRUE)
+Georgia_Data_LONG_2015 <- rbindlist(list(Georgia_Data_LONG_2014, Georgia_Data_LONG_2015[SUBJECT_CODE != "NULL"], Georgia_2015_Rescores), fill=TRUE)
 
 
 ### Tidy up data
@@ -72,6 +79,15 @@ Georgia_Data_LONG_2015[,DISTRICT_ENROLLMENT_STATUS := factor(1, levels=0:1,
 Georgia_Data_LONG_2015[,STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, 
    labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
+###  Remove known duplicate cases:
+Georgia_Data_LONG_2015<-Georgia_Data_LONG_2015[-which(Georgia_Data_LONG_2015$GTID %in% c('3105982299','1747050385','2723026345') & Georgia_Data_LONG_2015$SCHOOL_YEAR=='2014'),]
+
+###  Remove original rescored cases
+setkey(Georgia_Data_LONG_2015, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID, RESCORE)
+setkey(Georgia_Data_LONG_2015, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID)
+# sum(duplicated(Georgia_Data_LONG_2015[VALID_CASE != "INVALID_CASE"])) # 10 duplicates with valid SSIDs -- all have same SSID and esID, so appear valid - take the highest score
+# dups <- data.table(Georgia_Data_LONG_2015[unique(c(which(duplicated(Georgia_Data_LONG_2015))-1, which(duplicated(Georgia_Data_LONG_2015)))), ], key=key(Georgia_Data_LONG_2015))
+Georgia_Data_LONG_2015[which(duplicated(Georgia_Data_LONG_2015))-1, VALID_CASE := "INVALID_CASE"]
 
 ### Save results
 
