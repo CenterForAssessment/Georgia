@@ -12,6 +12,39 @@ options(error=recover)
 ### utility function
 
 configToSGPNormGroup <- function(sgp.config) {
+	if ("sgp.norm.group.preference" %in% names(sgp.config)) {
+		tmp.data.all <- data.table()
+		for (g in 1:length(sgp.config$sgp.grade.sequences)) {
+			l <- length(sgp.config$sgp.grade.sequences[[g]])
+			tmp.norm.group <- tmp.norm.group.baseline <- paste(tail(sgp.config$sgp.panel.years, l), paste(tail(sgp.config$sgp.content.areas, l), unlist(sgp.config$sgp.grade.sequences[[g]]), sep="_"), sep="/") 
+			
+			tmp.data <- data.table(
+				SGP_NORM_GROUP=paste(tmp.norm.group, collapse="; "), 
+				SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
+				PREFERENCE= sgp.config$sgp.norm.group.preference*100)
+			
+			if (length(tmp.norm.group) > 2) {
+				if ("sgp.exact.grade.progression" %in% names(sgp.config)) {
+					if(sgp.config$sgp.exact.grade.progression) tmp.all.prog <- FALSE else tmp.all.prog <- TRUE
+				} else tmp.all.prog <- TRUE
+				if (tmp.all.prog) {
+					for (n in 1:(length(tmp.norm.group)-2)) {
+						tmp.data <- rbind(tmp.data, data.table(
+							SGP_NORM_GROUP=paste(tail(tmp.norm.group, -n), collapse="; "), 
+							SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
+							PREFERENCE= (sgp.config$sgp.norm.group.preference*100)+n))
+					}
+				}
+			}
+			tmp.data.all <- rbind(tmp.data.all, tmp.data)
+		}
+		return(unique(tmp.data.all))
+	} else {
+		return(NULL)
+	}
+}
+
+configToSGPNormGroup_ORIGINAL <- function(sgp.config) {
         tmp.norm.group <- tmp.norm.group.baseline <- paste(sgp.config$sgp.panel.years, paste(sgp.config$sgp.content.areas, unlist(sgp.config$sgp.grade.sequences), sep="_"), sep="/")
 	return(
 		data.table(
@@ -108,6 +141,7 @@ GA_EOCT_2014.config <- c(
 		ECONOMICS_2014.config)
 
 GA_EOCT_2015.config <- c(
+	ELA_2015.config,
 	GRADE_9_LIT_2015.config,
 	AMERICAN_LIT_2015.config,
 	
@@ -122,34 +156,34 @@ GA_EOCT_2015.config <- c(
 
 ### Create configToNormGroup data.frame
 
-tmp.configToNormGroup <- lapply(GA_EOCT_2010.config, configToSGPNormGroup)
+tmp.configToNormGroup <- lapply(GA_EOCT_2010.config, configToSGPNormGroup_ORIGINAL)
 
 GA_SGP_Norm_Group_Preference_2010 <- data.table(
 					YEAR="2010",
 					rbindlist(tmp.configToNormGroup))
 
 
-tmp.configToNormGroup <- lapply(GA_EOCT_2011.config, configToSGPNormGroup)
+tmp.configToNormGroup <- lapply(GA_EOCT_2011.config, configToSGPNormGroup_ORIGINAL)
 
 GA_SGP_Norm_Group_Preference_2011 <- data.table(
 					YEAR="2011",
 					rbindlist(tmp.configToNormGroup))
 
 
-tmp.configToNormGroup <- lapply(GA_EOCT_2012.config, configToSGPNormGroup)
+tmp.configToNormGroup <- lapply(GA_EOCT_2012.config, configToSGPNormGroup_ORIGINAL)
 
 GA_SGP_Norm_Group_Preference_2012 <- data.table(
 					YEAR="2012",
 					rbindlist(tmp.configToNormGroup))
 
 
-tmp.configToNormGroup <- lapply(GA_EOCT_2013.config, configToSGPNormGroup)
+tmp.configToNormGroup <- lapply(GA_EOCT_2013.config, configToSGPNormGroup_ORIGINAL)
 
 GA_SGP_Norm_Group_Preference_2013 <- data.table(
 					YEAR="2013",
 					rbindlist(tmp.configToNormGroup))
 
-tmp.configToNormGroup <- lapply(GA_EOCT_2014.config, configToSGPNormGroup)
+tmp.configToNormGroup <- lapply(GA_EOCT_2014.config, configToSGPNormGroup_ORIGINAL)
 
 GA_SGP_Norm_Group_Preference_2014 <- data.table(
 					YEAR="2014",
