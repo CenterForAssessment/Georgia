@@ -9,6 +9,8 @@
 require(SGP)
 require(data.table)
 
+setwd('~/SGP_Projects/Georgia')
+
 ###  Load NEW Georgia SGP object and 2015 data (if starting new session after data cleaning and new object creation)
 ###  Alternatively, use this to clean up working environment after running data prep and creating new SGP object:
 # rm(list=c(grep("Georgia_SGP|Georgia_Data_LONG_2015", ls(), invert=T, value=T), "Georgia_SGP_LONG_Data")); gc()
@@ -33,13 +35,13 @@ GA_2015.config <- c(
 		BIOLOGY_2015.config,
 		PHYSICAL_SCIENCE_2015.config,
 
-		ELA_2015.config,
-		GRADE_9_LIT_2015.config,
-		AMERICAN_LIT_2015.config,
-
 		SOCIAL_STUDIES_2015.config,
 		US_HISTORY_2015.config,
-		ECONOMICS_2015.config)
+		ECONOMICS_2015.config,
+
+		ELA_2015.config,
+		GRADE_9_LIT_2015.config,
+		AMERICAN_LIT_2015.config)
 
 
 ### updateSGP
@@ -70,10 +72,10 @@ Georgia_SGP <- updateSGP(
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
-require(SGP)
+
+###  Summarize Results
 Georgia_SGP <- summarizeSGP(
 	Georgia_SGP,
-	# highest.level.summary.grouping="SCHOOL", # Only need this for bubble plots right now.
 	parallel.config=list(
 		# BACKEND="PARALLEL",
 		BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, 
