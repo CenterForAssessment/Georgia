@@ -63,3 +63,46 @@ renderMultiDocument(rmd_input = "Appendix_B.Rmd",
                     add_cover_title=TRUE, 
                     cleanup_aux_files = FALSE,
                     pandoc_args = "--webtex")
+
+
+#######
+# 2015
+#######
+
+#load("/media/Data/Dropbox/SGP/Georgia/Data/Georgia_SGP.Rdata")
+load("/Users/avi/Dropbox/SGP/Georgia/Data/Georgia_SGP.Rdata")
+load("/Users/avi/Dropbox/SGP/Georgia/Data/Georgia_Summary_2015.Rdata")
+setwd("/Users/avi/Dropbox/Github_Repos/Documentation/Georgia/SGP_Reports/2015")
+
+Georgia_SGP@Summary <- Georgia_Summary
+
+Georgia_SGP@Data$SCHOOL_NAME <- as.character(NA); gc()
+Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
+
+Georgia_SGP@Data$Most_Recent_Prior <- as.character(NA)
+Georgia_SGP@Data[, Most_Recent_Prior := sapply(strsplit(as.character(Georgia_SGP@Data$SGP_NORM_GROUP), "; "), function(x) rev(x)[2])]
+
+
+library(SGPreports)
+use.data.table()
+
+
+renderMultiDocument(rmd_input = "Georgia_SGP_Report_2015.Rmd",
+										output_format = c("HTML", "PDF"), #, "DOCX" 
+										cover_img="../img/cover.jpg",
+										add_cover_title=TRUE, 
+										# cleanup_aux_files = FALSE,
+										pandoc_args = "--webtex")
+
+renderMultiDocument(rmd_input = "Appendix_A_2015.Rmd",
+										# output_format = c("HTML"),
+										output_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
+										cover_img="../img/cover.jpg",
+										add_cover_title=TRUE)
+										# cleanup_aux_files = FALSE)
+
+renderMultiDocument(rmd_input = "Appendix_C_2015.Rmd",
+										# output_format = c("HTML"),
+										output_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
+										cover_img="../img/cover.jpg",
+										add_cover_title=TRUE)

@@ -215,7 +215,7 @@ Table `r tblNumNext()` shows the total number of valid EOCT student records avai
 
 # Analytics
 
-This section provides basic details about the calculation of student growth percentiles from Georgia state assessment data using the [R Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [SGP Package](https://github.com/CenterForAssessment/SGP) [@sgp2015].  More in depth treatment of the data analysis process, including code examples, has been provided to GaDOE staff in the 2014 Calculation Manual.
+This section provides basic details about the calculation of student growth percentiles from Georgia state assessment data using the [R Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [SGP Package](https://github.com/CenterForAssessment/SGP) [@sgp2015].  More in depth treatment of the data analysis process wtih code examples has been provided to GaDOE staff in the 2014 Calculation Manual.
 
 Broadly, the SGP analysis of the Georgia longitudinal student assessment data takes place in two steps:
 
@@ -388,6 +388,8 @@ Baseline SGPs allow one to look at norm-referenced growth through another lens. 
 ```{r, cache=TRUE, echo=FALSE, include=FALSE}
 	bsln_crct_smry <- Georgia_SGP@Data[CONTENT_AREA %in% CRCT_subjects & YEAR=='2014'][, list(MEDIAN = median(as.numeric(SGP_BASELINE), na.rm=TRUE), MEAN = round(mean(SGP_BASELINE, na.rm=TRUE), 1)), by=c('CONTENT_AREA', 'GRADE')][!is.na(MEDIAN)]
 	setkey(bsln_crct_smry)
+```
+
 ```{r, results='asis', echo=FALSE, baseSumCRCT}
 	bsln_crct_smryB <- data.frame()
 	for (ca in CRCT_subjects){
