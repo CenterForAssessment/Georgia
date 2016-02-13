@@ -1,3 +1,8 @@
+
+#######
+# 2013
+#######
+
 load("/media/Data/Dropbox/SGP/Georgia/Data/Georgia_Summary_2013.Rdata")
 load("/media/Data/Dropbox/SGP/Georgia/Data/Georgia_SGP.Rdata")
 setwd("/media/Data/Dropbox/Github_Repos/Documentation/Georgia/SGP_Reports/2013")
@@ -88,7 +93,7 @@ use.data.table()
 
 
 renderMultiDocument(rmd_input = "Georgia_SGP_Report_2015.Rmd",
-										output_format = c("HTML", "PDF"), #, "DOCX" 
+										output_format = c("HTML", "PDF", "DOCX"), #, "DOCX" 
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE, 
 										# cleanup_aux_files = FALSE,
@@ -96,13 +101,35 @@ renderMultiDocument(rmd_input = "Georgia_SGP_Report_2015.Rmd",
 
 renderMultiDocument(rmd_input = "Appendix_A_2015.Rmd",
 										# output_format = c("HTML"),
-										output_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
+										output_format = c("HTML", "PDF", "DOCX"), #, "EPUB", "DOCX"
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE)
 										# cleanup_aux_files = FALSE)
 
 renderMultiDocument(rmd_input = "Appendix_C_2015.Rmd",
 										# output_format = c("HTML"),
-										output_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
+										output_format = c("HTML", "PDF", "DOCX"), #, "EPUB", "DOCX"
+										cover_img="../img/cover.jpg",
+										add_cover_title=TRUE)
+
+
+
+renderMultiDocument(rmd_input = "Georgia_SGP_Report_2015.Rmd",
+										output_format = c("HTML"), #, "DOCX" 
+										cover_img="../img/cover.jpg",
+										add_cover_title=TRUE, 
+										# cleanup_aux_files = FALSE,
+										pandoc_args = "--webtex")
+
+renderMultiDocument(rmd_input = "Appendix_A_2015.Rmd",
+										# output_format = c("HTML"),
+										output_format = c("HTML", "DOCX"), #, "EPUB", "DOCX"
+										cover_img="../img/cover.jpg",
+										add_cover_title=TRUE)
+# cleanup_aux_files = FALSE)
+
+renderMultiDocument(rmd_input = "Appendix_C_2015.Rmd",
+										# output_format = c("HTML"),
+										output_format = c("HTML", "DOCX"), #, "EPUB", 
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE)

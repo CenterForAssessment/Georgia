@@ -155,16 +155,16 @@ The cleaned and formatted data is finally combined with the existing longitudina
 
 The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her *academic peers* (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf)). The estimation of this norm-referenced growth quantity is conducted using quantile regression [@Koenker:2005] to model curvilinear functional relationships between student's prior and current scores.  One hundred such regression calculations are run for each separate analysis (defined as a unique year by content area by grade by prior order combination).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to the calculation of tens of thousands of calculations per year (and many more when SIMEX measurement error corrections are performed) during each of Georgia's annual batch of analyses.  For a more in-depth discussion of the calculation and estimation of SGPs, see Betebenner [-@Betebenner:2009], and see Shang, VanIwaarden and Betebenner [@ShangVanIBet:2015] and Appendix B of this report for further information on the SIMEX measurement error correction methodology.
 
-The 2015 Georgia SGP analyses follow a work flow established in previous years that includes the following 6 steps:
+The 2015 Georgia SGP analyses follow a work flow established in previous years that includes the following 4 steps:
 
 1. Update the Georgia assessment meta-data required for SGP calculations using the `SGP` Package.
-2. Create annual SGP configurations for EOG and EOC analyses.
-4. Conduct all EOG and EOC SGP Analyses.
-5. Combine results into the master longitudinal data set, summarize results and output data.
+2. Create annual SGP configurations for analyses.
+3. Conduct all EOG and EOC SGP analyses concurrently.
+4. Combine results into the master longitudinal data set, summarize results and output data.
 
 ### Update Georgia meta-data in `SGP` Package
 
-The use of higher-level functions included in the SGP package (e.g. `analyzeSGP`) requires the availability of state specific assessment information.  This meta-data is compiled in a `R` object named `SGPstateData` that is housed in the package.  The required updates for the 2015 analyses included a) the additions of Milestones knots and boundaries and proficiency level cutscores, b) adding a new variable to the Variable Name Lookup table, and c) updating the norm group preferences object.
+The use of higher-level functions included in the SGP package (e.g. `analyzeSGP`) requires the availability of state specific assessment information.  This meta-data is compiled in a `R` object named `SGPstateData` that is housed in the package.  The required updates for the 2015 analyses included *a)* the additions of Milestones knots and boundaries, proficiency level cutscores and other configuration metadata, and *b)* updating the norm group preferences object.
 
 <div class='caption'>**Calculation and addition of knots and boundaries**</div>
 Calculation of SGPs includes the use of cubic B-spline basis functions to more adequately model the heteroscedasticity and non-linearity found in assessment data.^[It should be noted that the independent estimation of the regression functions can potentially result in the crossing of the quantile functions.  This occurs near the extremes of the distributions and is potentially more likely to occur given the use of non-linear functions.  A potential result of allowing the quantile functions to cross would be *lower* percentile estimations of growth for *higher* observed scale scores at the extremes (give all else equal in prior scores) and vice versa.  In order to deal with these contradictory estimates, quantile regression results are isotonized to prevent quantile crossing following the methods derived by Chernozhukov, Fernandez-Val and Glichon [-@chernozhukov2010quantile].]  These functions require the selection of boundary and interior knots.  Boundary knots are end-points outside of the scale score distribution that anchor the B-spline basis.  These are generally selected by extending the entire range of scale scores by 10%.  That is, they are defined as lying 10% below the lowest obtainable (or observed) scale score (LOSS) and 10% above the highest obtainable scale score (HOSS).  The interior knots are the *internal* breakpoints that define the spline.  The default choice in the `SGP` package [@sgp2015] is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the observed scale score distribution.
@@ -174,11 +174,20 @@ In general the knots and boundaries are computed from a distribution comprised o
 <div class='caption'>**Proficiency level cutscores**</div>
 Cutscores, which are set externally by the Georgia DOE through standard-setting processes, are mainly required for student growth projections.  Projections were calculated through the use of equating methods in the 2015 analyses due to the switch to Georgia Milestones Assessments because Student Growth Projections assume consistency in assessment programs.  However, these projections will not used for official/reporting purposes.
 
+Along with the cutscores, the performance (achievement) level metadata was also updated to reflect the new Milestones standards.
+
 <div class='caption'>**Conditional standard errors of measurement (CSEMs)**</div>
 The calculation of SIMEX adjusted student growth percentiles requires the availability of each assessments' standard errors of measurement.  In the CRCT analyses in previous years the CSEM data for all other content areas had been compiled and in the `SGPstateData` file.  This data is now available in the student level data and not scale score specific (i.e. there are some identical test scores with different CSEM values, whereas previously these were all identical).  Although CSEM data was not added to the `SGPstateData` file, this change still required the identification of the CSEM variable in the longitudinal data, `SCALE_SCORE_CSEM`, in the metadata.
 
+<div class='caption'>**Set the `sgp.cohort.size` SGP Configuration**</div>
+Following preliminary analyses, five EOC course progressions were identified as having fewer than 1,500 students.  Given the decreasing quality of model fit and the increasing difficulty in interpretability of the *norm group* such a small cohort size represents, the decision was made to institute a minimum N size of 1,500 for all analyses.  This could be done either manually by removing the configuration scripts, or by adding a `SGP_Configuration` to the `SGPstateData`.  The latter option was adopted, and therefore any future attempts to examine course progressions with fewer than 1,500 students will require a manual override of this (i.e. set to `NULL`).
+
+```R
+SGPstateData[["GA"]][["SGP_Configuration"]][["sgp.cohort.size"]] <- 2
+```
+
 <div class='caption'>**Norm group preferences**</div>
-The process through which EOC analyses are run can produce multiple SGPs for some students.  In order to identify which quantity will be used as the students' "official" SGP and subsequently merged into the master longitudinal data set, a system of norm group preferencing is established and is encoded into a lookup table and included in the `SGPstateData`.  In general, the preference is given to:
+The process through which EOC and ELA analyses are run can produce multiple SGPs for some students.  In order to identify which quantity will be used as the students' "official" SGP and subsequently merged into the master longitudinal data set, a system of norm group preferencing is established and is encoded into a lookup table and included in the `SGPstateData`.  In general, the preference is given to:
 
 - Progressions with the greatest number of prior scale scores.
 - Progressions in which a student has repeated a course.
@@ -187,12 +196,12 @@ The process through which EOC analyses are run can produce multiple SGPs for som
 
 The next section describes the process by which the individual course progression analyses are established and how the preferencing system is included within their configuration code.
 
+
 ### Create annual SGP configurations.
 
-Unlike most EOG analyses, EOC analyses are specialized enough so that it is necessary to specify the analyses to be performed via explicit configuration code.  For several years, configurations have been employed to conduct EOC SGP analyses for Georgia, and beginning in 2015 configurations are now used for EOG SGP analyses as well. In part the use in EOG was required for the ELA analyses because this test now includes both Reading and ELA content and uses separate CRCT Reading and ELA tests as priors.  
+Unlike most EOG analyses, EOC analyses are specialized enough so that it is necessary to specify the analyses to be performed via explicit configuration code.  For several years, configurations have been employed to conduct EOC SGP analyses for Georgia, and beginning in 2015 configurations are now used for EOG SGP analyses as well. In part the use in EOG was required for the ELA analyses because this assessment now includes both Reading and ELA content, and the analysis of it uses separate CRCT Reading and ELA tests as priors.
 
-Configurations are `R` scripts that are sourced as part of the larger SGP analysis to be discussed later and to construct the norm group preference object discussed previously.
-They are broken up into four separate R scripts based on content domain (literature, mathematics, science and social studies).  Each configuration specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Each configuration used for the Georgia EOG analyses contain the first three elements.  The EOCT analyses also contain the fourth through sixth elements:
+Configurations are `R` scripts that are sourced as part of the larger SGP analysis to be discussed later and to construct the norm group preference object discussed previously.  They are broken up into four separate R scripts based on content domain (literature, mathematics, science and social studies).  Each configuration specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Each configuration used for the Georgia EOG analyses contain the first three elements.  The EOC test analyses also contain the fourth through sixth elements:
 
 - **`sgp.content.areas`:** A progression of values that specifies the content areas to be looked at and their order.
 - **`sgp.panel.years`:** The progression of the years associated with the content area progression (`sgp.content.areas`) provided in the configuration, potentially allowing for skipped years, etc.
@@ -226,7 +235,7 @@ As an example, here is one Biology configuration used to define a 2015 SGP analy
 
 ### Conduct EOG and EOC SGP Analyses
 
-The all cohort-referenced and SIMEX corrected EOG and EOC SGPs were calculated concurrently.^[Baseline-referenced SGPs had previously been used as the "official" SGP quantity, but this method of SGP calculation will be unavailable until at least 3 years of Milestones assessment data is available to form the baseline cohort.]   We use the [`updateSGP`](http://www.inside-r.org/packages/cran/SGP/docs/updateSGP) function to **A)** do the final preparation and addition of the new cleaned and formatted long data to the existing `SGP` data object ([`prepareSGP`](http://www.inside-r.org/packages/cran/SGP/docs/prepareSGP) step) and **B)** calculate SGP estimates ([`analyzeSGP`](http://www.inside-r.org/packages/cran/SGP/docs/analyzeSGP) step).  
+All cohort-referenced and SIMEX corrected EOG and EOC SGPs were calculated concurrently.^[Baseline-referenced SGPs had previously been used as the "official" SGP quantity, but this method of SGP calculation will be unavailable until at least 3 years of Milestones assessment data is available to form the baseline cohort.]   We use the [`updateSGP`](http://www.inside-r.org/packages/cran/SGP/docs/updateSGP) function to **a)** do the final preparation and addition of the new cleaned and formatted long data to the existing `SGP` data object ([`prepareSGP`](http://www.inside-r.org/packages/cran/SGP/docs/prepareSGP) step) and **b)** calculate SGP estimates ([`analyzeSGP`](http://www.inside-r.org/packages/cran/SGP/docs/analyzeSGP) step).  
 
 ### Merge 2015 results into the longitudinal data, and output, summarize and visualize data.
 
@@ -453,11 +462,11 @@ Strong relationships exist between prior and current scale scores for the grade 
 
 ### EOC Subjects
 
-The EOC test correlations in Table `r tblNumNext()+1` are disaggregated by the constituent norm groups.  That is, each EOC test subject is potentially analyzed using more than one sequence of prior subjects, grades and years, and these norm groups are indicated here by the most recent prior available for each norm group (although more prior years' scores are used when possible).  These correlations between current and prior scale score are notably lower than in the grade level norm groups, and overall lower correlations would be expected in EOC subjects due to the change in specific subject from one course to the next.  
+The EOC test correlations in Tables `r tblNumNext()` and `r tblNumNext()+1` are disaggregated by the constituent norm groups.  That is, each EOC test subject is potentially analyzed using more than one sequence of prior subjects, grades and years, and these norm groups are indicated here by the most recent prior available for each norm group (although more prior years' scores are used when possible).  These correlations between current and prior scale score are notably lower than in the grade level norm groups, and overall lower correlations would be expected in EOC subjects due to the change in specific subject from one course to the next.  
 
 However, there are three types of norm groups in which there is a noticeable pattern of markedly lower score correlations: skipped year groups, course repeaters and high prior-achievers.  The use of skipped-year sequences will likely decrease these correlations due simply to the length of time between content area related courses in which time skills and knowledge are likely to weaken.  In the norm groups in which students are repeating a course, decrease (attenuation) in the correlations is likely due to "self-selection bias" in the cohort.  That is, only lower attaining students will repeat a course, which results in a restriction of range in the prior scores, the expected range of current scores, and ultimately attenuated correlations.  A similar issue is likely at play in the norm groups in which the most recent prior is a 7<sup>th</sup> grade subject, and here higher attaining students are enrolled in the more advanced classes.  In these situations we also expect a restriction of range in the scores at the upper end of the score distributions.
 
-The relationships between growth and prior achievement reported in Table `r tblNumNext()+1` are still non-existent for cohort referenced SGPs and slightly negative after SIMEX correction.  These results are as expected.
+The relationships between growth and prior achievement reported in Tables `r tblNumNext()` and `r tblNumNext()+1` are still non-existent for cohort referenced SGPs and slightly negative after SIMEX correction.  These results are as expected.
 
 
 ```{r, cache=TRUE, echo=FALSE, include=FALSE, Student_EOCT}
