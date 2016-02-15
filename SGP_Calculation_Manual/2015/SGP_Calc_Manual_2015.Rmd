@@ -1,159 +1,440 @@
-
 ---
 title: "Student Growth Percentile Calculation Manual"
 subtitle: "2014-2015 Data Analyses"
 author:
 - name: National Center for the Improvement of Educational Assessment (NCIEA)
-  name: Damian W. Betebenner
+- name: Damian W. Betebenner
 - email: DBetebenner@nciea.org
   name: Adam R. VanIwaarden
 - email: avaniwaarden@gmail.com
-date: "November 2015"
+date: "February 2016"
 output:
   word_document: default
   html_document:
-    highlight: pygments
-    number_sections: yes
-    self_contained: yes
-    theme: default
-    toc: no
+  highlight: pygments
+  number_sections: yes
+  self_contained: yes
+  theme: default
+  toc: no
 bibliography: /Library/Frameworks/R.framework/Versions/3.2/Resources/library/SGPreports/rmarkdown/templates/multi_document/resources/educ.bib
 ---
 
-<!-- 
-output:
-  Grmd::docx_document:
-    number_sections: yes
-    theme: default
-    toc: no
-    highlight: pygments
-    self_contained: true
--->
-
 # Introduction
 
-This report supplies technical details associated with the [Georgia Student Growth Model](http://www.gadoe.org/School-Improvement/Teacher-and-Leader-Effectiveness/Pages/Student-Growth-Percentiles.aspx), including the calculation of student growth percentiles from Georgia state assessment data using the [R Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [SGP Package](http://www.sgp.io) [@sgp2015].
+This manual provides technical details associated with the Georgia Student Growth Model, including the calculation of student growth percentiles from Georgia Milestones assessment data using the [`R` Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [`SGP` package](http://www.sgp.io) [@sgp2015].
 
 Broadly, the SGP analysis of the Georgia longitudinal student assessment data takes place in two steps:
 
-1. [Data Preparation](#data-preparation)
-2. [Data Analysis](#data-analysis)
+1. Data Preparation
+2. Data Analysis
 
-Those familiar with data analysis know that the bulk of the effort in the above two step process lies with Step 1: [Data Preparation](#data-preparation). Following thorough data cleaning and preparation, data analysis using the SGP Package takes clean data and makes it as easy as possible to calculate, summarize, output, and visualize the results from SGP analyses.
+Those familiar with data analysis know that the bulk of the effort in the above two step process lies with Step 1: Data Preparation.  Following thorough data cleaning and preparation, data analysis using the `SGP` package takes clean data and makes it as easy as possible to calculate, summarize, output and visualize the results from SGP analyses.
 
 # Student Data and Teacher Linkage Preparation
 
-Data preparation involves taking data provided by the Georgia Department of Education (GaDOE) and producing a `.Rdata` file that will subsequently be analyzed in Step 2. This process is carried out annually as new data becomes available from the state assessment program.  In the following sections we first detail the data preparation business rules used and steps taken in 2015, and then provide information about additional steps that have been required in past years for data preparation.
+Data preparation involves taking data provided by the Georgia Department of Education (DOE) and producing a `.Rdata` file that will subsequently be analyzed in Step 2. This process is carried out annually as new data becomes available from the state assessment program.  In the following sections we first detail the data preparation business rules used and steps taken in 2015, and then provide information about additional steps that have been required in past years for data preparation.
 
-## Initial SQL Data Pull and Cleaning of 2015 CRCT & EOCT Student-Level Data
+## Initial SQL Data Pull and Cleaning of 2015 Student-Level Data
 
-In the source code below, data is supplied by the Georgia DOE Information Technology and subsequently cleaned and processed using a two step process:
+In the source code below, data is cleaned and processed using a two step process:
 
-***1a.*** In the first step the data is cleaned using the .sql script below wherein student records are selected and invalidated based upon business rules specified in the sql code itself. The result is an exportable pipe delimited file where `VALID_CASES` are unique by `CONTENT_AREA`, `YEAR`, `ID`, and `YEAR_WITHIN`.
+***1a.*** In the first step the data is formatted and pulled from the Georgia data warehouse using the `SQL` code displayed below.  Student records are selected and invalidated based upon business rules specified in the `SQL` code itself. The result is an exportable pipe delimited file where `VALID_CASES` are unique by `CONTENT_AREA`, `YEAR`, `ID`, and `YEAR_WITHIN`.
 
-***1b.*** In the second step the clean data from step 1 is read into [R](http://www.r-project.org/) and modified slightly with regard to variable types/classes. The result is an .Rdata file that is suitable for analysis with the [SGP Package](http://www.sgp.io).
+***1b.*** In the second step the formatted data from step 1 is read into [`R`](http://www.r-project.org/) and modified slightly with regard to variable types/classes. The result is an .Rdata file that is suitable for analysis with the [`SGP` package](http://www.sgp.io).
 
 
 #### Step 1a: Cleaning data with SQL
 
 ```sql
 
-TO BE PROVIDED BY Qi in Fall of 2015
+/**Merge all EOG data files together**/
+select SCHOOL_YEAR,SR_SYSTEM_ID,SYSTEM_NAME,SR_SCHOOL_ID,SCHOOL_NAME,FIRST_NAME,
+MIDDLE_NAME,LAST_NAME,BIRTH_DATE,STUDENT_ID,GRADE_LEVEL,TEST_GRADE_LEVEL,GTID,
+ASSESSMENT_SUBJECT_CODE, SCALE_SCORE_ELA as SCALE_SCORE, CONDSEM_ELA as CONDSEM, 
+PERFORMANCE_LEVEL_ELA as PERFORMANCE_LEVEL, LEXILE_SCALE_SCORE, 
+MASTERYCATEGORYDOM1_ELA as MASTERYCATEGORYDOM1, NRT_NP_ELA as NRT_NP, 
+NRT_NPRANGE_ELA as NRT_NPRANGE, NRT_NCE_ELA as NRT_NCE,
+RACE,GENDER_CODE,ED,SWD,LEP,GIFTED_SERVICE_CODE,
+PTNA_INDICATOR_ELA as PTNA_INDICATOR, DNA_INDICATOR_ELA as DNA_INDICATOR,
+IR_INDICATOR_ELA as IR_INDICATOR, PIV_INDICATOR_ELA as PIV_INDICATOR, ADMINISTRATION_PERIOD 
+INTO [2015 Georgia Milestones Final Matched]..[EOG_Extract_for_SGP]
+from [2015 Georgia Milestones Final Matched]..[EOG_Extract_for_SGP_12222015_English]
+UNION ALL
+select SCHOOL_YEAR, SR_SYSTEM_ID,SYSTEM_NAME,SR_SCHOOL_ID,SCHOOL_NAME,FIRST_NAME,
+MIDDLE_NAME, LAST_NAME,BIRTH_DATE,STUDENT_ID,GRADE_LEVEL,TEST_GRADE_LEVEL,GTID, ASSESSMENT_SUBJECT_CODE,
+SCALE_SCORE_MATH as SCALE_SCORE,CONDSEM_MATH as CONDSEM, PERFORMANCE_LEVEL_MATH as PERFORMANCE_LEVEL,
+LEXILE_SCALE_SCORE, MASTERYCATEGORYDOM1_MATH as MASTERYCATEGORYDOM1,NRT_NP_MATH as NRT_NP,
+NRT_NPRANGE_MATH as NRT_NPRANGE,NRT_NCE_MATH as NRT_NCE,
+RACE,GENDER_CODE,ED,SWD,LEP,GIFTED_SERVICE_CODE,
+PTNA_INDICATOR_MATH as PTNA_INDICATOR, DNA_INDICATOR_MATH as DNA_INDICATOR,
+IR_INDICATOR_MATH as IR_INDICATOR,PIV_INDICATOR_MATH as PIV_INDICATOR, ADMINISTRATION_PERIOD 
+from [2015 Georgia Milestones Final Matched]..[EOG_Extract_for_SGP_12222015_Math]
+UNION ALL
+select SCHOOL_YEAR, SR_SYSTEM_ID,SYSTEM_NAME,SR_SCHOOL_ID,SCHOOL_NAME,FIRST_NAME,
+MIDDLE_NAME,LAST_NAME,BIRTH_DATE,STUDENT_ID,GRADE_LEVEL,TEST_GRADE_LEVEL,GTID,
+ASSESSMENT_SUBJECT_CODE,
+SCALE_SCORE_SCI as SCALE_SCORE,CONDSEM_SCI as CONDSEM,
+PERFORMANCE_LEVEL_SCI as PERFORMANCE_LEVEL,
+LEXILE_SCALE_SCORE, MASTERYCATEGORYDOM1_SCI as MASTERYCATEGORYDOM1,
+NRT_NP_SCI as NRT_NP, NRT_NPRANGE_SCI as NRT_NPRANGE,NRT_NCE_SCI as NRT_NCE,
+RACE,GENDER_CODE,ED,SWD,LEP,GIFTED_SERVICE_CODE,
+PTNA_INDICATOR_SCI as PTNA_INDICATOR, DNA_INDICATOR_SCI as DNA_INDICATOR,
+IR_INDICATOR_SCI as IR_INDICATOR,PIV_INDICATOR_SCI as PIV_INDICATOR,ADMINISTRATION_PERIOD 
+from [2015 Georgia Milestones Final Matched]..[EOG_Extract_for_SGP_12222015_Science]
+UNION ALL
+select SCHOOL_YEAR, SR_SYSTEM_ID,SYSTEM_NAME,SR_SCHOOL_ID,SCHOOL_NAME,FIRST_NAME, 
+MIDDLE_NAME,LAST_NAME,BIRTH_DATE,STUDENT_ID,GRADE_LEVEL,TEST_GRADE_LEVEL,GTID, 
+ASSESSMENT_SUBJECT_CODE,
+SCALE_SCORE_SOC as SCALE_SCORE,CONDSEM_SOC as CONDSEM,
+PERFORMANCE_LEVEL_SOC as PERFORMANCE_LEVEL,LEXILE_SCALE_SCORE, 
+MASTERYCATEGORYDOM1_SOC as MASTERYCATEGORYDOM1,NRT_NP_SOC as NRT_NP, 
+NRT_NPRANGE_SOC as NRT_NPRANGE,NRT_NCE_SOC as NRT_NCE,
+RACE,GENDER_CODE,ED,SWD,LEP,GIFTED_SERVICE_CODE,
+PTNA_INDICATOR_SOC as PTNA_INDICATOR, DNA_INDICATOR_SOC as DNA_INDICATOR,
+IR_INDICATOR_SOC as IR_INDICATOR,PIV_INDICATOR_SOC as PIV_INDICATOR, ADMINISTRATION_PERIOD 
+from [2015 Georgia Milestones Final Matched]..[EOG_Extract_for_SGP_12222015_Social_Studies]
+
+/**Recode and Merge all files   **/
+
+select SCHOOL_YEAR, SR_SYSTEM_ID, SYSTEM_NAME, SR_SCHOOL_ID, SCHOOL_NAME, GTID, 
+LAST_NAME, MIDDLE_NAME, FIRST_NAME,BIRTH_DATE, TEST_GRADE_LEVEL AS GRADE, 
+TEST_GRADE_LEVEL AS GRADE_REPORTED, 'EOG' as ASSESSMENT_TYPE_CODE, ADMINISTRATION_PERIOD, 
+CASE
+WHEN ASSESSMENT_SUBJECT_CODE='ELA' THEN 'ELA'
+WHEN ASSESSMENT_SUBJECT_CODE='M' THEN 'MATHEMATICS'
+WHEN ASSESSMENT_SUBJECT_CODE='Sci' THEN 'SCIENCE'
+WHEN ASSESSMENT_SUBJECT_CODE='Soc' THEN 'SOCIAL_STUDIES'
+ELSE ''
+END
+AS SUBJECT_CODE, SCALE_SCORE, CONDSEM,
+case
+when PERFORMANCE_LEVEL='1' then 'Beginning Learner'
+when PERFORMANCE_LEVEL='2' then 'Developing Learner'
+when PERFORMANCE_LEVEL='3' then 'Proficient Learner'
+when PERFORMANCE_LEVEL='4' then 'Distinguished Learner'
+Else PERFORMANCE_LEVEL
+end
+as PERFORMANCE_LEVEL,
+case
+when RACE='H' then 'Hispanic' 
+when RACE='B' then 'African-American/Black'
+when RACE='I' then 'American Indian/Alaskan Native'
+when RACE='P' then 'Pacific Islander'
+when RACE='A' then 'Asian'
+when RACE='S' then 'Asian'
+when RACE='W' then 'White'
+when RACE='M' then 'Two or More Races'
+Else ''
+end 
+as RACE_CODE,
+case
+when gender_code='F' then 'Female'
+when gender_code='M' then 'Male'
+Else gender_code
+end
+as GENDER_CODE,
+case
+when ED='Y' then 'Economically Disadvantaged: Yes'
+when ED='N' then 'Economically Disadvantaged: No'
+Else ED
+end
+as ED,
+case
+when SWD='Y' then 'Student with Disability: Yes'
+when SWD='N' then 'Student with Disability: No'
+Else SWD
+end
+as SWD,
+case
+when LEP='Y' then 'LEP: Yes'
+when LEP='N' then 'LEP: No'
+else LEP
+end
+as LEP, GIFTED_SERVICE_CODE as GIFT, 
+case
+when PTNA_INDICATOR='Y' then 'PTNA'
+when DNA_INDICATOR='Y' then 'DNA'
+when PIV_INDICATOR='Y' then 'PIV'
+else ''
+end
+as ADMIN_INVALIDATION, '' AS TEST_OUT_ADMINISTRATION, 'M' as MATCH_STATUS,
+case
+when ADMINISTRATION_PERIOD='Winter' then 1
+when ADMINISTRATION_PERIOD='Spring' then 2
+when ADMINISTRATION_PERIOD='Summer' then 3
+else 'NULL'
+end
+as YEAR_WITHIN
+into [2015 Georgia Milestones Final Matched]..[2015 Final Mached Data]
+FROM [2015 Georgia Milestones Final Matched]..EOG_Extract_for_SGP
+union all
+select SCHOOL_YEAR, SR_SYSTEM_ID, SYSTEM_NAME,SR_SCHOOL_ID,SCHOOL_NAME, GTID, 
+LAST_NAME,  MIDDLE_NAME, FIRST_NAME,BIRTH_DATE ,'EOCT' AS GRADE, 
+GRADE_LEVEL as GRADE_REPORTED, 'EOCT' as ASSESSMENT_TYPE_CODE, ADMINISTRATION_PERIOD,
+case
+WHEN ASSESSMENT_SUBJECT_CODE='9TH' THEN 'GRADE_9_LIT'
+WHEN ASSESSMENT_SUBJECT_CODE='AGE' THEN 'ANALYTIC_GEOMETRY'
+WHEN ASSESSMENT_SUBJECT_CODE='AME' THEN 'AMERICAN_LIT'
+WHEN ASSESSMENT_SUBJECT_CODE='BIO' THEN 'BIOLOGY'
+WHEN ASSESSMENT_SUBJECT_CODE='CAL' THEN 'COORDINATE_ALGEBRA'
+WHEN ASSESSMENT_SUBJECT_CODE='ECO' THEN 'ECONOMICS'
+WHEN ASSESSMENT_SUBJECT_CODE='PHY' THEN 'PHYSICAL_SCIENCE'
+WHEN ASSESSMENT_SUBJECT_CODE='USH' THEN 'US_HISTORY'
+else 'NULL'
+end 
+as Subject_code, SCALE_SCORE, CONDSEM,
+case
+when PERFORMANCE_LEVEL='1' then 'Beginning Learner'
+when PERFORMANCE_LEVEL='2' then 'Developing Learner'
+when PERFORMANCE_LEVEL='3' then 'Proficient Learner'
+when PERFORMANCE_LEVEL='4' then 'Distinguished Learner'
+Else Performance_level
+end
+as Performance_level,
+case
+when RACE='H' then 'Hispanic' 
+when RACE='B' then 'African-American/Black'
+when RACE='I' then 'American Indian/Alaskan Native'
+when RACE='P' then 'Pacific Islander'
+when RACE='A' then 'Asian'
+when RACE='S' then 'Asian'
+when RACE='W' then 'White'
+when RACE='M' then 'Two or More Races'
+Else ''
+end 
+as RACE_CODE,
+case
+when gender_code='F' then 'Female'
+when gender_code='M' then 'Male'
+Else gender_code
+end
+as GENDER_CODE,
+case
+when ED='Y' then 'Economically Disadvantaged: Yes'
+when ED='N' then 'Economically Disadvantaged: No'
+Else ED
+end
+as ED,
+case
+when SWD='Y' then 'Student with Disability: Yes'
+when SWD='N' then 'Student with Disability: No'
+Else SWD
+end
+as SWD,
+case
+when LEP='Y' then 'LEP: Yes'
+when LEP='N' then 'LEP: No'
+else LEP
+end
+as LEP,
+GIFTED_SERVICE_CODE as GIFT, 
+case
+when PTNA_INDICATOR='Y' then 'PTNA'
+when DNA_INDICATOR='Y' then 'DNA'
+when PIV_INDICATOR='Y' then 'PIV'
+else ''
+end
+as ADMIN_INVALIDATION, TEST_OUT_ADMINISTRATION, 'M' as MATCH_STATUS,
+case
+when ADMINISTRATION_PERIOD='Winter' then 1
+when ADMINISTRATION_PERIOD='Spring' then 2
+when ADMINISTRATION_PERIOD='Summer' then 3
+else 'NULL'
+end
+as YEAR_WITHIN
+from [2015 Georgia Milestones Final Matched]..EOC_Extract_for_SGP_12222015
+union all
+select * from [2015 Georgia Milestones Final Matched]..[2015_Georgia_Unmatched_all]
+
+
+/**Data cleaning**/
+
+/**Step 1: invalidate test-out students and bad GTIDs**/
+
+ALTER TABLE [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data]
+ADD VALID_CASE varchar(50)
+
+update [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data]
+set VALID_CASE='INVALID_CASE'
+where TEST_OUT_ADMINISTRATION='Y' or  SCALE_SCORE=''
+
+update [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data]
+set VALID_CASE='INVALID_CASE'
+where GTID='' or GTID='..........'
+
+
+/**Step 2: Invalidate duplicate scores that are in the same admin period**/
+
+select *, ROW_NUMBER() over(partition by VALID_CASE,SCHOOL_YEAR, GRADE, SUBJECT_CODE, GTID, MATCH_STATUS, ADMINISTRATION_PERIOD order by Scale_Score Desc) as Rownumber_dup1
+into [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_clean1]
+from [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data]
+
+update [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_clean1]
+set VALID_CASE='INVALID_CASE'
+where  Rownumber_dup1<> 1 
+
+update [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_clean1]
+set VALID_CASE='VALID_CASE'
+where  VALID_CASE is null
+
+/**Step 3: Invalidate students who have two difference grades**/
+
+select *, ROW_NUMBER() over(partition by VALID_CASE,SCHOOL_YEAR, SUBJECT_CODE, GTID, administration_period order by grade Desc) as Rownumber_dup2
+into [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_clean2]
+from [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_clean1]
+
+update [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_clean2]
+set VALID_CASE='INVALID_CASE'
+where  Rownumber_dup2<> 1 
+
+/**format current year's data **/
+
+select VALID_CASE, SCHOOL_YEAR, SR_SYSTEM_ID, SR_SCHOOL_ID as SCHOOL_NUMBER, GTID, GRADE, GRADE_REPORTED, SCALE_SCORE, CONDSEM, MATCH_STATUS, SUBJECT_CODE, ADMIN_INVALIDATION, 
+ADMINISTRATION_PERIOD, RACE_CODE, gender_code, ED, SWD, PERFORMANCE_LEVEL, LEP, YEAR_WITHIN, GIFT, TEST_OUT_ADMINISTRATION
+INTO [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_FINAL]
+from [2015 Georgia Milestones Computer Matched]..[2015_Preliminary_Matched_Data_clean2]
 
 ```
 
 
 #### Step 1b: Creating an R version of the cleaned data
 
-After text data from the Information Technology department has been cleaned using the above `SQL` script, a pipe delimited text file is output and needs to be read into [`R`](http://www.r-project.org/) in order to create an `R` based data set to be used for SGP calculations. The `R` script below reads pipe delimited data into `R` and variable by variable tidies up the data for subsequent analysis in the `SGP` package.
+After test data has been formatted and pulled from the data warehouse using the above `SQL` script, pipe delimited text files are output and need to be read into `R` in order to create an `R` based data set to be used for subsequent analysis in the `SGP` package.  Four distinct parts are identified in the `R` script below:  data loading, variable addition, variable tidying, and student record invalidation.
 
+A total of three raw data files containing student records from 2014 and 2015 were produced in Step 1a (not all captured above) and are all read into `R` in Part 1 of the script below.  The first file contains scores from 2014 for students who successfully "tested out" of a course.  These scores were excluded from SGP production in 2014, but are included for the 2015 analyses to be used as prior scores (i.e. conditioning or dependent variables).  The second file is the initial 2015 matched student data produced.  The third file contains 2015 student records which were subsequently re-scored.  Because the incorrect student records were contained in the second file as well, a dummy variable called `RESCORE` is also created (set to 0 or 1), which will be used to invalidate the incorrect scores in the final cleaned data set.  Finally names are changed for one variable in each raw data file so that all names match in the three data objects and conform to `SGP` conventions.
+
+The second part of the script adds in the conditional standard error of measurement (CSEM) variable, `SCALE_SCORE_CSEM`, to the 2014 data.  Beginning with the 2015 Milestones analyses, we will be using this student-specific (rather than scale score specific) CSEM values in the calculation of both `SGP_STANDARD_ERROR` and `SGP_SIMEX`.  Previously the CSEM data was stored in the `SGPstateData` object.  In this part of the code we load that `R` data object, `Georgia_CSEM.Rdata`, which is available on [Github here](https://github.com/CenterForAssessment/SGPstateData/blob/master/CSEM/Georgia).  The CSEM data names are set to match the 2014 test out data, and the CSEMs are then merged in by specific `SUBJECT_CODE` and `GRADE` combination.  Once this is done we can combine all three data objects into one single object called `Georgia_Data_LONG_2015`.
+
+The third part of the script goes through and tidies up variables on a case-by-case basis.  School numbers are changed to a format that matches what has been done in previous years, numeric variables that were read in as characters are fixed, enrollment status variables are created, etc.
+
+Finally, in the fourth part of the data cleaning, we remove three students who were included in the test out data, but were later found to already have 2014 records in the existing longitudinal data set.  Their records are removed by their student ID (`GTID`), and these identifiers are masked here - refer to the code itself for that information.  Then the duplicated (re-scored) cases are removed and the final 2015 data is saved.
 
 ```R
-###################################################################################
-###
-### Script to read in data and create LONG data in R for 2015 Georgia CRCT/EOCT
-###
-###################################################################################
+##################################################################################
+###                                                                            ###
+###        Prepare 2015 EOG and EOC Milestones data provided by GA DOE         ###
+###                                                                            ###
+##################################################################################
 
-### Load packages
+###
+###            Part 1:  Load 2015 Raw Data
+###
 
 require(data.table)
 
+Georgia_Data_LONG_2014 <- as.data.table(read.delim(
+    unz('Data/Base_Files/2014_EOCT_TestOut_Data.zip', 
+        '2014_EOCT_TestOut_Data.txt'), 
+    sep='|', header=TRUE, stringsAsFactors=FALSE))
 
-### Load data
+Georgia_Data_LONG_2015 <- as.data.table(read.delim(
+    unz('Data/Base_Files/2015_Georgia_Milestones_All_Data.zip', 
+        '2015_Georgia_Milestones_All_Data.txt'), 
+    sep='|', header=TRUE, stringsAsFactors=FALSE))
+Georgia_Data_LONG_2015[, RESCORE := 0]
 
-Georgia_Data_LONG_2015 <- fread(
-   "Data/Base_Files/Georgia_Data_LONG_2015_Step_1a.txt", colClasses=rep("character", 27))
+Georgia_2015_Rescores <- as.data.table(read.delim(
+    unz('Data/Base_Files/2015_Georgia_Milestones_rescore.zip', 
+        '2015_Georgia_Milestones_rescore.txt'), 
+    sep='|', header=TRUE, stringsAsFactors=FALSE))
+Georgia_2015_Rescores[, RESCORE := 1]
 
+setnames(Georgia_Data_LONG_2014, 'ACHIVEMENT_LEVEL', 'PERFORMANCE_LEVEL')
+setnames(Georgia_Data_LONG_2015, 'CONDSEM', 'SCALE_SCORE_CSEM')
+setnames(Georgia_2015_Rescores, 'CONDSEM', 'SCALE_SCORE_CSEM')
 
-### Tidy up date
+###
+###            Part 2:  Add CSEM Data to 2014 Test Out Data
+###
 
-Georgia_Data_LONG_2015[,SCHOOL_YEAR:=as.character(SCHOOL_YEAR)]
+load("Georgia_CSEM.Rdata")
 
-Georgia_Data_LONG_2015$SCHOOL_NUMBER <- 
-   Georgia_Data_LONG_2015$SR_SYSTEM_ID*10000 + Georgia_Data_LONG_2015$SCHOOL_NUMBER
-Georgia_Data_LONG_2015[which(SR_SYSTEM_ID >1000), SCHOOL_NUMBER:=SR_SYSTEM_ID]
-Georgia_Data_LONG_2015[, SCHOOL_NUMBER:=as.integer(SCHOOL_NUMBER)]
+Georgia_CSEM <- data.table(Georgia_CSEM, 
+    key=c("GRADE", "CONTENT_AREA", "SCALE_SCORE"))
+setnames(Georgia_CSEM, "CONTENT_AREA", "SUBJECT_CODE")
 
-Georgia_Data_LONG_2015[, FIRST_NAME:=as.factor(FIRST_NAME)]
-Georgia_Data_LONG_2015[, MIDDLE_NAME:=as.factor(MIDDLE_NAME)]
-Georgia_Data_LONG_2015[, LAST_NAME:=as.factor(LAST_NAME)]
+Georgia_Data_LONG_2014[, SCALE_SCORE_CSEM := as.numeric(NA)]
+for (ca in unique(Georgia_Data_LONG_2014$SUBJECT_CODE)) {
+    CSEM_Data <- Georgia_CSEM[SUBJECT_CODE == ca]
+    for (g in unique(CSEM_Data$GRADE)) {
+        CSEM_Data_G <- CSEM_Data[GRADE == g]
+        CSEM_Function <- splinefun(CSEM_Data_G[["SCALE_SCORE"]], 
+            CSEM_Data_G[["SCALE_SCORE_CSEM"]], method="natural") 
+            # Use 'natural' since that's what's used in SIMEX routine.
+        Georgia_Data_LONG_2014[which(
+            SUBJECT_CODE == ca & VALID_CASE=="VALID_CASE"), 
+            SCALE_SCORE_CSEM := CSEM_Function(SCALE_SCORE)]
+    }
+}
 
-Georgia_Data_LONG_2015[GRADE=="03", GRADE:="3"]
-Georgia_Data_LONG_2015[GRADE=="04", GRADE:="4"]
-Georgia_Data_LONG_2015[GRADE=="05", GRADE:="5"]
-Georgia_Data_LONG_2015[GRADE=="06", GRADE:="6"]
-Georgia_Data_LONG_2015[GRADE=="07", GRADE:="7"]
-Georgia_Data_LONG_2015[GRADE=="08", GRADE:="8"]
+###  Combine 2014 Test Out CRCT and 2015 Milestones data
+Georgia_Data_LONG_2015 <- rbindlist(
+  list(Georgia_Data_LONG_2014, 
+     Georgia_Data_LONG_2015[SUBJECT_CODE != "NULL"], 
+     Georgia_2015_Rescores), fill=TRUE)
 
-Georgia_Data_LONG_2015[, GRADE_REPORTED:=as.integer(GRADE_REPORTED)]
+###
+###            Part 3:  Tidy up variables
+###
 
-Georgia_Data_LONG_2015[,SCALE_SCORE:=as.numeric(SCALE_SCORE)]
+Georgia_Data_LONG_2015[, SCHOOL_NUMBER := 
+  as.numeric(SR_SYSTEM_ID)*10000 + as.numeric(SCHOOL_NUMBER)]
+Georgia_Data_LONG_2015[which(SR_SYSTEM_ID > 1000), 
+  SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)]
+Georgia_Data_LONG_2015[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
 
-Georgia_Data_LONG_2015[ADMIN_INVALIDATION=="",ADMIN_INVALIDATION:=as.character(NA)]
+Georgia_Data_LONG_2015[, GRADE := gsub("0", "", GRADE)]
+Georgia_Data_LONG_2015[, GRADE_REPORTED := as.integer(GRADE_REPORTED)]
 
-Georgia_Data_LONG_2015[, ADMINISTRATION_PERIOD:=toupper(ADMINISTRATION_PERIOD)]
+Georgia_Data_LONG_2015[, SCALE_SCORE := as.numeric(SCALE_SCORE)]
+Georgia_Data_LONG_2015[, SCALE_SCORE_CSEM := as.numeric(SCALE_SCORE_CSEM)]
 
-Georgia_Data_LONG_2015[,RACE_CODE:=as.factor(RACE_CODE)]
-levels(Georgia_Data_LONG_2015$RACE_CODE)[1] <- NA
+Georgia_Data_LONG_2015[, 
+    ADMINISTRATION_PERIOD := toupper(ADMINISTRATION_PERIOD)]
+Georgia_Data_LONG_2015[,
+    ADMINISTRATION_PERIOD := paste(YEAR_WITHIN, ADMINISTRATION_PERIOD, sep=": ")]
+Georgia_Data_LONG_2015[which(ADMINISTRATION_PERIOD == "1: "), 
+    ADMINISTRATION_PERIOD := "1: WINTER"]
+Georgia_Data_LONG_2015[which(ADMINISTRATION_PERIOD == "2: "), 
+    ADMINISTRATION_PERIOD := "2: SPRING"]
+Georgia_Data_LONG_2015[which(ADMINISTRATION_PERIOD == "3: "), 
+    ADMINISTRATION_PERIOD := "3: SUMMER"]
 
-Georgia_Data_LONG_2015[,GENDER_CODE:=as.factor(GENDER_CODE)]
-levels(Georgia_Data_LONG_2015$GENDER_CODE)[1] <- NA
+Georgia_Data_LONG_2015[,SCHOOL_ENROLLMENT_STATUS := factor(1, levels=0:1, 
+    labels=c("Enrolled School: No", "Enrolled School: Yes"))]
 
-Georgia_Data_LONG_2015[,ED:=as.factor(ED)]
-levels(Georgia_Data_LONG_2015$ED)[1] <- NA
-
-Georgia_Data_LONG_2015[,SWD:=as.factor(SWD)]
-levels(Georgia_Data_LONG_2015$SWD)[1] <- NA
-
-Georgia_Data_LONG_2015[,LEP:=as.factor(LEP)]
-levels(Georgia_Data_LONG_2015$LEP)[1] <- NA
-
-Georgia_Data_LONG_2015[,PERFORMANCE_LEVEL:=factor(PERFORMANCE_LEVEL, 
-   levels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"), ordered=TRUE)]
-
-Georgia_Data_LONG_2015[,SCHOOL_ENROLLMENT_STATUS:=factor(SCHOOL_ENROLLMENT_STATUS, 
-   levels=c("Enrolled School: No", "Enrolled School: Yes"), 
-   labels=c("Enrolled School: No", "Enrolled School: Yes"))]
-
-Georgia_Data_LONG_2015[,DISTRICT_ENROLLMENT_STATUS:=factor(DISTRICT_ENROLLMENT_STATUS, 
-   levels=c("Enrolled District: No", "Enrolled District: Yes"), 
+Georgia_Data_LONG_2015[,DISTRICT_ENROLLMENT_STATUS := factor(1, levels=0:1, 
    labels=c("Enrolled District: No", "Enrolled District: Yes"))]
 
-Georgia_Data_LONG_2015[,STATE_ENROLLMENT_STATUS:=factor(STATE_ENROLLMENT_STATUS, 
-   levels=c("Enrolled State: No", "Enrolled State: Yes"), 
+Georgia_Data_LONG_2015[,STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, 
    labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
-Georgia_Data_LONG_2015[,GIFT:=as.factor(GIFT)]
-levels(Georgia_Data_LONG_2015$GIFT)[1] <- NA
+###
+###            Part 4:  Remove and invalidate records
+###
+
+###  Remove known duplicate cases:
+Georgia_Data_LONG_2015<-Georgia_Data_LONG_2015[-which(
+  Georgia_Data_LONG_2015$GTID %in% c('3XXXXXXXXX', '1XXXXXXXXX', '2XXXXXXXXX') 
+  & Georgia_Data_LONG_2015$SCHOOL_YEAR=='2014'),]
+
+###  Remove original rescored cases
+setkey(Georgia_Data_LONG_2015, 
+  VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID, RESCORE)
+setkey(Georgia_Data_LONG_2015, 
+  VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID)
+Georgia_Data_LONG_2015[which(
+  duplicated(Georgia_Data_LONG_2015))-1, VALID_CASE := "INVALID_CASE"]
 
 ### Save results
-
 save(Georgia_Data_LONG_2015, file="Data/Georgia_Data_LONG_2015.Rdata")
 ```
 
-##  Student data preperation issues and requirements from previous years
+##  Student data preperation issues
 
+This is a running list of issues and requirements from previous years.  Re-scored data is now added to that list.
+
+* *Rescores* - Students scores were re-scored after found to be incorrect.  Original records were invalidated.
 * *Administration Invalidation* - Invalidate student records with test administration flags including PTNA, PIV, DNA, TAR, AYP_CTBRC, etc.
 * *Malformed Student IDs* - Student GTID values with fewer than 10 digits or including a decimal point.
 * *Missing and '0' Scores* - Students with NA values or even 0 for missing (which is far outside the range of observable scale scores).
@@ -164,16 +445,16 @@ save(Georgia_Data_LONG_2015, file="Data/Georgia_Data_LONG_2015.Rdata")
 
 ## Variable naming conventions
 
-Note that the naming conventions associated with Georgia CRCT and EOCT data provided by the DOE and the naming conventions used by the SGP Package are different. The [SGP Package](http://www.sgp.io) accommodates different state data naming conventions through the use of a meta-data lookup table embedded within the [SGPstateData](https://github.com/CenterForAssessment/SGPstateData) .Rdata object in the package. The variable name lookup table for Georgia is shown below with **`names.provided`** giving the state specific names **`names.sgp`** the SGP Package specific names, **`names.type`** giving the type associated with the variable which is used within [`summarizeSGP`](https://github.com/CenterForAssessment/SGP/blob/master/R/summarizeSGP.R) to construct group summaries, **`names.info`** providing meta-data associated with the variable, and **`names.output`** a Boolean indicator of whether variable should be used with [`summarizeSGP`](https://github.com/CenterForAssessment/SGP/blob/master/R/summarizeSGP.R).
+Note that the naming conventions associated with Georgia data as provided by the DOE and the naming conventions used by the `SGP` package are different.  Different naming conventions can be accomodated through the use of a meta-data lookup table embedded within the [SGPstateData](https://github.com/CenterForAssessment/SGPstateData) .Rdata object in the package. The variable name lookup table for Georgia is shown below with **`names.provided`** giving the state specific names **`names.sgp`** the SGP package specific names, **`names.type`** giving the type associated with the variable which is used within [`summarizeSGP`](https://github.com/CenterForAssessment/SGP/blob/master/R/summarizeSGP.R) to construct group summaries, **`names.info`** providing meta-data associated with the variable, and **`names.output`** a Boolean indicator of whether variable should be used with [`summarizeSGP`](https://github.com/CenterForAssessment/SGP/blob/master/R/summarizeSGP.R).
 
-|**names.provided**|**names.sgp|names.type**|**names.info|names.output**|
+|**names.provided**|**names.sgp**|**names.type**|**names.info**|**names.output**|
 |--------------|---------|----------|----------|------------|
 VALID_CASE|VALID_CASE|individual_inclusion|Valid Case Identifier||
 SUBJECT_CODE|CONTENT_AREA|content|Content area of assessment||
 SCHOOL_YEAR|YEAR|time|Year (testing year) associated with record||
 SR_SYSTEM_ID|DISTRICT_NUMBER|institution|District Number||
 SCHOOL_NUMBER|SCHOOL_NUMBER|institution|Unique School Identifier created from SR_SCHOOL_ID and SR_SYSTEM_ID||
-GRADE|GRADE|institution_level|Grade level of test taken except EOCT||
+GRADE|GRADE|institution_level|Grade level of test taken except EOC||
 GRADE_REPORTED|GRADE_REPORTED|institution_level|Grade level of test taken or reported||
 SCALE_SCORE|SCALE_SCORE|measure|Scale score||
 PERFORMANCE_LEVEL|ACHIEVEMENT_LEVEL|measure|Achievement level associated with student score||
@@ -200,262 +481,120 @@ STATE_ENROLLMENT_STATUS|STATE_ENROLLMENT_STATUS|institution_inclusion|State incl
 
 ## Teacher - student linkage data
 
-Note that these data were not available during the original data cleaning.  In future years it may be available at the same time, in which case the merging of instructor data into the SGP object (see [data summarization section](#merge-supplementary-instructor-data) below) can take place at the same time as the next step using the `updateSGP` function.  It may also be possible to conduct much of the data cleaning shown here in `SQL` rather than in `R`.
+Still waiting on data as of `r format(Sys.time(), "%B %d %Y")`.
 
 ```R
-###################################################################################
-###
-### Creation of Long Teacher Data files
-###
-###################################################################################
 
-### Load packages
+###            TO BE COMPLETED
 
+```
+
+
+## New Milestones SGP Object Creation
+
+Given the transition to the Milestones assessment program, it was decided that the SGP object used for the CRCT analyses through 2014 would be archived and a new SGP object would be created.  This new SGP object would be established prior to running the analyses containing only the necessary data from the previous object (also archived as `Georgia_SGP_LONG_Data.Rdata`).  Given the use of skipped years of various lengths in the end-of-course (EOC) analyses, the subset of the prior years' longitudinal data stretches back to 2011 in some subjects.  All baseline-referenced SGP data was removed and the CSEM information was added as the `SCALE_SCORE_CSEM` variable in the same manner as above for the "test out" data.  Finally, [`prepareSGP`](http://www.inside-r.org/packages/cran/SGP/docs/prepareSGP) is used to create the new SGP object from this data subset.
+
+```R
+##################################################################################
+###                                                                            ###
+###          Create New Georgia SGP object for Milestones Assessments          ###
+###                                                                            ###
+##################################################################################
+
+###  Use @Data from outputSGP in 2014 CRCT analyses as the base for the new object
+load("Data/Archive/December_2015/Georgia_SGP_LONG_Data.Rdata")
+
+###  Select out only a subset of the data
+###  Only CRCT EOGT and EOCT subjects and years that will be used as priors.
+CRCT_Subjects <- c("ELA", "READING", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS")
+EOCT_Subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY", 
+    "BIOLOGY", "PHYSICAL_SCIENCE", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY")
+
+Georgia_LONG_Data <- rbindlist(list( 
+  Georgia_SGP_LONG_Data[VALID_CASE == "VALID_CASE" 
+    & SCHOOL_YEAR %in% 2012:2014 
+    & SUBJECT_CODE %in% c(CRCT_Subjects, EOCT_Subjects)],
+  Georgia_SGP_LONG_Data[VALID_CASE == "VALID_CASE" 
+    & SCHOOL_YEAR %in% 2011 
+    & SUBJECT_CODE == "SOCIAL_STUDIES" & GRADE == 8]))
+
+###  Remove all BASELINE SGP variables and HIGH_NEED_STATUS variable (not used)
+Georgia_LONG_Data[, grep("BASELINE", names(Georgia_LONG_Data)) := NULL]
+Georgia_LONG_Data[, HIGH_NEED_STATUS := NULL]
+
+###  Merge in the CSEM variable with CRCT data to match use in Milestones data
+setkeyv(Georgia_LONG_Data, c("GRADE", "SUBJECT_CODE", "SCALE_SCORE"))
+
+Georgia_LONG_Data[, SCALE_SCORE_CSEM := as.numeric(NA)]
+for (ca in unique(Georgia_CSEM$SUBJECT_CODE)) {
+    CSEM_Data <- Georgia_CSEM[SUBJECT_CODE == ca]
+    for (g in unique(CSEM_Data$GRADE)) {
+        CSEM_Data_G <- CSEM_Data[GRADE == g]
+        CSEM_Function <- splinefun(CSEM_Data_G[["SCALE_SCORE"]],
+          CSEM_Data_G[["SCALE_SCORE_CSEM"]], method="natural") 
+          # Use 'natural' since that's what's used in SIMEX routine.
+        Georgia_LONG_Data[which(SUBJECT_CODE == ca & VALID_CASE=="VALID_CASE"), 
+          SCALE_SCORE_CSEM := CSEM_Function(SCALE_SCORE)]
+    }
+}
+
+###        Create New Georgia_SGP object via prepareSGP
 require(SGP)
-require(data.table)
-require(plyr)
+Georgia_SGP <- prepareSGP(Georgia_LONG_Data, create.additional.variables=FALSE)
 
-setwd('/home/avi/SGP_Projects/Georgia')
-
-### Load data
-
-my.col.classes <- c(rep("character", 26), "integer", "integer")
-
-GA_INSTRUCTOR_2015 <- fread(
-  "Data/Base_Files/2015_Teacher_SIMEX_SGP_multiple_Teachers.txt", sep="|", 
-  header=TRUE, colClasses=my.col.classes)
-
-
-### Clean up variable names
-
-my.variable.names <- c("FISCAL_YEAR", 
-  "DISTRICT_NUMBER", "DISTRICT_NAME", "SCHOOL_NUMBER", "SCHOOL_NAME", "TEACHER_NAME", "INSTRUCTOR_NUMBER", 
-  "CONTENT_AREA", "CONTENT_AREA_DESC", "CONTENT_AREA_SECTION", 
-  "STUDENT_NAME", "YEAR", "ID", "UNIQUE_ID", "GRADE", "ADMIN_TYPE", 
-	"SCALE_SCORE", "ACHIEVEMENT_LEVEL", "SCALE_SCORE_PRIOR_1", "ACHIEVEMENT_LEVEL_PRIOR_1",
-	"RACE_CODE", "GENDER_CODE", "ED", "SWD", "LEP", "Primaryfirst", "SGP_SIMEX", "SGP_SIMEX_BASELINE")
-
-setnames(GA_INSTRUCTOR_2015, my.variable.names)
-
-
-### Create INSTRUCTOR_FIRST_NAME and INSTRUCTOR_LAST_NAME
-
-my.tmp <- strsplit(as.character(GA_INSTRUCTOR_2015$TEACHER_NAME), ",")
-my.tmp.first_name <- factor(sapply(my.tmp, '[', 2))
-levels(my.tmp.first_name) <- sapply(sapply(strsplit(levels(my.tmp.first_name), " "), '[', 2), capwords)
-my.tmp.last_name <- factor(sapply(my.tmp, '[', 1))
-levels(my.tmp.last_name) <- sapply(levels(my.tmp.last_name), capwords)
-GA_INSTRUCTOR_2015[, INSTRUCTOR_FIRST_NAME := as.character(my.tmp.first_name)]
-GA_INSTRUCTOR_2015[, INSTRUCTOR_LAST_NAME  := as.character(my.tmp.last_name)]
-
-
-### Create YEAR_WITHIN Varaible
-
-GA_INSTRUCTOR_2015[, YEAR_WITHIN := "Spring"]
-
-table(GA_INSTRUCTOR_2015$CONTENT_AREA, GA_INSTRUCTOR_2015$CONTENT_AREA_DESC)
-setnames(GA_INSTRUCTOR_2015, "CONTENT_AREA_DESC", "ADMIN_PERIOD")
-
-GA_INSTRUCTOR_2015[which(ADMIN_PERIOD %in% c("Spring", "Winter")), YEAR_WITHIN := ADMIN_PERIOD]
-
-GA_INSTRUCTOR_2015[, YEAR_WITHIN := as.factor(YEAR_WITHIN)]
-levels(GA_INSTRUCTOR_2015$YEAR_WITHIN) <- c("2", "1")
-GA_INSTRUCTOR_2015[, YEAR_WITHIN := as.character(YEAR_WITHIN)]
-
-GA_INSTRUCTOR_2015[, INSTRUCTOR_ENROLLMENT_STATUS:=factor(1, levels=0:1, labels=c("Enrolled Instructor: No", "Enrolled Instructor: Yes"))]
-GA_INSTRUCTOR_2015 <- GA_INSTRUCTOR_2015[, list(CONTENT_AREA, YEAR, YEAR_WITHIN, ID, DISTRICT_NUMBER, DISTRICT_NAME, SCHOOL_NUMBER, SCHOOL_NAME,  INSTRUCTOR_NUMBER, INSTRUCTOR_FIRST_NAME, INSTRUCTOR_LAST_NAME, INSTRUCTOR_ENROLLMENT_STATUS)]
-
-###  Set up SCHOOL_NUMBER to match @Data
-
-GA_INSTRUCTOR_2015$SCHOOL_NUMBER <- as.numeric(GA_INSTRUCTOR_2015$DISTRICT_NUMBER)*10000 + as.numeric(GA_INSTRUCTOR_2015$SCHOOL_NUMBER)
-GA_INSTRUCTOR_2015[which(as.numeric(DISTRICT_NUMBER) > 1000), SCHOOL_NUMBER := as.numeric(DISTRICT_NUMBER)]
-GA_INSTRUCTOR_2015[, SCHOOL_NUMBER := as.character(SCHOOL_NUMBER)]
-
-
-### Remove duplicates
-
-setkey(GA_INSTRUCTOR_2015, CONTENT_AREA, YEAR, YEAR_WITHIN, INSTRUCTOR_NUMBER, ID)
-GA_INSTRUCTOR_2015 <- unique(GA_INSTRUCTOR_2015)
-setkey(GA_INSTRUCTOR_2015, ID, CONTENT_AREA, YEAR)
-
-GA_INSTRUCTOR_2015[, VALID_CASE := "VALID_CASE"]
-
-### Save results
-save(GA_INSTRUCTOR_2015, file="Data/Base_Files/GA_INSTRUCTOR_2015.Rdata")
-
+###  Save New SGP Object
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 ```
-
-
-## The `prepareSGP` Step - Combining New Data with Existing SGP Object
-
-Once we have the cleaned and prepared data for the latest annual SGP analysis, we must now combine the new data into the existing SGP object.  This is accomplished using the `updateSGP` function with only the `prepareSGP` step specified.  This function adds in both the 2015 student records as well as the 2015 student-teacher links.
-
-```R
-Georgia_SGP <- updateSGP(
-  what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2015,
-  with_sgp_data_INSTRUCTOR_NUMBER=GA_INSTRUCTOR_2015,
-  steps="prepareSGP",
-  save.intermediate.results=FALSE)
-```
-
-***NOTE:*** The code above assumes that the `INSTRUCTOR_NUMBER` data set is available at this time and can be included using the `with_sgp_data_INSTRUCTOR_NUMBER=` argument.  This will depend on the timing of the data availability in Fall 2015.
-
-Only the `prepareSGP` step is conducted at this point in the call to `updateSGP` even though it would be possible to run some or all analyses (for example the end of grade analyses) concurrently using the `analyzeSGP` step as well.  However there are several intermediate processes that need to be conducted first before the full set of analyses can be run, so we stop here after `prepareSGP`.  Specifically, we will need the SGP object updated with the 2015 data in order to create the knots and boundaries for Analytic Geometry.  In previous years, this updated object was needed in order to produce baseline coefficient matrices, and this may also be the case in several years when enough Georgia Milestones test data is available to produce baseline referenced SGPs.
-
 
 # Data Analysis
 
-Data analysis is conducted using the [R Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [SGP Package](http://www.sgp.io) [@sgp2015].  The 2015 annual analysis scripts are provided below and describe the steps required to run the annual SGP analyses for the [Georgia Student Growth Model](http://www.gadoe.org/School-Improvement/Teacher-and-Leader-Effectiveness/Pages/Student-Growth-Percentiles.aspx).  Information about additional steps that will be required in future years given the changes in assessment programs as expected at present are also provided.
+Data analysis is conducted using the [`R` Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [`SGP` package](http://www.sgp.io) [@sgp2015].  The 2015 annual analysis scripts are provided below as well as a description of the steps required to run the annual SGP analyses for the Georgia Student Growth Model.  Information about additional steps that are expected to be required in future years are also provided.
 
 ## 2015 SGP Analyses
 
-The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her *academic peers* (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf)). The estimation of this norm-referenced growth quantity is conducted using quantile regression to model curvilinear functional relationships between student's prior and current scores.  One hundred such regression calculations are run for each seperate analysis (defined as a unique year by content area by grade by prior order combination).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process utimately leads to the calculation of many tens-thousands calculations per year (and many more when SIMEX measurement error corrections are performed) for Georgia's annual analyses.  For a more in-depth discussion of the calculation and estimation of SGPs, see Betebenner [-@Betebenner:2009], and Shang, VanIwaarden and Betebenner [@ShangVanIBet:2015] and Appendix B of this report for SIMEX measurement error correction.
+The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her ***academic peers*** (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf)). The estimation of this norm-referenced growth quantity is conducted using quantile regression [@Koenker:2005] to model curvilinear functional relationships between student's prior and current scores.  One hundred such regression models are calculated for each separate analysis (defined as a unique ***year** by **content area** by **grade** by **prior order*** combination).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to tens of thousands of model calculations (and many more when SIMEX measurement error corrections are performed) during each of Georgia's annual batch of analyses.  For a more in-depth discussion of SGP calculation, see Betebenner [-@Betebenner:2009], and see Shang, VanIwaarden and Betebenner [@ShangVanIBet:2015] and Appendix B of this report for further information on the SIMEX measurement error correction methodology.
 
-For the 2015 Georgia SGP analyses, we are following an analyses work flow established in previous years that includes the following 7 steps:
+The 2015 Georgia SGP analyses follow a work flow established in previous years that includes the following 4 steps:
 
-1. Update the Georgia meta-data elements in `SGPstateData`.
-2. Create annual SGP configurations for EOCT analyses as well as the associated norm group preferences included in `SGPstateData`.
-3. Conduct CRCT SGP Analyses.
-4. Conduct EOCT SGP Analyses.
-5. Combine results into the master longitudinal data set, summarize results and output unformatted data.
-6. Export formatted data from Georgia_SGP object.
+1. Update the Georgia assessment meta-data required for SGP calculations using the `SGP` package.
+2. Create annual SGP configurations for analyses.
+3. Conduct all EOG and EOC SGP analyses (concurrently).
+4. Combine results into the master longitudinal data set, summarize results and output data.
 
-### 1. Update the Georgia entry in `SGPstateData`.
+### 1. Update the Georgia metadata in `SGPstateData`.
 
-The use of higher-level functions included in the SGP package (e.g. `analyzeSGP`) requires the availability of state specific assessment information.  This meta-data is compiled in a `R` object named `SGPstateData` that is housed in the `SGP` package.  The required updates for the 2015 analyses included *a)* set the `max.order.for.percentile` to restrict the number of priors used in the SGP calculations [[[***NOTE THIS MAY CAUSE CONFLICT WITH THE ELA ANALYSES THAT USE BOTH PRIOR CRCT READING AND ELA TESTS***]]], *b)* the additions of knots and boundaries for Analytic Geometry, *c)* addition of the CSEM data for the Georgia Milestones assessments and finally *d)* adding the updated norm group preferences object.
+The use of higher-level functions included in the SGP package (e.g. `analyzeSGP`) requires the availability of state specific assessment information.  This meta-data is compiled in a `R` object named `SGPstateData` that is housed in the `SGP` package.  The required updates for the 2015 analyses included *a)* the additions of Milestones knots and boundaries, proficiency level cutscores and other configuration metadata, and *b)* updating the norm group preferences object.
 
-####  Set the `max.order.for.percentile` SGP Configuration
 
-In previous years the cohort referenced SGPs were produced for all analyses even though they were not the "official" growth measure for all content areas (baseline referenced quantities were used for the majority of them).  Unlike the baseline referenced SGPs, cohort referenced SGPs were produced using all available prior years' data (up to 5 years of prior data for 8th grade analyses).  However, this will change in 2015 when the cohort referenced SGPs are used as the official growth measure for all students in all content areas.  It has been decided that a maximum of [[[VERIFY]]] two (2) [[[VERIFY]]] years of data will be used, which corresponds to the number of priors used previously as the maximum for the baseline referenced SGPs.
+#### Addition of knots and boundaries
+Cubic B-spline basis functions are used in the calculation of SGPs to more adequately model the heteroscedasticity and non-linearity found in assessment data.  These functions require the selection of boundary and interior knots.  Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis.  These are generally selected by extending the range of scale scores by 10%.  That is, they are defined as lying 10% below the *lowest obtainable scale score* (LOSS) and 10% above the *highest obtainable scale score* (HOSS).  The interior knots are the *internal* breakpoints that define the spline.  The default choice in the `SGP` package is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the *observed* scale score distribution.
 
-In order to enforce this rule for all analyses, the `max.order.for.percentile` element of the Georgia SGP_Configuration entry in `SGPstateData` should be set.
+In general the knots and boundaries are computed from a distribution comprised of several years of test data (i.e. multiple cohorts combined) so that any irregularities in a single year are smoothed out.  Subsequent annual analyses use these same knots and boundaries as well.  All defaults were used to compile the knots and boundaries for Georgia from the CRCT and EOCT tests in previous years, and are also used in 2015 to compute the knots and boundaries for Milestones EOC tests which accommodate a block schedule or same year (2015) repeaters ^[Note that these knots and boundaries should be recalculated in 2016 when two years of data are available, which should provide better knot estimates for 2016 and subsequent years.].  These values were calculated automatically as part of the `updateSGP` function when preliminary "equated" SGP analyses were run.  This routine saves the computed knots and boundaries, and these values were then added to the `SGPstateData` object for use in the final 2015 analyses.^[These knots and boundaries were not produced in the alternative manner in which Qi Qin ran the analyses, which initially caused some configurations not to run and produced conflicting results.  Alternative ways in which to produce these values can be found in the 2014 SGP Calculation Manual.]
 
-```R
-SGPstateData[["GA"]][["SGP_Configuration"]][["max.order.for.percentile"]] <- 2
-```
+####  Proficiency level cutscores
+Cutscores, which are set externally by the Georgia DOE through standard-setting processes, are mainly required for student growth projections.  Projections were calculated through the use of equating methods in the 2015 analyses due to the switch to Georgia Milestones Assessments because Student Growth Projections assume consistency in assessment programs.  However, these projections will not used for official/reporting purposes.
 
-[[[***NOTE THIS MAY CAUSE CONFLICT WITH THE ELA ANALYSES THAT USE BOTH PRIOR CRCT READING AND ELA TESTS.  We may need to just set up all analyses with a custom configuration - even the grade-level tests ... ***]]]
+Along with the cutscores, the performance (achievement) level metadata was also updated to reflect the new Milestones standards.
 
-#### Calculation and addition of knots and boundaries
-Calculation of SGPs includes the use of cubic B-spline basis functions to more adequately model the heteroscedasticity and non-linearity found in assessment data.  These functions require the selection of boundary and interior knots.  Boundary knots are end points outside of the scale score distribution that anchor the B-spline basis.  These are generally selected by extending the range of scale scores by 10%.  That is, they are defined as lying 10% below the *lowest obtainable scale score* (LOSS) and 10% above the *highest obtainable scale score* (HOSS).  The interior knots are the *internal* breakpoints that define the spline.  The default choice in the `SGP` package is to select the 20<sup>th</sup>, 40<sup>th</sup>, 60<sup>th</sup> and 80<sup>th</sup> quantiles of the *observed* scale score distribution.
+####  Conditional standard errors of measurement (CSEMs)
+The calculation of SIMEX adjusted student growth percentiles requires the availability of each assessments' standard errors of measurement.  In the CRCT analyses in previous years the CSEM data for all other content areas had been compiled in the `SGPstateData` file.  These values are no longer scale score specific (i.e. there are some identical test scores with different CSEM values, whereas previously these were all identical) and so are now included in the student level data.  Although the CSEM data was not added to the `SGPstateData` object, this change still required the identification of the name of the student level CSEM variable, `SCALE_SCORE_CSEM`, in the metadata.
 
-In general the knots and boundaries are computed from a distribution comprised of several years of test data (i.e. multiple cohorts) so that any irregularities in a single year are smoothed out.  Subsequent annual analyses use these same knots and boundaries as well.  All defaults were used to compile the knots and boundaries for Georgia from the CRCT and EOCT tests in previous years, and are also used in 2015 to compute the Analytic Geometry knots and boundaries^[Note that the knots and boundaries were first calculated in 2014.  They are recalculated here because this is the first year in which they will be used as dependent variables and there are now two years of data to compute these values, which should provide better knot estimates.].  ***New knots and boundaries will be required for Georgia Milestones assessments beginning in 2016 at which point they will be used as the dependent variables in the quantile regressions.***
+####  Set the `sgp.cohort.size` SGP Configuration
+Following preliminary analyses, five EOC course progressions were identified as having fewer than 1,500 students.  Given the decreasing quality of model fit and the increasing difficulty in interpretability of what SGP values from such a small *norm group* size represents, the decision was made to institute a minimum N size of 1,500 for all analyses.  This could be done either manually by removing the configuration scripts, or by adding a `SGP_Configuration` entry for it in the `SGPstateData`.  The latter option was adopted, and therefore any future attempts to examine course progressions with fewer than 1,500 students will require a manual override of this (i.e. set to `NULL`).
 
 ```R
-###   Calculate Knots and Boundaries For ANALYTIC_GEOMETRY
-
-createKnotsBoundaries(Georgia_SGP@Data[CONTENT_AREA=='ANALYTIC_GEOMETRY'])
-
+SGPstateData[["GA"]][["SGP_Configuration"]][["sgp.cohort.size"]] <- 2 # NULL to remove restriction
 ```
 
-The output from this was then manually added to the SGPstateData.R file and [committed to Github](https://github.com/CenterForAssessment/SGPstateData/commit/403b3942caf51bec7aef578af092ea964f7c642d).  This process can be facilitated by the authors of the `SGP` package [upon request](https://github.com/CenterForAssessment/SGPstateData/issues).
-
-####  Addition of the CSEM data for the Georgia Milestones assessments
-
-The conditional standard error of measurement (CSEM) data for the new assessments will be required in order to produce SGP standard errors.  In prior years this data was provided by the assessment developers and given to the NCIEA staff to compile and include in the `SGPstateData` object.  The required data includes the `GRADE`, `CONTENT_AREA`, `SCALE_SCORE` and the `SCALE_SCORE_CSEM` associated with each scale score value.
-
-#### Norm group preferences
-The process through which EOCT analyses are run can produce multiple SGPs for some students.  In order to identify which quantity will be used as the students' "official" SGP and subsequently merged into the master longitudinal data set, a system of norm group preferencing is established and is encoded into a lookup table and included in the `SGPstateData`.  In general, the preference is given to:
+####  Update the norm group preferences
+The process through which EOC and ELA analyses are run can produce multiple SGPs for some students.  In order to identify which quantity will be used as the students' "official" SGP and subsequently merged into the master longitudinal data set, a system of norm group preferencing is established and is encoded into a lookup table and included in the `SGPstateData`.  In general, the preference is given to:
 
 - Progressions with the greatest number of prior scale scores.
 - Progressions in which a student has repeated a course.
 - Progressions that do not include a skipped year (i.e. a gap in the scale score history).
-- Progressions that are set up for block-schedule course taking patterns.
+- Progressions for block-schedule course taking patterns.
 
-The next section descibes the process by which the course progressions are established and encoded in the SGP configurations.  These configuration code scripts are then used to create the norm group preference object.  Here is the [Github comit in which the object was included in `SGPstateData` - AVI CHANGE LINK IN 2015 ](https://github.com/CenterForAssessment/SGPstateData/commit/2b41574562eff8990d9b830e89e7a5e9e4ae8013).
-
-
-### 2. Create annual SGP configurations.
-
-Unlike CRCT analyses, EOCT analyses are specialized enough so that it is necessary to specify the analyses to be performed via a configuration.  For several years, configurations have been employed to conduct EOCT SGP analyses for Georgia. The configurations associated with the 2015 annual EOCT SGP analyses are located in the Georgia Github repository folder named [SGP_CONFIG](https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2015).  This file should also be available on existing Georgia DOE hard and/or shared drives.
-
-The configurations are broken up into four separate R scripts: [ELA](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/ELA.R), [MATHEMATICS](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/MATHEMATICS.R), [SCIENCE](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/SCIENCE.R), and [SOCIAL_STUDIES](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/SOCIAL_STUDIES.R).
-
-Each configuration specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Other parameters may also be defined.  Each configuration used for the Georgia EOCT analyses contain these elements:
-
-- **`sgp.content.areas`:** A progression of values that specifies the content areas to be looked at and the order in which the courses were taken.
-- **`sgp.panel.years`:** The progression of the years associated with the content area progression (`sgp.content.areas`) provided in the configuration, potentially allowing for skipped years, block schedules, etc.
-- **`sgp.grade.sequences`:** The grade progression associated with the content area and year progressions provided in the configuration. *'EOCT'* stands for 'End Of Course Test'.  The use of the generic *'EOCT'* allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level/class-designation.
-- **`sgp.panel.years.within`:** A vector of same length as the year progression (sgp.panel.years) indicating what observation is to be used for the individual student (when multiple observations exist within a single year).  Typically the "Last" observation is used as the prior score (covariate) and the "First" observation is used as the current year score (outcome).
-- **`sgp.exact.grade.progression`:** A Boolean argument (set to TRUE) indicating whether to run the EXACT configuration as written (rather than taking progressively restricted nested subsets of the configuration if FALSE).
-- **`sgp.exclude.sequences`:** A `data.table` object indicating combinations of `CONTENT_AREA`, `YEAR` and `GRADE` that should be *excluded* from a cohort for an analysis.  This element is used particularly when a progression includes a skipped year and students who *did not* skip a year could potentially be included based on their progression.  The Physical Science configuration below provides an example of this.  Excluding this element will result in all students that fit into the progression being included in the analysis, regardless of whether or not they actually skipped a year in their course taking history.
-- **`sgp.calculate.simex`:** A Boolean argument indicating whether cohort referenced SIMEX adjustment analyses should be run as part of the analysis for this configuration.  Excluding the argument (or explicitly setting to NULL) has the same effect as setting it to FALSE. 
-- **`sgp.calculate.simex.baseline`:** A Boolean argument indicating whether baseline referenced SIMEX adjustment analyses should be run as part of the analysis for this configuration.  Excluding the argument (or explicitly setting to NULL) has the same effect as setting it to FALSE. 
-- **`sgp.norm.group.preference`:** Because a student can potentially be included in more than one analysis/configuration, this argument provides a ranking specifying which SGP is preferable for being matched with the student in the [`combineSGP`](https://github.com/CenterForAssessment/SGP/blob/master/R/combineSGP.R) step.  *Lower numbers correspond with higher preference.*
-
-Note that `sgp.content.areas`, `sgp.panel.years`, and `sgp.grade.sequences` elements are all character strings, and their values correspond to levels found in the `CONTENT_AREA`, `YEAR`, and `GRADE` variables in the `Georgia_SGP@Data` slot respectively.  As an example, here is the complete [Mathematics II configuration code - AVI CHANGE LINK IN 2015 ](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/MATHEMATICS.R#L128) used to defined the 2015 SGP analyses:
-
-```R
-### Mathematics II
-
-MATHEMATICS_II_2015.config <- list(
-	MATHEMATICS_II.2015 = list( #32
-		sgp.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_II'),
-		sgp.panel.years=c('2013', '2015'),
-		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.exact.grade.progression=TRUE,
-		sgp.calculate.simex=TRUE,
-		sgp.norm.group.preference=4),
-	MATHEMATICS_II.2015 = list( #33
-		sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS_I', 'MATHEMATICS_II'),
-		sgp.panel.years=c('2012', '2013', '2015'),
-		sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.exact.grade.progression=TRUE,
-		sgp.calculate.simex=TRUE,
-		sgp.norm.group.preference=3),
-	MATHEMATICS_II.2015 = list( #34
-		sgp.content.areas=c('MATHEMATICS_I', 'MATHEMATICS_II'),
-		sgp.panel.years=c('2014', '2015'),
-		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.exact.grade.progression=TRUE,
-		sgp.calculate.simex=TRUE,
-		sgp.norm.group.preference=2),
-	MATHEMATICS_II.2015 = list( #35
-		sgp.content.areas=c('MATHEMATICS_II', 'MATHEMATICS_II'),
-		sgp.panel.years=c('2014', '2015'),
-		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.exact.grade.progression=TRUE,
-		sgp.calculate.simex=TRUE,
-		sgp.norm.group.preference=1)#,
-) ### END MATHEMATICS_II_2015.config
-```
-
-Here is an example of the Physical Science configuration used to defined a 2015 SGP analysis that contains a skipped year and requires the `sgp.exclude.sequences` element.:
-
-```R
-...
-
-	PHYSICAL_SCIENCE.2015 = list(
-		sgp.content.areas=c('SCIENCE','SCIENCE','PHYSICAL_SCIENCE'),
-		sgp.panel.years=c('2012', '2013', '2015'),
-		sgp.grade.sequences=list(c('7','8','EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.exact.grade.progression=TRUE,
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c("SCIENCE", "BIOLOGY", "PHYSICAL_SCIENCE"), 
-			YEAR=c("2014", "2014", "2014"), GRADE=c('8','EOCT', 'EOCT')),
-		sgp.calculate.simex=TRUE,
-		sgp.norm.group.preference=11), 
-...
-
-```
-
-The `sgp.exclude.sequences` element provides a data table with the cases to exclude from the analysis cohort.  Here we want to exclude any kids who may have not actually skipped a science related course in 2014, which might include students who repeated either 8th grade Science or EOCT Physical Science, or may have taken Biology in 2014.  These students will be included in other course progressions/configurations and should be excluded from the calculation of the skipped year SGPs.
-
-```R
-
-   VALID_CASE       CONTENT_AREA  YEAR  GRADE
-1: VALID_CASE            SCIENCE  2014      8
-2: VALID_CASE            BIOLOGY  2014   EOCT
-3: VALID_CASE   PHYSICAL_SCIENCE  2014   EOCT
-
-```
-
-Configurations are `R` scripts that are sourced as part of the larger SGP analysis to be discussed later.  In addition, the `SGPstateData` needs to be updated with the norm group preference data included within the configurations.  To do this, an `.Rdata` object needs to be constructed that is embedded within `SGPstateData` (either manually or included in the package build itself). To create the object with the norm groups preferences utilize/source the R script [configToSGPNormGroup.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/configToSGPNormGroup.R) in the [SGP_CONFIG](https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2015) folder as follows:
+Configurations are `R` scripts that are used as part of the larger SGP analysis to be discussed later.  In addition, the `SGPstateData` needs to be updated with the norm group preference data included within the configurations.  To do this, an `.Rdata` object needs to be constructed that is embedded within `SGPstateData` (either manually or included in the package build itself). To create the object with the norm groups preferences utilize/source the R script [configToSGPNormGroup.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/configToSGPNormGroup.R) in the [SGP_CONFIG](https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2015) folder as follows:
 
 ```R
 source("configToSGPNormGroup.R")
@@ -463,183 +602,380 @@ source("configToSGPNormGroup.R")
 
 This creates the `.Rdata` object [GA_SGP_Norm_Group_Preference.Rdata)](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/GA_SGP_Norm_Group_Preference.Rdata) containing the norm group preferences.  This object is a data.frame/data.table containing information about what the rank ordering of the configurations are in terms of preference.
 
-The `GA_SGP_Norm_Group_Preference` object should be submitted to the [SGP Package maintainers](https://github.com/CenterForAssessment/SGP#contributors) for inclusion in the package so that it is contained in `SGPstateData` when the package is loaded.
+The `GA_SGP_Norm_Group_Preference` object should be submitted to the [SGP package maintainers](https://github.com/CenterForAssessment/SGP#contributors) for inclusion in the package so that it is contained in `SGPstateData` when the package is loaded.  The next section describes the process by which the individual course progression analyses are established and how the preferencing system is included within their configuration code.  The `R` script "configToSGPNormGroup.R" in the Github repository uses the code below to produce the object `GA_SGP_Norm_Group_Preference`.
+
+```R
+
+##################################################################################
+###                                                                            ###
+###   Convert SGP analysis configurations to SGP_NORM_GROUP preference table   ###
+###                                                                            ###
+##################################################################################
+
+### Load packages
+
+require("data.table")
+options(error=recover)
+
+### utility functions
+
+configToSGPNormGroup <- function(sgp.config) {
+  if ("sgp.norm.group.preference" %in% names(sgp.config)) {
+    tmp.data.all <- data.table()
+    for (g in 1:length(sgp.config$sgp.grade.sequences)) {
+      l <- length(sgp.config$sgp.grade.sequences[[g]])
+      tmp.norm.group <- tmp.norm.group.baseline <- 
+        paste(tail(sgp.config$sgp.panel.years, l),
+        paste(tail(sgp.config$sgp.content.areas, l), 
+          unlist(sgp.config$sgp.grade.sequences[[g]]), sep="_"), sep="/") 
+            
+      tmp.data <- data.table(
+        SGP_NORM_GROUP=paste(tmp.norm.group, collapse="; "), 
+        SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
+        PREFERENCE= sgp.config$sgp.norm.group.preference*100)
+            
+      if (length(tmp.norm.group) > 2) {
+        if ("sgp.exact.grade.progression" %in% names(sgp.config)) {
+          if (sgp.config$sgp.exact.grade.progression) {
+            tmp.all.prog <- FALSE 
+          } else tmp.all.prog <- TRUE
+        } else tmp.all.prog <- TRUE
+        if (tmp.all.prog) {
+          for (n in 1:(length(tmp.norm.group)-2)) {
+            tmp.data <- rbind(tmp.data, data.table(
+              SGP_NORM_GROUP=paste(tail(tmp.norm.group, -n), collapse="; "), 
+              SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
+              PREFERENCE= (sgp.config$sgp.norm.group.preference*100)+n))
+          }
+        }
+      }
+      tmp.data.all <- rbind(tmp.data.all, tmp.data)
+    }
+    return(unique(tmp.data.all))
+  } else {
+    return(NULL)
+  }
+}
+
+configToSGPNormGroup_ORIG <- function(sgp.config) {
+    tmp.norm.group <- tmp.norm.group.baseline <- 
+      paste(sgp.config$sgp.panel.years, paste(sgp.config$sgp.content.areas, 
+            unlist(sgp.config$sgp.grade.sequences), sep="_"), sep="/")
+    return(data.table(
+      SGP_NORM_GROUP=paste(tmp.norm.group, collapse="; "), 
+      SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
+      PREFERENCE=as.integer(sgp.config$sgp.norm.group.preference)))
+}
+
+### Load 2010 - 2015 EOCT Configurations
+sapply(list.files("EOCT/2010/", full.names=TRUE), source, .GlobalEnv)
+sapply(list.files("EOCT/2011/", full.names=TRUE), source, .GlobalEnv)
+sapply(list.files("EOCT/2012/", full.names=TRUE), source, .GlobalEnv)
+sapply(list.files("EOCT/2013/", full.names=TRUE), source, .GlobalEnv)
+sapply(list.files("EOCT/2014/", full.names=TRUE), source, .GlobalEnv)
+sapply(list.files("EOCT/2015/", full.names=TRUE), source, .GlobalEnv)
+
+###  Compile annual configuration lists
+GA_EOCT_2010.config <- c(
+	GRADE_9_LIT_2010.config, AMERICAN_LIT_2010.config,
+	US_HISTORY_2010.config, ECONOMICS_2010.config,
+	BIOLOGY_2010.config, PHYSICAL_SCIENCE_2010.config,
+	MATHEMATICS_I_2010.config)
+
+GA_EOCT_2011.config <- c(
+	GRADE_9_LIT_2011.config, AMERICAN_LIT_2011.config,
+	US_HISTORY_2011.config, ECONOMICS_2011.config,
+	BIOLOGY_2011.config, PHYSICAL_SCIENCE_2011.config,
+	MATHEMATICS_I_2011.config, MATHEMATICS_II_2011.config)
+
+GA_EOCT_2012.config <- c(
+	GRADE_9_LIT_2012.config, AMERICAN_LIT_2012.config,
+	US_HISTORY_2012.config, ECONOMICS_2012.config,
+	BIOLOGY_2012.config, PHYSICAL_SCIENCE_2012.config,
+	ALGEBRA_2012.config, GEOMETRY_2012.config, 
+	MATHEMATICS_I_2012.config, MATHEMATICS_II_2012.config)
+
+GA_EOCT_2013.config <- c(
+	GRADE_9_LIT_2013.config, AMERICAN_LIT_2013.config,
+	US_HISTORY_2013.config, ECONOMICS_2013.config,
+	PHYSICAL_SCIENCE_2013.config, BIOLOGY_2013.config,
+	COORDINATE_ALGEBRA_2013.config, GEOMETRY_2013.config, 
+	MATHEMATICS_I_2013.config, MATHEMATICS_II_2013.config)
+
+GA_EOCT_2014.config <- c(
+	GRADE_9_LIT_2014.config, AMERICAN_LIT_2014.config,
+	US_HISTORY_2014.config, ECONOMICS_2014.config,
+	BIOLOGY_2014.config, PHYSICAL_SCIENCE_2014.config,
+	ANALYTIC_GEOMETRY_2014.config, COORDINATE_ALGEBRA_2014.config, 
+	MATHEMATICS_II_2014.config)
+
+GA_EOCT_2015.config <- c(
+	ELA_2015.config, GRADE_9_LIT_2015.config, AMERICAN_LIT_2015.config,
+	US_HISTORY_2015.config, ECONOMICS_2015.config,
+	BIOLOGY_2015.config, PHYSICAL_SCIENCE_2015.config,
+	ANALYTIC_GEOMETRY_2015.config, COORDINATE_ALGEBRA_2015.config)
+
+### Create configToNormGroup data.frame
+tmp.configToNormGroup <- lapply(GA_EOCT_2010.config, configToSGPNormGroup_ORIG)
+GA_SGP_Norm_Group_Preference_2010 <- data.table(
+					YEAR="2010", rbindlist(tmp.configToNormGroup))
+
+tmp.configToNormGroup <- lapply(GA_EOCT_2011.config, configToSGPNormGroup_ORIG)
+GA_SGP_Norm_Group_Preference_2011 <- data.table(
+					YEAR="2011", rbindlist(tmp.configToNormGroup))
+
+tmp.configToNormGroup <- lapply(GA_EOCT_2012.config, configToSGPNormGroup_ORIG)
+GA_SGP_Norm_Group_Preference_2012 <- data.table(
+					YEAR="2012", rbindlist(tmp.configToNormGroup))
+
+tmp.configToNormGroup <- lapply(GA_EOCT_2013.config, configToSGPNormGroup_ORIG)
+GA_SGP_Norm_Group_Preference_2013 <- data.table(
+					YEAR="2013", rbindlist(tmp.configToNormGroup))
+
+tmp.configToNormGroup <- lapply(GA_EOCT_2014.config, configToSGPNormGroup_ORIG)
+GA_SGP_Norm_Group_Preference_2014 <- data.table(
+					YEAR="2014", rbindlist(tmp.configToNormGroup))
+
+tmp.configToNormGroup <- lapply(GA_EOCT_2015.config, configToSGPNormGroup)
+GA_SGP_Norm_Group_Preference_2015 <- data.table(
+					YEAR="2015", rbindlist(tmp.configToNormGroup))
+
+GA_SGP_Norm_Group_Preference <- rbind(
+      GA_SGP_Norm_Group_Preference_2010, GA_SGP_Norm_Group_Preference_2011,
+      GA_SGP_Norm_Group_Preference_2012, GA_SGP_Norm_Group_Preference_2013,
+      GA_SGP_Norm_Group_Preference_2014, GA_SGP_Norm_Group_Preference_2015)
+
+GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP <- 
+    as.factor(GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP)
+GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP_BASELINE <- 
+    as.factor(GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP_BASELINE)
+
+### Save result
+setkey(GA_SGP_Norm_Group_Preference, YEAR, SGP_NORM_GROUP)
+save(GA_SGP_Norm_Group_Preference, file="GA_SGP_Norm_Group_Preference.Rdata")
+
+```
+
+### 2. Create annual SGP configurations
+
+Unlike most EOG analyses, EOC analyses are specialized enough so that it is necessary to specify the analyses to be performed via explicit configuration code.  For several years, configurations have been employed to conduct EOC SGP analyses for Georgia, and beginning in 2015 configurations are now used for EOG SGP analyses as well. In part the use in EOG was required for the ELA analyses because this assessment now includes both Reading and ELA content, and the analysis of it uses separate CRCT Reading and ELA tests as priors.  The configurations associated with the 2015 annual SGP analyses are located in the Georgia Github repository folder named [SGP_CONFIG](https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2015).  This file should also be available on existing Georgia DOE hard and/or shared drives.
+
+The configurations are broken up into four separate R scripts: [ELA.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/ELA.R), [MATHEMATICS.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/MATHEMATICS.R), [SCIENCE.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/SCIENCE.R), and [SOCIAL_STUDIES.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/SOCIAL_STUDIES.R).
+
+Each configuration specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Each configuration used for the Georgia EOG analyses contain the first three elements.  The EOC test analyses also contain the fourth through sixth elements:
+
+- **`sgp.content.areas`:** A progression of values that specifies the content areas to be looked at and their order.
+- **`sgp.panel.years`:** The progression of the years associated with the content area progression (`sgp.content.areas`) provided in the configuration, potentially allowing for skipped years, repeated years, etc.
+- **`sgp.grade.sequences`:** The grade progression associated with the content area and year progressions provided in the configuration. **'EOCT'** stands for 'End Of Course Test'.  The use of the generic 'EOCT' allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level/class-designation.
+- **`sgp.projection.grade.sequences`:** This element is used to identify the grade sequence that will be used to produce straight and/or lagged student growth projections.  It can, somewhat counter-intuitively, be left out or set to NULL, in which case projections will be produced and the package functions will populate the grade sequence to use based on the values provided in the `sgp.grade.sequences` element.  Alternatively, when set to "`NO_PROJECTIONS`", no projections will be produced.  For EOCT analyses, only configurations that correspond to the canonical course progressions can produce student growth projections.  The canonical progressions are codified and stored in the `SGP` package here: `SGPstateData[["GA"]][["SGP_Configuration"]][["content_area.projection.sequence"]]`.
+- **`sgp.norm.group.preference`:** Because a student can potentially be included in more than one analysis/configuration, multiple SGPs will be produced for some students and a system is required to identify the preferred SGP that will be matched with the student in the `combineSGP` step.  This argument provides a ranking that specifies how preferable SGPs produced from the analysis in question is relative to other possible analyses.  ***Lower numbers correspond with higher preference.***
+- **`sgp.exclude.sequences`:** Identifies grade, subject, and year combinations that identify students that should be excluded from the norm-group cohort.  Generally used in progressions in which a year or similar time period is skipped (i.e. a gap in time exists).  For example, in a progression that goes from 8<sup>th</sup> grade Science to EOCT Biology with a skipped year in between one may want to exclude kids that fit into that progression, but also repeated either 8<sup>th</sup> grade Science or EOCT Biology or took EOCT Physical Science in the skipped year.  Students with different course progressions may be inappropriate to include with the cohort of students who truly had no science related course in the intervening year.
+
+
+Note that `sgp.content.areas`, `sgp.panel.years`, and `sgp.grade.sequences` elements are all character strings, and their values correspond to levels found in the `CONTENT_AREA`, `YEAR`, and `GRADE` variables in the `Georgia_SGP@Data` slot respectively.  
+
+As an example, here is the complete [Coordinate Algebra configuration code](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2015/MATHEMATICS.R#L19) used to defined the 2015 SGP analyses:
+
+```R
+### Coordinate Algebra
+
+COORDINATE_ALGEBRA_2015.config <- list(
+  COORDINATE_ALGEBRA.2015 = list( #14
+    sgp.content.areas=c('MATHEMATICS', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2013', '2015'),
+    sgp.grade.sequences=list(c(8, 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', 
+      CONTENT_AREA=c('MATHEMATICS', 'COORDINATE_ALGEBRA'), 
+      YEAR=c('2014', '2014'), GRADE=c(8, 'EOCT')),
+    sgp.norm.group.preference=7),
+  COORDINATE_ALGEBRA.2015 = list( #15
+    sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2012', '2013', '2015'),
+    sgp.grade.sequences=list(c(7, 8, 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE',
+      CONTENT_AREA=c('MATHEMATICS', 'COORDINATE_ALGEBRA'), 
+      YEAR=c('2014', '2014'), GRADE=c(8, 'EOCT')),
+    sgp.norm.group.preference=6),
+
+  COORDINATE_ALGEBRA.2015 = list( #16
+    sgp.content.areas=c('MATHEMATICS', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2014', '2015'),
+    sgp.grade.sequences=list(c(8, 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=5),
+  COORDINATE_ALGEBRA.2015 = list( #17
+    sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2013', '2014', '2015'),
+    sgp.grade.sequences=list(c(7, 8, 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=4),
+  COORDINATE_ALGEBRA.2015 = list( #18
+    sgp.content.areas=c('MATHEMATICS', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2014', '2015'),
+    sgp.grade.sequences=list(c('7', 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=3),
+  COORDINATE_ALGEBRA.2015 = list( #19
+    sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2013', '2014', '2015'),
+    sgp.grade.sequences=list(c('6', '7', 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=2),
+  COORDINATE_ALGEBRA.2015 = list( #20 - Repeaters
+    sgp.content.areas=c('COORDINATE_ALGEBRA', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2014', '2015'),
+    sgp.grade.sequences=list(c('EOCT', 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=1),
+  COORDINATE_ALGEBRA.2015 = list( #21 - Repeaters (Same Year)
+    sgp.content.areas=c('COORDINATE_ALGEBRA', 'COORDINATE_ALGEBRA'),
+    sgp.panel.years=c('2015', '2015'),
+    sgp.grade.sequences=list(c('EOCT', 'EOCT')),
+    sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=0)
+) ### END COORDINATE_ALGEBRA_2015.config
+```
+
+Notice the first analysis in particular, which contains a skipped year and requires the `sgp.exclude.sequences` element.  The `sgp.exclude.sequences` element provides a data table with the cases to exclude from the analysis cohort.  Here we want to exclude any kids who may have not actually skipped a math related course in 2014, which might include students who repeated either 8th grade Math or repeated Coordinate Algebra.  These students will be included in other course progressions/configurations and should be excluded from the calculation of the skipped year SGPs.
+
+```R
+
+   VALID_CASE         CONTENT_AREA    YEAR     GRADE
+1: VALID_CASE          MATHEMATICS    2014         8
+2: VALID_CASE   COORDINATE_ALGEBRA    2014      EOCT
+
+```
 
 
 ### 3. Conduct grade-level SGP analyses.
 
-The grade-level Math, Science and Social Studies analyses were conducted seperately from the EOCT course analyses.  Mainly this is done because these analyses do not require custom configuation scripts like EOCT does.  Given the simplistic use of only the same test as prior test scores in these analyses, the SGP package's functions can identify the analyses to be conducted internally.  This also allows the analyses to be completed and checked, and interim results saved which is sometimes necessary due to the computationally intensive nature of the analyse, particularly with a state the size of Georgia.^[Note that this is not the case for the 2015 ELA analyses, which use previous years' CRCT ELA and Reading tests as prior test scores and this requires a custom configuration script.]
+All cohort-referenced (uncorrected) and SIMEX corrected EOG and EOC SGPs were calculated concurrently.^[In addition to these quantities, baseline-referenced SGPs (uncorrected and SIMEX corrected) had been calculated in previous years and used as the "official" SGP quantity, but this method of SGP calculation will be unavailable until at least 3 years of Milestones assessment data are available to form the baseline cohorts.]   We use the [`updateSGP`](http://www.inside-r.org/packages/cran/SGP/docs/updateSGP) function to **a)** do the final preparation and addition of the new cleaned and formatted long data to the new `SGP` class object ([`prepareSGP`](http://www.inside-r.org/packages/cran/SGP/docs/prepareSGP) step) and **b)** calculate SGP estimates ([`analyzeSGP`](http://www.inside-r.org/packages/cran/SGP/docs/analyzeSGP) step).  
+
 
 ```R
-#########################################################
-###
-### Calculate SGPs for Georgia - 2015
-###
-##########################################################
+##################################################################################
+###                                                                            ###
+###                     Calculate SGPs for Georgia - 2015                      ###
+###                                                                            ###
+##################################################################################
 
-### Load SGP Package
-
+### Load required packages
 require(SGP)
+require(data.table)
 
-### Load Georgia SGP object
-
+###  Load NEW Georgia SGP object and 2015 data
 load("Data/Georgia_SGP.Rdata")
+load("Data/Georgia_Data_LONG_2015.Rdata")
 
-### AnalyzeSGP : Grade level tests
-
-Georgia_SGP <- analyzeSGP(
-			Georgia_SGP,
-			years='2015',
-			content_areas=c("MATHEMATICS", "SOCIAL_STUDIES", "SCIENCE"),
-			sgp.percentiles=TRUE,
-			sgp.projections = FALSE,
-			sgp.projections.lagged = FALSE,
-			sgp.percentiles.baseline=FALSE,
-			sgp.projections.baseline = FALSE,
-			sgp.projections.lagged.baseline = FALSE,
-			simulate.sgps = TRUE,   # Needed for SGP_STANDARD_ERROR and SGP_BASELINE_STANDARD_ERROR
-			calculate.simex = TRUE, # Produce Cohort SIMEX for CRCT now.
-			calculate.simex.baseline = FALSE, 
-			goodness.of.fit.print="GROB", # Print all out once after running EOCTs - "GROB" produces R graphical object, but doesn't print.
-			parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=25, SIMEX=25))) # Parallel config as run for official results
-
-### Save Results
-
-save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
-```
-
-
-### 4. Conduct EOCT SGP analyses.
-
-The EOCT content area progressions specific analyses are then calculated using the configuration scripts outlined above.
-
-```R
-#########################################################
-###
-### Calculate EOCT SGPs for Georgia for 2015
-###
-##########################################################
-
-### Load SGP Package
-
-require(SGP)
-
-### Load Georgia SGP object
-
-load("Data/Georgia_SGP.Rdata")
-
-### Load EOCT configurations
-require(SGP)
-setwd('/media/Data/Dropbox/Github_Repos/Projects/Georgia')
-
+###  Read in 2015 SGP Configuration Scripts and Combine
 source("SGP_CONFIG/EOCT/2015/ELA.R")
 source("SGP_CONFIG/EOCT/2015/SCIENCE.R")
 source("SGP_CONFIG/EOCT/2015/SOCIAL_STUDIES.R")
 source("SGP_CONFIG/EOCT/2015/MATHEMATICS.R")
 
-####################################################################################
-###
-### EOCT Analyses
-###
-####################################################################################
+GA_2015.config <- c(
+  ELA_2015.config, GRADE_9_LIT_2015.config, AMERICAN_LIT_2015.config,
+  SOCIAL_STUDIES_2015.config, US_HISTORY_2015.config, ECONOMICS_2015.config,
+  SCIENCE_2015.config, BIOLOGY_2015.config, PHYSICAL_SCIENCE_2015.config,
+  MATHEMATICS_2015.config, COORDINATE_ALGEBRA_2015.config, 
+    ANALYTIC_GEOMETRY_2015.config)
+
+### updateSGP
+
+Georgia_SGP <- updateSGP(
+        what_sgp_object=Georgia_SGP,
+        with_sgp_data_LONG=Georgia_Data_LONG_2015,
+        sgp.config = GA_2015.config,
+        steps=c("prepareSGP", "analyzeSGP", "combineSGP", "outputSGP"),
+        sgp.percentiles = TRUE,
+        sgp.projections = TRUE,
+        sgp.projections.lagged = TRUE,
+        sgp.percentiles.baseline=FALSE,
+        sgp.projections.baseline = FALSE,
+        sgp.projections.lagged.baseline = FALSE,
+        sgp.percentiles.equated = TRUE,
+        simulate.sgps = TRUE,
+        calculate.simex = TRUE,
+        goodness.of.fit.print=TRUE,
+        save.intermediate.results=FALSE,
+        outputSGP.output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"),
+        # parallel.config = list( # Ubuntu/Linux - Adam VI
+        #    BACKEND="PARALLEL", WORKERS=list(TAUS=22, SIMEX=20))) 
+        parallel.config = list(
+           BACKEND="FOREACH", 
+           TYPE="doParallel", 
+           WORKERS=list(TAUS=11, SIMEX=11))) # WINDOWS - Qi Qin
+```
+
+### 4. Merge 2015 results into the `@Data` slot, and output data
+
+Once all analyses were completed the results were merged into the master longitudinal data set ([`combineSGP`](http://www.inside-r.org/packages/cran/SGP/docs/combineSGP) step).  A pipe delimited version of the complete long data is output ([`outputSGP`](http://www.inside-r.org/packages/cran/SGP/docs/outputSGP) step).  This file requires additional formatting to add fields needed for rendering data in the [visualization tool](http://gastudentgrowth.gadoe.org/) such as students' entire prior score and course progression history.  The formatting process is described in detail below.
 
 
-GA_EOCT.config <- c(
-		ANALYTIC_GEOMETRY_2015.config,
-		COORDINATE_ALGEBRA_2015.config,
-		MATHEMATICS_II_2015.config,
+#### Summarize and visualize data
+The data is then summarized using the [`summarizeSGP` function](http://www.inside-r.org/packages/cran/SGP/docs/summarizeSGP), which produces many tables of descriptive statistics that are disaggregated at the state, district, school and instructor (if/when available) levels.  These basic summary tables are also further disaggregated by the demographic groups available in the data set and listed in [Georgia's Variable Name Lookup table](https://github.com/CenterForAssessment/SGPstateData/blob/master/Variable_Name_Lookup/GA_Variable_Name_Lookup.csv).  Finally, visualizations (such as bubble charts) are produced from the data and summary tables using the [`visualizeSGP`](http://www.inside-r.org/packages/cran/SGP/docs/visualizeSGP) function.
 
-		BIOLOGY_2015.config,
-		PHYSICAL_SCIENCE_2015.config,
+```R
+###  Summarize Results
 
-		GRADE_9_LIT_2015.config,
-		AMERICAN_LIT_2015.config,
+# Fill in ACHIEVEMENT_LEVEL_PRIOR for ELA First
+Georgia_SGP@Data[which(CONTENT_AREA=="ELA" & YEAR=='2015' 
+    & VALID_CASE=="VALID_CASE"), 
+  ACHIEVEMENT_LEVEL_PRIOR :=
+    ordered(findInterval(as.numeric(SCALE_SCORE_PRIOR), levels = c(800, 850)), 
+    labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
 
-		ECONOMICS_2015.config,
-		US_HISTORY_2015.config)
+Georgia_SGP <- summarizeSGP(
+    Georgia_SGP,
+    parallel.config=list(
+        # BACKEND="PARALLEL",
+        BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, 
+        WORKERS=list(SUMMARY=5))
+)
 
-Georgia_SGP <- analyzeSGP(
-		Georgia_SGP,
-		sgp.config = GA_EOCT.config,
-		sgp.percentiles = TRUE,
-		sgp.projections = FALSE,
-		sgp.projections.lagged = FALSE,
-		sgp.percentiles.baseline = FALSE,
-		sgp.projections.baseline = FALSE,
-		sgp.projections.lagged.baseline = FALSE,
-		simulate.sgps = TRUE,   # Needed for SGP_STANDARD_ERROR and SGP_BASELINE_STANDARD_ERROR
-		parallel.config = list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(TAUS=25, SIMEX=25))) # Parallel config as run for official results
+###  Visualize Results
+
+#  Need to add School and District names for bubble plots
+Georgia_SGP@Data$SCHOOL_NAME <- as.character(NA); gc()
+Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
+
+visualizeSGP(Georgia_SGP,
+             plot.types = "bubblePlot",
+             bPlot.years= "2015",
+             bPlot.content_areas=c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
+             bPlot.anonymize=TRUE,
+             gaPlot.content_areas = c("SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
+             parallel.config=list(
+                BACKEND='FOREACH', TYPE="doParallel",
+                WORKERS=list(GA_PLOTS=12)))
 
 ```
 
-### 5. Merge 2015 results into `@Data` slot, summarize and output data.
+#### Merge Supplementary Instructor Data
 
-Once all analyses are completed the results are merged into the master longitudinal data set in the `@Data` slot of the SGP class object using the `combineSGP` function.  The data is then summarized using the `summarizeSGP` function, which produced many tables of discriptive statistics which are disaggregated at the state, district, school and instructor levels.  These basic summary tables are also further disaggregated by the demographic groups available in the data set and listed in [Georgia's Variable Name Lookup table](https://github.com/CenterForAssessment/SGPstateData/blob/master/Variable_Name_Lookup/GA_Variable_Name_Lookup.csv).  
+Note that in 2014 the `INSTRUCTOR_NUMBER` data set was not available during the initial data cleaning and preparation in September 2014, and therefore was not included initially.  This has also been the case in 2015, and to date no teacher-student links are available.
 
-```R
-### combineSGP
 
-Georgia_SGP <- combineSGP(Georgia_SGP, years='2015')
+## Format the exported data
 
-### Save results
-save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
-```
-
-###### Merge Supplementary Instructor Data
-
-Note that in 2014 the `INSTRUCTOR_NUMBER` data set was not available during the initial data cleaning and preparation in September 2014, and therefore was not included in the `prepareSGP` (or `updateSGP` step).  This was added to the `Georgia_SGP` object before `summarizeSGP` was run in order to produce teacher level mean/median SGP summary statistic tables.  Depending on the delivery/availability of data in the Fall of 2015, this step may need to be run externally again.
-
-The data cleaning of this data set was addressed above, but it was added to the existing data in 2014 using this code:
+A pipe delimited version of the complete long data is exported in the `outputSGP` step of the `updateSGP` function call above.  A formatted version of these results is produced externally, which contains fields needed for rendering data in the state's [vizualization tool](http://gastudentgrowth.gadoe.org/), such as students' entire prior score and course progression history.  The code used in 2015 is presented here:
 
 ```R
-###  Merge 2015 data with existing @Data_Supplementary$INSTRUCTOR_NUMBER
-
-load('Data/Georgia_SGP.Rdata')
-load('Data/Base_Files/GA_INSTRUCTOR_2015.Rdata')
-
-# First change existing Instructor LName FName to character
-unlist(sapply(Georgia_SGP@Data_Supplementary[[1]], class))
-Georgia_SGP@Data_Supplementary[[1]][, INSTRUCTOR_LAST_NAME := as.character(INSTRUCTOR_LAST_NAME)]
-Georgia_SGP@Data_Supplementary[[1]][, INSTRUCTOR_FIRST_NAME := as.character(INSTRUCTOR_FIRST_NAME)]
-
-# Use rbind to combine the existing and new data
-Georgia_SGP@Data_Supplementary[["INSTRUCTOR_NUMBER"]] <- rbind(Georgia_SGP@Data_Supplementary[["INSTRUCTOR_NUMBER"]], GA_INSTRUCTOR_2015)
-
-# You may want to save Georgia_SGP and restart before running summarizeSGP 
-# if CPU memory is now exhausted.  Just to be safe ...
-
-```
-
-At this point we proceeded with the summarization and output of the data.
-
-```R
-### summarizeSGP (Produces aggregate tables)
-
-Georgia_SGP <- summarizeSGP(Georgia_SGP, parallel.config=list(BACKEND='FOREACH', TYPE="doParallel", WORKERS=list(SUMMARY=20)))
-#  Extract and save the summary tables seperately
-
-Georgia_Summary <- Georgia_SGP@Summary
-save(Georgia_Summary, file="Data/Georgia_Summary_2015.Rdata")
-
-Georgia_SGP@Summary <- NULL
-
-### outputSGP
-
-outputSGP(Georgia_SGP, output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"))
-
-```
-
-
-### 6. Export formatted data from Georgia_SGP object.
-
-In the final line of code above, a pipe delimited version of the complete long data is exported via `outputSGP`.  Additionally for Georgia, the NCIEA produces a formatted version of the 2015 results, which contains fields needed for rendering data in the state's [vizualization tool](http://gastudentgrowth.gadoe.org/) such as students' entire prior score and course progression history.  The code used in 2015 is presented here:
-
-```R
-######################################################################################
-###
-### Script to produce formatted text output for Georgia from annual long data
-###
-######################################################################################
+##################################################################################
+###                                                                            ###
+###     Script to produce formatted output for Georgia from 2015 long data     ###
+###                                                                            ###
+##################################################################################
 
 ### Load packages
 
@@ -647,169 +983,247 @@ require(SGP)
 require(data.table)
 
 ### Load data
-setwd('Georgia')
+setwd('/media/Data/Dropbox/SGP/Georgia')
 
 load("Data/Georgia_SGP.Rdata")
 load("Data/Georgia_SGP_LONG_Data_2015.Rdata")
 
 ### Variables to output
-variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "YEAR_WITHIN", "GRADE", "GRADE_REPORTED", "SCALE_SCORE", "SCALE_SCORE_PRIOR_STANDARDIZED",
-"ADMINISTRATION_PERIOD", "FIRST_OBSERVATION", "LAST_OBSERVATION", "PERFORMANCE_LEVEL", "SR_SYSTEM_ID", "SCHOOL_NUMBER", "ADMIN_INVALIDATION", "ADMIN_TYPE", "MATCH_STATUS",
-"RACE_CODE", "GENDER_CODE", "ED", "SWD", "LEP", "GIFT", "BIRTH_DATE", "LAST_NAME", "FIRST_NAME", "MIDDLE_NAME",
-"SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_LEVEL", "SGP_STANDARD_ERROR", "SGP_NORM_GROUP_SCALE_SCORES", 
-"SGP_NORM_GROUP_BASELINE", "SGP_BASELINE", "SGP_SIMEX_BASELINE", "SGP_LEVEL_BASELINE", "SGP_NORM_GROUP_BASELINE_SCALE_SCORES", 
-"SGP_NORM_GROUP_FINAL", "SGP_FINAL", "SGP_SIMEX_FINAL", "SGP_LEVEL_FINAL", "SGP_SIMEX_LEVEL_FINAL", "SGP_NORM_GROUP_FINAL_SCALE_SCORES",
-"SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "PERFORMANCE_LEVEL_PRIOR_1", "GRADE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1",
-"SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "SCALE_SCORE_PRIOR_2", "PERFORMANCE_LEVEL_PRIOR_2", "GRADE_PRIOR_2", "ADMINISTRATION_PERIOD_PRIOR_2", 
-"SCHOOL_YEAR_PRIOR_3", "SUBJECT_CODE_PRIOR_3", "SCALE_SCORE_PRIOR_3", "PERFORMANCE_LEVEL_PRIOR_3", "GRADE_PRIOR_3", "ADMINISTRATION_PERIOD_PRIOR_3",
-"SCHOOL_YEAR_PRIOR_4", "SUBJECT_CODE_PRIOR_4", "SCALE_SCORE_PRIOR_4", "PERFORMANCE_LEVEL_PRIOR_4", "GRADE_PRIOR_4", "ADMINISTRATION_PERIOD_PRIOR_4")
+variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", 
+  "YEAR_WITHIN", "GRADE", "GRADE_REPORTED", "SCALE_SCORE", 
+  "SCALE_SCORE_PRIOR_STANDARDIZED","ADMINISTRATION_PERIOD","FIRST_OBSERVATION", 
+  "LAST_OBSERVATION", "PERFORMANCE_LEVEL", "SR_SYSTEM_ID", "SCHOOL_NUMBER", 
+  "ADMIN_INVALIDATION","ADMIN_TYPE","MATCH_STATUS","RACE_CODE","GENDER_CODE",
+  "ED", "SWD", "LEP", "GIFT", "BIRTH_DATE", "LAST_NAME", "FIRST_NAME", 
+  "MIDDLE_NAME", "SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_LEVEL", 
+  "SGP_STANDARD_ERROR","SGP_NORM_GROUP_SCALE_SCORES","SCHOOL_YEAR_PRIOR_1", 
+  "SUBJECT_CODE_PRIOR_1","SCALE_SCORE_PRIOR_1","PERFORMANCE_LEVEL_PRIOR_1", 
+  "GRADE_PRIOR_1","ADMINISTRATION_PERIOD_PRIOR_1","ASSESSMENT_TYPE_PRIOR_1",
+  "SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "SCALE_SCORE_PRIOR_2", 
+  "PERFORMANCE_LEVEL_PRIOR_2","GRADE_PRIOR_2","ADMINISTRATION_PERIOD_PRIOR_2", 
+  "ASSESSMENT_TYPE_PRIOR_2", "SCHOOL_YEAR_PRIOR_3", "SUBJECT_CODE_PRIOR_3", 
+  "SCALE_SCORE_PRIOR_3", "PERFORMANCE_LEVEL_PRIOR_3", "GRADE_PRIOR_3", 
+  "ADMINISTRATION_PERIOD_PRIOR_3", "ASSESSMENT_TYPE_PRIOR_3", 
+  "SCHOOL_YEAR_PRIOR_4", "SUBJECT_CODE_PRIOR_4", "SCALE_SCORE_PRIOR_4", 
+  "PERFORMANCE_LEVEL_PRIOR_4", "GRADE_PRIOR_4", 
+  "ADMINISTRATION_PERIOD_PRIOR_4", "ASSESSMENT_TYPE_PRIOR_4")
 
 ### Subset out relevant variables
 
-tmp.long.data <- subset(Georgia_SGP_LONG_Data_2015, select=intersect(variables.to.output, names(Georgia_SGP_LONG_Data_2015)))
+tmp.long.data <- subset(Georgia_SGP_LONG_Data_2015, 
+    select=intersect(variables.to.output, names(Georgia_SGP_LONG_Data_2015)))
 
-###		Create SGP_*_FINAL Variables
-###		Start with baseline SGPs and then fill in missings (EOCT Math subjects) with cohort referenced SGPs
-
-tmp.long.data[, SGP_FINAL := SGP_BASELINE]
-tmp.long.data[which(is.na(SGP_FINAL)), SGP_FINAL := SGP]
-
-tmp.long.data[, SGP_SIMEX_FINAL := SGP_SIMEX_BASELINE]
-tmp.long.data[which(is.na(SGP_FINAL)), SGP_FINAL := SGP_SIMEX]
-
-tmp.long.data[, SGP_LEVEL_FINAL := SGP_LEVEL_BASELINE]
-tmp.long.data[which(is.na(SGP_LEVEL_FINAL)), SGP_LEVEL_FINAL := SGP_LEVEL]
-
-tmp.long.data[, SGP_SIMEX_LEVEL_FINAL := ordered(
-   findInterval(SGP_SIMEX_FINAL, SGPstateData[["GA"]][["Growth"]][["Cutscores"]][["Cuts"]]), labels=c("Low", "Typical", "High"))]
-
-tmp.long.data[, SGP_NORM_GROUP_FINAL := SGP_NORM_GROUP_BASELINE]
-tmp.long.data[which(is.na(SGP_NORM_GROUP_FINAL)), SGP_NORM_GROUP_FINAL := SGP_NORM_GROUP]
-
-tmp.long.data[, SGP_NORM_GROUP_FINAL_SCALE_SCORES := SGP_NORM_GROUP_BASELINE_SCALE_SCORES]
-tmp.long.data[which(is.na(SGP_NORM_GROUP_FINAL_SCALE_SCORES)), SGP_NORM_GROUP_FINAL_SCALE_SCORES := SGP_NORM_GROUP_SCALE_SCORES]
-
-
-### Split SGP_NORM_GROUP_FINAL
-my.tmp.split <- strsplit(as.character(tmp.long.data$SGP_NORM_GROUP_FINAL), "; ")
+### Split SGP_NORM_GROUP
+my.tmp.split <- strsplit(as.character(tmp.long.data$SGP_NORM_GROUP), "; ")
 
 
 ### YEAR Prior
-tmp.long.data$SCHOOL_YEAR_PRIOR_1 <- sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 1)
-tmp.long.data$SCHOOL_YEAR_PRIOR_2 <- sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[3]), "/"), '[', 1)
-tmp.long.data$SCHOOL_YEAR_PRIOR_3 <- sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[4]), "/"), '[', 1)
-tmp.long.data$SCHOOL_YEAR_PRIOR_4 <- sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[5]), "/"), '[', 1)
+tmp.long.data$SCHOOL_YEAR_PRIOR_1 <- 
+    sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 1)
+tmp.long.data$SCHOOL_YEAR_PRIOR_2 <- 
+    sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[3]), "/"), '[', 1)
+tmp.long.data$SCHOOL_YEAR_PRIOR_3 <- 
+    sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[4]), "/"), '[', 1)
+tmp.long.data$SCHOOL_YEAR_PRIOR_4 <- 
+    sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[5]), "/"), '[', 1)
 
 ### SUBJECT_CODE Prior
-tmp.long.data$SUBJECT_CODE_PRIOR_1 <- sapply(sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
-tmp.long.data$SUBJECT_CODE_PRIOR_2 <- sapply(sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[3]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
-tmp.long.data$SUBJECT_CODE_PRIOR_3 <- sapply(sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[4]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
-tmp.long.data$SUBJECT_CODE_PRIOR_4 <- sapply(sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[5]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
+tmp.long.data$SUBJECT_CODE_PRIOR_1 <- 
+  sapply(sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, 
+  function(x) rev(x)[2]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
+tmp.long.data$SUBJECT_CODE_PRIOR_2 <- 
+  sapply(sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, 
+  function(x) rev(x)[3]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
+tmp.long.data$SUBJECT_CODE_PRIOR_3 <- 
+  sapply(sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, 
+  function(x) rev(x)[4]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
+tmp.long.data$SUBJECT_CODE_PRIOR_4 <- 
+  sapply(sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, 
+  function(x) rev(x)[5]), "/"), '[', 2), "_"), head, -1), paste, collapse="_")
 
 ### GRADE Prior
-tmp.long.data$GRADE_PRIOR_1 <- sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[', 2), "_"), tail, 1)
-tmp.long.data$GRADE_PRIOR_2 <- sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[3]), "/"), '[', 2), "_"), tail, 1)
-tmp.long.data$GRADE_PRIOR_3 <- sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[4]), "/"), '[', 2), "_"), tail, 1)
-tmp.long.data$GRADE_PRIOR_4 <- sapply(strsplit(sapply(strsplit(
-   sapply(my.tmp.split, function(x) rev(x)[5]), "/"), '[', 2), "_"), tail, 1)
+tmp.long.data$GRADE_PRIOR_1 <- 
+  sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, 
+    function(x) rev(x)[2]), "/"), '[', 2), "_"), tail, 1)
+tmp.long.data$GRADE_PRIOR_2 <- 
+  sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, 
+    function(x) rev(x)[3]), "/"), '[', 2), "_"), tail, 1)
+tmp.long.data$GRADE_PRIOR_3 <- 
+  sapply(strsplit(sapply(strsplit(sapply(my.tmp.split, 
+    function(x) rev(x)[4]), "/"), '[', 2), "_"), tail, 1)
+tmp.long.data$GRADE_PRIOR_4 <- 
+  sapply(strsplit(sapply(strsplit(sapply(my.tmp.split,
+    function(x) rev(x)[5]), "/"), '[', 2), "_"), tail, 1)
 
 ### SCALE_SCORE Prior
-my.tmp.split.scale_score <- strsplit(tmp.long.data$SGP_NORM_GROUP_FINAL_SCALE_SCORES, "; ")
-tmp.long.data$SCALE_SCORE_PRIOR_1 <- sapply(my.tmp.split.scale_score, function(x) rev(x)[2])
-tmp.long.data$SCALE_SCORE_PRIOR_2 <- sapply(my.tmp.split.scale_score, function(x) rev(x)[3])
-tmp.long.data$SCALE_SCORE_PRIOR_3 <- sapply(my.tmp.split.scale_score, function(x) rev(x)[4])
-tmp.long.data$SCALE_SCORE_PRIOR_4 <- sapply(my.tmp.split.scale_score, function(x) rev(x)[5])
+my.tmp.split.scale_score <- 
+    strsplit(tmp.long.data$SGP_NORM_GROUP_SCALE_SCORES, "; ")
+
+tmp.long.data$SCALE_SCORE_PRIOR_1 <- 
+  sapply(my.tmp.split.scale_score, function(x) rev(x)[2])
+tmp.long.data$SCALE_SCORE_PRIOR_2 <- 
+  sapply(my.tmp.split.scale_score, function(x) rev(x)[3])
+tmp.long.data$SCALE_SCORE_PRIOR_3 <- 
+  sapply(my.tmp.split.scale_score, function(x) rev(x)[4])
+tmp.long.data$SCALE_SCORE_PRIOR_4 <- 
+  sapply(my.tmp.split.scale_score, function(x) rev(x)[5])
 
 
 ###  PERFORMANCE_LEVEL Prior
 
-## Create all 4 PERFORMANCE_LEVEL PRIOR vars as NA vectors
-tmp.long.data[, paste("PERFORMANCE_LEVEL_PRIOR", 1:4, sep="_") := factor(NA)]
+## Set name of GRADE to GRADE_CURRENT for all 4 prior var creations
+setnames(tmp.long.data, "GRADE", "GRADE_CURRENT")
 
-## Fill in the 1st Prior PERFORMANCE_LEVEL info for CRCT and EOCT.  2nd - 4th Priors will all be CRCT
-tmp.long.data[which(GRADE_PRIOR_1 != "EOCT"), PERFORMANCE_LEVEL_PRIOR_1 := 
-	ordered(findInterval(as.numeric(SCALE_SCORE_PRIOR_1), c(800, 850)), 
-	labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
-tmp.long.data[which(GRADE_PRIOR_1 == "EOCT"), PERFORMANCE_LEVEL_PRIOR_1 := 
-	ordered(findInterval(SCALE_SCORE_PRIOR_1, c(400, 450)), 
-	labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
+## Create the 1st Prior PERFORMANCE_LEVEL info for Milestones & CRCT
+##  2nd - 4th Priors will all be CRCT EOGT only in 2015
 
-tmp.long.data[which(GRADE_PRIOR_2 != "EOCT"), PERFORMANCE_LEVEL_PRIOR_2 := 
-	ordered(findInterval(as.numeric(SCALE_SCORE_PRIOR_2), c(800, 850)), 
-	labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
-## 2nd -> 4th Priors will all be CRCT
-# tmp.long.data[which(GRADE == "EOCT"), PERFORMANCE_LEVEL_PRIOR_2 := 
-	# ordered(findInterval(SCALE_SCORE_PRIOR_2, c(400, 450)), 
-	# labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
+setnames(tmp.long.data, 
+  c("SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "GRADE_PRIOR_1"),
+  c("YEAR", "CONTENT_AREA", "GRADE"))
 
-tmp.long.data[which(GRADE_PRIOR_3 != "EOCT"), PERFORMANCE_LEVEL_PRIOR_3 := 
-	ordered(findInterval(as.numeric(SCALE_SCORE_PRIOR_3), c(800, 850)), 
-	labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
+tmp.long.data <- SGP:::getAchievementLevel(tmp.long.data, state="GA", 
+  achievement.level.name="PERFORMANCE_LEVEL_PRIOR_1", 
+  scale.score.name="SCALE_SCORE_PRIOR_1")
 
-tmp.long.data[which(GRADE_PRIOR_4 != "EOCT"), PERFORMANCE_LEVEL_PRIOR_4 := 
-	ordered(findInterval(as.numeric(SCALE_SCORE_PRIOR_4), c(800, 850)), 
-	labels=c("Does Not Meet Expectations", "Meets Expectations", "Exceeds Expectations"))]
+setnames(tmp.long.data, 
+  c("YEAR", "CONTENT_AREA", "GRADE"), 
+  c("SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "GRADE_PRIOR_1"))
 
 
+## Create the 2nd Prior PERFORMANCE_LEVEL info -- CRCT EOGT only in 2015
+setnames(tmp.long.data, 
+  c("SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "GRADE_PRIOR_2"), 
+  c("YEAR", "CONTENT_AREA", "GRADE"))
+
+tmp.long.data <- SGP:::getAchievementLevel(tmp.long.data, state="GA", 
+  achievement.level.name="PERFORMANCE_LEVEL_PRIOR_2", 
+  scale.score.name="SCALE_SCORE_PRIOR_2")
+
+setnames(tmp.long.data, 
+  c("YEAR", "CONTENT_AREA", "GRADE"), 
+  c("SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "GRADE_PRIOR_2"))
+
+## Create the 3rd Prior PERFORMANCE_LEVEL info -- CRCT EOGT only in 2015
+setnames(tmp.long.data, 
+  c("SCHOOL_YEAR_PRIOR_3", "SUBJECT_CODE_PRIOR_3", "GRADE_PRIOR_3"), 
+  c("YEAR", "CONTENT_AREA", "GRADE"))
+  
+tmp.long.data <- SGP:::getAchievementLevel(tmp.long.data, state="GA", 
+  achievement.level.name="PERFORMANCE_LEVEL_PRIOR_3", 
+  scale.score.name="SCALE_SCORE_PRIOR_3")
+  
+setnames(tmp.long.data, 
+  c("YEAR", "CONTENT_AREA", "GRADE"), 
+  c("SCHOOL_YEAR_PRIOR_3", "SUBJECT_CODE_PRIOR_3", "GRADE_PRIOR_3"))
+
+## Create the 4th Prior PERFORMANCE_LEVEL info -- CRCT EOGT only in 2015
+setnames(tmp.long.data, 
+  c("SCHOOL_YEAR_PRIOR_4", "SUBJECT_CODE_PRIOR_4", "GRADE_PRIOR_4"), 
+  c("YEAR", "CONTENT_AREA", "GRADE"))
+tmp.long.data <- SGP:::getAchievementLevel(tmp.long.data, state="GA", 
+  achievement.level.name="PERFORMANCE_LEVEL_PRIOR_4", 
+  scale.score.name="SCALE_SCORE_PRIOR_4")
+  
+setnames(tmp.long.data, 
+  c("YEAR", "CONTENT_AREA", "GRADE"), 
+  c("SCHOOL_YEAR_PRIOR_4", "SUBJECT_CODE_PRIOR_4", "GRADE_PRIOR_4"))
+
+## Set name of GRADE_CURRENT back to GRADE
+setnames(tmp.long.data, "GRADE_CURRENT", "GRADE")
+
+###
 ### ADMINISTRATION_PERIOD_PRIOR_* Prior
 
 tmp.admin.period <- Georgia_SGP@Data[, 
-   c(key(Georgia_SGP@Data)[1:4], "GRADE", "ADMINISTRATION_PERIOD", "SCALE_SCORE"), with=FALSE][VALID_CASE=="VALID_CASE" & GRADE=="EOCT"]
-setnames(tmp.admin.period, c("CONTENT_AREA", "YEAR", "GRADE", "ID", "ADMINISTRATION_PERIOD", "SCALE_SCORE"), 
-	c("SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", "GTID", "ADMINISTRATION_PERIOD_PRIOR_1", "SCALE_SCORE_PRIOR_1"))
+  c(key(Georgia_SGP@Data)[1:4], 
+  "GRADE", "ADMINISTRATION_PERIOD", "SCALE_SCORE"), with=FALSE][
+    VALID_CASE=="VALID_CASE" & GRADE=="EOCT"]
+
+setnames(tmp.admin.period, 
+  c("CONTENT_AREA", "YEAR", "GRADE", "ID", 
+    "ADMINISTRATION_PERIOD", "SCALE_SCORE"), 
+  c("SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", "GTID", 
+    "ADMINISTRATION_PERIOD_PRIOR_1", "SCALE_SCORE_PRIOR_1"))
 
 tmp.admin.period[, SCALE_SCORE_PRIOR_1 := as.character(SCALE_SCORE_PRIOR_1)]
 
-## Remove the "LAST_OBSERVATION" for within year repeaters that had the exact same score in both Admin Periods
-setkeyv(tmp.admin.period, c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", 
-   "SCALE_SCORE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1", "VALID_CASE"))
-setkeyv(tmp.admin.period, c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", 
-   "SCALE_SCORE_PRIOR_1", "VALID_CASE"))
+##  Remove the "LAST_OBSERVATION" for within year repeaters that had the 
+##  exact same score in both Admin Periods
+setkeyv(tmp.admin.period, 
+  c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", 
+    "SCALE_SCORE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1", "VALID_CASE"))
+setkeyv(tmp.admin.period, 
+  c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", 
+    "SCALE_SCORE_PRIOR_1", "VALID_CASE"))
 tmp.admin.period <- tmp.admin.period[which(!duplicated(tmp.admin.period))]
 
-setkeyv(tmp.long.data, c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", 
-   "SCALE_SCORE_PRIOR_1", "VALID_CASE"))
+setkeyv(tmp.long.data, 
+  c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", 
+    "SCALE_SCORE_PRIOR_1", "VALID_CASE"))
 
 tmp.long.data <- merge(tmp.long.data, tmp.admin.period, all.x=TRUE)
 
-tmp.long.data[which(!is.na(GRADE_PRIOR_1) & is.na(ADMINISTRATION_PERIOD_PRIOR_1)), 
-   ADMINISTRATION_PERIOD_PRIOR_1 := "2: SPRING"]
-   
-table(tmp.long.data$ADMINISTRATION_PERIOD_PRIOR_1, tmp.long.data$ADMINISTRATION_PERIOD, tmp.long.data$SCHOOL_YEAR_PRIOR_1)
+tmp.long.data[which(!is.na(GRADE_PRIOR_1) & is.na(ADMINISTRATION_PERIOD_PRIOR_1)),
+    ADMINISTRATION_PERIOD_PRIOR_1 := "2: SPRING"]
 
-tmp.long.data[, paste("ADMINISTRATION_PERIOD_PRIOR", 2:4, sep="_") := as.character(NA)]
+tmp.long.data[, 
+    paste("ADMINISTRATION_PERIOD_PRIOR", 2:4, sep="_") := as.character(NA)]
 
-tmp.long.data[which(!is.na(GRADE_PRIOR_2)), ADMINISTRATION_PERIOD_PRIOR_2 := "2: SPRING"]
-tmp.long.data[which(!is.na(GRADE_PRIOR_3)), ADMINISTRATION_PERIOD_PRIOR_3 := "2: SPRING"]
-tmp.long.data[which(!is.na(GRADE_PRIOR_4)), ADMINISTRATION_PERIOD_PRIOR_4 := "2: SPRING"]
+tmp.long.data[which(!is.na(GRADE_PRIOR_2)), 
+    ADMINISTRATION_PERIOD_PRIOR_2 := "2: SPRING"]
+tmp.long.data[which(!is.na(GRADE_PRIOR_3)), 
+    ADMINISTRATION_PERIOD_PRIOR_3 := "2: SPRING"]
+tmp.long.data[which(!is.na(GRADE_PRIOR_4)), 
+    ADMINISTRATION_PERIOD_PRIOR_4 := "2: SPRING"]
 
-Georgia_SGP_Data_LONG_2015_FORMATTED <- tmp.long.data[, variables.to.output, with=FALSE]
-setkeyv(Georgia_SGP_Data_LONG_2015_FORMATTED, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN"))
+
+###  ASSESSMENT_TYPE_PRIOR_*
+tmp.long.data[,paste("ASSESSMENT_TYPE_PRIOR", 1:4, sep="_") := as.character(NA)]
+
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_1)), 
+    ASSESSMENT_TYPE_PRIOR_1 := "CRCT"]
+tmp.long.data[which(GRADE_PRIOR_1 == "EOCT"), 
+    ASSESSMENT_TYPE_PRIOR_1 := "EOCT"]
+tmp.long.data[which(SCHOOL_YEAR_PRIOR_1 == "2015"), 
+    ASSESSMENT_TYPE_PRIOR_1 := "EOC"]
+
+##   CRCT EOGT only in 2015 for priors 2 - 4
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_2)), 
+    ASSESSMENT_TYPE_PRIOR_2 := "CRCT"]
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_3)), 
+    ASSESSMENT_TYPE_PRIOR_3 := "CRCT"]
+tmp.long.data[which(!is.na(SCALE_SCORE_PRIOR_4)), 
+    ASSESSMENT_TYPE_PRIOR_4 := "CRCT"]
+
+
+###  Final arrangement of variables
+Georgia_SGP_Data_LONG_2015_FORMATTED <- 
+    tmp.long.data[, variables.to.output, with=FALSE]
+setkeyv(Georgia_SGP_Data_LONG_2015_FORMATTED, 
+    c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN"))
 
 
 ### Save results
 
-save(Georgia_SGP_Data_LONG_2015_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2015_FORMATTED.Rdata")
-write.table(Georgia_SGP_Data_LONG_2015_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2015_FORMATTED.txt", 
-   sep="|", row.names=FALSE, na="", quote=FALSE)
+save(Georgia_SGP_Data_LONG_2015_FORMATTED, 
+    file = "Data/Georgia_SGP_Data_LONG_2015_FORMATTED.Rdata")
+write.table(Georgia_SGP_Data_LONG_2015_FORMATTED, 
+    file = "Data/Georgia_SGP_Data_LONG_2015_FORMATTED.txt", 
+           sep="|", row.names=FALSE, na="", quote=FALSE)
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2015_FORMATTED.txt.zip", 
+    files="Data/Georgia_SGP_Data_LONG_2015_FORMATTED.txt")
+unlink("Data/Georgia_SGP_Data_LONG_2015_FORMATTED.txt")
 
 ```
 
 ##  Additional Steps for Future Ananlyses
 
-- Update `SGPstateData` entry.  Contact the package maintainers (Damian and Adam) directly or [file an issue](https://github.com/CenterForAssessment/SGPstateData/issues).  Entry will include updated entries for the following data:
-  * Knots, boundary knots, and LOSS/HOSS Values
+- Update `SGPstateData` entry annually.  Contact the package maintainers (Damian and Adam) directly or [file an issue](https://github.com/CenterForAssessment/SGPstateData/issues).  Entry will include updates for the following data:
+  * Knots, boundary knots, and LOSS/HOSS Values for Milestones Assessments in 2016 (replace temporary ones from 2015)
   * Proficiency level cutscores
-  * CSEMs for each grade/subject
-- Baseline matrices.  Number of prior scores required will have to be established first.
-	* Unadjusted (non-SIMEX) versions created first
+- Continue including student level CSEMs in the longitudinal data.
+- Baseline matrices.  Number of prior scores required will have to be established first (2017 ***at the earliest***).
+  * Unadjusted (non-SIMEX) versions created first
   * SIMEX adjusted versions (require unadjusted matrices)
 - Misc configuration and analysis code adjustments based on changes in course progressions and the incorporation of the new assessment program.
 
