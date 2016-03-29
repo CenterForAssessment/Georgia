@@ -93,7 +93,7 @@ use.data.table()
 
 
 renderMultiDocument(rmd_input = "Georgia_SGP_Report_2015.Rmd",
-										output_format = c("HTML", "PDF", "DOCX"), #, "DOCX" 
+										output_format = c("HTML", "PDF"), #, "DOCX" 
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE, 
 										# cleanup_aux_files = FALSE,
@@ -101,35 +101,14 @@ renderMultiDocument(rmd_input = "Georgia_SGP_Report_2015.Rmd",
 
 renderMultiDocument(rmd_input = "Appendix_A_2015.Rmd",
 										# output_format = c("HTML"),
-										output_format = c("HTML", "PDF", "DOCX"), #, "EPUB", "DOCX"
-										cover_img="../img/cover.jpg",
-										add_cover_title=TRUE)
-										# cleanup_aux_files = FALSE)
-
-renderMultiDocument(rmd_input = "Appendix_C_2015.Rmd",
-										# output_format = c("HTML"),
-										output_format = c("HTML", "PDF", "DOCX"), #, "EPUB", "DOCX"
-										cover_img="../img/cover.jpg",
-										add_cover_title=TRUE)
-
-
-
-renderMultiDocument(rmd_input = "Georgia_SGP_Report_2015.Rmd",
-										output_format = c("HTML"), #, "DOCX" 
-										cover_img="../img/cover.jpg",
-										add_cover_title=TRUE, 
-										# cleanup_aux_files = FALSE,
-										pandoc_args = "--webtex")
-
-renderMultiDocument(rmd_input = "Appendix_A_2015.Rmd",
-										# output_format = c("HTML"),
-										output_format = c("HTML", "DOCX"), #, "EPUB", "DOCX"
+										output_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE)
 # cleanup_aux_files = FALSE)
 
 renderMultiDocument(rmd_input = "Appendix_C_2015.Rmd",
 										# output_format = c("HTML"),
-										output_format = c("HTML", "DOCX"), #, "EPUB", 
+										output_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE)
+
