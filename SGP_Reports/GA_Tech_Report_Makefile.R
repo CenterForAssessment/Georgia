@@ -75,9 +75,9 @@ renderMultiDocument(rmd_input = "Appendix_B.Rmd",
 #######
 
 #load("/media/Data/Dropbox/SGP/Georgia/Data/Georgia_SGP.Rdata")
-load("/Users/avi/Dropbox/SGP/Georgia/Data/Georgia_SGP.Rdata")
-load("/Users/avi/Dropbox/SGP/Georgia/Data/Georgia_Summary_2015.Rdata")
-setwd("/Users/avi/Dropbox/Github_Repos/Documentation/Georgia/SGP_Reports/2015")
+load("/Users/avi/Dropbox (SGP)/SGP/Georgia/Data/Georgia_SGP.Rdata")
+load("/Users/avi/Dropbox (SGP)/SGP/Georgia/Data/Georgia_Summary_2015.Rdata")
+setwd("/Users/avi/Dropbox (SGP)/Github_Repos/Documentation/Georgia/SGP_Reports/2015")
 
 Georgia_SGP@Summary <- Georgia_Summary
 
@@ -86,6 +86,17 @@ Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
 
 Georgia_SGP@Data$Most_Recent_Prior <- as.character(NA)
 Georgia_SGP@Data[, Most_Recent_Prior := sapply(strsplit(as.character(Georgia_SGP@Data$SGP_NORM_GROUP), "; "), function(x) rev(x)[2])]
+
+SGPstateData[["GA"]][["Achievement"]][["Levels"]] <-
+	SGPstateData[["GA"]][["Assessment_Program_Information"]][["Assessment_Transition"]]$Achievement_Levels.2015 <- 	list(
+		Labels=c("Beginning Learner", "Developing Learner", "Proficient Learner", "Distinguished Learner"),
+		Proficient=c("Not Proficient", "Not Proficient", "Proficient", "Proficient"))
+
+SGPstateData[["GA"]][["Assessment_Program_Information"]][["Assessment_Transition"]]$Achievement_Level_Labels.2015 <- list(
+	"Beginning Learner"="Beginning Learner",
+	"Developing Learner"="Developing Learner",
+	"Proficient Learner"="Proficient Learner",
+	"Distinguished Learner"="Distinguished Learner")
 
 
 library(SGPreports)
@@ -104,7 +115,6 @@ renderMultiDocument(rmd_input = "Appendix_A_2015.Rmd",
 										output_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE)
-# cleanup_aux_files = FALSE)
 
 renderMultiDocument(rmd_input = "Appendix_C_2015.Rmd",
 										# output_format = c("HTML"),
@@ -112,3 +122,15 @@ renderMultiDocument(rmd_input = "Appendix_C_2015.Rmd",
 										cover_img="../img/cover.jpg",
 										add_cover_title=TRUE)
 
+
+
+Georgia_SGP_LONG_Data_2015$Most_Recent_Prior <- as.character(NA)
+Georgia_SGP_LONG_Data_2015[, Most_Recent_Prior := sapply(strsplit(as.character(Georgia_SGP_LONG_Data_2015$SGP_NORM_GROUP), "; "), function(x) rev(x)[2])]
+# z <- Georgia_SGP_LONG_Data_2015[GRADE=="EOCT" & !is.na(Most_Recent_Prior)][, as.list(summary(as.numeric(SCALE_SCORE_PRIOR)), N=.N), keyby=list(SUBJECT_CODE, Most_Recent_Prior, ACHIEVEMENT_LEVEL_PRIOR)]
+z <- Georgia_SGP_LONG_Data_2015[!is.na(ACHIEVEMENT_LEVEL_PRIOR) & !is.na(Most_Recent_Prior)][, as.list(summary(as.numeric(SCALE_SCORE_PRIOR)), N=.N), keyby=list(SUBJECT_CODE, GRADE, ACHIEVEMENT_LEVEL_PRIOR)]
+z[SUBJECT_CODE=="ELA"]
+
+
+ACHIEVEMENT_LEVEL_PRIOR
+
+Georgia_SGP_Data_LONG_2015_FORMATTED[GRADE_PRIOR_1=="EOCT"][, as.list(summary(as.numeric(SCALE_SCORE_PRIOR_1))), by=list(SUBJECT_CODE_PRIOR_1, Most_Recent_Prior, PERFORMANCE_LEVEL_PRIOR_1)]
