@@ -15,6 +15,11 @@ setwd('/media/Data/Dropbox/SGP/Georgia')
 load("Data/Georgia_SGP.Rdata")
 load("Data/Georgia_SGP_LONG_Data_2015.Rdata")
 
+### Fix the RESCORE students' PERFORMANCE_LEVEL values
+setnames(Georgia_SGP_LONG_Data_2015, c("SCHOOL_YEAR", "SUBJECT_CODE", "GRADE"), c("YEAR", "CONTENT_AREA", "GRADE"))
+Georgia_SGP_LONG_Data_2015 <- SGP:::getAchievementLevel(Georgia_SGP_LONG_Data_2015, state="GA", achievement.level.name="PERFORMANCE_LEVEL", scale.score.name="SCALE_SCORE")
+setnames(Georgia_SGP_LONG_Data_2015, c("YEAR", "CONTENT_AREA", "GRADE"), c("SCHOOL_YEAR", "SUBJECT_CODE", "GRADE"))
+
 ### Variables to output
 variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "YEAR_WITHIN", "GRADE", "GRADE_REPORTED", "SCALE_SCORE", "SCALE_SCORE_PRIOR_STANDARDIZED",
 "ADMINISTRATION_PERIOD", "FIRST_OBSERVATION", "LAST_OBSERVATION", "PERFORMANCE_LEVEL", "SR_SYSTEM_ID", "SCHOOL_NUMBER", "ADMIN_INVALIDATION", "ADMIN_TYPE", "MATCH_STATUS",
@@ -63,6 +68,20 @@ tmp.long.data$SCALE_SCORE_PRIOR_4 <- sapply(my.tmp.split.scale_score, function(x
 
 
 ###  PERFORMANCE_LEVEL Prior
+
+SGPstateData[["GA"]][["Achievement"]][["Levels"]] <-
+	list(
+		Labels=c("Beginning Learner", "Developing Learner", "Proficient Learner", "Distinguished Learner"),
+		Proficient=c("Not Proficient", "Not Proficient", "Proficient", "Proficient"))
+
+SGPstateData[["GA"]][["Assessment_Program_Information"]][["Assessment_Transition"]]$Achievement_Levels.2015 <- list(
+			Labels=c("Beginning Learner", "Developing Learner", "Proficient Learner", "Distinguished Learner"),
+			Proficient=c("Not Proficient", "Not Proficient", "Proficient", "Proficient"))
+SGPstateData[["GA"]][["Assessment_Program_Information"]][["Assessment_Transition"]]$Achievement_Level_Labels.2015 <- list(
+			"Beginning Learner"="Beginning Learner",
+			"Developing Learner"="Developing Learner",
+			"Proficient Learner"="Proficient Learner",
+			"Distinguished Learner"="Distinguished Learner")
 
 ## Set name of GRADE to GRADE_CURRENT for all 4 prior var creations
 setnames(tmp.long.data, "GRADE", "GRADE_CURRENT")
@@ -163,3 +182,8 @@ unlink("Data/Georgia_SGP_Data_LONG_2015_FORMATTED.txt")
 # Georgia_SGP@Data[which(!is.na(ACHIVEMENT_LEVEL)), ACHIEVEMENT_LEVEL := ACHIVEMENT_LEVEL]
 # Georgia_SGP@Data[, ACHIVEMENT_LEVEL := NULL]
 
+# Georgia_SGP_Data_LONG_2015_FORMATTED$Most_Recent_Prior <- as.character(NA)
+# Georgia_SGP_Data_LONG_2015_FORMATTED[, Most_Recent_Prior := sapply(strsplit(as.character(Georgia_SGP_Data_LONG_2015_FORMATTED$SGP_NORM_GROUP), "; "), function(x) rev(x)[2])]
+# x <- Georgia_SGP_Data_LONG_2015_FORMATTED[GRADE=="EOCT" & !is.na(Most_Recent_Prior)][, as.list(summary(as.numeric(SCALE_SCORE_PRIOR_1)), N=.N), keyby=list(SUBJECT_CODE, Most_Recent_Prior, PERFORMANCE_LEVEL_PRIOR_1)]
+
+# x[SUBJECT_CODE=="COORDINATE_ALGEBRA"]

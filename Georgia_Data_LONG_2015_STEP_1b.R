@@ -28,10 +28,9 @@ setnames(Georgia_Data_LONG_2015, 'CONDSEM', 'SCALE_SCORE_CSEM')
 setnames(Georgia_2015_Rescores, 'CONDSEM', 'SCALE_SCORE_CSEM')
 
 
-
 ###  Add CSEM Data to 2014 Test Out Data
 
-load("/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/csem/Georgia/Georgia_CSEM.Rdata")
+load("/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/CSEM/Georgia/Georgia_CSEM.Rdata")
 
 Georgia_CSEM <- data.table(Georgia_CSEM, key=c("GRADE", "CONTENT_AREA", "SCALE_SCORE"))
 setnames(Georgia_CSEM, "CONTENT_AREA", "SUBJECT_CODE")
@@ -80,7 +79,7 @@ Georgia_Data_LONG_2015[,STATE_ENROLLMENT_STATUS := factor(1, levels=0:1,
    labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
 ###  Remove known duplicate cases:
-Georgia_Data_LONG_2015<-Georgia_Data_LONG_2015[-which(Georgia_Data_LONG_2015$GTID %in% c('3105982299','1747050385','2723026345') & Georgia_Data_LONG_2015$SCHOOL_YEAR=='2014'),]
+Georgia_Data_LONG_2015<-Georgia_Data_LONG_2015[-which(Georgia_Data_LONG_2015$GTID %in% c('3105982299', '1747050385', '2723026345') & Georgia_Data_LONG_2015$SCHOOL_YEAR=='2014'),]
 
 ###  Remove original rescored cases
 setkey(Georgia_Data_LONG_2015, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID, RESCORE)
