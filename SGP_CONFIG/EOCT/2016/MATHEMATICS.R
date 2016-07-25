@@ -142,7 +142,7 @@ ALGEBRA_I_2016.config <- list(
 		sgp.norm.group.preference=2),
 		
 		ALGEBRA_I_2016.config <- list(
-	ALGEBRA_I.2016 = list( #28 
+ALGEBRA_I.2016 = list( #28 
 		sgp.content.areas=c('MATHEMATICS',  'ALGEBRA_I'),
 		sgp.panel.years=c('2015', '2016'),
 		sgp.grade.sequences=list(c('7', 'EOCT')),
