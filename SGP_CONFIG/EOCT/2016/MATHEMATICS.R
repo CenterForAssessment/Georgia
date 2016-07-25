@@ -123,8 +123,7 @@ ALGEBRA_I_2016.config <- list(
 			YEAR=c('2015', '2015'), GRADE=c('EOCT', 'EOCT')),
 		sgp.norm.group.preference=4),
 
-ALGEBRA_I_2016.config <- list(
-	ALGEBRA_I.2016 = list( #26 
+       ALGEBRA_I.2016 = list( #26 
 		sgp.content.areas=c('MATHEMATICS',  'ALGEBRA_I'),
 		sgp.panel.years=c('2015', '2016'),
 		sgp.grade.sequences=list(c('8', 'EOCT')),
@@ -132,7 +131,6 @@ ALGEBRA_I_2016.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=3),
 		
-ALGEBRA_I_2016.config <- list(
 	ALGEBRA_I.2016 = list( #27 
 		sgp.content.areas=c('MATHEMATICS','MATHEMATICS',  'ALGEBRA_I'),
 		sgp.panel.years=c('2014','2015', '2016'),
@@ -141,7 +139,6 @@ ALGEBRA_I_2016.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=2),
 		
-ALGEBRA_I_2016.config <- list(
         ALGEBRA_I.2016 = list( #28 
 		sgp.content.areas=c('MATHEMATICS',  'ALGEBRA_I'),
 		sgp.panel.years=c('2015', '2016'),
@@ -150,7 +147,6 @@ ALGEBRA_I_2016.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1),
 		
-ALGEBRA_I_2016.config <- list(
 	ALGEBRA_I.2016 = list( #29 
 		sgp.content.areas=c('MATHEMATICS','MATHEMATICS',  'ALGEBRA_I'),
 		sgp.panel.years=c('2014','2015', '2016'),
