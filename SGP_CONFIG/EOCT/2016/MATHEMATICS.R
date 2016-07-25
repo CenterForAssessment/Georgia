@@ -154,7 +154,7 @@ ALGEBRA_I_2016.config <- list(
 	ALGEBRA_I.2016 = list( #29 
 		sgp.content.areas=c('MATHEMATICS','MATHEMATICS',  'ALGEBRA_I'),
 		sgp.panel.years=c('2014','2015', '2016'),
-		sgp.grade.sequences=list(c('7','8', 'EOCT')),
+		sgp.grade.sequences=list(c('6','7', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION','LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
