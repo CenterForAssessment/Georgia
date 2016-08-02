@@ -10,7 +10,9 @@ GA_2016.config <- c(
   MATHEMATICS_2016.config,
   COORDINATE_ALGEBRA_2016.config,
   ANALYTIC_GEOMETRY_2016.config,
-  
+  ALGEBRA_I_2016.config, 
+  GEOMETRY_2016.config,
+
   SCIENCE_2016.config,
   BIOLOGY_2016.config,
   PHYSICAL_SCIENCE_2016.config,
@@ -23,10 +25,6 @@ GA_2016.config <- c(
   GRADE_9_LIT_2016.config,
   AMERICAN_LIT_2016.config
   )
-
-###  Winnow out all course progressions with fewer than 1,500 kids (per discussion on 1/27/16)
-SGPstateData[["GA"]][["SGP_Configuration"]][["sgp.cohort.size"]] <- 1500
-
 
 
 ### updateSGP

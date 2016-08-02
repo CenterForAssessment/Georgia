@@ -64,6 +64,7 @@ sapply(list.files("EOCT/2012/", full.names=TRUE), source, .GlobalEnv)
 sapply(list.files("EOCT/2013/", full.names=TRUE), source, .GlobalEnv)
 sapply(list.files("EOCT/2014/", full.names=TRUE), source, .GlobalEnv)
 sapply(list.files("EOCT/2015/", full.names=TRUE), source, .GlobalEnv)
+sapply(list.files("EOCT/2016/", full.names=TRUE)[-1], source, .GlobalEnv) # exclude .xlsx file
 
 
 ###  Compile annual configuration lists
@@ -104,6 +105,12 @@ GA_EOCT_2015.config <- c(
 	BIOLOGY_2015.config, PHYSICAL_SCIENCE_2015.config,
 	ANALYTIC_GEOMETRY_2015.config, COORDINATE_ALGEBRA_2015.config)
 
+GA_EOCT_2016.config <- c(
+	ELA_2016.config, GRADE_9_LIT_2016.config, AMERICAN_LIT_2016.config,
+	US_HISTORY_2016.config, ECONOMICS_2016.config,
+	BIOLOGY_2016.config, PHYSICAL_SCIENCE_2016.config,
+	ANALYTIC_GEOMETRY_2016.config, COORDINATE_ALGEBRA_2016.config, ALGEBRA_I_2016.config, GEOMETRY_2016.config)
+
 
 ### Create configToNormGroup data.frame
 
@@ -131,13 +138,18 @@ tmp.configToNormGroup <- lapply(GA_EOCT_2015.config, configToSGPNormGroup)
 GA_SGP_Norm_Group_Preference_2015 <- data.table(
 					YEAR="2015", rbindlist(tmp.configToNormGroup))
 
+tmp.configToNormGroup <- lapply(GA_EOCT_2016.config, configToSGPNormGroup)
+GA_SGP_Norm_Group_Preference_2016 <- data.table(
+					YEAR="2016", rbindlist(tmp.configToNormGroup))
+
 GA_SGP_Norm_Group_Preference <- rbind(
 			GA_SGP_Norm_Group_Preference_2010,
 			GA_SGP_Norm_Group_Preference_2011,
 			GA_SGP_Norm_Group_Preference_2012,
 			GA_SGP_Norm_Group_Preference_2013,
 			GA_SGP_Norm_Group_Preference_2014,
-			GA_SGP_Norm_Group_Preference_2015
+			GA_SGP_Norm_Group_Preference_2015,
+			GA_SGP_Norm_Group_Preference_2016
 			)
 
 GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP <- as.factor(GA_SGP_Norm_Group_Preference$SGP_NORM_GROUP)
