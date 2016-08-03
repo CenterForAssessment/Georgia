@@ -116,7 +116,7 @@ ALGEBRA_I_2016.config <- list(
 	ALGEBRA_I.2016 = list( #25 
 		sgp.content.areas=c('MATHEMATICS',  'ALGEBRA_I'),
 		sgp.panel.years=c('2014', '2016'),
-		sgp.grade.sequences=list(c('EOCT', 'EOCT')),
+		sgp.grade.sequences=list(c('8', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
