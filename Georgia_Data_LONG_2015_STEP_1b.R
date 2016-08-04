@@ -84,7 +84,7 @@ Georgia_Data_LONG_2015<-Georgia_Data_LONG_2015[-which(Georgia_Data_LONG_2015$GTI
 ###  Remove original rescored cases
 setkey(Georgia_Data_LONG_2015, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID, RESCORE)
 setkey(Georgia_Data_LONG_2015, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID)
-# sum(duplicated(Georgia_Data_LONG_2015[VALID_CASE != "INVALID_CASE"])) # 10 duplicates with valid SSIDs -- all have same SSID and esID, so appear valid - take the highest score
+# sum(duplicated(Georgia_Data_LONG_2015[VALID_CASE != "INVALID_CASE"])) # 10 duplicates with valid GTIDs - take the highest score
 # dups <- data.table(Georgia_Data_LONG_2015[unique(c(which(duplicated(Georgia_Data_LONG_2015))-1, which(duplicated(Georgia_Data_LONG_2015)))), ], key=key(Georgia_Data_LONG_2015))
 Georgia_Data_LONG_2015[which(duplicated(Georgia_Data_LONG_2015))-1, VALID_CASE := "INVALID_CASE"]
 
