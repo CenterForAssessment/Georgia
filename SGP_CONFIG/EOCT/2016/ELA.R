@@ -28,26 +28,26 @@ ELA_2016.config <- list(
 ### GRADE_9_LIT
 
 GRADE_9_LIT_2016.config <- list(
-	GRADE_9_LIT.2016 = list( # 1
-		sgp.content.areas=c('READING', 'ELA', 'GRADE_9_LIT'),
-		sgp.panel.years=c('2014', '2014', '2016'),
-		sgp.grade.sequences=list(c(8, 8, 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.exact.grade.progression=TRUE,
-		sgp.projection.grade.sequences="NO_PROJECTIONS",
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('READING', 'ELA', 'GRADE_9_LIT'), 
-			YEAR=c('2015', '2015', '2015'), GRADE=c(8, 8, 'EOCT')), # Add 8th Grade Science Filter
-		sgp.norm.group.preference=6),
-	GRADE_9_LIT.2016 = list( # 2
-		sgp.content.areas=c('READING', 'ELA', 'READING', 'ELA', 'GRADE_9_LIT'),
-		sgp.panel.years=c('2013', '2013', '2014', '2014', '2016'),
-		sgp.grade.sequences=list(c(7, 7, 8, 8, 'EOCT')),
-		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-		sgp.exact.grade.progression=TRUE,
-		sgp.projection.grade.sequences="NO_PROJECTIONS",
-		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('READING', 'ELA', 'GRADE_9_LIT'), 
-			YEAR=c('2015', '2015', '2015'), GRADE=c(8, 8, 'EOCT')), # Add 8th Grade Science Filter
-		sgp.norm.group.preference=5),
+	#GRADE_9_LIT.2016 = list( # 1
+	#	sgp.content.areas=c('READING', 'ELA', 'GRADE_9_LIT'),
+	#	sgp.panel.years=c('2014', '2014', '2016'),
+	#	sgp.grade.sequences=list(c(8, 8, 'EOCT')),
+	#	sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+	#	sgp.exact.grade.progression=TRUE,
+	#	sgp.projection.grade.sequences="NO_PROJECTIONS",
+	#	sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('READING', 'ELA', 'GRADE_9_LIT'), 
+	#		YEAR=c('2015', '2015', '2015'), GRADE=c(8, 8, 'EOCT')), # Add 8th Grade Science Filter
+	#	sgp.norm.group.preference=6),
+	#GRADE_9_LIT.2016 = list( # 2
+	#	sgp.content.areas=c('READING', 'ELA', 'READING', 'ELA', 'GRADE_9_LIT'),
+	#	sgp.panel.years=c('2013', '2013', '2014', '2014', '2016'),
+	#	sgp.grade.sequences=list(c(7, 7, 8, 8, 'EOCT')),
+	#	sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+	#	sgp.exact.grade.progression=TRUE,
+	#	sgp.projection.grade.sequences="NO_PROJECTIONS",
+	#	sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('READING', 'ELA', 'GRADE_9_LIT'), 
+	#		YEAR=c('2015', '2015', '2015'), GRADE=c(8, 8, 'EOCT')), # Add 8th Grade Science Filter
+	#	sgp.norm.group.preference=5),
 	GRADE_9_LIT.2016 = list( # 3
 		sgp.content.areas=c('ELA', 'GRADE_9_LIT'),
 		sgp.panel.years=c('2015', '2016'),
