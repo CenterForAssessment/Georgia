@@ -11,7 +11,10 @@ require(data.table)
 ###		Load 2016 Raw Data -  Clean EOG and EOC seperately (delivered seperately)
 ###
 
-###  GADOE
+###  GADOE data loading process
+##
+#
+
 setwd('U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/')
 
 #####Load 2015 testout and 2016 Data#####
@@ -20,7 +23,10 @@ Georgia_Data_LONG_2015 <- fread("U:/DATA/SGP/Data/2016 SGPs/Computer matched dat
 Georgia_Data_LONG_2016 <- fread("U:/DATA/SGP/Data/2016 SGPs/Computer matched data/2016 SGP Prelimimary Data/ALLData_2016_preliminary_cleaned.txt",  header = TRUE, sep = "|", stringsAsFactors=FALSE)
 
 
-###  CFA
+###  CFA data loading process
+##
+#
+
 setwd('~/SGP_Projects/Georgia')
 
 # Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/ALLData_2016_preliminary_cleaned.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
@@ -28,17 +34,19 @@ setwd('~/SGP_Projects/Georgia')
 ###  EOG
 # Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016_EOG_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
 
-###  EOC
+###  EOC -  Combine 2015 Test Out CRCT and 2016 Milestones data
 Georgia_Data_LONG_2015 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/Testout_Data_2015.txt', sep='|', header=TRUE, colClasses=rep("character", 29))
 Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016_EOG_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
 
-
-###  Combine 2015 Test Out CRCT and 2016 Milestones data
 Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LONG_2016[SUBJECT_CODE != "NULL"]), fill=TRUE)
+
+#
+##
+### 
+
+###   Tidy up data
+
 setnames(Georgia_Data_LONG_2016, 'CONDSEM', 'SCALE_SCORE_CSEM')
-
-
-### Tidy up data
 
 Georgia_Data_LONG_2016[, SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)*10000 + as.numeric(SR_SCHOOL_ID)]
 Georgia_Data_LONG_2016[which(SR_SYSTEM_ID > 1000), SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)]
