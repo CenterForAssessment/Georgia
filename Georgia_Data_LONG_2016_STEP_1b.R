@@ -10,11 +10,17 @@ setwd('~/SGP_Projects/Georgia')
 
 
 ###
-###		Load 2016 Raw Data
+###		Load 2016 Raw Data -  Clean EOG and EOC seperately (delivered seperately)
 ###
 
+# Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/ALLData_2016_preliminary_cleaned.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
+
+###  EOG
+# Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016_EOG_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
+
+###  EOC
 Georgia_Data_LONG_2015 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/Testout_Data_2015.txt', sep='|', header=TRUE, colClasses=rep("character", 29))
-Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/ALLData_2016_preliminary_cleaned.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
+Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016_EOG_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
 
 
 ###  Combine 2015 Test Out CRCT and 2016 Milestones data
@@ -46,12 +52,16 @@ Georgia_Data_LONG_2016[, Rownumber_dup1 := NULL]
 Georgia_Data_LONG_2016[, Rownumber_dup2 := NULL]
 
 ###  Invalidate duplicates
-setkey(Georgia_Data_LONG_2016, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID, SCALE_SCORE)
-setkey(Georgia_Data_LONG_2016, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GRADE, GTID)
+setkey(Georgia_Data_LONG_2016, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
+setkey(Georgia_Data_LONG_2016, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
 # sum(duplicated(Georgia_Data_LONG_2016[VALID_CASE != "INVALID_CASE"])) # 131 duplicates with valid GTIDs - take the highest score
 # dups <- data.table(Georgia_Data_LONG_2016[unique(c(which(duplicated(Georgia_Data_LONG_2016))-1, which(duplicated(Georgia_Data_LONG_2016)))), ], key=key(Georgia_Data_LONG_2016))
 Georgia_Data_LONG_2016[which(duplicated(Georgia_Data_LONG_2016))-1, VALID_CASE := "INVALID_CASE"]
 
-### Save results
+### Save results - Save EOG and EOC seperately (delivered seperately)
 
-save(Georgia_Data_LONG_2016, file="Data/Base_Files/2016 SGP Prelimimary Data/Georgia_Data_LONG_2016.Rdata")
+# Georgia_Data_LONG_2016_EOG <- Georgia_Data_LONG_2016
+# save(Georgia_Data_LONG_2016_EOG, file="Data/Georgia_Data_LONG_2016_EOG.Rdata")
+
+Georgia_Data_LONG_2016_EOC <- Georgia_Data_LONG_2016
+save(Georgia_Data_LONG_2016_EOC, file="Data/Georgia_Data_LONG_2016_EOC.Rdata")
