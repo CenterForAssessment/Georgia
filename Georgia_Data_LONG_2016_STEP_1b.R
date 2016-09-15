@@ -6,12 +6,22 @@
 
 require(data.table)
 
-setwd('~/SGP_Projects/Georgia')
-
 
 ###
 ###		Load 2016 Raw Data -  Clean EOG and EOC seperately (delivered seperately)
 ###
+
+###  GADOE
+setwd('U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/')
+
+#####Load 2015 testout and 2016 Data#####
+
+Georgia_Data_LONG_2015 <- fread("U:/DATA/SGP/Data/2016 SGPs/Computer matched data/2016 SGP Prelimimary Data/Testout_Data_2015.txt",  header = TRUE, sep = "|", stringsAsFactors=FALSE)
+Georgia_Data_LONG_2016 <- fread("U:/DATA/SGP/Data/2016 SGPs/Computer matched data/2016 SGP Prelimimary Data/ALLData_2016_preliminary_cleaned.txt",  header = TRUE, sep = "|", stringsAsFactors=FALSE)
+
+
+###  CFA
+setwd('~/SGP_Projects/Georgia')
 
 # Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/ALLData_2016_preliminary_cleaned.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
 
