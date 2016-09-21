@@ -8,10 +8,22 @@
 
 SOCIAL_STUDIES_2016.config <- list(
 	SOCIAL_STUDIES.2016 = list(
+		sgp.content.areas=rep('SOCIAL_STUDIES', 2),
+		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+		sgp.panel.years=c('2015', '2016'),
+		sgp.grade.sequences=list(c('3', '4'), c('4', '5'), c('5', '6'), c('6', '7'), c('7', '8')),
+		sgp.exact.grade.progression=list(TRUE, TRUE, TRUE, TRUE, TRUE),
+		sgp.norm.group.preference=2),
+
+	SOCIAL_STUDIES.2016 = list(
 		sgp.content.areas=rep('SOCIAL_STUDIES', 3),
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 2), 'FIRST_OBSERVATION'),
 		sgp.panel.years=c('2014', '2015', '2016'),
-		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8'))))
+		sgp.grade.sequences=list(c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8')),
+		sgp.exact.grade.progression=list(TRUE, TRUE, TRUE, TRUE),
+		sgp.projection.grade.sequences=list("NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS", "NO_PROJECTIONS"), # Projections with Milestones data only!
+		sgp.norm.group.preference=1))
+
 
 
 ### US HISTORY

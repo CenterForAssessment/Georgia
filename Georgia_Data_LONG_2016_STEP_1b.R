@@ -36,7 +36,8 @@ setwd('~/SGP_Projects/Georgia')
 
 ###  EOC -  Combine 2015 Test Out CRCT and 2016 Milestones data
 Georgia_Data_LONG_2015 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/Testout_Data_2015.txt', sep='|', header=TRUE, colClasses=rep("character", 29))
-Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016_EOG_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
+Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016_EOC_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
+setnames(Georgia_Data_LONG_2016, "Subject_code", "SUBJECT_CODE")
 
 Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LONG_2016[SUBJECT_CODE != "NULL"]), fill=TRUE)
 

@@ -16,13 +16,13 @@ configToSGPNormGroup <- function(sgp.config) {
 		tmp.data.all <- data.table()
 		for (g in 1:length(sgp.config$sgp.grade.sequences)) {
 			l <- length(sgp.config$sgp.grade.sequences[[g]])
-			tmp.norm.group <- tmp.norm.group.baseline <- paste(tail(sgp.config$sgp.panel.years, l), paste(tail(sgp.config$sgp.content.areas, l), unlist(sgp.config$sgp.grade.sequences[[g]]), sep="_"), sep="/") 
-			
+			tmp.norm.group <- tmp.norm.group.baseline <- paste(tail(sgp.config$sgp.panel.years, l), paste(tail(sgp.config$sgp.content.areas, l), unlist(sgp.config$sgp.grade.sequences[[g]]), sep="_"), sep="/")
+
 			tmp.data <- data.table(
-				SGP_NORM_GROUP=paste(tmp.norm.group, collapse="; "), 
+				SGP_NORM_GROUP=paste(tmp.norm.group, collapse="; "),
 				SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
 				PREFERENCE= sgp.config$sgp.norm.group.preference*100)
-			
+
 			if (length(tmp.norm.group) > 2) {
 				if ("sgp.exact.grade.progression" %in% names(sgp.config)) {
 					if(sgp.config$sgp.exact.grade.progression[[g]]) tmp.all.prog <- FALSE else tmp.all.prog <- TRUE
@@ -30,7 +30,7 @@ configToSGPNormGroup <- function(sgp.config) {
 				if (tmp.all.prog) {
 					for (n in 1:(length(tmp.norm.group)-2)) {
 						tmp.data <- rbind(tmp.data, data.table(
-							SGP_NORM_GROUP=paste(tail(tmp.norm.group, -n), collapse="; "), 
+							SGP_NORM_GROUP=paste(tail(tmp.norm.group, -n), collapse="; "),
 							SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
 							PREFERENCE= (sgp.config$sgp.norm.group.preference*100)+n))
 					}
@@ -48,7 +48,7 @@ configToSGPNormGroup_ORIGINAL <- function(sgp.config) {
         tmp.norm.group <- tmp.norm.group.baseline <- paste(sgp.config$sgp.panel.years, paste(sgp.config$sgp.content.areas, unlist(sgp.config$sgp.grade.sequences), sep="_"), sep="/")
 	return(
 		data.table(
-			SGP_NORM_GROUP=paste(tmp.norm.group, collapse="; "), 
+			SGP_NORM_GROUP=paste(tmp.norm.group, collapse="; "),
 			SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
 			PREFERENCE=as.integer(sgp.config$sgp.norm.group.preference)
 		)
@@ -107,9 +107,9 @@ GA_EOCT_2015.config <- c(
 
 GA_EOCT_2016.config <- c(
 	ELA_2016.config, GRADE_9_LIT_2016.config, AMERICAN_LIT_2016.config,
-	US_HISTORY_2016.config, ECONOMICS_2016.config,
-	BIOLOGY_2016.config, PHYSICAL_SCIENCE_2016.config,
-	ANALYTIC_GEOMETRY_2016.config, COORDINATE_ALGEBRA_2016.config, ALGEBRA_I_2016.config, GEOMETRY_2016.config)
+	SOCIAL_STUDIES_2016.config, US_HISTORY_2016.config, ECONOMICS_2016.config,
+	SCIENCE_2016.config, BIOLOGY_2016.config, PHYSICAL_SCIENCE_2016.config,
+	MATHEMATICS_2016.config, ANALYTIC_GEOMETRY_2016.config, COORDINATE_ALGEBRA_2016.config, ALGEBRA_I_2016.config, GEOMETRY_2016.config)
 
 
 ### Create configToNormGroup data.frame
