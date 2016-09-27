@@ -124,7 +124,6 @@ PHYSICAL_SCIENCE_2016.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
-
 ) ### END PHYSICAL_SCIENCE_2016.config
 
 
@@ -167,7 +166,6 @@ BIOLOGY_2016.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=5),
 
-
 	BIOLOGY.2016 = list( #48
 		sgp.content.areas=c('PHYSICAL_SCIENCE', 'BIOLOGY'),
 		sgp.panel.years=c('2014', '2016'),
@@ -202,7 +200,6 @@ BIOLOGY_2016.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1),
 
-
 	BIOLOGY.2016 = list( #52 - Repeater
 		sgp.content.areas=c('BIOLOGY', 'BIOLOGY'),
 		sgp.panel.years=c('2015', '2016'),
@@ -210,5 +207,4 @@ BIOLOGY_2016.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=0)
-
 ) ### END BIOLOGY_2016.config
