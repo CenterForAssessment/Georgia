@@ -1,6 +1,6 @@
 #########################################################
 ###
-### Calculate SGPs for Georgia - 2015
+### Calculate SGPs for Georgia - 2016
 ###
 ##########################################################
 
@@ -139,18 +139,47 @@ Georgia_SGP <- analyzeSGP(
     sgp.projections.lagged = TRUE,
     sgp.percentiles.baseline = FALSE,
     sgp.projections.baseline = FALSE,
-    sgp.projections.lagged.baseline = FALSE)#,
-    # parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 12)))
+    sgp.projections.lagged.baseline = FALSE,
+    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
+
+
+###  Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row
+
+for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
+  if (names(Georgia_SGP@SGP$SGPercentiles[ca]) %in% c("ECONOMICS.2016", "US_HISTORY.2016")) {
+    cat(paste("\n\tSkipping", names(Georgia_SGP@SGP$SGPercentiles[ca]), "\n"))
+    next
+  }
+  tmp.SGPercentiles <- Georgia_SGP@SGP$SGPercentiles[[ca]]
+  tmp.SGPercentiles$Most_Recent_Prior <- as.character(NA)
+  tmp.SGPercentiles[, Most_Recent_Prior := sapply(strsplit(as.character(tmp.SGPercentiles$SGP_NORM_GROUP), "; "), function(x) rev(x)[2])]
+
+  setkey(tmp.SGPercentiles, ID, Most_Recent_Prior)
+  tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_ORDER_1), list(ID, Most_Recent_Prior, SGP_ORDER_1)][tmp.SGPercentiles][, i.SGP_ORDER_1 := NULL]
+  tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_SIMEX_ORDER_1), list(ID, Most_Recent_Prior, SGP_SIMEX_ORDER_1)][tmp.SGPercentiles][, i.SGP_SIMEX_ORDER_1 := NULL]
+
+  tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
+}
 
 
 ###
 ###   combineSGP
 ###
 
-Georgia_SGP <- combineSGP(
-    Georgia_SGP,
-    sgp.config = GA_2016.config,
-    sgp.target.scale.scores=TRUE)#,
-    # parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(SGP_SCALE_SCORE_TARGETS = 6)))
+# load new SGP prefs!
+load("/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/SGP_NORM_GROUP_PREFERENCE/GA_SGP_NORM_GROUP_PREFERENCE.Rdata")
+SGPstateData[["GA"]][["SGP_Norm_Group_Preference"]] <- GA_SGP_Norm_Group_Preference
+
+Georgia_SGP@Data[!is.na(Performance_level) & is.na(ACHIEVEMENT_LEVEL), ACHIEVEMENT_LEVEL := Performance_level]
+Georgia_SGP@Data[, Performance_level := NULL]
+
+Georgia_SGP <- combineSGP(Georgia_SGP)
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+
+
+###
+###   outputSGP
+###
+
+outputSGP(Georgia_SGP, outputSGP.directory=".")

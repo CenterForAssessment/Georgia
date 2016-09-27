@@ -20,7 +20,10 @@ setwd('U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/')
 #####Load 2015 testout and 2016 Data#####
 
 Georgia_Data_LONG_2015 <- fread("U:/DATA/SGP/Data/2016 SGPs/Computer matched data/2016 SGP Prelimimary Data/Testout_Data_2015.txt",  header = TRUE, sep = "|", stringsAsFactors=FALSE)
-Georgia_Data_LONG_2016 <- fread("U:/DATA/SGP/Data/2016 SGPs/Computer matched data/2016 SGP Prelimimary Data/ALLData_2016_preliminary_cleaned.txt",  header = TRUE, sep = "|", stringsAsFactors=FALSE)
+Georgia_Data_LONG_2016 <- fread("U:/DATA/SGP/Data/2016 SGPs/Computer matched data/2016 SGP Prelimimary Data/2016_EOC_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt",  header = TRUE, sep = "|", stringsAsFactors=FALSE)
+setnames(Georgia_Data_LONG_2016, c("Subject_code", "Performance_level"), c("SUBJECT_CODE", "PERFORMANCE_LEVEL"))
+
+Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LONG_2016[SUBJECT_CODE != "NULL"]), fill=TRUE)
 
 
 ###  CFA data loading process
@@ -37,13 +40,13 @@ setwd('~/SGP_Projects/Georgia')
 ###  EOC -  Combine 2015 Test Out CRCT and 2016 Milestones data
 Georgia_Data_LONG_2015 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/Testout_Data_2015.txt', sep='|', header=TRUE, colClasses=rep("character", 29))
 Georgia_Data_LONG_2016 <- fread('Data/Base_Files/2016_EOC_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
-setnames(Georgia_Data_LONG_2016, "Subject_code", "SUBJECT_CODE")
+setnames(Georgia_Data_LONG_2016, c("Subject_code", "Performance_level"), c("SUBJECT_CODE", "PERFORMANCE_LEVEL"))
 
 Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LONG_2016[SUBJECT_CODE != "NULL"]), fill=TRUE)
 
 #
 ##
-### 
+###
 
 ###   Tidy up data
 
@@ -65,7 +68,7 @@ Georgia_Data_LONG_2016[,SCHOOL_ENROLLMENT_STATUS := factor(1, levels=0:1, labels
 Georgia_Data_LONG_2016[,DISTRICT_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled District: No", "Enrolled District: Yes"))]
 Georgia_Data_LONG_2016[,STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
- 
+
 ### Drop unused variables
 Georgia_Data_LONG_2016[, Rownumber_dup1 := NULL]
 Georgia_Data_LONG_2016[, Rownumber_dup2 := NULL]
