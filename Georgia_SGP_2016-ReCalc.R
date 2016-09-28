@@ -56,6 +56,7 @@ load("Data/Georgia_Data_LONG_2016.Rdata")
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
   with_sgp_data_LONG=Georgia_Data_LONG_2016,
+  # overwrite.existing.data=FALSE, # unnecessary after SGP version 1.5-9.12
   sgp.config = GA_2016.config,
   steps=c("prepareSGP", "analyzeSGP"),
   sgp.percentiles = TRUE,
