@@ -6,6 +6,7 @@
 
 ###   GA DOE
 load("U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/Data/Georgia_SGP_LONG_Data_2016.Rdata")
+load("U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/Data/Georgia_SGP.Rdata")
 
 ###   CFA/AVI
 setwd('~/SGP_Projects/Georgia')
