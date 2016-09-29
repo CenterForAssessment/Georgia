@@ -114,7 +114,7 @@ AMERICAN_LIT_2016.config <- list(
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('GRADE_9_LIT', 'AMERICAN_LIT'),
 			YEAR=c('2015', '2015'), GRADE=c('EOCT', 'EOCT')),
-		sgp.projection.grade.sequences="NO_PROJECTIONS",
+		sgp.projection.grade.sequences="NO_PROJECTIONS",  # ELA/Lit Projections with Milestones data only, so no Grade 9 Lit projections in 2016
 		sgp.norm.group.preference=5),
 
 	AMERICAN_LIT.2016 = list( # 10

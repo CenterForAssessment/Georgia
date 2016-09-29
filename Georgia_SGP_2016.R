@@ -167,11 +167,11 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 ###
 
 # load new SGP prefs!
-load("/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/SGP_NORM_GROUP_PREFERENCE/GA_SGP_NORM_GROUP_PREFERENCE.Rdata")
-SGPstateData[["GA"]][["SGP_Norm_Group_Preference"]] <- GA_SGP_Norm_Group_Preference
-
-Georgia_SGP@Data[!is.na(Performance_level) & is.na(ACHIEVEMENT_LEVEL), ACHIEVEMENT_LEVEL := Performance_level]
-Georgia_SGP@Data[, Performance_level := NULL]
+# load("/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/SGP_NORM_GROUP_PREFERENCE/GA_SGP_NORM_GROUP_PREFERENCE.Rdata")
+# SGPstateData[["GA"]][["SGP_Norm_Group_Preference"]] <- GA_SGP_Norm_Group_Preference
+#
+# Georgia_SGP@Data[!is.na(Performance_level) & is.na(ACHIEVEMENT_LEVEL), ACHIEVEMENT_LEVEL := Performance_level]
+# Georgia_SGP@Data[, Performance_level := NULL]
 
 Georgia_SGP <- combineSGP(Georgia_SGP)
 
@@ -182,4 +182,4 @@ save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 ###   outputSGP
 ###
 
-outputSGP(Georgia_SGP, outputSGP.directory=".")
+outputSGP(Georgia_SGP)

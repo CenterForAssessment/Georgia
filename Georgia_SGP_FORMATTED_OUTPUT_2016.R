@@ -9,8 +9,8 @@ load("U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/Data/
 
 ###   CFA/AVI
 setwd('~/SGP_Projects/Georgia')
-load("Georgia_SGP.Rdata")
-load("Georgia_SGP_LONG_Data_2016.Rdata")
+load("Data/Georgia_SGP.Rdata")
+load("Data/Georgia_SGP_LONG_Data_2016.Rdata")
 
 ### Variables to output
 variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "YEAR_WITHIN", "GRADE", "GRADE_REPORTED", "SCALE_SCORE", "SCALE_SCORE_PRIOR_STANDARDIZED",
@@ -19,7 +19,11 @@ variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "Y
                          "SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_LEVEL", "SGP_STANDARD_ERROR", "SGP_NORM_GROUP_SCALE_SCORES",
                          "SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "PERFORMANCE_LEVEL_PRIOR_1", "GRADE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1", "ASSESSMENT_TYPE_PRIOR_1",
                          "SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "SCALE_SCORE_PRIOR_2", "PERFORMANCE_LEVEL_PRIOR_2", "GRADE_PRIOR_2", "ADMINISTRATION_PERIOD_PRIOR_2", "ASSESSMENT_TYPE_PRIOR_2",
-                         "SCHOOL_YEAR_PRIOR_3", "SUBJECT_CODE_PRIOR_3", "SCALE_SCORE_PRIOR_3", "PERFORMANCE_LEVEL_PRIOR_3", "GRADE_PRIOR_3", "ADMINISTRATION_PERIOD_PRIOR_3", "ASSESSMENT_TYPE_PRIOR_3")
+                         "SCHOOL_YEAR_PRIOR_3", "SUBJECT_CODE_PRIOR_3", "SCALE_SCORE_PRIOR_3", "PERFORMANCE_LEVEL_PRIOR_3", "GRADE_PRIOR_3", "ADMINISTRATION_PERIOD_PRIOR_3", "ASSESSMENT_TYPE_PRIOR_3",
+                         "SGP_PROJECTION_GROUP_PRIOR", "SGP_PROJECTION_GROUP_CURRENT", "LEVEL_1_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_2_SGP_TARGET_YEAR_1_PRIOR",
+                         "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "P1_PROJ_YEAR_1_PRIOR", "P35_PROJ_YEAR_1_PRIOR", "P66_PROJ_YEAR_1_PRIOR",
+                         "P99_PROJ_YEAR_1_PRIOR", "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
+
 
 ### Subset out relevant variables
 tmp.long.data <- subset(Georgia_SGP_LONG_Data_2016, select=intersect(variables.to.output, names(Georgia_SGP_LONG_Data_2016)))
@@ -123,6 +127,43 @@ tmp.long.data[which(SCHOOL_YEAR_PRIOR_3 %in% c('2015','2016') & GRADE_PRIOR_3=='
 tmp.long.data[which(SCHOOL_YEAR_PRIOR_3 %in% c('2015','2016') & GRADE_PRIOR_3 %in% c('3','4', '5','6','7','8')), ASSESSMENT_TYPE_PRIOR_3 := "EOG"]
 tmp.long.data[which(SCHOOL_YEAR_PRIOR_3 %in% c('2012','2013','2014') & GRADE_PRIOR_3=='EOCT'), ASSESSMENT_TYPE_PRIOR_3 := "EOCT"]
 tmp.long.data[which(SCHOOL_YEAR_PRIOR_3 %in% c('2012','2013','2014') & GRADE_PRIOR_3 %in% c('3','4', '5','6','7','8')), ASSESSMENT_TYPE_PRIOR_3 := "CRCT"]
+
+
+### Add in CURRENT Projections
+
+tmp.list.current <- list()
+my.projection.table.names <- c(
+          "ELA.2016", "GRADE_9_LIT.2016",
+          "MATHEMATICS.2016", "COORDINATE_ALGEBRA.2016",
+          "SCIENCE.2016", # "BIOLOGY.2016", "PHYSICAL_SCIENCE.2016",
+          "SOCIAL_STUDIES.2016", "US_HISTORY.2016")
+for (i in my.projection.table.names) {
+	tmp.list.current[[i]] <- data.table(
+			VALID_CASE="VALID_CASE",
+			SUBJECT_CODE=unlist(strsplit(i, "\\."))[1],
+			SCHOOL_YEAR=unlist(strsplit(i, "\\."))[2],
+			# YEAR_WITHIN="2",
+			Georgia_SGP@SGP$SGProjections[[i]][,my.variable.names])
+}
+
+###  Merge projection/target data in.  Do this seperately so that 8th grade students get their prior merged in (no current target).
+tmp.projections.p <- data.table(rbindlist(tmp.list.prior), FIRST_OBSERVATION = 1L, key=c("ID", "SUBJECT_CODE"))
+tmp.projections.c <- data.table(rbindlist(tmp.list.current), FIRST_OBSERVATION = 1L, key=c("ID", "SUBJECT_CODE"))
+
+setnames(tmp.projections.p, "ID", "GTID")
+setkeyv(tmp.projections.p, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION"))
+setnames(tmp.projections.c, "ID", "GTID")
+setkeyv(tmp.projections.c, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION"))
+setkeyv(tmp.long.data, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION"))
+
+###  Now need to keep SCIENCE's multiple projections
+Georgia_SGP_Data_LONG_2013_FORMATTED <- tmp.projections.p[tmp.long.data, allow.cartesian=TRUE] #keep all CURRENT students (allow.cartesian=TRUE)
+setnames(Georgia_SGP_Data_LONG_2013_FORMATTED, "SGP_PROJECTION_GROUP", "SGP_PROJECTION_GROUP_PRIOR")
+setkeyv(Georgia_SGP_Data_LONG_2013_FORMATTED, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION"))
+Georgia_SGP_Data_LONG_2013_FORMATTED <- tmp.projections.c[Georgia_SGP_Data_LONG_2013_FORMATTED, allow.cartesian=TRUE]
+setnames(Georgia_SGP_Data_LONG_2013_FORMATTED, "SGP_PROJECTION_GROUP", "SGP_PROJECTION_GROUP_CURRENT")
+
+
 
 
 ###  Final arrangement of variables
