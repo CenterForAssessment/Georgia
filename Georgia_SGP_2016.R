@@ -182,4 +182,4 @@ save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 ###   outputSGP
 ###
 
-outputSGP(Georgia_SGP)
+outputSGP(Georgia_SGP, output.type=c("LONG_Data", "LONG_FINAL_YEAR_Data"))
