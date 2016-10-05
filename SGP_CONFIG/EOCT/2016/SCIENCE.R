@@ -13,7 +13,7 @@ SCIENCE_2016.config <- list(
 		sgp.panel.years=c('2015', '2016'),
 		sgp.grade.sequences=list(c('3', '4'), c('4', '5'), c('5', '6'), c('6', '7'), c('7', '8')),
 		sgp.exact.grade.progression=list(TRUE, TRUE, TRUE, TRUE, TRUE),
-		sgp.projection.sequence = c("SCIENCE_BIO", "SCIENCE_PHYSCI"),
+		sgp.projection.sequence = c('SCIENCE_BIO', 'SCIENCE_PHYSCI'),
 		sgp.norm.group.preference=2),
 	SCIENCE.2016 = list(
 		sgp.content.areas=rep('SCIENCE', 3),
@@ -32,7 +32,7 @@ PHYSICAL_SCIENCE_2016.config <- list(
 	PHYSICAL_SCIENCE.2016 = list( #33
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2014', '2016'),
-		sgp.grade.sequences=list(c(8,  'EOCT')),
+		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c("SCIENCE", "BIOLOGY", "PHYSICAL_SCIENCE"),
@@ -42,7 +42,7 @@ PHYSICAL_SCIENCE_2016.config <- list(
 	PHYSICAL_SCIENCE.2016 = list( #34
 		sgp.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2013', '2014', '2016'),
-		sgp.grade.sequences=list(c(7, 8,  'EOCT')),
+		sgp.grade.sequences=list(c(7, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c("SCIENCE", "BIOLOGY", "PHYSICAL_SCIENCE"),
@@ -52,7 +52,7 @@ PHYSICAL_SCIENCE_2016.config <- list(
 	PHYSICAL_SCIENCE.2016 = list( #35
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2015', '2016'),
-		sgp.grade.sequences=list(c(8,  'EOCT')),
+		sgp.grade.sequences=list(c(8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=8),
@@ -60,27 +60,27 @@ PHYSICAL_SCIENCE_2016.config <- list(
 	PHYSICAL_SCIENCE.2016 = list( #36
 		sgp.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2014', '2015', '2016'),
-		sgp.grade.sequences=list(c(7, 8,  'EOCT')),
+		sgp.grade.sequences=list(c(7, 8, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=7),
+		sgp.norm.group.preference=7,
+		sgp.projection.sequence = 'PHYSICAL_SCIENCE_BIO'), # CURRENT
 
 	PHYSICAL_SCIENCE.2016 = list( #37
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2015', '2016'),
-		sgp.grade.sequences=list(c(7,  'EOCT')),
+		sgp.grade.sequences=list(c(7, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=6),
 
 	PHYSICAL_SCIENCE.2016 = list( #38
-		sgp.content.areas=c('SCIENCE','SCIENCE','PHYSICAL_SCIENCE'),
+		sgp.content.areas=c('SCIENCE', 'SCIENCE', 'PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2014', '2015', '2016'),
-		sgp.grade.sequences=list(c(6,  7,  'EOCT')),
+		sgp.grade.sequences=list(c(6,  7, 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
-		sgp.norm.group.preference=5,
-		sgp.projection.sequence = "PHYSICAL_SCIENCE_BIO"),
+		sgp.norm.group.preference=5),
 
 	PHYSICAL_SCIENCE.2016 = list( #39
 		sgp.content.areas=c('BIOLOGY','PHYSICAL_SCIENCE'),
@@ -95,7 +95,7 @@ PHYSICAL_SCIENCE_2016.config <- list(
 	PHYSICAL_SCIENCE.2016 = list( #40
 		sgp.content.areas=c('SCIENCE','BIOLOGY','PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2013', '2014', '2016'),
-		sgp.grade.sequences=list(c(8,  'EOCT', 'EOCT')),
+		sgp.grade.sequences=list(c(8, 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c("BIOLOGY", "PHYSICAL_SCIENCE"),
@@ -113,11 +113,11 @@ PHYSICAL_SCIENCE_2016.config <- list(
 	PHYSICAL_SCIENCE.2016 = list( #42
 		sgp.content.areas=c('SCIENCE','BIOLOGY','PHYSICAL_SCIENCE'),
 		sgp.panel.years=c('2014', '2015', '2016'),
-		sgp.grade.sequences=list(c(8,  'EOCT', 'EOCT')),
+		sgp.grade.sequences=list(c(8, 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1,
-		sgp.projection.sequence = "PHYSICAL_SCIENCE_END"),
+		sgp.projection.sequence = 'BIOLOGY_PHYSCI'), # LAGGED
 
 	PHYSICAL_SCIENCE.2016 = list( #43 - Repeater
 		sgp.content.areas=c('PHYSICAL_SCIENCE','PHYSICAL_SCIENCE'),
@@ -167,7 +167,7 @@ BIOLOGY_2016.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=5,
-		sgp.projection.sequence = "BIOLOGY_PHYSCI"),
+		sgp.projection.sequence = 'BIOLOGY_PHYSCI'), # CURRENT
 
 	BIOLOGY.2016 = list( #48
 		sgp.content.areas=c('PHYSICAL_SCIENCE', 'BIOLOGY'),
@@ -194,12 +194,12 @@ BIOLOGY_2016.config <- list(
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=2,
-		sgp.projection.sequence = "BIOLOGY_END"),
+		sgp.projection.sequence = 'PHYSICAL_SCIENCE_BIO'), # LAGGED
 
 	BIOLOGY.2016 = list( #51
 		sgp.content.areas=c('SCIENCE', 'PHYSICAL_SCIENCE', 'BIOLOGY'),
 		sgp.panel.years=c('2014', '2015', '2016'),
-		sgp.grade.sequences=list(c(7,  'EOCT', 'EOCT')),
+		sgp.grade.sequences=list(c(7, 'EOCT', 'EOCT')),
 		sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
 		sgp.exact.grade.progression=TRUE,
 		sgp.norm.group.preference=1),
