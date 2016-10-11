@@ -81,34 +81,42 @@ GA_2016.config <- c(
   )
 
 
-### updateSGP
+### analyzeSGP for EOC Tests
 
 load("Data/Georgia_Data_LONG_2016_EOC.Rdata")
 
-Georgia_SGP <- updateSGP(
-  what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2016_EOC,
-  overwrite.existing.data=FALSE,
-  output.updated.data=FALSE,
-  sgp.config = GA_2016.config,
-  steps = c("prepareSGP", "analyzeSGP"),
-  sgp.percentiles = TRUE,
-  sgp.projections = FALSE,
-  sgp.projections.lagged = FALSE,
-  sgp.percentiles.baseline=FALSE,
-  sgp.projections.baseline = FALSE,
-  sgp.projections.lagged.baseline = FALSE,
-  sgp.percentiles.equated = FALSE,
-  simulate.sgps = TRUE,
-  calculate.simex = TRUE,
-  goodness.of.fit.print = TRUE,
-  save.intermediate.results = FALSE,
-  parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=11, SIMEX=11)))
+#  Add EOC data prior to running EOC analyses seperately instead of using 'with_sgp_data_LONG'
+#  This avoids issues with using 'overwrite.existing.data=FALSE'.
+
+EOC <- prepareSGP(Georgia_Data_LONG_2016_EOC, state="GA", create.additional.variables=FALSE)
+
+Georgia_SGP@Data <- rbindlist(list(Georgia_SGP@Data, EOC@Data), fill=TRUE)
+
+Georgia_SGP@Data[, FIRST_OBSERVATION := NULL]
+Georgia_SGP@Data[, LAST_OBSERVATION := NULL]
+
+Georgia_SGP <- prepareSGP(Georgia_SGP, create.additional.variables=FALSE)
 
 
-###
+Georgia_SGP <- analyzeSGP(
+    Georgia_SGP,
+    sgp.config = GA_2016.config,
+    sgp.percentiles = TRUE,
+    sgp.projections = FALSE,
+    sgp.projections.lagged = FALSE,
+    sgp.percentiles.baseline = FALSE,
+    sgp.projections.baseline = FALSE,
+    sgp.projections.lagged.baseline = FALSE,
+    sgp.percentiles.equated = FALSE,
+    simulate.sgps = TRUE,
+    calculate.simex = TRUE,
+    goodness.of.fit.print = TRUE,
+    parallel.config = list(
+      BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+      WORKERS=list(TAUS=11, SIMEX=11)))
+
+
 ###   analyzeSGP to produce Projections for all subjects
-###
 
 GA_2016.config <- c(
   MATHEMATICS_2016.config,
@@ -138,7 +146,9 @@ Georgia_SGP <- analyzeSGP(
     sgp.percentiles.baseline = FALSE,
     sgp.projections.baseline = FALSE,
     sgp.projections.lagged.baseline = FALSE,
-    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
+    parallel.config = list(
+      BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+      WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
 
 
 ###  Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row
@@ -173,7 +183,7 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 
 Georgia_SGP <- combineSGP(Georgia_SGP)
 
-save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+save(Georgia_SGP, file="Georgia_SGP-Start2FinishSNOW.Rdata")
 
 
 ###
@@ -198,3 +208,23 @@ Georgia_SGP <- summarizeSGP(
 Georgia_Summary_2016 <- Georgia_SGP@Summary
 
 save(Georgia_Summary_2016, file="Data/Georgia_Summary_2016.Rdata")
+
+
+###
+###   visualizeSGP
+###
+
+# load("Data/Linkages_2015/Linkages.Rdata")
+# Georgia_SGP@SGP$Linkages <- Linkages
+
+visualizeSGP(Georgia_SGP,
+						 plot.types = c("growthAchievementPlot"),
+						 bPlot.years= "2016",
+						 bPlot.content_areas=c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
+						 bPlot.anonymize=TRUE,
+             gaPlot.years = "2016",
+             gaPlot.content_areas = c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
+             gaPlot.max.order.for.progression=1)
+						 parallel.config=list(
+						 	BACKEND='FOREACH', TYPE="doParallel",
+						 	WORKERS=list(GA_PLOTS=10)))

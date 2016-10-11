@@ -4,6 +4,8 @@
 ###
 ######################################################################################
 
+require(data.table)
+
 ###   GA DOE
 load("U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/Data/Georgia_SGP_LONG_Data_2016.Rdata")
 load("U:/DATA/SGP/Data/2016 SGPs/2016 SGP Calculation/Working Directory_QQ/Data/Georgia_SGP.Rdata")
@@ -15,7 +17,7 @@ load("Data/Georgia_SGP_LONG_Data_2016.Rdata")
 
 ### Variables to output
 variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "YEAR_WITHIN", "GRADE", "GRADE_REPORTED", "SCALE_SCORE", "SCALE_SCORE_PRIOR_STANDARDIZED",
-                         "ADMINISTRATION_PERIOD", "FIRST_OBSERVATION", "LAST_OBSERVATION", "PERFORMANCE_LEVEL", "SR_SYSTEM_ID", "SYSTEM_NAME","SCHOOL_NUMBER", "SCHOOL_NAME","ADMIN_INVALIDATION", "ADMIN_TYPE", "MATCH_STATUS",
+                         "ADMINISTRATION_PERIOD", "FIRST_OBSERVATION", "LAST_OBSERVATION", "PERFORMANCE_LEVEL", "SR_SYSTEM_ID", "SYSTEM_NAME", "SR_SCHOOL_ID", "SCHOOL_NUMBER", "SCHOOL_NAME","ADMIN_INVALIDATION", "ADMIN_TYPE", "MATCH_STATUS",
                          "RACE_CODE", "GENDER_CODE", "ED", "SWD", "LEP", "GIFT", "BIRTH_DATE", "LAST_NAME", "FIRST_NAME", "MIDDLE_NAME",
                          "SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_LEVEL", "SGP_STANDARD_ERROR", "SGP_NORM_GROUP_SCALE_SCORES",
                          "SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "PERFORMANCE_LEVEL_PRIOR_1", "GRADE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1", "ASSESSMENT_TYPE_PRIOR_1",
@@ -174,5 +176,5 @@ fwrite(Georgia_SGP_Data_LONG_2016_FORMATTED, file="U:/DATA/SGP/Data/2016 SGPs/20
 ###  CFA
 save(Georgia_SGP_Data_LONG_2016_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.Rdata")
 fwrite(Georgia_SGP_Data_LONG_2016_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt", sep="|")
-zip(zipfile="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt.zip", files="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt")
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt.zip", files="Georgia_SGP_Data_LONG_2016_FORMATTED.txt")
 unlink("Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt")
