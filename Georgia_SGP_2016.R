@@ -174,16 +174,14 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 ###   combineSGP
 ###
 
-# load new SGP prefs!
-# load("/media/Data/Dropbox/Github_Repos/Packages/SGPstateData/SGP_NORM_GROUP_PREFERENCE/GA_SGP_NORM_GROUP_PREFERENCE.Rdata")
-# SGPstateData[["GA"]][["SGP_Norm_Group_Preference"]] <- GA_SGP_Norm_Group_Preference
-#
-# Georgia_SGP@Data[!is.na(Performance_level) & is.na(ACHIEVEMENT_LEVEL), ACHIEVEMENT_LEVEL := Performance_level]
-# Georgia_SGP@Data[, Performance_level := NULL]
-
 Georgia_SGP <- combineSGP(Georgia_SGP)
 
-save(Georgia_SGP, file="Georgia_SGP-Start2FinishSNOW.Rdata")
+####   Fix SCHOOL_NUMBER
+Georgia_SGP@Data[!is.na(SR_SCHOOL_ID), SCHOOL_NUMBER := as.numeric(DISTRICT_NUMBER)*10000 + as.numeric(SR_SCHOOL_ID)]
+Georgia_SGP@Data[which(as.numeric(DISTRICT_NUMBER) > 1000 & !is.na(SR_SCHOOL_ID)), SCHOOL_NUMBER := as.numeric(DISTRICT_NUMBER)]
+Georgia_SGP@Data[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
+
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 
 ###
@@ -200,7 +198,6 @@ outputSGP(Georgia_SGP)
 Georgia_SGP <- summarizeSGP(
 	Georgia_SGP,
 	parallel.config=list(
-		# BACKEND="PARALLEL",
 		BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
 		WORKERS=list(SUMMARY=5))
 )
@@ -214,17 +211,20 @@ save(Georgia_Summary_2016, file="Data/Georgia_Summary_2016.Rdata")
 ###   visualizeSGP
 ###
 
-# load("Data/Linkages_2015/Linkages.Rdata")
-# Georgia_SGP@SGP$Linkages <- Linkages
+load("Data/Georgia_Summary_2016.Rdata")
+Georgia_SGP@Summary <- Georgia_Summary_2016
+
+Georgia_SGP@Data$SCHOOL_NAME <- as.character(NA); gc()
+Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
 
 visualizeSGP(Georgia_SGP,
-						 plot.types = c("growthAchievementPlot"),
+						 plot.types = c("bubblePlot", "growthAchievementPlot"),
 						 bPlot.years= "2016",
 						 bPlot.content_areas=c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
 						 bPlot.anonymize=TRUE,
              gaPlot.years = "2016",
              gaPlot.content_areas = c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
-             gaPlot.max.order.for.progression=1)
+             gaPlot.max.order.for.progression=1,
 						 parallel.config=list(
 						 	BACKEND='FOREACH', TYPE="doParallel",
 						 	WORKERS=list(GA_PLOTS=10)))
