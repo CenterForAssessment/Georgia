@@ -1,0 +1,1020 @@
+---
+title: "Appendix C to the 2016 Georgia Milestones Growth Model Report:"
+subtitle: "Investigation of Potential Ceiling and Floor Effects."
+author:
+  - name: Adam R. VanIwaarden
+  - name: Damian W. Betebenner
+  - name: <em>National Center for the Improvement<br></br> of Educational Assessment (NCIEA)</em>
+date: October 2016
+abstract: "DRAFT REPORT - DO NOT CITE!"
+---
+
+<!--SGPreport-->
+
+```{r, echo=FALSE, include=FALSE}
+  require(SGP)
+  require(Gmisc)
+	require(ggplot2)
+	require(data.table)
+
+  ## set a universal Cache path
+  knitr::opts_chunk$set(cache.path = "_cache/Appendix_C_2016", fig.path="../img/Appendices/Appendix_C_2016/")
+
+  ##  Set Table, Figure and Equation Counters
+  options(table_counter=FALSE)
+  options(table_number=0)
+  options(table_counter_str = "<strong>Table C.%s:</strong> ")
+  options("fig_caption_no"=0)
+  options(fig_caption_no_sprintf = "**Fig. C.%s:**   %s")
+  options("fig_caption_no_roman"=FALSE)
+	options("equation_counter" = 0)
+	
+  subject_order <- c("ELA", "SOCIAL_STUDIES", "SCIENCE",  "MATHEMATICS", 
+										 "GRADE_9_LIT", "AMERICAN_LIT", "US_HISTORY", "ECONOMICS", "BIOLOGY", "PHYSICAL_SCIENCE",
+										 "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")
+	GL_subjects <- c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS")
+	EOCT_subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "US_HISTORY", "ECONOMICS", "BIOLOGY", "PHYSICAL_SCIENCE",
+										 "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")
+
+	prior.year <- "2015"
+	current.year <- "2016"
+
+	###  Set up long data
+	long.data <- copy(Georgia_SGP@Data[, c("ID", "VALID_CASE", "CONTENT_AREA", "GRADE", "Most_Recent_Prior", "YEAR", "YEAR_WITHIN", "SCALE_SCORE", "SGP_SIMEX", "SCALE_SCORE_PRIOR", "SCALE_SCORE_PRIOR_STANDARDIZED", "SGP_NORM_GROUP"), with=FALSE][VALID_CASE=="VALID_CASE" & YEAR %in% c(prior.year, current.year)])
+
+	setnames(long.data, "SGP_SIMEX", "SGP") # Use SIMEX SGP for all plots
+	setkeyv(long.data, c("CONTENT_AREA", "YEAR", "GRADE", "Most_Recent_Prior", "SCALE_SCORE"))
+
+	loss.hoss <- long.data[YEAR == current.year & !is.na(SGP)][, list(
+		LOSS_25 = SCALE_SCORE[which.min(SCALE_SCORE)+24], #  Bottom 25 Scores
+		LOSS_1 = min(SCALE_SCORE),   #  LOSS Only
+		HOSS_25 = SCALE_SCORE[which.max(SCALE_SCORE)-24], #  TOP 25 Scores
+		HOSS_1 = max(SCALE_SCORE)   #  HOSS Only
+		), keyby=list(CONTENT_AREA, YEAR, GRADE, Most_Recent_Prior)]
+
+	setkeyv(long.data, c("CONTENT_AREA", "YEAR", "GRADE", "Most_Recent_Prior"))
+	long.data <- merge(long.data, loss.hoss, all.x = TRUE)
+	long.data[, Grade := ordered(GRADE, levels=c(3:8, "EOCT"))]
+	long.data[, CA := ordered(CONTENT_AREA, levels=subject_order, labels=sapply(subject_order, capwords, USE.NAMES = FALSE))]
+
+	##  Subset out all students with max score and their historical long data
+
+	max.data <- data.table(long.data[SCALE_SCORE >= HOSS_25 & !is.na(SGP),], key=c("ID", "CONTENT_AREA", "GRADE"))
+	max.data[, CA := ordered(CONTENT_AREA, levels=c(GL_subjects, rev(EOCT_subjects)), labels=sapply(c(GL_subjects, rev(EOCT_subjects)), capwords, USE.NAMES = FALSE))] # rev EOC to order top to bottom of boxplot
+	min.data <- data.table(long.data[SCALE_SCORE <= LOSS_25 & !is.na(SGP),], key=c("ID", "CONTENT_AREA", "GRADE"))
+	min.data[, CA := ordered(CONTENT_AREA, levels=c(GL_subjects, rev(EOCT_subjects)), labels=sapply(c(GL_subjects, rev(EOCT_subjects)), capwords, USE.NAMES = FALSE))]
+
+	###
+	###  Utility functions for ggplot (necessary because use of ggplot(...) withing knitr is odd - can't find defined variables in envir/scope, just like data.table)
+	###
+	
+	condDistPlot <- function(ca, g, prior.ca = NULL) {
+		if (g == "EOCT") {
+			tmp.data <- subset(long.data, YEAR==current.year & CONTENT_AREA==ca & Most_Recent_Prior==prior.ca & !is.na(SCALE_SCORE_PRIOR), select=c(ID, SCALE_SCORE, SCALE_SCORE_PRIOR, LOSS_25, HOSS_25, SGP, SGP_NORM_GROUP))
+			y.lab <- paste(current.year, gsub("Sec ", "Secondary ", capwords(ca)))
+			x.lab <- paste(c(sapply(strsplit(prior.ca, "/")[[1]], capwords)), collapse = " ") #"First Prior:", 
+			x.lab <- gsub(" Eoct", "", x.lab)
+			x.lab <- gsub(" 8", " Grade 8", x.lab)
+			x.lab <- gsub(" 7", " Grade 7", x.lab)
+			x.lab <- gsub(" 6", " Grade 6", x.lab)
+		}	else {
+			tmp.data <- subset(long.data, YEAR==current.year & CONTENT_AREA==ca & GRADE==g & !is.na(SCALE_SCORE_PRIOR), select=c(ID, SCALE_SCORE, SCALE_SCORE_PRIOR, LOSS_25, HOSS_25, SGP, SGP_NORM_GROUP))
+			y.lab <- paste(current.year, "Grade", g, capwords(ca))
+			if (is.null(prior.ca)) prior.ca <- ca
+			x.lab <- paste(prior.year, "Grade", g-1, capwords(prior.ca))
+		}
+
+		tmp.pnts <- unique(tmp.data, by=c('SCALE_SCORE', 'SCALE_SCORE_PRIOR', 'SGP'))
+		# if (length(unique(tmp.pnts$SGP_NORM_GROUP)) > 1) {tmp.h <- 25; tmp.w <- 25} else {tmp.h <- 0; tmp.w <- 0}
+		tmp.knots<- quantile(tmp.data$SCALE_SCORE_PRIOR, probs = c(0.2, 0.4, 0.6, 0.8))
+		tmp.bnds <- extendrange(tmp.data$SCALE_SCORE_PRIOR, f=0.1)
+		tmp.x.scale <- extendrange(tmp.data$SCALE_SCORE_PRIOR, f=0.05)
+		tmp.y.scale <- extendrange(tmp.data$SCALE_SCORE, f=0.05) # 0.1 if using 1st and 99th percentiles in geom_quantile
+		
+		ggplot(NULL, aes(x=SCALE_SCORE_PRIOR, y=SCALE_SCORE, label=SGP)) + # NULL data to use different data sets below ## , fill=SGP_NORM_GROUP
+			# geom_text(data=tmp.pnts, aes(colour=SGP_NORM_GROUP), size=2.5, position=position_jitter(width = 10, height = 10)) + scale_colour_grey() + theme_bw() + #
+			theme_bw() + xlim(tmp.x.scale) + ylim(tmp.y.scale) +
+			geom_text(data=tmp.pnts, size=2.75, alpha=0.65) + #, position=position_jitter(tmp.w, tmp.h)
+			# geom_smooth(data=tmp.data, aes(x=SCALE_SCORE_PRIOR), colour='magenta', method="gam", formula = y ~ s(x, bs = "cs")) + 
+			geom_quantile(data=tmp.data, aes(x=SCALE_SCORE_PRIOR, y=SCALE_SCORE), quantiles = c(0.05, 0.5, 0.95), colour='magenta', formula = y ~ splines::bs(x, knots=tmp.knots, Boundary.knots = tmp.bnds)) +
+			# geom_quantile(data=tmp.data, aes(x=SCALE_SCORE_PRIOR, y=SCALE_SCORE), quantiles = c(0.01, 0.5, 0.99), colour='red', method = "rqss") + 
+			# geom_quantile(data=tmp.data, aes(x=SCALE_SCORE_PRIOR, y=SCALE_SCORE), quantiles = c(0.01, 0.5, 0.99), colour='red', method = "rqss", lambda = 1.5) + 
+			geom_rug(data=tmp.data, sides="tb", size=0.05, col=rgb(0,0,0.8, alpha=0.1)) + 
+			geom_rug(data=tmp.data, sides="rl", size=0.05, col=rgb(0.8,0,0, alpha=0.1)) +
+			stat_density2d(data=tmp.data, geom="density2d",  aes(alpha = ..level..), colour='green', contour = TRUE) + #, size=1
+			geom_hline(data=tmp.pnts, aes(yintercept=LOSS_25), colour='red', linetype="dotted") +
+			geom_hline(data=tmp.pnts, aes(yintercept=HOSS_25), colour='red', linetype="dotted") +
+			labs(y = y.lab, x = x.lab) + theme(axis.title=element_text(size=10, face="bold"), legend.position="none")
+	}
+
+	boxPlot <- function(tmp.data, y, LOSS=FALSE, facet=NULL) {
+		give.n <- function(x) { return(c(y = y, label = length(x))) }
+		if (is.null(facet)) {
+			if (LOSS) {
+				p <- ggplot(data=tmp.data, aes(x=CA, y=SGP, fill=CA, ymax=(min(SGP) +7))) + 
+						 geom_boxplot() + labs(x="Content Area", y="Lowest Scoring Students' Growth Percentiles")
+			} else {
+				p <- ggplot(data=tmp.data, aes(x=CA, y=SGP, fill=CA, ymax=(min(SGP) -7))) + 
+						 geom_boxplot() + labs(x="Content Area", y="Highest Scoring Students' Growth Percentiles")
+			}
+			p + stat_summary(fun.data = give.n, geom = "text", position=position_dodge(width = 0.75), size=3, colour="red") +
+					coord_flip() + theme(axis.title=element_text(size=12,face="bold"), legend.position="none")
+		} else {
+		if (facet=="Grade") {
+			if (LOSS) {
+				p <- ggplot(data=tmp.data, aes(x=CA, y=SGP, fill=Grade, ymax=(min(SGP) +7))) + 
+						 geom_boxplot() + facet_grid(.~CA, scales="free") + labs(x="", y="Lowest Scoring Students' Growth Percentiles") 
+			} else {
+				p <- ggplot(data=tmp.data, aes(x=CA, y=SGP, fill=Grade, ymax=(min(SGP) -7))) + 
+						 geom_boxplot() + facet_grid(.~CA, scales="free") + labs(x="", y="Highest Scoring Students' Growth Percentiles") 
+			}
+			p + stat_summary(fun.data = give.n, geom = "text", position=position_dodge(0.75), size=3, colour="red") +
+					coord_flip() + theme(axis.title=element_text(size=12,face="bold"), axis.text.y = element_blank()) # +
+		} else {
+			###  Facet is either Grade or Most_Recent_Prior
+			if (LOSS) {
+				p <- ggplot(data=tmp.data, aes(x=CA, y=SGP, fill=Most_Recent_Prior, ymax=(min(SGP) +7))) + 
+						 geom_boxplot() + facet_grid(.~CA, scales="free") + labs(x="", y="Lowest Scoring Students' Growth Percentiles") 
+			} else {
+				p <- ggplot(data=tmp.data, aes(x=CA, y=SGP, fill=Most_Recent_Prior, ymax=(min(SGP) -7))) + 
+						 geom_boxplot() + facet_grid(.~CA, scales="free") + labs(x="", y="Highest Scoring Students' Growth Percentiles") 
+			}
+			p + stat_summary(fun.data = give.n, geom = "text", position=position_dodge(0.75), size=3, colour="red") +
+					coord_flip() + theme(axis.title=element_text(size=12,face="bold"), axis.text.y = element_blank()) # +
+		}}
+	}
+```
+
+
+# Introduction
+In the 2014-2015 academic year Georgia transitioned from its previous assessment program, the Criterion-Referenced Competency Tests (CRCT), to the [Georgia Milestones Assessment System.](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) The transition included numerous changes to the assessment system including the incorporation of new performance standards.  As other states have gone through similar assessment transitions, many have observed ceiling and floor effects in the new assessments (i.e. a relatively large proportion of students scoring at/near the scale extremes).  These assessment ceilings/floors can telegraph onto the Student Growth Percentile (SGP) calculations.
+
+With perfect data and model fit, the expectation is that the majority of SGPs for students scoring at or near the lowest obtainable scale score (LOSS) will be low (preferably less than 5 and not higher than 20), and that SGPs for students with the highest obtainable scale score (HOSS) will be high (higher than 95 and not less than 80).  Although very similar in nature, ceiling effects in growth are somewhat more problematic than floor effects because students that consistently receive the highest scores are given lower than expected growth percentiles and are therefore negatively impacted.  Conversely, the consistently lowest achieving students have higher estimated SGPs than would be expected.  Although this could be interpreted as a positive impact for these students by giving them higher SGPs, it can also conceal unacceptably low growth that could otherwise be identified and addressed.
+
+Essentially these problems are caused by the way in which a "percentile" is most typically defined to begin with, and the inability of the assessments (and therefore the SGP model) to make granular distinctions between kids who score at the extremes of the test year after year.  As an example, if a group of students were tested with a relatively easy test and 20% of the students had a perfect score, these students would be defined as being in the 80<sup>th</sup> percentile because they scored higher than 80% of their peers.  This is somewhat misleading however, because their score was *equal to* or greater than *all* of their peers and so could be also described as achieving at the 99<sup>th</sup> percentile under an equally valid definition.
+
+To extend this heuristic from achievement to growth, if 50% of those top students also scored perfectly on the next test, we might estimate that they had 50<sup>th</sup> percentile growth.  Although there is nothing *technically* incorrect about this estimate since their growth is fairly typical for their academic peer group, it is an inadequate or unsatisfactory assessment of their growth because they have consistently attained the highest levels.  Furthermore, if it is typical for their peers to maintain perfect scores then even small deviations from a perfect score could produce *low growth* SGP estimates.
+
+Typically only a few students are impacted by the effects, making them difficult to detect using traditional SGP diagnostic tools.  The Center for Assessment has now added "Ceiling/Test Effects" indicators to the SGP model goodness of fit plots and is providing all clients even more rigorous diagnostic and descriptive analyses through this Appendix to the annual technical report.  This report includes:
+
+1. Plots of the current and prior years' test score distributions to indicate ceilings or floors in the data used in growth calculations.
+2. Box plots showing the range and distribution of SGPs for *only* the highest and lowest achieving students in the current year.^[SIMEX measurement error corrected SGPs are used exclusively in this report.]
+
+<!-- HTML_Start -->
+<!-- <div class='breakboth' ></div> -->
+<!-- LaTeX_Start 
+\pagebreak
+LaTeX_End -->
+
+
+# Prior and Current Year Score Distributions
+The marginal and conditional distributions of test scores can serve as a preliminary indicator of potential ceiling or floor effects in the calculation of student growth percentiles.  Some minor problems could present themselves if these characteristics are present in either prior or current year scores, and are particularly likely when present in both.  
+
+The plots below depict distributions for the current year and the most recent prior year used in the SGP calculations for each content area and grade level.  These plots start with a basic scatter plot of each student's scores to show their conditional (joint) score distributions, and each point is depicted as the estimated SGP value based on their scores^[Note that many SGPs are estimated using more than one prior score, and therefore plots may show SGP results from multiple analyses and/or varying SGPs for identical score combinations.].  On top of this is layered 1) **green contour lines** to provide a sense of the joint density, 2) three **non-linear magenta lines** identifying the bivariate relationship between prior and current scores at the 5<sup>th</sup>, 50<sup>th</sup> and 95<sup>th</sup> percentiles^[Produced using quantile regression similar to, but not the same as, that used in calculation of the SGPs.], 3) **red** dotted lines that represent the cutoff for the highest and lowest 25+ current scale scores (the first and last rows of the fit plot table), and 4) **rug plots** that depict the marginal distributions (prior scores shown in blue and current scores in red).  
+
+Ceiling or floor effects may be indicated by dark shaded SGP values in the extreme top-right or bottom-left corners of the plots.  This suggests that staying at the extremes is common, which may lead to odd growth estimates for these high/low achieving students.  We see very few issues in all content areas and grades in the 2015 and 2016 Georgia Milestones EOG data.  Where minor ceilings appear in either years' data, the opposite year score distributions for these students are well distributed, lessening the concern for a growth ceiling effect.
+
+```{r, echo=FALSE, include=FALSE, cache=TRUE, condDist_EOGT, fig.height=2.5, fig.width=3}
+	condDistPlot(ca="ELA", g=4)
+	condDistPlot(ca="ELA", g=5)
+	condDistPlot(ca="ELA", g=6)
+	condDistPlot(ca="ELA", g=7)
+	condDistPlot(ca="ELA", g=8)
+
+	condDistPlot(ca="SOCIAL_STUDIES", g=4)
+	condDistPlot(ca="SOCIAL_STUDIES", g=5)
+	condDistPlot(ca="SOCIAL_STUDIES", g=6)
+	condDistPlot(ca="SOCIAL_STUDIES", g=7)
+	condDistPlot(ca="SOCIAL_STUDIES", g=8)
+
+	condDistPlot(ca="SCIENCE", g=4)
+	condDistPlot(ca="SCIENCE", g=5)
+	condDistPlot(ca="SCIENCE", g=6)
+	condDistPlot(ca="SCIENCE", g=7)
+	condDistPlot(ca="SCIENCE", g=8)
+
+	condDistPlot(ca="MATHEMATICS", g=4)
+	condDistPlot(ca="MATHEMATICS", g=5)
+	condDistPlot(ca="MATHEMATICS", g=6)
+	condDistPlot(ca="MATHEMATICS", g=7)
+	condDistPlot(ca="MATHEMATICS", g=8)
+
+	# summary(max.data[CONTENT_AREA %in% "MATHEMATICS" & GRADE == "6" & SCALE_SCORE==HOSS_1 & SCALE_SCORE_PRIOR > 700]$SGP)
+```
+
+##  End-of-Grade Content Areas
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: ELA.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-1.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-2.png) 
+
+
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: ELA <em>Continued</em>.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-3.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-4.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-5.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistELA} {\bf{Fig. C.1:}} Conditional distribution(s) of current and prior scale scores: ELA.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-1.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-2.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}[H]
+\caption*{\label{fig:condDistELA2} {\bf{Fig. C.2:}} Conditional distribution(s) of current and prior scale scores: ELA \textit{Continued}.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-3.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-4.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-5.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Social Studies.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-6.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-7.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-8.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-9.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-10.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistSS} {\bf{Fig. C.3:}} Conditional distribution(s) of current and prior scale scores: Social Studies.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-6.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-7.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-8.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-9.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-10.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Science.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-11.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-12.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-13.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-14.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-15.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistSci} {\bf{Fig. C.4:}} Conditional distribution(s) of current and prior scale scores: Science.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-11.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-12.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-13.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-14.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-15.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Mathematics.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-16.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-17.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOGT-18.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-19.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOGT-20.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistMath} {\bf{Fig. C.5:}} Conditional distribution(s) of current and prior scale scores: Mathematics.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-16.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-17.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-18.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-19.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOGT-20.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+##  End-of-Course Test Subjects
+
+The conditional density plots for the EOC test subjects are displayed below.  The most recent prior is used in each plot to provide insight on the academic peer group based analyses.  Some of these norm groups represent unusual student populations (e.g. course repeaters and skipped-year progressions), which can also cause ceiling effects for different reasons.
+
+Take, for example, the bottom-right plot in Figure C.8 below for US History course repeaters, particularly the point in the upper-right hand corner of the plot.  Here we see that the overall population is low achieving, as would be expected, but there are three students that attained the HOSS in 2016, one of which had a perfect score in 2015 as well and has received an unexpectedly low SGP of 42.  Given the sparsity of data points in the high achievement regions, the SGP model has struggled to produce appropriate growth estimates.  Several other individual plots in other subjects also display a similar indicators.  In particular, note the Analytic Geometry repeater progression (bottom-left panel in Figure C.14).
+
+```{r, echo=FALSE, include=FALSE, cache=TRUE, condDist_EOCT, fig.height=2.5, fig.width=3}
+# table(long.data[YEAR==current.year & CONTENT_AREA=="GRADE_9_LIT", Most_Recent_Prior])
+
+	condDistPlot(ca="GRADE_9_LIT", g="EOCT", prior.ca="2015/ELA_7")
+	condDistPlot(ca="GRADE_9_LIT", g="EOCT", prior.ca="2015/ELA_8")
+	condDistPlot(ca="GRADE_9_LIT", g="EOCT", prior.ca="2015/GRADE_9_LIT_EOCT")
+
+	condDistPlot(ca="AMERICAN_LIT", g="EOCT", prior.ca="2013/GRADE_9_LIT_EOCT")
+	condDistPlot(ca="AMERICAN_LIT", g="EOCT", prior.ca="2014/GRADE_9_LIT_EOCT")
+	condDistPlot(ca="AMERICAN_LIT", g="EOCT", prior.ca="2015/GRADE_9_LIT_EOCT")
+	condDistPlot(ca="AMERICAN_LIT", g="EOCT", prior.ca="2015/AMERICAN_LIT_EOCT")
+	# max.data[CONTENT_AREA %in% "AMERICAN_LIT" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2015/AMERICAN_LIT_EOCT"]
+
+	condDistPlot(ca="US_HISTORY", g="EOCT", prior.ca="2012/SOCIAL_STUDIES_8")
+	condDistPlot(ca="US_HISTORY", g="EOCT", prior.ca="2013/SOCIAL_STUDIES_8")
+	condDistPlot(ca="US_HISTORY", g="EOCT", prior.ca="2014/SOCIAL_STUDIES_8")
+	condDistPlot(ca="US_HISTORY", g="EOCT", prior.ca="2015/ECONOMICS_EOCT")
+	condDistPlot(ca="US_HISTORY", g="EOCT", prior.ca="2016/ECONOMICS_EOCT")
+	condDistPlot(ca="US_HISTORY", g="EOCT", prior.ca="2015/US_HISTORY_EOCT")
+	# max.data[CONTENT_AREA %in% "US_HISTORY" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2015/US_HISTORY_EOCT"]
+
+	condDistPlot(ca="ECONOMICS", g="EOCT", prior.ca="2012/SOCIAL_STUDIES_8")
+	condDistPlot(ca="ECONOMICS", g="EOCT", prior.ca="2013/SOCIAL_STUDIES_8")
+	condDistPlot(ca="ECONOMICS", g="EOCT", prior.ca="2014/SOCIAL_STUDIES_8")
+	condDistPlot(ca="ECONOMICS", g="EOCT", prior.ca="2015/SOCIAL_STUDIES_8")
+	condDistPlot(ca="ECONOMICS", g="EOCT", prior.ca="2014/US_HISTORY_EOCT")
+	condDistPlot(ca="ECONOMICS", g="EOCT", prior.ca="2015/US_HISTORY_EOCT")
+	condDistPlot(ca="ECONOMICS", g="EOCT", prior.ca="2016/ECONOMICS_EOCT")
+	# max.data[CONTENT_AREA %in% "ECONOMICS" & SCALE_SCORE>HOSS_25 & Most_Recent_Prior=="2016/ECONOMICS_EOCT"]
+	# max.data[CONTENT_AREA %in% "ECONOMICS" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2016/ECONOMICS_EOCT"]
+
+	condDistPlot(ca="BIOLOGY", g="EOCT", prior.ca="2014/SCIENCE_8")
+	condDistPlot(ca="BIOLOGY", g="EOCT", prior.ca="2015/SCIENCE_8")
+	condDistPlot(ca="BIOLOGY", g="EOCT", prior.ca="2014/PHYSICAL_SCIENCE_EOCT")
+	condDistPlot(ca="BIOLOGY", g="EOCT", prior.ca="2015/PHYSICAL_SCIENCE_EOCT")
+	condDistPlot(ca="BIOLOGY", g="EOCT", prior.ca="2015/BIOLOGY_EOCT")
+	# max.data[CONTENT_AREA %in% "BIOLOGY" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2014/PHYSICAL_SCIENCE_EOCT"]
+	# max.data[CONTENT_AREA %in% "BIOLOGY" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2015/BIOLOGY_EOCT"]
+	# max.data[CONTENT_AREA %in% "BIOLOGY" & SCALE_SCORE>=HOSS_25 & Most_Recent_Prior=="2015/BIOLOGY_EOCT"]
+
+	condDistPlot(ca="PHYSICAL_SCIENCE", g="EOCT", prior.ca="2015/SCIENCE_7")
+	condDistPlot(ca="PHYSICAL_SCIENCE", g="EOCT", prior.ca="2014/SCIENCE_8")
+	condDistPlot(ca="PHYSICAL_SCIENCE", g="EOCT", prior.ca="2015/SCIENCE_8")
+	condDistPlot(ca="PHYSICAL_SCIENCE", g="EOCT", prior.ca="2014/BIOLOGY_EOCT") # X
+	condDistPlot(ca="PHYSICAL_SCIENCE", g="EOCT", prior.ca="2015/BIOLOGY_EOCT")
+	condDistPlot(ca="PHYSICAL_SCIENCE", g="EOCT", prior.ca="2015/PHYSICAL_SCIENCE_EOCT") # X
+	
+	condDistPlot(ca="COORDINATE_ALGEBRA", g="EOCT", prior.ca="2015/MATHEMATICS_8")
+	condDistPlot(ca="COORDINATE_ALGEBRA", g="EOCT", prior.ca="2015/MATHEMATICS_7")
+	condDistPlot(ca="COORDINATE_ALGEBRA", g="EOCT", prior.ca="2015/COORDINATE_ALGEBRA_EOCT") # X
+
+	condDistPlot(ca="ANALYTIC_GEOMETRY", g="EOCT", prior.ca="2014/COORDINATE_ALGEBRA_EOCT") # X
+	condDistPlot(ca="ANALYTIC_GEOMETRY", g="EOCT", prior.ca="2015/COORDINATE_ALGEBRA_EOCT")
+	condDistPlot(ca="ANALYTIC_GEOMETRY", g="EOCT", prior.ca="2015/ANALYTIC_GEOMETRY_EOCT") # X
+	# max.data[CONTENT_AREA %in% "ANALYTIC_GEOMETRY" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2015/ANALYTIC_GEOMETRY_EOCT"]
+
+	condDistPlot(ca="ALGEBRA_I", g="EOCT", prior.ca="2015/MATHEMATICS_8")
+	condDistPlot(ca="ALGEBRA_I", g="EOCT", prior.ca="2015/MATHEMATICS_7")
+
+	condDistPlot(ca="GEOMETRY", g="EOCT", prior.ca="2015/COORDINATE_ALGEBRA_EOCT")
+```
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: 9<sup>th</sup> Grade Lit.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-1.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-3.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-2.png)
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistG9L} {\bf{Fig. C.6:}} Conditional distribution(s) of current and prior scale scores: 9<sup>th</sup> Grade Lit.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-1.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-2.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-3.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: American Lit.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-4.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-5.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-6.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-7.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistAmLit} {\bf{Fig. C.7:}} Conditional distribution(s) of current and prior scale scores: American Lit.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-4.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-5.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-6.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-7.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: US History.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-8.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-9.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-10.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-11.png)
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-12.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-13.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistUSHist} {\bf{Fig. C.8:}} Conditional distribution(s) of current and prior scale scores: US History.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-8.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-9.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-10.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-11.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-12.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-13.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Economics.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-14.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-15.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-16.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-17.png) 
+
+
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Economics <em>Continued</em>.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-18.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-19.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-20.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistEcon} {\bf{Fig. C.9:}} Conditional distribution(s) of current and prior scale scores: Economics.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-14.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-15.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-16.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-17.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}[H]
+\caption*{\label{fig:condDistEcon2} {\bf{Fig. C.10:}} Conditional distribution(s) of current and prior scale scores: Economics \textit{Continued}.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-18.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-19.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-20.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Biology.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-21.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-22.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-23.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-24.png)
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-25.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistBio} {\bf{Fig. C.11:}} Conditional distribution(s) of current and prior scale scores: Biology.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-21.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-22.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-23.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-24.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-25.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Physical Science.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-26.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-27.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-28.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-29.png)
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-30.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-31.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistPhysSci} {\bf{Fig. C.12:}} Conditional distribution(s) of current and prior scale scores: Physical Science.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-26.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-27.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-28.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-29.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-30.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-31.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Coordinate Algebra.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-32.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-33.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-34.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistCAlg} {\bf{Fig. C.13:}} Conditional distribution(s) of current and prior scale scores: Coordinate Algebra.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-32.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-33.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-34.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Analytic Geometry.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-35.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-36.png) 
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-37.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistGeom} {\bf{Fig. C.14:}} Conditional distribution(s) of current and prior scale scores: Analytic Geometry.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-35.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-36.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-37.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Algebra I.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-38.png) ![](../img/Appendices/Appendix_C_2016/condDist_EOCT-39.png) 
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistCAlg} {\bf{Fig. C.15:}} Conditional distribution(s) of current and prior scale scores: Algebra I.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-38.png}
+  \end{subfigure}
+  %
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-39.png}
+  \end{subfigure}
+\end{figure}
+
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("Conditional distribution(s) of current and prior scale scores: Geometry.")`
+![](../img/Appendices/Appendix_C_2016/condDist_EOCT-40.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:condDistGeom} {\bf{Fig. C.16:}} Conditional distribution(s) of current and prior scale scores: Geometry.}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/condDist_EOCT-40.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+# SGP Ranges for the Highest and Lowest Achieving Students
+
+In order to isolate the impact of assessment ceilings/floors on student growth percentile (SGP) calculations, the following section provides box plots of the distribution of SGPs for the highest and lowest achieving students.  We are specifically interested in the growth percentiles for students scoring at the highest/lowest obtainable scale score (HOSS/LOSS - i.e. the artificial test ceiling/floor) on the current year test.  However, in order to assure that an adequate number of students are included, the first set of plots in each subsection uses, at a *minimum*, the highest/lowest 25 scores.  This roughly corresponds to the number of students in the top and bottom rows of the table included in the SGP model goodness of fit plots, which is why these plots are provided as a starting point here.  All students with a score in these students' range of scores are included.  Consequently, the number of students in each box plot may be greater than 25 (the exact number is shown at the margins in red text).
+
+The second set of box plots in the following subsections isolate ***only*** those students scoring the HOSS/LOSS.  These plots may then incorporate a varying number of students depending on the prevalence of a ceiling/floor in the current year.  The SIMEX measurement error corrected SGP is Georgia's official growth metric, and these values are used exclusively in this report.
+
+The box plots provide several descriptive statistics.  The dark line within the box marks the *median* SGP, while the ends ("hinges") of the boxes correspond to the first and third quartiles (the 25<sup>th</sup> and 75<sup>th</sup> percentiles).  The upper whisker extends from the hinge to the highest value that is within 1.5 $\times$ IQR of the hinge, where IQR is the inter-quartile range, or distance between the first and third quartiles. The lower whisker extends from the hinge to the lowest value within 1.5 $\times$ IQR of the hinge. Data beyond the end of the whiskers are outliers and plotted as points.  Evidence of a *lack* of either a ceiling or floor effect would be to have all high achieving students with SGPs near 99 and all low achieving students with SGPs near 1.  That is, the desired visual evidence is a solid line at SGP = 99/1.
+
+In the 2016 Georgia EOG SGP analyses, we see evidence of a very minor ceiling effects in some grades and content areas.  These issues are present when considering the top 25 students' scores, but are mitigated when considering only the HOSS/LOSS scores.  The vast majority of SGPs are as expected for students at the score extremes (see Figure C.18).
+
+```{r, echo=FALSE, include=FALSE, cache=TRUE, HOSS_Box_EOGT, fig.height=4, fig.width=7}
+	min.ceiling<-min(max.data[CONTENT_AREA %in% GL_subjects]$SGP)-5
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% GL_subjects], min.ceiling, facet="Grade")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% GL_subjects & SCALE_SCORE==HOSS_1], min.ceiling+5, facet="Grade")
+```
+```{r, echo=FALSE, include=FALSE, cache=TRUE, LOSS_Box_EOGT, fig.height=4, fig.width=7}
+	max.floor <- max(min.data[CONTENT_AREA %in% GL_subjects]$SGP)
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% GL_subjects], max.floor+4, LOSS=TRUE, facet="Grade")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% GL_subjects & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Grade")
+```
+
+## EOG Content Areas
+
+<!-- HTML_Start -->
+##### `r figCapNo("EOG SGP distributions for highest and lowest 25+ scale scores by content area and grade level.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOGT-1.png) ![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOGT-1.png)
+
+
+##### `r figCapNo("EOG SGP distributions for the HOSS and LOSS scores by content area and grade level.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOGT-2.png) ![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOGT-2.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:boxPlotEOGT} {\bf{Fig. C.17:}} SGP distributions for highest and lowest 25+ scale scores by content area and grade level.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOGT-1.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOGT-1.png}
+  \end{subfigure}
+\end{figure}
+
+\begin{figure}[H]
+\caption*{\label{fig:boxPlotEOGT2} {\bf{Fig. C.18:}} SGP distributions for the HOSS and LOSS scores by content area and grade level.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOGT-2.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOGT-2.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+## EOC Subjects
+
+The end-of-course subject results are shown here *only for students scoring exactly the HOSS and LOSS* respectively.  There are several subjects for which potential ceiling effects are evident.  All EOC subjects are disaggregated further by the most recent prior test included in each analyses in order to adequately address any concerns.
+
+```{r, echo=FALSE, include=FALSE, cache=TRUE, HOSS_Box_EOCT, fig.height=4, fig.width=7}
+	min.ceiling<-min(max.data[CONTENT_AREA %in% EOCT_subjects]$SGP)
+	# boxPlot(tmp.data=max.data[CONTENT_AREA %in% EOCT_subjects], min.ceiling)
+
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% EOCT_subjects & SCALE_SCORE==HOSS_1], min.ceiling)
+	# boxPlot(tmp.data=max.data[CONTENT_AREA %in% "ANALYTIC_GEOMETRY"], min.ceiling , facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "GRADE_9_LIT" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "AMERICAN_LIT" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "US_HISTORY" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "ECONOMICS" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "BIOLOGY" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "PHYSICAL_SCIENCE" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "COORDINATE_ALGEBRA" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "ANALYTIC_GEOMETRY" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "ALGEBRA_I" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=max.data[CONTENT_AREA %in% "GEOMETRY" & SCALE_SCORE==HOSS_1], min.ceiling, facet="Most_Recent_Prior")
+		
+	# max.data[CONTENT_AREA %in% "COORDINATE_ALGEBRA" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2015/COORDINATE_ALGEBRA_EOCT"] # 2 interesting cases
+	# max.data[CONTENT_AREA %in% "BIOLOGY" & SCALE_SCORE==HOSS_1 & Most_Recent_Prior=="2015/BIOLOGY_EOCT"]
+		
+```
+```{r, echo=FALSE, include=FALSE, cache=TRUE, LOSS_Box_EOCT, fig.height=4, fig.width=7}
+	max.floor <- max(min.data[CONTENT_AREA %in% EOCT_subjects]$SGP)
+	# boxPlot(tmp.data=min.data[CONTENT_AREA %in% EOCT_subjects], max.floor +4, LOSS=TRUE)
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% EOCT_subjects & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE)
+	
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "GRADE_9_LIT" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "AMERICAN_LIT" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "US_HISTORY" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "ECONOMICS" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "BIOLOGY" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "PHYSICAL_SCIENCE" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "COORDINATE_ALGEBRA" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "ANALYTIC_GEOMETRY" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "ALGEBRA_I" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	boxPlot(tmp.data=min.data[CONTENT_AREA %in% "GEOMETRY" & SCALE_SCORE==LOSS_1], max.floor, LOSS=TRUE, facet="Most_Recent_Prior")
+	
+```
+
+<!-- HTML_Start -->
+
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by content area.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-1.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:Bidensity} {\bf{Fig. C.19:}} EOC SGP distributions for the HOSS and LOSS scores by content area.}
+  \begin{subfigure}[b]{0.95\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-1.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.95\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-1.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+The end-of-course box plots can be disaggregated further by the most recent prior to reflect their constituent norm groups more closely.  The following box plots disaggregate each EOC subject by norm groups.  A pattern emerges in these plots suggesting that the course repeater and those that included skipped years are the most problematic.
+
+<!-- HTML_Start -->
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: 9<sup>th</sup> Grade Literature.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-2.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-2.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpG9L} {\bf{Fig. C.20:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: 9<sup>th</sup> Grade Lit.}
+  \begin{subfigure}[b]{0.93\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-2.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.93\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-2.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: American Lit.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-3.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-3.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpAML} {\bf{Fig. C.21:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: American Lit.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-3.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.9\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-3.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+<!-- HTML_Start -->
+<!-- LaTeX_Start 
+\clearpage 
+LaTeX_End -->
+
+
+In the US History plots below we see the potentially problematic single case from the course repeater analysis (highlighted earlier in the bottom-right panel of Figure C.8).  This student has scored perfectly on both tests (which begs the question as to why this student was re-taking the test to begin with), and, given her relation to the rest of this cohort, the SGP model has estimated this to be a relatively common occurrence with an SGP of 42.  This may be a fair assessment of the conditional probability of staying perfect, but it may not necessarily be a good description of this student's growth. 
+
+<!-- HTML_Start -->
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: US History.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-4.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-4.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpUSH} {\bf{Fig. C.22:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: US History.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=0.9\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-4.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=0.9\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-4.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: Economics.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-5.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-5.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpEcon} {\bf{Fig. C.23:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: Economics.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-5.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-5.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+Several plots for Biology are notable, particularly for the Physical Science prior progressions.  These progressions both show some minor ceiling issues.  This is most likely due to the relatively high number of students attaining the HOSS in 2016 Biology, which deflates the SGPs of those students with relatively higher prior Physical Science scores.  Although not as high as the ideal, these students' SGPs are still on the higher end of the spectrum.
+
+<!-- HTML_Start -->
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: Biology.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-6.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-6.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpBio} {\bf{Fig. C.24:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: Biology.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=0.93\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-6.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=0.93\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-6.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+In Physical Science we see one student in a skipped-year (8<sup>th</sup> Grade Science prior) progression that has a lower than desirable SGP (76) despite scoring at the HOSS for two consecutive years.  This student is an outlier in the data and it is not surprising that the SGP estimate of her growth is questionable.
+
+<!-- HTML_Start -->
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: Physical Science.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-7.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-7.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpPhySci} {\bf{Fig. C.25:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: Physical Science.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=0.93\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-7.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=0.93\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-7.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: Coordinate Algebra.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-8.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-8.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpCA} {\bf{Fig. C.26:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: Coordinate Algebra.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-8.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-8.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+The plots for the Analytic Geometry course repeater progression is notable.  This progression can also be seen in last plot of Figure C.14 above.  Here the student who scored the HOSS consecutively has an unexpectedly low SGP of 28.  Another student of interest in in this analysis scored the HOSS in 2015, and slightly lower in 2016.  This student's SGP was estimated to be 2.  In both cases this is probably an inaccurate assessment of the students' growth since they have attained perfect or near perfect scores two years in a row.  These students are outliers in the data and it is not surprising that the SGP estimates of their growth are questionable.
+
+<!-- HTML_Start -->
+
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: Analytic Geometry.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-9.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-9.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpAG} {\bf{Fig. C.27:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: Analytic Geometry.}
+  \begin{subfigure}[b]{0.9\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-9.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.9\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-9.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+The Algebra I analysis using 7<sup>th</sup> Grade Math priors shows some minor ceiling issues.  This is most likely due to the relatively high number of students attaining the HOSS in both years, which deflates the SGPs of the students with higher prior math scores.  Although not as high as the ideal, these students' SGPs are all on the higher end of the spectrum (above 70).
+<!-- HTML_Start -->
+
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: Algebra I.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-10.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-10.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpAI} {\bf{Fig. C.28:}} EOC SGP distributions for the HOSS and LOSS scores by norm group: Algebra I.}
+  \begin{subfigure}[b]{0.93\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-10.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.93\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-10.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+
+<!-- HTML_Start -->
+
+##### `r figCapNo("EOC SGP distributions for the HOSS and LOSS scores by norm group: Geometry.")`
+![](../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-11.png)![](../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-11.png)
+
+<!-- LaTeX_Start 
+\begin{figure}[H]
+\caption*{\label{fig:bpGeom} {\bf{Fig. C.29:}} EOC SGP distributions for the HOSS and LOSS scores by norm group:  Geometry.}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/HOSS_Box_EOCT-11.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../img/Appendices/Appendix_C_2016/LOSS_Box_EOCT-11.png}
+  \end{subfigure}
+\end{figure}
+
+\pagebreak
+LaTeX_End -->
+
+#  Discussion
+
+Overall there is little evidence of floor or ceiling effects in the 2016 Georgia Milestones SGP analyses.  Some scores for EOC test repeaters and skip year progressions suggest that a small number of minor problems may exist that could require changes.  When ceiling or floor effects are encountered, there are several ways in which they can be "corrected" manually or analytically.  These include (but not limited to):
+
+1. Convert all students scoring at the HOSS (LOSS) to 99 (1).
+2. Run SGP analyses with more granular scores.  For example, many tests that use Item Response Theory (IRT) to analyse test results provide scaled scores that enforce an artificial ceiling (floor), but also have more granular achievement scores available (IRT $\theta$ estimates).
+3. Leave the results without a correction.
+
