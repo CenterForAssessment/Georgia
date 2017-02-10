@@ -39,9 +39,9 @@ Georgia_Data_LONG_2016_EOG <- fread('Data/Base_Files/2016_EOG_ALLSUBJECT_Extract
 
 ###  EOC -  Combine 2015 Test Out CRCT and 2016 Milestones data
 Georgia_Data_LONG_2015 <- fread('Data/Base_Files/2016 SGP Prelimimary Data/Testout_Data_2015.txt', sep='|', header=TRUE, colClasses=rep("character", 29))
-Georgia_Data_LONG_2016_EOC <- fread('Data/Base_Files/2016_EOC_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
-setnames(Georgia_Data_LONG_2016_EOC, c("Subject_code", "Performance_level"), c("SUBJECT_CODE", "PERFORMANCE_LEVEL"))
-# Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LONG_2016[SUBJECT_CODE != "NULL"]), fill=TRUE)
+Georgia_Data_LONG_2016_EOC <- fread('Data/Base_Files/2016_EOC_ALLSUBJECT_Extract_for_SGP_FINAL_CLEANED_updated.txt', sep='|', header=TRUE, colClasses=rep("character", 31))
+setnames(Georgia_Data_LONG_2016_EOC, c("Performance_level"), c("PERFORMANCE_LEVEL")) #"Subject_code",
+# Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LONG_2016_EOC[SUBJECT_CODE != "NULL"]), fill=TRUE)
 
 ### Combined
 Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LONG_2016_EOG, Georgia_Data_LONG_2016_EOC[SUBJECT_CODE != "NULL"]), fill=TRUE)
@@ -54,9 +54,12 @@ Georgia_Data_LONG_2016 <- rbindlist(list(Georgia_Data_LONG_2015, Georgia_Data_LO
 
 setnames(Georgia_Data_LONG_2016, 'CONDSEM', 'SCALE_SCORE_CSEM')
 
+#
 Georgia_Data_LONG_2016[, SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)*10000 + as.numeric(SR_SCHOOL_ID)]
-Georgia_Data_LONG_2016[which(SR_SYSTEM_ID > 1000), SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)]
+Georgia_Data_LONG_2016[which(as.numeric(SR_SYSTEM_ID) > 1000), SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)]
 Georgia_Data_LONG_2016[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
+table(Georgia_Data_LONG_2016[SR_SYSTEM_ID == '601' & SR_SCHOOL_ID == '0195', SCHOOL_NUMBER])
+table(Georgia_Data_LONG_2016[as.numeric(SR_SCHOOL_ID) == 195, SR_SYSTEM_ID])
 
 Georgia_Data_LONG_2016[, SCALE_SCORE := as.numeric(SCALE_SCORE)]
 Georgia_Data_LONG_2016[, SCALE_SCORE_CSEM := as.numeric(SCALE_SCORE_CSEM)]
@@ -78,9 +81,9 @@ Georgia_Data_LONG_2016[, Rownumber_dup2 := NULL]
 ###  Invalidate duplicates
 setkey(Georgia_Data_LONG_2016, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
 setkey(Georgia_Data_LONG_2016, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
-# sum(duplicated(Georgia_Data_LONG_2016[VALID_CASE != "INVALID_CASE"])) # 131 duplicates with valid GTIDs - take the highest score
-# dups <- data.table(Georgia_Data_LONG_2016[unique(c(which(duplicated(Georgia_Data_LONG_2016))-1, which(duplicated(Georgia_Data_LONG_2016)))), ], key=key(Georgia_Data_LONG_2016))
-Georgia_Data_LONG_2016[which(duplicated(Georgia_Data_LONG_2016))-1, VALID_CASE := "INVALID_CASE"]
+# sum(duplicated(Georgia_Data_LONG_2016[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2016))) # 131 duplicates with valid GTIDs - take the highest score
+# dups <- data.table(Georgia_Data_LONG_2016[unique(c(which(duplicated(Georgia_Data_LONG_2016, by=key(Georgia_Data_LONG_2016)))-1, which(duplicated(Georgia_Data_LONG_2016, by=key(Georgia_Data_LONG_2016))))), ], key=key(Georgia_Data_LONG_2016))
+Georgia_Data_LONG_2016[which(duplicated(Georgia_Data_LONG_2016, by=key(Georgia_Data_LONG_2016)))-1, VALID_CASE := "INVALID_CASE"]
 
 ### Save results - Save EOG and EOC seperately (delivered seperately)
 

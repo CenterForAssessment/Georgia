@@ -176,5 +176,5 @@ fwrite(Georgia_SGP_Data_LONG_2016_FORMATTED, file="U:/DATA/SGP/Data/2016 SGPs/20
 ###  CFA
 save(Georgia_SGP_Data_LONG_2016_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.Rdata")
 fwrite(Georgia_SGP_Data_LONG_2016_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt", sep="|")
-zip(zipfile="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt.zip", files="Georgia_SGP_Data_LONG_2016_FORMATTED.txt")
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt.zip", files="Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt")
 unlink("Data/Georgia_SGP_Data_LONG_2016_FORMATTED.txt")
