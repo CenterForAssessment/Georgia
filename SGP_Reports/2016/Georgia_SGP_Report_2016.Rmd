@@ -15,7 +15,7 @@ abstract: "DRAFT REPORT - DO NOT CITE! <br></br> This report provides details ab
 This document was written by Damian Betebenner & Adam VanIwaarden for the State of Georgia Department of Education (DOE).
 
 	Original Draft:  October 6, 2016
-	Final Draft:     , 2016
+	Final Draft:     October 20, 2016
 -->
 
 
@@ -38,7 +38,7 @@ This document was written by Damian Betebenner & Adam VanIwaarden for the State 
 	options("equation_counter" = 0)
 
   ###
-	### Lists of EOG and EOC subjects and reference types.  Used to subset summary tables and data below.
+	### Lists of EOG and EOC subjects.  Used to subset summary tables and data below.
 	###
 
   subject_order<-c("ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES", 
@@ -353,7 +353,7 @@ To investigate the possibility that individual level misfit might impact summary
 
 Student-level correlations for EOG subjects are presented in Table `r tblNumNext()`, and the results are generally as expected.  Strong relationships exist between prior and current scale scores for the grade level analyses (column 3).  With cohort-referenced (uncorrected) percentiles, the correlation between students' most recent prior achievement scores and their student growth percentiles is zero when the model is perfectly fit to the data.  This also indicates that students can demonstrate high (or low) growth regardless of prior achievement.  Correlations for Georgia's uncorrected SGPs are all essentially zero (column 4).
 
-SIMEX corrected SGPs induce a negative correlation between growth and prior achievement.  Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students' is weighted upward and higher achieving students' growth is weighted down.  In theory, this bias in student-level SGPs may decrease the bias in aggregate growth measures (as documented in previous SIMEX reports).  Subsequently, the correlations between both student- and aggregate-level "uncorrected" SGPs and prior achievement are typically higher than those with SIMEX corrected SGPs (see the "Group Level Results" section for aggregate-level correlations).^[Note that correlations that are initially negative also become increasingly negative rather than return to zero.]
+SIMEX corrected SGPs induce a negative correlation between growth and prior achievement.  Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students' is weighted upward and higher achieving students' growth is weighted down.  In theory, this bias in student-level SGPs may decrease the bias in aggregate growth measures (as documented in previous SIMEX reports and Shang et al., 2015).  Subsequently, the correlations between both student- and aggregate-level "uncorrected" SGPs and prior achievement are typically higher than those with SIMEX corrected SGPs (see the "Group Level Results" section for aggregate-level correlations).^[Note that correlations that are initially negative also become increasingly negative rather than return to zero.]
 
 
 ### EOG Subjects
@@ -499,16 +499,14 @@ The use of error-prone standardized test scores in statistical models can lead t
 Simulation-extrapolation (SIMEX) methods of correcting for measurement error induced bias in the SGP estimation has been proposed and tested in Georgia.  Descriptive statistics from these analyses are provided here and in the Goodness-of-Fit section.  Additional technical information about the SIMEX procedure in general and its use in the calculation of cohort-referenced SGPs is provided in Appendix B of this report.
 
 ```{r, results='asis', echo=FALSE, SIMEX_SumEOG}
-	EOG_smry <- Georgia_SGP@Data[CONTENT_AREA %in% GL_subjects & YEAR=='2016'][, list(MEDIAN = median(as.numeric(SGP), na.rm=TRUE), MEAN = round(mean(SGP, na.rm=TRUE), 1)), by=c('CONTENT_AREA', 'GRADE')][!is.na(MEDIAN)]
-	setkey(EOG_smry)
 	EOG_SIMEX_smry <- Georgia_SGP@Data[CONTENT_AREA %in% GL_subjects & YEAR=='2016'][,list("Median SGP"=median(as.numeric(SGP_SIMEX), na.rm=TRUE), "Mean SGP"=round(mean(SGP_SIMEX, na.rm=TRUE), 1)), by=c('CONTENT_AREA', 'GRADE')]
 	setkey(EOG_SIMEX_smry)
 	
 	EOG_SIMEX_smryB <- data.frame()
 	for (ca in GL_subjects){
-		tmp_EOG_smry <- paste(t(as.matrix(EOG_smry[CONTENT_AREA==ca,][, list(MEDIAN)])), " (", t(as.matrix(EOG_smry[CONTENT_AREA==ca,][, list(MEAN)])), ")", sep="")
+		tmp_EOG_smry <- paste(t(as.matrix(EOG_SIMEX_smry[CONTENT_AREA==ca,][, list(MEDIAN)])), " (", t(as.matrix(EOG_SIMEX_smry[CONTENT_AREA==ca,][, list(MEAN)])), ")", sep="")
 		tmp_EOG_smry <- data.frame(matrix(c(capwords(ca), tmp_EOG_smry), 1, length(tmp_EOG_smry)+1))
-		names(tmp_EOG_smry) <- c("Content Area", t(as.matrix(EOG_smry[CONTENT_AREA==ca,][, list(GRADE)])))
+		names(tmp_EOG_smry) <- c("Content Area", t(as.matrix(EOG_SIMEX_smry[CONTENT_AREA==ca,][, list(GRADE)])))
 		EOG_SIMEX_smryB <- rbindlist(list(EOG_SIMEX_smryB, tmp_EOG_smry))
 	}
 	EOG_SIMEX_smryB[is.na(EOG_SIMEX_smryB)] <- ""
