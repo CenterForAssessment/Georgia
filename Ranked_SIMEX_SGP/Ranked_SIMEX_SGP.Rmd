@@ -4,7 +4,9 @@ subtitle: "Why they are needed and preliminary implementation with Georgia Miles
 author:
   - name: Adam R. VanIwaarden
   - name: <em>National Center for the Improvement<br></br> of Educational Assessment (NCIEA)</em>
-date: May 2017
+  - name: Qi Qin
+  - name: <em>Georgia Department of Education (GA DOE)</em>
+date: June 2017
 ---
 
 <!--SGPreport-->
@@ -12,15 +14,15 @@ date: May 2017
 <!-- 
 This document was written by Adam VanIwaarden for the State of Georgia Department of Education (DOE).
 
-	Original Draft:  April 28, 2017
-	Second Draft:  May 10, 2017
+	Original Draft:  May 10, 2017
+	Second Draft:  June 1, 2017
 	Final Draft:     
 -->
 
 
 ```{r, echo=FALSE, include=FALSE}
   ## set a universal Cache path
-  knitr::opts_chunk$set(cache.path = "_cache/2_pager")
+  knitr::opts_chunk$set(cache.path = "_cache/Ranked_Memo", fig.path="img")
 
   ##  Load some R packages and functions required for HTML table creation silently.  
   ##  Load SGP and other packages here to avoid messages.
@@ -35,10 +37,10 @@ This document was written by Adam VanIwaarden for the State of Georgia Departmen
 	options("fig_caption_no_roman"=FALSE)
 
 	### Lists of grade level subjects.  Used to subset summary tables and data below.
-	  subject_order<-c("ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES", 
-									 "GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY", "PHYSICAL_SCIENCE", "BIOLOGY", "US_HISTORY", "ECONOMICS")
+	subject_order<-c("ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES", 
+									 "GRADE_9_LIT", "AMERICAN_LIT", "US_HISTORY", "ECONOMICS", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY", "PHYSICAL_SCIENCE", "BIOLOGY")
 	GL_subjects <- c("ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES")
-	EOC_subjects <-c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY", "PHYSICAL_SCIENCE", "BIOLOGY", "US_HISTORY", "ECONOMICS")
+	EOC_subjects <-c("GRADE_9_LIT", "AMERICAN_LIT", "US_HISTORY", "ECONOMICS", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY", "PHYSICAL_SCIENCE", "BIOLOGY")
 
 	# require(Literasee)
 	# 
@@ -82,7 +84,7 @@ These plots display typical distributions of each SGP variant from the same 2016
 ![](./img/gofSGP_Grade_8_Standard.png)
 <!-- LaTeX_Start 
 \begin{figure}[H]
-  \begin{subfigure}[b]{0.65\textwidth}
+  \begin{subfigure}[b]{0.75\textwidth}
     \includegraphics[width=\textwidth]{./img/gofSGP_Grade_8_Standard.png}
   \end{subfigure}
 \caption{Goodness of Fit Plot for 2016 \textbf{\textit{Standard}} 8<sup>th</sup> Grade Mathematics SGPs.}
@@ -132,9 +134,9 @@ An important consequence of the typical SIMEX and RS-SGP conditional distributio
 ```{r, results='asis', echo=FALSE, Student_EOG}
 	student.cor.grd <- GA_Agg_Data_Long[YEAR=='2016' & VALID_CASE=='VALID_CASE' & CONTENT_AREA %in% GL_subjects][, list(
 		`$\\\rr_ {  Test Scores}$` = round(cor(SCALE_SCORE, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
-		`$\\\rr_ {  SGP}$` = format(round(cor(SGP, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), nsmall = 2), 
-		`$\\\rr_ {  SIMEX SGP}$` = round(cor(SGP_SIMEX, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
-		`$\\\rr_ {  Ranked SIMEX}$` = round(cor(SGP_SIMEX_RANKED, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		`$\\\rr_ {  Standard}$` = format(round(cor(SGP, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), nsmall = 2), 
+		`$\\\rr_ {  SIMEX}$` = round(cor(SGP_SIMEX, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		`$\\\rr_ {  Ranked}$` = round(cor(SGP_SIMEX_RANKED, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
 		N_Size = sum(!is.na(SGP))), keyby = list(CONTENT_AREA, GRADE)]
 	
 	gl_tmp_tbl <- student.cor.grd[!is.na(student.cor.grd[["$\\\rr_ {  Test Scores}$"]])]
@@ -142,7 +144,7 @@ An important consequence of the typical SIMEX and RS-SGP conditional distributio
 	setkey(gl_tmp_tbl, CONTENT_AREA, GRADE)
 	gl_tmp_tbl <- gl_tmp_tbl[][order(match(gl_tmp_tbl$CONTENT_AREA, GL_subjects))]
 
-	tmp.cap <- "Student Level Correlations between Prior Standardized Scale Score and 1) Current Scale Score, 2) SGP, 3) SIMEX SGP and 4) Ranked SIMEX SGP."
+	tmp.cap <- "Student Level Correlations between Prior Standardized Scale Score and 1) Current Scale Score, 2) Standard SGP, 3) SIMEX SGP and 4) Ranked SIMEX SGP."
 	gl_tmp_tbl$CONTENT_AREA <- sapply(gl_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
 	gl_tmp_tbl$CONTENT_AREA[duplicated(gl_tmp_tbl$CONTENT_AREA)] <- ""
 	gl_tmp_tbl$N_Size <- prettyNum(gl_tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
@@ -161,22 +163,23 @@ As expected, the relationships between growth and prior achievement at the stude
 ```{r, cache=TRUE, echo=FALSE, include=FALSE, Student_EOCT}
 	student.cor.eoct <- GA_Agg_Data_Long[YEAR=='2016' & VALID_CASE=='VALID_CASE' & CONTENT_AREA %in% EOC_subjects][, list(
 		`$\\\rr_ {  Test Scores}$` = round(cor(SCALE_SCORE, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
-		`$\\\rr_ {  SGP}$` = format(round(cor(SGP, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), nsmall = 2), 
-		`$\\\rr_ {  SIMEX SGP}$` = round(cor(SGP_SIMEX, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
-		`$\\\rr_ {  Ranked SIMEX}$` = round(cor(SGP_SIMEX_RANKED, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		`$\\\rr_ {  Standard}$` = format(round(cor(SGP, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), nsmall = 2), 
+		`$\\\rr_ {  SIMEX}$` = round(cor(SGP_SIMEX, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		`$\\\rr_ {  Ranked}$` = round(cor(SGP_SIMEX_RANKED, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
 		N_Size = sum(!is.na(SGP))), keyby = list(CONTENT_AREA, Most_Recent_Prior)]
 ```
 ```{r, results='asis', echo=FALSE, Student_EOCT_1}
-	eoct_tmp_tbl <- student.cor.eoct[!is.na(student.cor.eoct[["$\\\rr_ {  SGP}$"]]) & CONTENT_AREA %in% c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY")]
+	eoct_tmp_tbl <- student.cor.eoct[!is.na(student.cor.eoct[["$\\\rr_ {  Standard}$"]]) & CONTENT_AREA %in% c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY")]
 
 	eoct_tmp_tbl <- eoct_tmp_tbl[!is.na(eoct_tmp_tbl[["$\\\rr_ {  Test Scores}$"]])]
 	eoct_tmp_tbl <- eoct_tmp_tbl[][order(match(eoct_tmp_tbl$CONTENT_AREA, EOC_subjects))]
 	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
 
-	tmp.cap <- "EOC Student Level Correlations between Prior Standardized Scale Score and 1) Current Scale Score, 2) SGP and 3) SIMEX SGP - Disaggregated by Norm Group."
+	tmp.cap <- "EOC Student Level Correlations between Prior Standardized Score and 1) Current Scale Score, 2) Standard SGP, 3) SIMEX SGP and 4) Ranked SIMEX SGP - Disaggregated by Norm Group."
 	# eoct_tmp_tbl[, Most_Recent_Prior := paste(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[1]), sapply(sapply(strsplit(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[2]), "_"), function(c) paste(c, collapse = " Grade ")), capwords))]
 	eoct_tmp_tbl[, Most_Recent_Prior := sapply(gsub("/", " ", Most_Recent_Prior), capwords)]
 	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" Eoct", "", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub("Social Studies", "Soc Studies", Most_Recent_Prior)]
 	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 8", " Grade 8", Most_Recent_Prior)]
 	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 7", " Grade 7", Most_Recent_Prior)]
 
@@ -189,18 +192,21 @@ As expected, the relationships between growth and prior achievement at the stude
 ```
 
 ```{r, results='asis', echo=FALSE, Student_EOCT_2}
-	eoct_tmp_tbl <- student.cor.eoct[!is.na(student.cor.eoct[["$\\\rr_ {  SGP}$"]]) & CONTENT_AREA %in% c("BIOLOGY","PHYSICAL_SCIENCE","COORDINATE_ALGEBRA","ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")] 
+	eoct_tmp_tbl <- student.cor.eoct[!is.na(student.cor.eoct[["$\\\rr_ {  Standard}$"]]) & CONTENT_AREA %in% c("BIOLOGY","PHYSICAL_SCIENCE","COORDINATE_ALGEBRA","ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")] 
 
 	eoct_tmp_tbl <- eoct_tmp_tbl[!is.na(eoct_tmp_tbl[["$\\\rr_ {  Test Scores}$"]])]
 	eoct_tmp_tbl <- eoct_tmp_tbl[][order(match(eoct_tmp_tbl$CONTENT_AREA, EOC_subjects))]
 	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
 
-	tmp.cap <- "EOC Student Level Correlations between Prior Standardized Scale Score and 1) SGP or 2) Current Scale Score - Disaggregated by Norm Group (<em>Continued</em>)."
+	tmp.cap <- "EOC Student Level Correlations between Prior Standardized Score and 1) Current Scale Score, 2) Standard SGP, 3) SIMEX SGP and 4) Ranked SIMEX SGP - by Norm Group (<em>Continued</em>)."
 	# eoct_tmp_tbl[, Most_Recent_Prior := paste(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[1]), sapply(sapply(strsplit(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[2]), "_"), function(c) paste(c, collapse = " Grade ")), capwords))]
 	eoct_tmp_tbl[, Most_Recent_Prior := sapply(gsub("/", " ", Most_Recent_Prior), capwords)]
 	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" Eoct", "", Most_Recent_Prior)]
-	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 8", " Grade 8", Most_Recent_Prior)]
-	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 7", " Grade 7", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub("Mathematics", "Math", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub("Coordinate", "Coord", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub("Geometry", "Geom", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 8", " Grd 8", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 7", " Grd 7", Most_Recent_Prior)]
 
 	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
 	eoct_tmp_tbl$CONTENT_AREA[duplicated(eoct_tmp_tbl$CONTENT_AREA)] <- ""
@@ -275,8 +281,6 @@ cor.grd <- smry.grd[!is.na(Mean_SGP) & N > 14][,
 
 ```{r, results='asis', echo=FALSE, School_EOC_Cor}
 	tmp_tbl <- cor.no.grd[order(match(cor.no.grd$CONTENT_AREA, EOC_subjects)),][CONTENT_AREA %in% EOC_subjects]
-#	CONTENT_AREA %in% c("BIOLOGY","PHYSICAL_SCIENCE","COORDINATE_ALGEBRA","ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")] 
-#	CONTENT_AREA %in% c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY")]
 
 	tmp.cap <- "2014 to 2016 School Level EOC Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs by Content Area."
 	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
@@ -293,5 +297,184 @@ cor.grd <- smry.grd[!is.na(Mean_SGP) & N > 14][,
 \pagebreak
 LaTeX_End -->
 
+
+#  Differences between SIMEX and Ranked SIMEX SGPs
+
+Given that the correlations between prior achievement and growth are essentially identical for SIMEX and RS-SGPs, and yet there are visible differences in their distributions and model fit charts, we now investigate the absolute differences between the two values at the student and school levels.
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE}
+###  Qi's code for SGP differences analysis
+GA_Agg_Data_Long_2016 <- GA_Agg_Data_Long[is.na(GA_Agg_Data_Long$SGP) == FALSE & GA_Agg_Data_Long$YEAR=='2016',]
+GA_Agg_Data_Long_2016$SGP_SIMEX_DIFF <- GA_Agg_Data_Long_2016$SGP_SIMEX_RANKED - GA_Agg_Data_Long_2016$SGP_SIMEX
+
+###  Create summary tables
+# aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX, list(GA_Agg_Data_Long_2016$SGP_SIMEX_DIFF, GA_Agg_Data_Long_2016$CONTENT_AREA), mean)
+# aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX, list(GA_Agg_Data_Long_2016$SGP_SIMEX_DIFF, GA_Agg_Data_Long_2016$CONTENT_AREA), length)
+
+student_diff <- GA_Agg_Data_Long_2016[VALID_CASE=='VALID_CASE', list(`Mean SIMEX SGP`=round(mean(SGP_SIMEX), 2), N=.N), keyby=c("CONTENT_AREA", "SGP_SIMEX_DIFF")]
+
+# student_diff <- GA_Agg_Data_Long_2016[VALID_CASE=='VALID_CASE', list(`Mean SIMEX SGP`=round(mean(SGP_SIMEX), 2), `Mean Prior Z-Score`=round(mean(SCALE_SCORE_PRIOR_STANDARDIZED), 2), `Mean Current Z-Score`=round(mean(SCALE_SCORE_CURRENT_STANDARDIZED), 2), N=.N), keyby=c("CONTENT_AREA", "SGP_SIMEX_DIFF")]
+
+```
+
+
+##  SGP Change at Individual Student Level
+
+When replacing SIMEX with ranked SIMEX, students with higher SIMEX SGP tend to receive lower ranked SIMEX SGP, students with lower SIMEX SGP tend to receive higher ranked SIMEX SGP. The correlation between SGP difference and SIMEX SGP is `r round(cor(GA_Agg_Data_Long_2016$SGP_SIMEX, GA_Agg_Data_Long_2016$SGP_SIMEX_DIFF), 2)`. Most of the students have SGP change within 2 percentiles.
+
+```{r, results='asis', echo=FALSE, Student_Diff_EOG}
+	tmp_tbl <- student_diff[order(match(student_diff$CONTENT_AREA, GL_subjects)),][CONTENT_AREA %in% GL_subjects]
+	rgroups <- tmp_tbl[,list(length(SGP_SIMEX_DIFF)), by=CONTENT_AREA]$V1
+	tmp.cap <- "The Change of SGP (Ranked SIMEX - SIMEX) by EOG Subject and MeanGP SIMEX."	
+	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	tmp_tbl$CONTENT_AREA[duplicated(tmp_tbl$CONTENT_AREA)] <- ""
+	setnames(tmp_tbl, c("CONTENT_AREA", "SGP_SIMEX_DIFF"), c("Subject", "SGP Difference"))
+
+	tmp_tbl[is.na(tmp_tbl)] <- ""
+	tmp_tbl$N <- prettyNum(tmp_tbl$N, preserve.width = "individual", big.mark=',')
+
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', 'c', 'r'), caption = tmp.cap, n.rgroup=rgroups))
+	
+```
+
+```{r, results='asis', echo=FALSE, Student_Diff_EOC1}
+	tmp_tbl <- student_diff[order(match(student_diff$CONTENT_AREA, EOC_subjects)),][CONTENT_AREA %in% c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY")]
+	rgroups <- tmp_tbl[,list(length(SGP_SIMEX_DIFF)), by=CONTENT_AREA]$V1
+	tmp.cap <- "The Change of SGP (Ranked SIMEX - SIMEX) by EOC Subject and MeanGP SIMEX."	
+	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	tmp_tbl$CONTENT_AREA[duplicated(tmp_tbl$CONTENT_AREA)] <- ""
+	setnames(tmp_tbl, c("CONTENT_AREA", "SGP_SIMEX_DIFF"), c("Subject", "SGP Difference"))
+
+	tmp_tbl[is.na(tmp_tbl)] <- ""
+	tmp_tbl$N <- prettyNum(tmp_tbl$N, preserve.width = "individual", big.mark=',')
+
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', 'c', 'r'), caption = tmp.cap, n.rgroup=rgroups))
+```
+
+```{r, results='asis', echo=FALSE, Student_Diff_EOC2}
+	tmp_tbl <- student_diff[order(match(student_diff$CONTENT_AREA, EOC_subjects)),][CONTENT_AREA %in% c("COORDINATE_ALGEBRA","ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")]
+	rgroups <- tmp_tbl[,list(length(SGP_SIMEX_DIFF)), by=CONTENT_AREA]$V1
+	tmp.cap <- "The Change of SGP (Ranked SIMEX - SIMEX) by EOC Subject and MeanGP SIMEX (Continued)."	
+	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	tmp_tbl$CONTENT_AREA[duplicated(tmp_tbl$CONTENT_AREA)] <- ""
+	setnames(tmp_tbl, c("CONTENT_AREA", "SGP_SIMEX_DIFF"), c("Subject", "SGP Difference"))
+
+	tmp_tbl[is.na(tmp_tbl)] <- ""
+	tmp_tbl$N <- prettyNum(tmp_tbl$N, preserve.width = "individual", big.mark=',')
+
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', 'c', 'r'), caption = tmp.cap, n.rgroup=rgroups))
+```
+
+```{r, results='asis', echo=FALSE, Student_Diff_EOC3}
+	tmp_tbl <- student_diff[order(match(student_diff$CONTENT_AREA, EOC_subjects)),][CONTENT_AREA %in% c("BIOLOGY","PHYSICAL_SCIENCE")]
+	rgroups <- tmp_tbl[,list(length(SGP_SIMEX_DIFF)), by=CONTENT_AREA]$V1
+	tmp.cap <- "The Change of SGP (Ranked SIMEX - SIMEX) by EOC Subject and MeanGP SIMEX (Continued)."	
+	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	tmp_tbl$CONTENT_AREA[duplicated(tmp_tbl$CONTENT_AREA)] <- ""
+	setnames(tmp_tbl, c("CONTENT_AREA", "SGP_SIMEX_DIFF"), c("Subject", "SGP Difference"))
+
+	tmp_tbl[is.na(tmp_tbl)] <- ""
+	tmp_tbl$N <- prettyNum(tmp_tbl$N, preserve.width = "individual", big.mark=',')
+
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', 'c', 'r'), caption = tmp.cap, n.rgroup=rgroups))
+```
+
+<!-- HTML_Start -->
+<!-- LaTeX_Start 
+\pagebreak
+LaTeX_End -->
+
+
+##  Mean SGP Change at School Level
+
+Most of the schools have mean student growth percentile (MSGP) change within 2 percentiles when switching from SIMEX to Ranked SIMEX.
+
+```{r, results='asis', echo=FALSE, School_Diff}
+	School_mean_SIMEX<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX, list(GA_Agg_Data_Long_2016$CONTENT_AREA,GA_Agg_Data_Long_2016$SCHOOL_NUMBER), mean)
+	colnames(School_mean_SIMEX)<-c('CONTENT_AREA','SCHOOL_NUMBER','MeanGP_SIMEX')
+
+	School_mean_Ranked<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX_RANKED, list(GA_Agg_Data_Long_2016$CONTENT_AREA,GA_Agg_Data_Long_2016$SCHOOL_NUMBER), mean)
+	colnames(School_mean_Ranked)<-c('CONTENT_AREA','SCHOOL_NUMBER','MeanGP_ranked')
+
+	School_mean_N<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX_RANKED, list(GA_Agg_Data_Long_2016$CONTENT_AREA,GA_Agg_Data_Long_2016$SCHOOL_NUMBER), length)
+	colnames(School_mean_N)<-c('CONTENT_AREA','SCHOOL_NUMBER','N')
+
+	School_mean_SIMEX<-cbind(School_mean_SIMEX,School_mean_Ranked[,3], School_mean_N[,3])
+	School_mean_SIMEX$School_mean_diff <- School_mean_SIMEX$MeanGP_SIMEX-School_mean_SIMEX$`School_mean_Ranked[, 3]`
+	School_mean_SIMEX <- School_mean_SIMEX[School_mean_SIMEX$`School_mean_N[, 3]`>=15,]
+
+	tmp_tbl1 <- data.table(School_mean_SIMEX)[, as.list(round(summary(School_mean_diff), 2)), keyby="CONTENT_AREA"]
+	tmp_tbl2 <- data.table(School_mean_SIMEX)[, list(SD=round(sd(School_mean_diff), 2), N=.N), keyby="CONTENT_AREA"]
+	tmp_tbl <- tmp_tbl1[tmp_tbl2]
+	
+	tmp_tbl <- tmp_tbl[order(match(tmp_tbl$CONTENT_AREA, subject_order)),]
+	tmp.cap <- "Descriptive statistics of school MGP change when switching from SIMEX to ranked SIMEX SGP."	
+	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	setnames(tmp_tbl, "CONTENT_AREA", "Subject")
+
+	tmp_tbl$N <- prettyNum(tmp_tbl$N, preserve.width = "individual", big.mark=',')
+
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', rep('c', ncol(tmp_tbl)-2), 'r'), caption = tmp.cap))
+	
+```
+
+<!-- HTML_Start -->
+<!-- LaTeX_Start 
+\pagebreak
+LaTeX_End -->
+
+```{r, echo=FALSE, include=FALSE, School_Diff_Plots}
+	pdf(file="./img/School_Diff_Plots_EOG.pdf", width=7, height=7)
+	par(mfrow=c(2,2))
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='ELA'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='ELA'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='ELA')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='MATHEMATICS'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='MATHEMATICS'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='MATHEMATICS')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='SCIENCE'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='SCIENCE'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='SCIENCE')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='SOCIAL_STUDIES'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='SOCIAL_STUDIES'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='SOCIAL STUDIES')
+	dev.off()
+	
+	pdf(file="./img/School_Diff_Plots_EOC1.pdf", width=7, height=7)
+par(mfrow=c(2,2))
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='GRADE_9_LIT'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='GRADE_9_LIT'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='GRADE 9 LIT')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='AMERICAN_LIT'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='AMERICAN_LIT'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='AMERICAN LIT')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='US_HISTORY'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='US_HISTORY'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='US_HISTORY')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='ECONOMICS'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='ECONOMICS'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='ECONOMICS')
+	dev.off()
+
+	pdf(file="./img/School_Diff_Plots_EOC2.pdf", width=7, height=7)
+	par(mfrow=c(2,2))
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='COORDINATE_ALGEBRA'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='COORDINATE_ALGEBRA'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='COORDINATE ALGEBRA')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='ANALYTIC_GEOMETRY'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='ANALYTIC_GEOMETRY'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='ANALYTIC GEOMETRY')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='ALGEBRA_I'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='ALGEBRA_I'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='ALGEBRA I')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='GEOMETRY'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='GEOMETRY'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='GEOMETRY')
+	dev.off()
+
+	pdf(file="./img/School_Diff_Plots_EOC3.pdf", width=7, height=3.5)
+	par(mfrow=c(1,2))
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='PHYSICAL_SCIENCE'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='PHYSICAL_SCIENCE'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='PHYSICAL SCIENCE')
+	plot(School_mean_SIMEX$MeanGP_SIMEX[School_mean_SIMEX$CONTENT_AREA=='BIOLOGY'],School_mean_SIMEX$School_mean_diff[School_mean_SIMEX$CONTENT_AREA=='BIOLOGY'], xlab='School MeanGP SIMEX', ylab='Change of SGPs (Ranked SIMEX-SIMEX)', xlim=c(0,99),ylim=c(-4,4), main='BIOLOGY')
+	dev.off()
+```
+
+##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOG Subjects.")`
+![](./img/School_Diff_Plots_EOG.pdf)
+
+
+##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOC Subjects.")`
+![](./img/School_Diff_Plots_EOC1.pdf)
+
+
+##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOC Subjects (Continued).")`
+![](./img/School_Diff_Plots_EOC2.pdf)
+
+
+##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOC Subjects (Continued).")`
+![](./img/School_Diff_Plots_EOC3.pdf)
+
+
+
+<!-- HTML_Start -->
+<!-- LaTeX_Start 
+\pagebreak
+LaTeX_End -->
 
 # References
