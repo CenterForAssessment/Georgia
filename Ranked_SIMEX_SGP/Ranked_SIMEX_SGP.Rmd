@@ -30,19 +30,20 @@ This document was written by Adam VanIwaarden for the State of Georgia Departmen
   require(htmlTable)
 
   ##  Set Table, Figure and Equation Counters
-  options(table_number=0)
-  options("fig_caption_no"=0)
+  setCounters()
 	options(fig_caption_no_sprintf = "**Figure %s:**   %s")
 	options("fig_caption_no_roman"=FALSE)
-	options("equation_counter" = 0)
 
 	### Lists of grade level subjects.  Used to subset summary tables and data below.
+	  subject_order<-c("ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES", 
+									 "GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY", "PHYSICAL_SCIENCE", "BIOLOGY", "US_HISTORY", "ECONOMICS")
 	GL_subjects <- c("ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES")
+	EOC_subjects <-c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY", "PHYSICAL_SCIENCE", "BIOLOGY", "US_HISTORY", "ECONOMICS")
 
-	# use.data.table()
-
+	# require(Literasee)
+	# 
 	# renderMultiDocument(rmd_input = "Ranked_SIMEX_SGP.Rmd",
-	# 									output_format = c("HTML", "PDF"), # 
+	# 									output_format = c("HTML", "PDF"), #
 	# 									# cleanup_aux_files = FALSE,
 	# 									pandoc_args = "--webtex")
 
@@ -124,7 +125,9 @@ LaTeX_End -->
 
 #  Relationship of Ranked SIMEX with Prior Student Achievement
 
-An important consequence of the typical SIMEX and RS-SGP conditional distributions is that a negative correlation is created between them and prior test scores.  This is true at the student level and also translates to school and teacher aggregations.  These negative relationships are indicative of the reduction in ME induced bias.  The following tables show the results for the End-of-Grade (EOG) analyses for Georgia over the past several years.  As can be seen, the SIMEX and RS-SGP correlations are nearly identical in both settings.  This is unsurprising as the maximum differences between the two values are between -3 and 3 (with near-zero averages) for all grade-by-subject specific analyses.
+An important consequence of the typical SIMEX and RS-SGP conditional distributions is that a negative correlation is created between them and prior test scores.  This is true at the student level and also translates to school and teacher aggregations.  These negative relationships are indicative of the reduction in ME induced bias.  The following tables show the results for the End-of-Grade (EOG) and End of Course (EOC) analyses for Georgia from 2016.  As can be seen, the SIMEX and RS-SGP correlations are nearly identical in both settings.  This is unsurprising as the maximum differences between the two values are between -3 and 3 with near-zero averages for all grade-by-subject specific analyses (see subsequent sections for more details on the observed differences between SIMEX and RS-SGP).
+
+##  EOG Subjects
 
 ```{r, results='asis', echo=FALSE, Student_EOG}
 	student.cor.grd <- GA_Agg_Data_Long[YEAR=='2016' & VALID_CASE=='VALID_CASE' & CONTENT_AREA %in% GL_subjects][, list(
@@ -149,6 +152,76 @@ An important consequence of the typical SIMEX and RS-SGP conditional distributio
 
 ```
 
+## EOC Subjects
+
+Each EOC test subject is analyzed using more than one sequence of prior subjects, grades and years, and these unique progressions are disaggregated in Tables `r tblNum(+1)` and `r tblNum(+2)` using the most recent prior available for each norm group (although more prior years' scores are used in SGP calculations when available).  These correlations between current and prior scale score are notably lower than in the grade level norm groups, and overall lower correlations may be expected in EOC subjects due to the change in specific subject from one course to the next.  
+
+As expected, the relationships between growth and prior achievement at the student level reported in Tables `r tblNum(+1)` and `r tblNum(+2)` are still non-existent for standard SGPs and slightly negative after SIMEX correction and SIMEX ranking.  SIMEX and RS-SGP correlations are indistinguishable for EOCs as well.
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE, Student_EOCT}
+	student.cor.eoct <- GA_Agg_Data_Long[YEAR=='2016' & VALID_CASE=='VALID_CASE' & CONTENT_AREA %in% EOC_subjects][, list(
+		`$\\\rr_ {  Test Scores}$` = round(cor(SCALE_SCORE, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		`$\\\rr_ {  SGP}$` = format(round(cor(SGP, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), nsmall = 2), 
+		`$\\\rr_ {  SIMEX SGP}$` = round(cor(SGP_SIMEX, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		`$\\\rr_ {  Ranked SIMEX}$` = round(cor(SGP_SIMEX_RANKED, SCALE_SCORE_PRIOR_STANDARDIZED, use='pairwise.complete'), 2), 
+		N_Size = sum(!is.na(SGP))), keyby = list(CONTENT_AREA, Most_Recent_Prior)]
+```
+```{r, results='asis', echo=FALSE, Student_EOCT_1}
+	eoct_tmp_tbl <- student.cor.eoct[!is.na(student.cor.eoct[["$\\\rr_ {  SGP}$"]]) & CONTENT_AREA %in% c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY")]
+
+	eoct_tmp_tbl <- eoct_tmp_tbl[!is.na(eoct_tmp_tbl[["$\\\rr_ {  Test Scores}$"]])]
+	eoct_tmp_tbl <- eoct_tmp_tbl[][order(match(eoct_tmp_tbl$CONTENT_AREA, EOC_subjects))]
+	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+
+	tmp.cap <- "EOC Student Level Correlations between Prior Standardized Scale Score and 1) Current Scale Score, 2) SGP and 3) SIMEX SGP - Disaggregated by Norm Group."
+	# eoct_tmp_tbl[, Most_Recent_Prior := paste(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[1]), sapply(sapply(strsplit(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[2]), "_"), function(c) paste(c, collapse = " Grade ")), capwords))]
+	eoct_tmp_tbl[, Most_Recent_Prior := sapply(gsub("/", " ", Most_Recent_Prior), capwords)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" Eoct", "", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 8", " Grade 8", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 7", " Grade 7", Most_Recent_Prior)]
+
+	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	eoct_tmp_tbl$CONTENT_AREA[duplicated(eoct_tmp_tbl$CONTENT_AREA)] <- ""
+	eoct_tmp_tbl$N_Size <- prettyNum(eoct_tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
+	setnames(eoct_tmp_tbl, c(1:2,7), sapply(names(eoct_tmp_tbl)[c(1:2,7)], capwords))
+
+	cat(dualTable(as.matrix(eoct_tmp_tbl), align=paste(rep('r', dim(eoct_tmp_tbl)[2]), collapse=''), caption = tmp.cap))
+```
+
+```{r, results='asis', echo=FALSE, Student_EOCT_2}
+	eoct_tmp_tbl <- student.cor.eoct[!is.na(student.cor.eoct[["$\\\rr_ {  SGP}$"]]) & CONTENT_AREA %in% c("BIOLOGY","PHYSICAL_SCIENCE","COORDINATE_ALGEBRA","ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")] 
+
+	eoct_tmp_tbl <- eoct_tmp_tbl[!is.na(eoct_tmp_tbl[["$\\\rr_ {  Test Scores}$"]])]
+	eoct_tmp_tbl <- eoct_tmp_tbl[][order(match(eoct_tmp_tbl$CONTENT_AREA, EOC_subjects))]
+	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+
+	tmp.cap <- "EOC Student Level Correlations between Prior Standardized Scale Score and 1) SGP or 2) Current Scale Score - Disaggregated by Norm Group (<em>Continued</em>)."
+	# eoct_tmp_tbl[, Most_Recent_Prior := paste(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[1]), sapply(sapply(strsplit(sapply(strsplit(Most_Recent_Prior, "/"), function(y) y[2]), "_"), function(c) paste(c, collapse = " Grade ")), capwords))]
+	eoct_tmp_tbl[, Most_Recent_Prior := sapply(gsub("/", " ", Most_Recent_Prior), capwords)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" Eoct", "", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 8", " Grade 8", Most_Recent_Prior)]
+	eoct_tmp_tbl[, Most_Recent_Prior := gsub(" 7", " Grade 7", Most_Recent_Prior)]
+
+	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	eoct_tmp_tbl$CONTENT_AREA[duplicated(eoct_tmp_tbl$CONTENT_AREA)] <- ""
+	eoct_tmp_tbl$N_Size <- prettyNum(eoct_tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
+	setnames(eoct_tmp_tbl, c(1:2,7), sapply(names(eoct_tmp_tbl)[c(1:2,7)], capwords))
+
+	cat(dualTable(as.matrix(eoct_tmp_tbl), align=paste(rep('r', dim(eoct_tmp_tbl)[2]), collapse=''), caption = tmp.cap))
+```
+
+
+<!-- HTML_Start -->
+<!-- LaTeX_Start 
+\pagebreak
+LaTeX_End -->
+
+
+##  Schools
+
+We must also consider the impact the SIMEX ranking has on aggregated SGPs since they are used for school and teacher accountability in Georgia.  The following tables looks at the correlations between school level aggregations (averages) of prior student achievement and growth from analyses for Georgia.  Three years of results are provided.
+
+
 ```{r, cache=TRUE, echo=FALSE, include=FALSE}
 smry <- GA_Agg_Data_Long[!is.na(SGP_SIMEX),
 	list(Mean_SGP=mean(SGP, na.rm=T),# Median_SGP=median(as.numeric(SGP), na.rm=T), 
@@ -171,7 +244,7 @@ cor.no.grd <- smry[!is.na(Mean_SGP) & N > 14][,
        R_Mean_Ranked_SIMEX = round(cor(Mean_Ranked_SIMEX, Prior_SS, use="complete"), 2),# R_Median_Ranked_SIMEX = round(cor(Median_Ranked_SIMEX, Prior_SS, use="complete"), 2),
        # Prior_Ach_SD = round(sd(Prior_SS), 3), 
 			 N=.N),
-		keyby=c("CONTENT_AREA", "YEAR")]
+	keyby=c("CONTENT_AREA", "YEAR")]
 
 cor.grd <- smry.grd[!is.na(Mean_SGP) & N > 14][,
 	list(R_Mean_SGP = round(cor(Mean_SGP, Prior_SS, use="complete"), 2),# R_Median_SGP = round(cor(Median_SGP, Prior_SS, use="complete"), 2),
@@ -179,12 +252,11 @@ cor.grd <- smry.grd[!is.na(Mean_SGP) & N > 14][,
      R_Mean_Ranked_SIMEX = round(cor(Mean_Ranked_SIMEX, Prior_SS, use="complete"), 2),# R_Median_Ranked_SIMEX = round(cor(Median_Ranked_SIMEX, Prior_SS, use="complete"), 2),
 		 # Prior_Ach_SD = round(sd(Prior_SS), 3), 
 		 N=.N),
-		 keyby=c("CONTENT_AREA", "GRADE", "YEAR")]
+	keyby=c("CONTENT_AREA", "GRADE", "YEAR")]
 
 ###   Summary of differences between SIMEX and RS-SGP
 # GA_Agg_Data_Long[YEAR=='2016' & VALID_CASE=='VALID_CASE' & CONTENT_AREA %in% GL_subjects][, as.list(summary(SGP_SIMEX-SGP_SIMEX_RANKED, digits =2)), keyby = list(CONTENT_AREA, GRADE)][!is.na(Median)]
 ```
-
 
 ```{r, results='asis', echo=FALSE, School_EOG_Correlations}
 	tmp_tbl <- cor.no.grd[order(match(cor.no.grd$CONTENT_AREA, GL_subjects)),][CONTENT_AREA %in% GL_subjects]
@@ -199,26 +271,27 @@ cor.grd <- smry.grd[!is.na(Mean_SGP) & N > 14][,
 	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', rep('c', dim(tmp_tbl)[2]-2)), caption = tmp.cap, n.rgroup=rep(3,4)))
 	
 ```
-<p></p>
 
-```{r, results='asis', echo=FALSE, School_Grade_EOG_Correlations}
-	gl_cor_tbl <- data.frame(cor.grd[CONTENT_AREA %in% GL_subjects & YEAR == '2016'][, YEAR := NULL])
 
-	tmp.cap <- "2016 School Level EOG Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs by Content Area and Grade."
-	gl_cor_tbl$CONTENT_AREA <- sapply(gl_cor_tbl$CONTENT_AREA, capwords)
-	gl_cor_tbl$CONTENT_AREA[duplicated(gl_cor_tbl$CONTENT_AREA)] <- ""
-	setnames(gl_cor_tbl, sapply(names(gl_cor_tbl), capwords))
-	gl_cor_tbl$N <- prettyNum(gl_cor_tbl$N, preserve.width = "individual", big.mark=',')
-	gl_cor_tbl$N[which(nchar(gl_cor_tbl$N)==3)] <- paste0("  ", gl_cor_tbl$N[which(nchar(gl_cor_tbl$N)==3)])
+```{r, results='asis', echo=FALSE, School_EOC_Cor}
+	tmp_tbl <- cor.no.grd[order(match(cor.no.grd$CONTENT_AREA, EOC_subjects)),][CONTENT_AREA %in% EOC_subjects]
+#	CONTENT_AREA %in% c("BIOLOGY","PHYSICAL_SCIENCE","COORDINATE_ALGEBRA","ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")] 
+#	CONTENT_AREA %in% c("GRADE_9_LIT", "AMERICAN_LIT", "ECONOMICS", "US_HISTORY")]
 
-	cat(dualTable(as.matrix(gl_cor_tbl), align=c('r', 'r', rep('c', dim(gl_cor_tbl)[2]-2)), caption = tmp.cap, n.rgroup=rep(5,4), booktabs = TRUE))
+	tmp.cap <- "2014 to 2016 School Level EOC Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs by Content Area."
+	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	tmp_tbl$CONTENT_AREA[duplicated(tmp_tbl$CONTENT_AREA)] <- ""
+	setnames(tmp_tbl, sapply(names(tmp_tbl), capwords))
+
+	tmp_tbl[is.na(tmp_tbl)] <- ""
+
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', rep('c', dim(tmp_tbl)[2]-2)), caption = tmp.cap))
 ```
 
 <!-- HTML_Start -->
 <!-- LaTeX_Start 
 \pagebreak
 LaTeX_End -->
-
 
 
 # References
