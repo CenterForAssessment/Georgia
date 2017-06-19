@@ -33,8 +33,7 @@ This document was written by Adam VanIwaarden for the State of Georgia Departmen
 
   ##  Set Table, Figure and Equation Counters
   setCounters()
-	options(fig_caption_no_sprintf = "**Figure %s:**   %s")
-	options("fig_caption_no_roman"=FALSE)
+	options(fig_caption_no_sprintf = "**Figure %s:**  %s")
 
 	### Lists of grade level subjects.  Used to subset summary tables and data below.
 	subject_order<-c("ELA", "MATHEMATICS", "SCIENCE", "SOCIAL_STUDIES", 
@@ -45,9 +44,9 @@ This document was written by Adam VanIwaarden for the State of Georgia Departmen
 	# require(Literasee)
 	# 
 	# renderMultiDocument(rmd_input = "Ranked_SIMEX_SGP.Rmd",
-	# 									output_format = c("HTML", "PDF"), #
-	# 									# cleanup_aux_files = FALSE,
-	# 									pandoc_args = "--webtex")
+	# 									report_format = c("HTML", "PDF"),
+	#										pandoc_args = "--webtex") #,
+	# 									# cleanup_aux_files = FALSE)
 
 ```
 
@@ -69,8 +68,12 @@ Without a continuous value, the percentile ranking^[Calculated as (rank(SIMEX SG
 
 Figure `r getOption("fig_caption_no")+1` shows the distribution of the three types of SGP estimates for 2016 8<sup>th</sup> Grade Mathematics SGP analyses in Georgia: uncorrected ("standard"), SIMEX corrected and Ranked SIMEX.  Note that these results are from analyses that use up to three years of data (two prior and the current year), which the authors indicate will also greatly reduce ME bias.
 
-##### `r figCapNo("Comparison of the Uniformity of Distributions for 8<sup>th</sup> Grade Mathematics Estimates.")`
-![](./img/Math_G8_Marginal_Distributions-2_Prior.pdf)
+
+```{r, results='asis', echo=FALSE, G8_Marginal_Distributions}
+	placeFigure(
+		files = "./img/Math_G8_Marginal_Distributions-2_Prior.pdf", 
+		caption = "Comparison of the Uniformity of Distributions for 8<sup>th</sup> Grade Mathematics Estimates.")
+```
 
 
 By definition, the standard SGP is uniformly distributed *given any prior test score*, suggesting that any level of growth is equally likely regardless of prior achievement.  This is a critical distinction, and Castellano and McCaffrey do not discuss the conditional uniformity of the RS-SGP.  We find that this uniformity is not met in either the application of the closed-form equations to simulated data or in our initial tests with real data in the `SGP` package, although the RS-SGP distribution is much closer to uniform than that of the SIMEX SGPs.  
@@ -79,51 +82,29 @@ The following figures are "Goodness of Fit" charts that are produced using the `
 
 These plots display typical distributions of each SGP variant from the same 2016 8<sup>th</sup> Grade Mathematics SGP analyses as depicted above.  The Standard SGPs are nearly perfectly distributed conditional upon prior achievement.  The SIMEX and, to a lesser extent, RS-SGP distributions are skewed towards higher percentiles at the lower levels of achievement and lower growth for the higher prior achievement deciles.  
 
-<!-- HTML_Start -->
-##### `r figCapNo("Goodness of Fit Plot for 2016 ***Standard*** 8<sup>th</sup> Grade Mathematics SGPs.")`
-![](./img/gofSGP_Grade_8_Standard.png)
-<!-- LaTeX_Start 
-\begin{figure}[H]
-  \begin{subfigure}[b]{0.75\textwidth}
-    \includegraphics[width=\textwidth]{./img/gofSGP_Grade_8_Standard.png}
-  \end{subfigure}
-\caption{Goodness of Fit Plot for 2016 \textbf{\textit{Standard}} 8<sup>th</sup> Grade Mathematics SGPs.}
-\end{figure}
 
-\pagebreak
-LaTeX_End -->
+```{r, results='asis', echo=FALSE, GoF_Standard}
+	placeFigure(
+		files = "./img/gofSGP_Grade_8_Standard.png", 
+		pdf.width=0.7, 
+		caption = "Goodness of Fit Plot for 2016 ***Standard*** 8<sup>th</sup> Grade Mathematics SGPs.",
+		page.break=TRUE)
+```
 
+```{r, results='asis', echo=FALSE, GoF_SIMEX}
+	placeFigure(
+		files = "./img/gofSGP_Grade_8_SIMEX.png", 
+		pdf.width=0.65, 
+		caption = "Goodness of Fit Plot for 2016 ***SIMEX*** 8<sup>th</sup> Grade Mathematics SGPs.")
+```
 
+```{r, results='asis', echo=FALSE, GoF_Ranked}
+	placeFigure(
+		files = "./img/gofSGP_Grade_8_RANKED.png", 
+		pdf.width=0.65, 
+		caption = "Goodness of Fit Plot for 2016 ***Ranked SIMEX*** 8<sup>th</sup> Grade Mathematics SGPs.")
+```
 
-
-<!-- HTML_Start -->
-##### `r figCapNo("Goodness of Fit Plot for 2016 ***SIMEX*** 8<sup>th</sup> Grade Mathematics SGPs.")`
-![](./img/gofSGP_Grade_8_SIMEX.png)
-<!-- LaTeX_Start 
-\begin{figure}[H]
-  \begin{subfigure}[b]{0.65\textwidth}
-    \includegraphics[width=\textwidth]{./img/gofSGP_Grade_8_SIMEX.png}
-  \end{subfigure}
-\caption{Goodness of Fit Plot for 2016 \textbf{\textit{SIMEX}} 8<sup>th</sup> Grade Mathematics SGPs.}
-\end{figure}
-
-LaTeX_End -->
-
-
-<!-- HTML_Start -->
-##### `r figCapNo("Goodness of Fit Plot for 2016 ***Ranked SIMEX*** 8<sup>th</sup> Grade Mathematics SGPs.")`
-![](./img/gofSGP_Grade_8_RANKED.png)
-
-<!-- LaTeX_Start 
-\begin{figure}[H]
-  \begin{subfigure}[b]{0.65\textwidth}
-    \includegraphics[width=\textwidth]{./img/gofSGP_Grade_8_RANKED.png}
-  \end{subfigure}
-\caption{Goodness of Fit Plot for 2016 \textbf{\textit{Ranked SIMEX}} 8<sup>th</sup> Grade Mathematics SGPs.}
-\end{figure}
-
-\pagebreak
-LaTeX_End -->
 
 #  Relationship of Ranked SIMEX with Prior Student Achievement
 
@@ -290,12 +271,9 @@ cor.grd <- smry.grd[!is.na(Mean_SGP) & N > 14][,
 	tmp_tbl[is.na(tmp_tbl)] <- ""
 
 	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', rep('c', dim(tmp_tbl)[2]-2)), caption = tmp.cap))
+	
+	pageBreak()
 ```
-
-<!-- HTML_Start -->
-<!-- LaTeX_Start 
-\pagebreak
-LaTeX_End -->
 
 
 #  Differences between SIMEX and Ranked SIMEX SGPs
@@ -324,7 +302,7 @@ When replacing SIMEX with ranked SIMEX, students with higher SIMEX SGP tend to r
 
 ```{r, results='asis', echo=FALSE, Student_Diff_EOG}
 	tmp_tbl <- student_diff[order(match(student_diff$CONTENT_AREA, GL_subjects)),][CONTENT_AREA %in% GL_subjects]
-	rgroups <- tmp_tbl[,list(length(SGP_SIMEX_DIFF)), by=CONTENT_AREA]$V1
+	rgroups <- tmp_tbl[, list(length(SGP_SIMEX_DIFF)), by=CONTENT_AREA]$V1
 	tmp.cap <- "The Change of SGP (Ranked SIMEX - SIMEX) by EOG Subject and MeanGP SIMEX."	
 	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
 	tmp_tbl$CONTENT_AREA[duplicated(tmp_tbl$CONTENT_AREA)] <- ""
@@ -377,12 +355,9 @@ When replacing SIMEX with ranked SIMEX, students with higher SIMEX SGP tend to r
 	tmp_tbl$N <- prettyNum(tmp_tbl$N, preserve.width = "individual", big.mark=',')
 
 	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', 'c', 'r'), caption = tmp.cap, n.rgroup=rgroups))
+	
+	pageBreak()
 ```
-
-<!-- HTML_Start -->
-<!-- LaTeX_Start 
-\pagebreak
-LaTeX_End -->
 
 
 ##  Mean SGP Change at School Level
@@ -390,17 +365,17 @@ LaTeX_End -->
 Most of the schools have mean student growth percentile (MSGP) change within 2 percentiles when switching from SIMEX to Ranked SIMEX.
 
 ```{r, results='asis', echo=FALSE, School_Diff}
-	School_mean_SIMEX<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX, list(GA_Agg_Data_Long_2016$CONTENT_AREA,GA_Agg_Data_Long_2016$SCHOOL_NUMBER), mean)
+	School_mean_SIMEX<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX, list(GA_Agg_Data_Long_2016$CONTENT_AREA, GA_Agg_Data_Long_2016$SCHOOL_NUMBER), mean)
 	colnames(School_mean_SIMEX)<-c('CONTENT_AREA','SCHOOL_NUMBER','MeanGP_SIMEX')
 
-	School_mean_Ranked<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX_RANKED, list(GA_Agg_Data_Long_2016$CONTENT_AREA,GA_Agg_Data_Long_2016$SCHOOL_NUMBER), mean)
+	School_mean_Ranked<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX_RANKED, list(GA_Agg_Data_Long_2016$CONTENT_AREA, GA_Agg_Data_Long_2016$SCHOOL_NUMBER), mean)
 	colnames(School_mean_Ranked)<-c('CONTENT_AREA','SCHOOL_NUMBER','MeanGP_ranked')
 
-	School_mean_N<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX_RANKED, list(GA_Agg_Data_Long_2016$CONTENT_AREA,GA_Agg_Data_Long_2016$SCHOOL_NUMBER), length)
+	School_mean_N<-aggregate(GA_Agg_Data_Long_2016$SGP_SIMEX_RANKED, list(GA_Agg_Data_Long_2016$CONTENT_AREA, GA_Agg_Data_Long_2016$SCHOOL_NUMBER), length)
 	colnames(School_mean_N)<-c('CONTENT_AREA','SCHOOL_NUMBER','N')
 
-	School_mean_SIMEX<-cbind(School_mean_SIMEX,School_mean_Ranked[,3], School_mean_N[,3])
-	School_mean_SIMEX$School_mean_diff <- School_mean_SIMEX$MeanGP_SIMEX-School_mean_SIMEX$`School_mean_Ranked[, 3]`
+	School_mean_SIMEX<-cbind(School_mean_SIMEX, School_mean_Ranked[,3], School_mean_N[,3])
+	School_mean_SIMEX$School_mean_diff <- School_mean_SIMEX$`School_mean_Ranked[, 3]`-School_mean_SIMEX$MeanGP_SIMEX
 	School_mean_SIMEX <- School_mean_SIMEX[School_mean_SIMEX$`School_mean_N[, 3]`>=15,]
 
 	tmp_tbl1 <- data.table(School_mean_SIMEX)[, as.list(round(summary(School_mean_diff), 2)), keyby="CONTENT_AREA"]
@@ -408,7 +383,7 @@ Most of the schools have mean student growth percentile (MSGP) change within 2 p
 	tmp_tbl <- tmp_tbl1[tmp_tbl2]
 	
 	tmp_tbl <- tmp_tbl[order(match(tmp_tbl$CONTENT_AREA, subject_order)),]
-	tmp.cap <- "Descriptive statistics of school MGP change when switching from SIMEX to ranked SIMEX SGP."	
+	tmp.cap <- "Descriptive statistics of school MGP change to ranked SIMEX SGP (Ranked - SIMEX)."	
 	tmp_tbl$CONTENT_AREA <- sapply(tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
 	setnames(tmp_tbl, "CONTENT_AREA", "Subject")
 
@@ -416,12 +391,9 @@ Most of the schools have mean student growth percentile (MSGP) change within 2 p
 
 	cat(dualTable(as.matrix(tmp_tbl), align=c('r', rep('c', ncol(tmp_tbl)-2), 'r'), caption = tmp.cap))
 	
+	pageBreak()
 ```
 
-<!-- HTML_Start -->
-<!-- LaTeX_Start 
-\pagebreak
-LaTeX_End -->
 
 ```{r, echo=FALSE, include=FALSE, School_Diff_Plots}
 	pdf(file="./img/School_Diff_Plots_EOG.pdf", width=7, height=7)
@@ -455,26 +427,30 @@ par(mfrow=c(2,2))
 	dev.off()
 ```
 
-##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOG Subjects.")`
-![](./img/School_Diff_Plots_EOG.pdf)
+```{r, results='asis', echo=FALSE, School_Diff_Plots_EOG}
+	placeFigure(
+		files = "./img/School_Diff_Plots_EOG.pdf",
+		caption = "School MGP change (MGP Ranked SIMEX - MGP SIMEX) by EOG Subjects.")
+```
 
+```{r, results='asis', echo=FALSE, School_Diff_Plots_EOC1}
+	placeFigure(
+		files = "./img/School_Diff_Plots_EOC1.pdf",
+		caption = "School MGP change (MGP Ranked SIMEX - MGP SIMEX) by EOC Subjects.")
+```
 
-##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOC Subjects.")`
-![](./img/School_Diff_Plots_EOC1.pdf)
+```{r, results='asis', echo=FALSE, School_Diff_Plots_EOC2}
+	placeFigure(
+		files = "./img/School_Diff_Plots_EOC2.pdf",
+		caption = "School MGP change (MGP Ranked SIMEX - MGP SIMEX) by EOC Subjects (Continued).")
+```
 
+```{r, results='asis', echo=FALSE, School_Diff_Plots_EOC3}
+	placeFigure(
+		files = "./img/School_Diff_Plots_EOC3.pdf",
+		caption = "School MGP change (MGP Ranked SIMEX - MGP SIMEX) by EOC Subjects (Continued).")
 
-##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOC Subjects (Continued).")`
-![](./img/School_Diff_Plots_EOC2.pdf)
-
-
-##### `r figCapNo("School MGP change (MGP Ranked SIMEX- MGP SIMEX) by EOC Subjects (Continued).")`
-![](./img/School_Diff_Plots_EOC3.pdf)
-
-
-
-<!-- HTML_Start -->
-<!-- LaTeX_Start 
-\pagebreak
-LaTeX_End -->
+	pageBreak()
+```
 
 # References

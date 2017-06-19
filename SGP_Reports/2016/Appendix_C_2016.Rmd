@@ -25,8 +25,7 @@ abstract: "DRAFT REPORT - DO NOT CITE!"
   options(table_number=0)
   options(table_counter_str = "<strong>Table C.%s:</strong> ")
   options("fig_caption_no"=0)
-  options(fig_caption_no_sprintf = "**Fig. C.%s:**   %s")
-  options("fig_caption_no_roman"=FALSE)
+  options(fig_caption_no_sprintf = "**Fig. C.%s:**  %s")
 	options("equation_counter" = 0)
 	
   subject_order <- c("ELA", "SOCIAL_STUDIES", "SCIENCE",  "MATHEMATICS", 
