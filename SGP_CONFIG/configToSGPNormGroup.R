@@ -31,7 +31,7 @@ configToSGPNormGroup <- function(sgp.config) {
 					for (n in 1:(length(tmp.norm.group)-2)) {
 						tmp.data <- rbind(tmp.data, data.table(
 							SGP_NORM_GROUP=paste(tail(tmp.norm.group, -n), collapse="; "),
-							SGP_NORM_GROUP_BASELINE=paste(tmp.norm.group.baseline, collapse="; "),
+							SGP_NORM_GROUP_BASELINE=paste(tail(tmp.norm.group.baseline, -n), collapse="; "),
 							PREFERENCE= (sgp.config$sgp.norm.group.preference*100)+n))
 					}
 				}

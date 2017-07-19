@@ -31,7 +31,7 @@ variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "Y
 ### Subset out relevant variables
 tmp.long.data <- subset(Georgia_SGP_LONG_Data_2016, select=intersect(variables.to.output, names(Georgia_SGP_LONG_Data_2016)))
 
-### Split SGP_NORM_GROUP_BASELINE
+### Split SGP_NORM_GROUP
 my.tmp.split <- strsplit(as.character(tmp.long.data$SGP_NORM_GROUP), "; ")
 
 ### YEAR Prior

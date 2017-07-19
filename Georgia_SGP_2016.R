@@ -146,6 +146,8 @@ Georgia_SGP <- analyzeSGP(
     sgp.percentiles.baseline = FALSE,
     sgp.projections.baseline = FALSE,
     sgp.projections.lagged.baseline = FALSE,
+    sgp.projections.max.forward.progression.years=5,
+    goodness.of.fit.print=FALSE,
     parallel.config = list(
       BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
       WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
@@ -174,7 +176,7 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 ###   combineSGP
 ###
 
-Georgia_SGP <- combineSGP(Georgia_SGP)
+Georgia_SGP <- combineSGP(Georgia_SGP, max.sgp.target.years.forward=3)
 
 ####   Fix SCHOOL_NUMBER
 Georgia_SGP@Data[!is.na(SR_SCHOOL_ID), SCHOOL_NUMBER := as.numeric(DISTRICT_NUMBER)*10000 + as.numeric(SR_SCHOOL_ID)]
