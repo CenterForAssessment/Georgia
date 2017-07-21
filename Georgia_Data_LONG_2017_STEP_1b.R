@@ -12,8 +12,7 @@ require(data.table)
 ###
 
 ###  GADOE data loading process
-##
-#
+
 
 setwd('U:/DATA/SGP/Data/2017 SGPs/SGP Calculation/Working Directory_QQ/')
 
@@ -24,7 +23,13 @@ setwd('U:/DATA/SGP/Data/2017 SGPs/SGP Calculation/Working Directory_QQ/')
 
 names(Georgia_Data_LONG_2017)
 
-Georgia_Data_LONG_2017 <- data.table(read.delim("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOG_preliminary.txt",  header = TRUE, sep = "|"))
+Georgia_Data_LONG_2016_Testout <- data.table(read.delim("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|"))
+Georgia_Data_LONG_2017 <- data.table(read.delim("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOG_EOC_preliminary.txt",  header = TRUE, sep = "|"))
+
+
+### Combined test out into main data
+Georgia_Data_LONG_2017 <- rbindlist(list(Georgia_Data_LONG_2016_Testout, Georgia_Data_LONG_2017), fill=TRUE)
+
 
 ###   Tidy up data
 
@@ -46,16 +51,15 @@ Georgia_Data_LONG_2017[,DISTRICT_ENROLLMENT_STATUS := factor(1, levels=0:1, labe
 Georgia_Data_LONG_2017[,STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
 
-###  Invalidate duplicates(No duplicate cases in EOG file)
+###  Invalidate duplicates(No duplicate cases)
 #setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
 #setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
-# sum(duplicated(Georgia_Data_LONG_2017[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2017))) # 0 duplicates with valid GTIDs - take the highest score
-# dups <- data.table(Georgia_Data_LONG_2017[unique(c(which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017))))), ], key=key(Georgia_Data_LONG_2017))
-# Georgia_Data_LONG_2017[which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, VALID_CASE := "INVALID_CASE"]
+#sum(duplicated(Georgia_Data_LONG_2017[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2017))) # 0 duplicates with valid GTIDs - take the highest score
+#dups <- data.table(Georgia_Data_LONG_2017[unique(c(which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017))))), ], key=key(Georgia_Data_LONG_2017))
+#Georgia_Data_LONG_2017[which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, VALID_CASE := "INVALID_CASE"]
 
-### Save results - Save EOG and EOC seperately (delivered seperately)
+### Save results
 
-Georgia_Data_LONG_2017_EOG <- Georgia_Data_LONG_2017
-save(Georgia_Data_LONG_2017_EOG, file="Georgia_Data_LONG_2017_EOG.Rdata")
+save(Georgia_Data_LONG_2017, file="Georgia_Data_LONG_2017.Rdata")
 
-# save(Georgia_Data_LONG_2017, file="Data/Georgia_Data_LONG_2017.Rdata")
+
