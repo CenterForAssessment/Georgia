@@ -48,9 +48,6 @@ Georgia_SGP <- updateSGP(
   with_sgp_data_LONG=Georgia_Data_LONG_2017[SUBJECT_CODE %in% c("ELA", "MATHEMATICS")], ## PRELIM CODE ##
   sgp.config = GA_2017.config,
   steps=c("prepareSGP", "analyzeSGP"),
-  overwrite.existing.data=FALSE,
-	update.old.data.with.new=FALSE,
-	output.updated.data=FALSE,
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
   sgp.projections.lagged = FALSE,
@@ -70,11 +67,6 @@ save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 ###
 ###    EOC Analyses
 ###
-
-SGPstateData[["GA"]][["SGP_Configuration"]][["grade.projection.sequence"]][["READING"]] <- c("3", "4", "5", "6", "7", "8")
-SGPstateData[["GA"]][["SGP_Configuration"]][["content_area.projection.sequence"]][["READING"]] <- c("READING", "READING", "READING", "READING", "READING", "READING")
-SGPstateData[["GA"]][["SGP_Configuration"]][["year_lags.projection.sequence"]][["READING"]] <- rep(1L, 5)
-SGPstateData[["GA"]][["SGP_Configuration"]][["max.forward.projection.sequence"]][["READING"]] <- 3
 
 ###  Combine 2017 SGP EOC Configuration Scripts
 
@@ -96,6 +88,9 @@ Georgia_SGP <- updateSGP(
   with_sgp_data_LONG=Georgia_Data_LONG_2017[SUBJECT_CODE %in% eoc.subjects], ## PRELIM CODE ##
   sgp.config = GA_2017.config,
   steps=c("prepareSGP", "analyzeSGP"),
+  overwrite.existing.data=FALSE,
+	# update.old.data.with.new=FALSE,
+	output.updated.data=FALSE,
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
   sgp.projections.lagged = FALSE,
