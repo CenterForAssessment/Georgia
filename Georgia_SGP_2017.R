@@ -48,6 +48,9 @@ Georgia_SGP <- updateSGP(
   with_sgp_data_LONG=Georgia_Data_LONG_2017[SUBJECT_CODE %in% c("ELA", "MATHEMATICS")], ## PRELIM CODE ##
   sgp.config = GA_2017.config,
   steps=c("prepareSGP", "analyzeSGP"),
+  overwrite.existing.data=FALSE,
+	update.old.data.with.new=FALSE,
+	output.updated.data=FALSE,
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
   sgp.projections.lagged = FALSE,
@@ -68,6 +71,11 @@ save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 ###    EOC Analyses
 ###
 
+SGPstateData[["GA"]][["SGP_Configuration"]][["grade.projection.sequence"]][["READING"]] <- c("3", "4", "5", "6", "7", "8")
+SGPstateData[["GA"]][["SGP_Configuration"]][["content_area.projection.sequence"]][["READING"]] <- c("READING", "READING", "READING", "READING", "READING", "READING")
+SGPstateData[["GA"]][["SGP_Configuration"]][["year_lags.projection.sequence"]][["READING"]] <- rep(1L, 5)
+SGPstateData[["GA"]][["SGP_Configuration"]][["max.forward.projection.sequence"]][["READING"]] <- 3
+
 ###  Combine 2017 SGP EOC Configuration Scripts
 
 GA_2017.config <- c(
@@ -81,6 +89,7 @@ GA_2017.config <- c(
 )
 
 eoc.subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")
+
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
@@ -100,3 +109,47 @@ Georgia_SGP <- updateSGP(
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=12, SIMEX=12)))
+
+
+###   analyzeSGP to produce Projections for all subjects
+
+GA_2017.config <- c(
+  MATHEMATICS_2017.config,
+  COORDINATE_ALGEBRA_2017.config,
+  ANALYTIC_GEOMETRY_2017.config,
+  ALGEBRA_I_2017.config,
+  GEOMETRY_2017.config,
+
+  ELA_2017.config,
+  GRADE_9_LIT_2017.config,
+  AMERICAN_LIT_2017.config)
+
+Georgia_SGP <- analyzeSGP(
+  Georgia_SGP,
+  sgp.config = GA_2017.config,
+  sgp.percentiles = FALSE,
+  sgp.projections = TRUE,
+  sgp.projections.lagged = TRUE,
+  sgp.percentiles.baseline = FALSE,
+  sgp.projections.baseline = FALSE,
+  sgp.projections.lagged.baseline = FALSE,
+  sgp.projections.max.forward.progression.years=5,
+  goodness.of.fit.print=FALSE,
+  parallel.config = list(
+    BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+    WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
+
+
+###  Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row
+
+for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
+  tmp.SGPercentiles <- Georgia_SGP@SGP$SGPercentiles[[ca]]
+  tmp.SGPercentiles$Most_Recent_Prior <- as.character(NA)
+  tmp.SGPercentiles[, Most_Recent_Prior := sapply(strsplit(as.character(tmp.SGPercentiles$SGP_NORM_GROUP), "; "), function(x) rev(x)[2])]
+
+  setkey(tmp.SGPercentiles, ID, Most_Recent_Prior)
+  tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_ORDER_1), list(ID, Most_Recent_Prior, SGP_ORDER_1)][tmp.SGPercentiles][, i.SGP_ORDER_1 := NULL]
+  tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_SIMEX_ORDER_1), list(ID, Most_Recent_Prior, SGP_SIMEX_ORDER_1)][tmp.SGPercentiles][, i.SGP_SIMEX_ORDER_1 := NULL]
+
+  tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
+}
