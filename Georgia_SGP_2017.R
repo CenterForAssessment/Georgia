@@ -38,7 +38,7 @@ GA_2017.config <- c(
 load("Data/Georgia_SGP-Shell_2017.Rdata")
 load("Data/Georgia_Data_LONG_2017_EOG.Rdata")
 
- ## PRELIM CODE ##
+ ##  PRELIM CODE ONLY  -  Speed up prelim tests  ##
  SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
  prelim.simex <- list(lambda=seq(0,2,0.5), simulation.iterations=7, simex.sample.size=1500, csem.data.vnames="SCALE_SCORE_CSEM", extrapolation="linear", save.matrices=TRUE)
 
@@ -105,6 +105,7 @@ Georgia_SGP <- updateSGP(
   save.intermediate.results=FALSE,
    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=12, SIMEX=12)))
 
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 ###   analyzeSGP to produce Projections for all subjects
 
@@ -118,6 +119,7 @@ GA_2017.config <- c(
   ELA_2017.config,
   GRADE_9_LIT_2017.config,
   AMERICAN_LIT_2017.config)
+
 
 Georgia_SGP <- analyzeSGP(
   Georgia_SGP,
