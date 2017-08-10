@@ -147,6 +147,66 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   setkey(tmp.SGPercentiles, ID, Most_Recent_Prior)
   tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_ORDER_1), list(ID, Most_Recent_Prior, SGP_ORDER_1)][tmp.SGPercentiles][, i.SGP_ORDER_1 := NULL]
   tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_SIMEX_ORDER_1), list(ID, Most_Recent_Prior, SGP_SIMEX_ORDER_1)][tmp.SGPercentiles][, i.SGP_SIMEX_ORDER_1 := NULL]
+  tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_SIMEX_RANKED_ORDER_1), list(ID, Most_Recent_Prior, SGP_SIMEX_RANKED_ORDER_1)][tmp.SGPercentiles][, SGP_SIMEX_RANKED_ORDER_1 := NULL]
 
   tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
 }
+
+
+
+###
+###   combineSGP
+###
+
+Georgia_SGP@SGP[["SGPercentiles"]][["ELA.2017"]][, PREFERENCE := 1L]
+Georgia_SGP@SGP[["SGPercentiles"]][["MATHEMATICS.2017"]][, PREFERENCE := 1L]
+
+Georgia_SGP <- combineSGP(Georgia_SGP, max.sgp.target.years.forward=3)
+
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+
+
+###
+###   outputSGP
+###
+
+outputSGP(Georgia_SGP)
+
+
+###
+###   summarizeSGP
+###
+
+Georgia_SGP <- summarizeSGP(
+	Georgia_SGP,
+	parallel.config=list(
+		BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+		WORKERS=list(SUMMARY=12))
+)
+
+Georgia_Summary_2017 <- Georgia_SGP@Summary
+
+save(Georgia_Summary_2017, file="Data/Georgia_Summary_2017.Rdata")
+
+
+###
+###   visualizeSGP
+###
+
+load("Data/Georgia_Summary_2017.Rdata")
+Georgia_SGP@Summary <- Georgia_Summary_2017
+
+Georgia_SGP@Data$SCHOOL_NAME <- as.character(NA); gc()
+Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
+
+visualizeSGP(Georgia_SGP,
+						 plot.types = c("bubblePlot", "growthAchievementPlot"),
+						 bPlot.years= "2017",
+						 bPlot.content_areas=c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
+						 bPlot.anonymize=TRUE,
+             gaPlot.years = "2017",
+             gaPlot.content_areas = c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
+             gaPlot.max.order.for.progression=1,
+						 parallel.config=list(
+						 	BACKEND='FOREACH', TYPE="doParallel",
+						 	WORKERS=list(GA_PLOTS=10)))

@@ -13,7 +13,8 @@ MATHEMATICS_2017.config <- list(
 		sgp.panel.years.within=c(rep('LAST_OBSERVATION', 2), 'FIRST_OBSERVATION'),
 		sgp.panel.years=c('2015', '2016', '2017'),
 		sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8')),
-		sgp.projection.sequence = c('MATH_COORD_ALG', 'MATH_ALG_I')))
+		sgp.projection.sequence = c('MATH_COORD_ALG', 'MATH_ALG_I'),
+		sgp.norm.group.preference=1))
 
 
 ### Coordinate Algebra
