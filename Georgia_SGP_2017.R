@@ -39,15 +39,15 @@ load("Data/Georgia_SGP-Shell_2017.Rdata")
 load("Data/Georgia_Data_LONG_2017_EOG.Rdata")
 
  ##  PRELIM CODE ONLY  -  Speed up prelim tests  ##
- SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
- prelim.simex <- list(lambda=seq(0,2,0.5), simulation.iterations=7, simex.sample.size=1500, csem.data.vnames="SCALE_SCORE_CSEM", extrapolation="linear", save.matrices=TRUE)
+ # SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
+ # prelim.simex <- list(lambda=seq(0,2,0.5), simulation.iterations=7, simex.sample.size=1500, csem.data.vnames="SCALE_SCORE_CSEM", extrapolation="linear", save.matrices=TRUE)
 
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
   with_sgp_data_LONG=Georgia_Data_LONG_2017[SUBJECT_CODE %in% c("ELA", "MATHEMATICS")], ## PRELIM CODE ##
   sgp.config = GA_2017.config,
-  steps=c("prepareSGP", "analyzeSGP"),
+  steps=c("prepareSGP", "analyzeSGP", "combineSGP"),
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
   sgp.projections.lagged = FALSE,
@@ -56,8 +56,8 @@ Georgia_SGP <- updateSGP(
   sgp.projections.lagged.baseline = FALSE,
   sgp.percentiles.equated = FALSE,
   simulate.sgps = TRUE,
-  # calculate.simex = TRUE, #  Use list below for PRELIM data tests.
-  calculate.simex = prelim.simex,  ## PRELIM CODE ##
+  calculate.simex = TRUE, #  Use list below for PRELIM data tests.
+  # calculate.simex = prelim.simex,  ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=12, SIMEX=12)))
@@ -89,7 +89,6 @@ Georgia_SGP <- updateSGP(
   sgp.config = GA_2017.config,
   steps=c("prepareSGP", "analyzeSGP"),
   overwrite.existing.data=FALSE,
-	# update.old.data.with.new=FALSE,
 	output.updated.data=FALSE,
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
@@ -158,8 +157,8 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 ###   combineSGP
 ###
 
-Georgia_SGP@SGP[["SGPercentiles"]][["ELA.2017"]][, PREFERENCE := 1L]
-Georgia_SGP@SGP[["SGPercentiles"]][["MATHEMATICS.2017"]][, PREFERENCE := 1L]
+# Georgia_SGP@SGP[["SGPercentiles"]][["ELA.2017"]][, PREFERENCE := 1L]
+# Georgia_SGP@SGP[["SGPercentiles"]][["MATHEMATICS.2017"]][, PREFERENCE := 1L]
 
 Georgia_SGP <- combineSGP(Georgia_SGP, max.sgp.target.years.forward=3)
 
@@ -180,8 +179,7 @@ outputSGP(Georgia_SGP)
 Georgia_SGP <- summarizeSGP(
 	Georgia_SGP,
 	parallel.config=list(
-		BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
-		WORKERS=list(SUMMARY=12))
+		BACKEND="PARALLEL", WORKERS=list(SUMMARY=4))
 )
 
 Georgia_Summary_2017 <- Georgia_SGP@Summary
@@ -202,11 +200,9 @@ Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
 visualizeSGP(Georgia_SGP,
 						 plot.types = c("bubblePlot", "growthAchievementPlot"),
 						 bPlot.years= "2017",
-						 bPlot.content_areas=c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
 						 bPlot.anonymize=TRUE,
              gaPlot.years = "2017",
-             gaPlot.content_areas = c("ELA", "SOCIAL_STUDIES", "SCIENCE", "MATHEMATICS"),
-             gaPlot.max.order.for.progression=1,
+             gaPlot.max.order.for.progression=2,
 						 parallel.config=list(
 						 	BACKEND='FOREACH', TYPE="doParallel",
 						 	WORKERS=list(GA_PLOTS=10)))

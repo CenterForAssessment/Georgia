@@ -15,19 +15,26 @@ require(data.table)
 ###  GADOE data loading process
 setwd('U:/DATA/SGP/Data/2017 SGPs/SGP Calculation/Working Directory_QQ/')
 
-####  Load 2017 EOG Data ####
+####  Load 2017 Milestones Data ####
+
 ###   GA DOE   ###
+
 Georgia_Data_LONG_2016_Testout <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
 Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOG_EOC_preliminary.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
 
 ###   NCIEA   ###
-Georgia_Data_LONG_2016_Testout <- fread("./Data/Base_Files/2017 SGP Preliminary Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
-Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017 SGP Preliminary Data/2017_Georgia_Milestones_EOG_EOC_preliminary.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
 
-### Combine 2016 test out priors with 2017 currentdata
-Georgia_Data_LONG_2016_Testout[, VALID_CASE := "VALID_CASE"]
-Georgia_Data_LONG_2016_Testout[is.na(as.numeric(SCALE_SCORE)), VALID_CASE := "INVALID_CASE"]
-Georgia_Data_LONG_2017 <- rbindlist(list(Georgia_Data_LONG_2016_Testout, Georgia_Data_LONG_2017), fill=TRUE)
+###  EOG
+Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017 Georgia EOG Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+
+###  EOC
+# Georgia_Data_LONG_2016_Testout <- fread("./Data/Base_Files/2017 SGP Preliminary Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
+# Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017 Georgia EOC Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+#
+# ### Combine 2016 test out priors with 2017 currentdata
+# Georgia_Data_LONG_2016_Testout[, VALID_CASE := "VALID_CASE"]
+# Georgia_Data_LONG_2016_Testout[is.na(as.numeric(SCALE_SCORE)), VALID_CASE := "INVALID_CASE"]
+# Georgia_Data_LONG_2017 <- rbindlist(list(Georgia_Data_LONG_2016_Testout, Georgia_Data_LONG_2017), fill=TRUE)
 
 
 ###   Tidy up data
@@ -49,14 +56,26 @@ Georgia_Data_LONG_2017[, SCHOOL_ENROLLMENT_STATUS := factor(1, levels=0:1, label
 Georgia_Data_LONG_2017[, DISTRICT_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled District: No", "Enrolled District: Yes"))]
 Georgia_Data_LONG_2017[, STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
+Georgia_Data_LONG_2017[, Rownumber_dup1 := NULL]
+Georgia_Data_LONG_2017[, Rownumber_dup2 := NULL]
 
 ###  Invalidate duplicates(No duplicate cases)
 # setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
 # setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
 # sum(duplicated(Georgia_Data_LONG_2017[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2017))) # 0 duplicates with valid GTIDs - (((take the highest score if any exist)))
 # dups <- data.table(Georgia_Data_LONG_2017[unique(c(which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017))))), ], key=key(Georgia_Data_LONG_2017))
-#Georgia_Data_LONG_2017[which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, VALID_CASE := "INVALID_CASE"]
+# Georgia_Data_LONG_2017[which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, VALID_CASE := "INVALID_CASE"]
+
+###  Fix two cases with missing SCALE_SCORE_CSEM
+summary(Georgia_Data_LONG_2017[SUBJECT_CODE=="MATHEMATICS" & SCALE_SCORE == 458 & GRADE==7, SCALE_SCORE_CSEM])
+summary(Georgia_Data_LONG_2017[SUBJECT_CODE=="MATHEMATICS" & SCALE_SCORE == 475 & GRADE==7, SCALE_SCORE_CSEM])
+Georgia_Data_LONG_2017[SUBJECT_CODE=="MATHEMATICS" & SCALE_SCORE == 458 & GRADE==7 & is.na(SCALE_SCORE_CSEM), SCALE_SCORE_CSEM := 15]
+Georgia_Data_LONG_2017[SUBJECT_CODE=="MATHEMATICS" & SCALE_SCORE == 475 & GRADE==7 & is.na(SCALE_SCORE_CSEM), SCALE_SCORE_CSEM := 14]
 
 ### Save results
 
-save(Georgia_Data_LONG_2017, file="./Data/Georgia_Data_LONG_2017.Rdata")
+###  EOG
+save(Georgia_Data_LONG_2017, file="./Data/Georgia_Data_LONG_2017_EOG.Rdata")
+
+###  EOC
+save(Georgia_Data_LONG_2017, file="./Data/Georgia_Data_LONG_2017_EOC.Rdata")
