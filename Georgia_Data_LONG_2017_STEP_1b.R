@@ -20,7 +20,12 @@ setwd('U:/DATA/SGP/Data/2017 SGPs/SGP Calculation/Working Directory_QQ/')
 ###   GA DOE   ###
 
 Georgia_Data_LONG_2016_Testout <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
-Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOG_EOC_preliminary.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+
+######Prelim computer matched data
+Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOG_EOC_preliminary wSummer.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+
+####Final matched EOG data
+Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Final Assessment Matching Data/Cleaned EOG data/2017 Georgia EOG Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
 
 ###   NCIEA   ###
 
@@ -39,7 +44,7 @@ Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017 Georgia EOG Final.txt", 
 
 ###   Tidy up data
 
-setnames(Georgia_Data_LONG_2017, 'CONDSEM', 'SCALE_SCORE_CSEM') # --XXX##XXX--
+setnames(Georgia_Data_LONG_2017, 'CONDSEM', 'SCALE_SCORE_CSEM') 
 
 Georgia_Data_LONG_2017[, SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)*10000 + as.numeric(SR_SCHOOL_ID)]
 Georgia_Data_LONG_2017[which(as.numeric(SR_SYSTEM_ID) > 1000), SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)]
