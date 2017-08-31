@@ -18,7 +18,7 @@ source("U:/DATA/SGP/Data/2017 SGPs/2017 SGP Calculation/2017 config/MATHEMATICS.
 
 
 #    CFA/AVI ::
-setwd('~/SGP_Projects/Georgia')
+setwd('~/SGP_Projects/Georgia/')
 
 source("SGP_CONFIG/EOCT/2017/ELA.R")
 source("SGP_CONFIG/EOCT/2017/MATHEMATICS.R")
@@ -45,7 +45,7 @@ load("Data/Georgia_Data_LONG_2017_EOG.Rdata")
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2017[SUBJECT_CODE %in% c("ELA", "MATHEMATICS")], ## PRELIM CODE ##
+  with_sgp_data_LONG=Georgia_Data_LONG_2017, ## PRELIM CODE ## [SUBJECT_CODE %in% c("ELA", "MATHEMATICS")],
   sgp.config = GA_2017.config,
   steps=c("prepareSGP", "analyzeSGP", "combineSGP"),
   sgp.percentiles = TRUE,
@@ -85,7 +85,7 @@ eoc.subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2017[SUBJECT_CODE %in% eoc.subjects], ## PRELIM CODE ##
+  with_sgp_data_LONG=Georgia_Data_LONG_2017, ## PRELIM CODE ##[SUBJECT_CODE %in% eoc.subjects]
   sgp.config = GA_2017.config,
   steps=c("prepareSGP", "analyzeSGP"),
   overwrite.existing.data=FALSE,
@@ -98,8 +98,8 @@ Georgia_SGP <- updateSGP(
   sgp.projections.lagged.baseline = FALSE,
   sgp.percentiles.equated = FALSE,
   simulate.sgps = TRUE,
-  # calculate.simex = TRUE, #  Use list below for PRELIM data tests.
-  calculate.simex = prelim.simex,  ## PRELIM CODE ##
+  calculate.simex = TRUE, #  Use list below for PRELIM data tests.
+  # calculate.simex = prelim.simex,  ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=12, SIMEX=12)))
@@ -146,7 +146,7 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   setkey(tmp.SGPercentiles, ID, Most_Recent_Prior)
   tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_ORDER_1), list(ID, Most_Recent_Prior, SGP_ORDER_1)][tmp.SGPercentiles][, i.SGP_ORDER_1 := NULL]
   tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_SIMEX_ORDER_1), list(ID, Most_Recent_Prior, SGP_SIMEX_ORDER_1)][tmp.SGPercentiles][, i.SGP_SIMEX_ORDER_1 := NULL]
-  tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_SIMEX_RANKED_ORDER_1), list(ID, Most_Recent_Prior, SGP_SIMEX_RANKED_ORDER_1)][tmp.SGPercentiles][, SGP_SIMEX_RANKED_ORDER_1 := NULL]
+  tmp.SGPercentiles <- tmp.SGPercentiles[!is.na(SGP_SIMEX_RANKED_ORDER_1), list(ID, Most_Recent_Prior, SGP_SIMEX_RANKED_ORDER_1)][tmp.SGPercentiles][, i.SGP_SIMEX_RANKED_ORDER_1 := NULL]
 
   tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
 }

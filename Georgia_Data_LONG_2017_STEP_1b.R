@@ -27,7 +27,9 @@ Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Dat
 ####Final matched EOG data
 Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Final Assessment Matching Data/Cleaned EOG data/2017 Georgia EOG Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
 
+
 ###   NCIEA   ###
+setwd('~/SGP_Projects/Georgia')
 
 ###  EOG
 Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017 Georgia EOG Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
