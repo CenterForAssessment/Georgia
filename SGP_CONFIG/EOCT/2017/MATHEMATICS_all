@@ -91,7 +91,7 @@ COORDINATE_ALGEBRA_2017.config <- list(
   COORDINATE_ALGEBRA.2017 = list( #26
     sgp.content.areas=c('MATHEMATICS', 'COORDINATE_ALGEBRA'),
     sgp.panel.years=c('2016', '2017'),
-    sgp.grade.sequences=list(c(7, 'EOCT')),
+    sgp.grade.sequences=list(c(6, 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS", # Math Projections with Milestones data only!
