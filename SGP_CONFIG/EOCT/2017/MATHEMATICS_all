@@ -143,7 +143,7 @@ ANALYTIC_GEOMETRY_2017.config <- list(
   ANALYTIC_GEOMETRY.2017 = list( #31
     sgp.content.areas=c('MATHEMATICS','COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
     sgp.panel.years=c('2014','2015', '2017'),
-    sgp.grade.sequences=list(c('EOCT', 'EOCT')),
+    sgp.grade.sequences=list(c('8','EOCT', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION','LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('MATHEMATICS','COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
                                        YEAR=c('2016','2016', '2016'), GRADE=c('8','EOCT', 'EOCT')),
