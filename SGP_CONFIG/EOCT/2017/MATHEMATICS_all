@@ -369,7 +369,7 @@ GEOMETRY_2017.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=3),
   
-  ALGEBRA_I.2017 = list( #54
+  GEOMETRY.2017 = list( #54
     sgp.content.areas=c('GEOMETRY', 'GEOMETRY'),
     sgp.panel.years=c('2016', '2017'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
@@ -378,7 +378,7 @@ GEOMETRY_2017.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=2),
   
-  ALGEBRA_I.2017 = list( #55
+  GEOMETRY.2017 = list( #55
     sgp.content.areas=c('GEOMETRY', 'GEOMETRY'),
     sgp.panel.years=c('2017', '2017'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
@@ -387,7 +387,7 @@ GEOMETRY_2017.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=1),
   
-  ALGEBRA_I.2017 = list( #56
+  GEOMETRY.2017 = list( #56
     sgp.content.areas=c('ALGEBRA_I', 'GEOMETRY'),
     sgp.panel.years=c('2017', '2017'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
