@@ -23,8 +23,8 @@ GRADE_9_LIT_2017.config <- list(
     sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA','GRADE_9_LIT'),
-                                       YEAR=c('2015','2016'), GRADE=c('8','EOCT')),
-    sgp.norm.group.preference=10),
+                                       YEAR=c('2015','2015','2016','2016'), GRADE=c('8','EOCT')),
+    sgp.norm.group.preference=8),
   GRADE_9_LIT.2017 = list( # 2
     sgp.content.areas=c('ELA', 'GRADE_9_LIT'),
     sgp.panel.years=c('2015', '2017'),
@@ -34,7 +34,7 @@ GRADE_9_LIT_2017.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA','GRADE_9_LIT'),
                                        YEAR=c('2016','2016'), GRADE=c('8','EOCT')),
-    sgp.norm.group.preference=9),
+    sgp.norm.group.preference=7),
   GRADE_9_LIT.2017 = list( # 3
     sgp.content.areas=c('ELA', 'ELA', 'GRADE_9_LIT'),
     sgp.panel.years=c( '2014', '2015', '2017'),
@@ -43,8 +43,8 @@ GRADE_9_LIT_2017.config <- list(
     sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA','ELA','GRADE_9_LIT'),
-                                       YEAR=c('2016','2016','2016'), GRADE=c('8','8','EOCT')),
-    sgp.norm.group.preference=8),
+                                       YEAR=c('2016','2016','2016'), GRADE=c('7','8','EOCT')),
+    sgp.norm.group.preference=6),
    GRADE_9_LIT.2017 = list( # 4
     sgp.content.areas=c('ELA', 'GRADE_9_LIT'),
     sgp.panel.years=c('2016', '2017'),
@@ -52,7 +52,7 @@ GRADE_9_LIT_2017.config <- list(
     sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS",
-    sgp.norm.group.preference=7),
+    sgp.norm.group.preference=5),
   GRADE_9_LIT.2017 = list( # 5
     sgp.content.areas=c('ELA', 'ELA', 'GRADE_9_LIT'),
     sgp.panel.years=c( '2015', '2016', '2017'),
@@ -60,7 +60,7 @@ GRADE_9_LIT_2017.config <- list(
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS",
-    sgp.norm.group.preference=6),
+    sgp.norm.group.preference=4),
   GRADE_9_LIT.2017 = list( # 6
     sgp.content.areas=c('ELA', 'GRADE_9_LIT'),
     sgp.panel.years=c('2016', '2017'),
