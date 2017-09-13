@@ -69,6 +69,8 @@ save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 ###
 
 ###  Combine 2017 SGP EOC Configuration Scripts
+source("SGP_CONFIG/EOCT/2017/ELA_all")
+source("SGP_CONFIG/EOCT/2017/MATHEMATICS_all")
 
 GA_2017.config <- c(
   COORDINATE_ALGEBRA_2017.config,
@@ -82,10 +84,13 @@ GA_2017.config <- c(
 
 eoc.subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")
 
+load("Data/Georgia_SGP.Rdata")
+load("Data/Georgia_Data_LONG_2017_EOC.Rdata")
+
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2017, ## PRELIM CODE ##[SUBJECT_CODE %in% eoc.subjects]
+  with_sgp_data_LONG=Georgia_Data_LONG_2017, ## PRELIM CODE ## [SUBJECT_CODE %in% eoc.subjects],
   sgp.config = GA_2017.config,
   steps=c("prepareSGP", "analyzeSGP"),
   overwrite.existing.data=FALSE,
@@ -102,7 +107,7 @@ Georgia_SGP <- updateSGP(
   # calculate.simex = prelim.simex,  ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
-   parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=12, SIMEX=12)))
+    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=12, SIMEX=12)))
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
@@ -131,6 +136,7 @@ Georgia_SGP <- analyzeSGP(
   sgp.projections.lagged.baseline = FALSE,
   sgp.projections.max.forward.progression.years=5,
   goodness.of.fit.print=FALSE,
+  sgp.sqlite=FALSE,
   parallel.config = list(
     BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
     WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
@@ -152,15 +158,11 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 }
 
 
-
 ###
 ###   combineSGP
 ###
 
-# Georgia_SGP@SGP[["SGPercentiles"]][["ELA.2017"]][, PREFERENCE := 1L]
-# Georgia_SGP@SGP[["SGPercentiles"]][["MATHEMATICS.2017"]][, PREFERENCE := 1L]
-
-Georgia_SGP <- combineSGP(Georgia_SGP, max.sgp.target.years.forward=3)
+Georgia_SGP <- combineSGP(Georgia_SGP)
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
@@ -179,7 +181,7 @@ outputSGP(Georgia_SGP)
 Georgia_SGP <- summarizeSGP(
 	Georgia_SGP,
 	parallel.config=list(
-		BACKEND="PARALLEL", WORKERS=list(SUMMARY=4))
+		BACKEND="PARALLEL", WORKERS=list(SUMMARY=8))
 )
 
 Georgia_Summary_2017 <- Georgia_SGP@Summary

@@ -20,28 +20,27 @@ setwd('U:/DATA/SGP/Data/2017 SGPs/SGP Calculation/Working Directory_QQ/')
 ###   GA DOE   ###
 
 Georgia_Data_LONG_2016_Testout <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
-
-######Prelim computer matched data
-Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOG_EOC_preliminary wSummer.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
-
-####Final matched EOG data
-Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Final Assessment Matching Data/Cleaned EOG data/2017 Georgia EOG Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+Georgia_Data_LONG_2017 <- fread("U:/DATA/SGP/Data/2017 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOG_EOC_preliminary.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
 
 
 ###   NCIEA   ###
 setwd('~/SGP_Projects/Georgia')
 
-###  EOG
-Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017 Georgia EOG Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+###  Start EOG
+Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017_Georgia_Milestones_EOG_EOC_Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+###  End EOG
 
-###  EOC
-# Georgia_Data_LONG_2016_Testout <- fread("./Data/Base_Files/2017 SGP Preliminary Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
-# Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017 Georgia EOC Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
-#
-# ### Combine 2016 test out priors with 2017 currentdata
-# Georgia_Data_LONG_2016_Testout[, VALID_CASE := "VALID_CASE"]
-# Georgia_Data_LONG_2016_Testout[is.na(as.numeric(SCALE_SCORE)), VALID_CASE := "INVALID_CASE"]
-# Georgia_Data_LONG_2017 <- rbindlist(list(Georgia_Data_LONG_2016_Testout, Georgia_Data_LONG_2017), fill=TRUE)
+###  Start EOC
+Georgia_Data_LONG_2016_Testout <- fread("./Data/Base_Files/2017 SGP Preliminary Data/2016_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
+Georgia_Data_LONG_2017 <- fread("./Data/Base_Files/2017_Georgia_Milestones_EOG_EOC_Final.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+
+### Combine 2016 test out priors with 2017 currentdata
+eoc.subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")
+
+Georgia_Data_LONG_2016_Testout[, VALID_CASE := "VALID_CASE"]
+Georgia_Data_LONG_2016_Testout[is.na(as.numeric(SCALE_SCORE)), VALID_CASE := "INVALID_CASE"]
+Georgia_Data_LONG_2017 <- rbindlist(list(Georgia_Data_LONG_2016_Testout[SUBJECT_CODE %in% eoc.subjects], Georgia_Data_LONG_2017[SUBJECT_CODE %in% eoc.subjects]), fill=TRUE)
+###  End EOC
 
 
 ###   Tidy up data
@@ -67,11 +66,11 @@ Georgia_Data_LONG_2017[, Rownumber_dup1 := NULL]
 Georgia_Data_LONG_2017[, Rownumber_dup2 := NULL]
 
 ###  Invalidate duplicates(No duplicate cases)
-# setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
-# setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
-# sum(duplicated(Georgia_Data_LONG_2017[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2017))) # 0 duplicates with valid GTIDs - (((take the highest score if any exist)))
+setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
+setkey(Georgia_Data_LONG_2017, VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
+# sum(duplicated(Georgia_Data_LONG_2017[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2017))) # 285 EOC duplicates with valid GTIDs - (((take the highest score if any exist)))
 # dups <- data.table(Georgia_Data_LONG_2017[unique(c(which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017))))), ], key=key(Georgia_Data_LONG_2017))
-# Georgia_Data_LONG_2017[which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, VALID_CASE := "INVALID_CASE"]
+Georgia_Data_LONG_2017[which(duplicated(Georgia_Data_LONG_2017, by=key(Georgia_Data_LONG_2017)))-1, VALID_CASE := "INVALID_CASE"]
 
 ###  Fix two cases with missing SCALE_SCORE_CSEM
 summary(Georgia_Data_LONG_2017[SUBJECT_CODE=="MATHEMATICS" & SCALE_SCORE == 458 & GRADE==7, SCALE_SCORE_CSEM])
