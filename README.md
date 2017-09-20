@@ -18,6 +18,7 @@ prepare data and run SGP analyses.
 
 ### Prepared with :heart: by:
 
-* [Damian Betebenner](https://github.com/dbetebenner)
 * [Adam VanIwaarden](https://github.com/adamvi)
+* [Qi Qin](https://github.com/qinqi715)
+* [Damian Betebenner](https://github.com/dbetebenner)
 
