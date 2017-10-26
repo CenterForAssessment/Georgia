@@ -162,7 +162,7 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 ###   combineSGP
 ###
 
-Georgia_SGP <- combineSGP(Georgia_SGP)
+Georgia_SGP <- combineSGP(Georgia_SGP, years="2017")
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
@@ -181,7 +181,7 @@ outputSGP(Georgia_SGP)
 Georgia_SGP <- summarizeSGP(
 	Georgia_SGP,
 	parallel.config=list(
-		BACKEND="PARALLEL", WORKERS=list(SUMMARY=8))
+		BACKEND="PARALLEL", WORKERS=list(SUMMARY=2))
 )
 
 Georgia_Summary_2017 <- Georgia_SGP@Summary
@@ -202,8 +202,10 @@ Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
 visualizeSGP(Georgia_SGP,
 						 plot.types = c("bubblePlot", "growthAchievementPlot"),
 						 bPlot.years= "2017",
+             bPlot.content_areas=c("ELA", "MATHEMATICS"),
 						 bPlot.anonymize=TRUE,
              gaPlot.years = "2017",
+             gaPlot.content_areas = c("ELA", "MATHEMATICS"),
              gaPlot.max.order.for.progression=2,
 						 parallel.config=list(
 						 	BACKEND='FOREACH', TYPE="doParallel",
