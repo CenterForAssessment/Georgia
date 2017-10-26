@@ -1,0 +1,52 @@
+DESCRIPTION:
+  Package: Georgia SGP
+  Title: SGP analysis source code & documentation for Georgia
+  Authors@R: c(person(given=c("Damian", "W."), family="Betebenner", email="dbetebenner@nciea.org", role=c("aut", "cre")),
+           person(given=c("Adam", "R."), family="Van Iwaarden", email="avaniwaarden@gmail.com", role="aut"))
+  License: GPL-3
+  BugReports: https://github.com/CenterForAssessment/Georgia/issues
+
+template:
+  package: centerProjectTemplate
+  default_assets: false
+
+
+home:
+  strip_header: true
+  links:
+    - text: Other state repos
+      href: https://centerforassessment.github.io/
+
+
+navbar:
+    title: ~
+    type: default
+    left:
+    - text: Reports
+      menu:
+      - text: "Technical Report: 2016"
+        href: articles/Technical_Report_2016.html
+      - text: "Technical Report: 2017"
+        href: articles/Technical_Report_2017.html
+    - text: Analyses
+      menu:
+      - text: "SGP Analyses: 2015"
+        href: articles/SGP_Analyses_2015.html
+      - text: "SGP Analyses: 2016"
+        href: articles/SGP_Analyses_2016.html
+      - text: "SGP Analyses: 2017"
+        href: articles/SGP_Analyses_2017.html
+    - text: News
+      menu:
+      - text: "SGP notes"
+      - text: "Summer 2015"
+        href: articles/releases/SGP_Summer_2015_Notes.html
+      - text: "Summer 2016"
+        href: articles/releases/SGP_Summer_2016_Notes.html
+      - text: "Summer 2017"
+        href: articles/releases/SGP_Summer_2017_Notes.html
+    right:
+      - icon: fa-github fa-2x
+        href: https://github.com/centerforassessment/Georgia
+      - icon: fa-twitter
+        href: https://twitter.com/intent/tweet?url=https%3A%2F%2Fcenterforassessment.github.io%2FGeorgia%2F&via=NCIEA1&text=SGP%20analysis%20source%20code%20%26%20documentation%20for%20Georgia&hashtags=rstats%2C%20SGP
