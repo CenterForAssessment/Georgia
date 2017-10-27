@@ -162,7 +162,7 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 ###   combineSGP
 ###
 
-Georgia_SGP <- combineSGP(Georgia_SGP, years="2017")
+Georgia_SGP <- combineSGP(Georgia_SGP, years="2017", sgp.target.scale.scores=TRUE, sgp.config = GA_2017.config)
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
