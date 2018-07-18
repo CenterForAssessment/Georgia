@@ -157,12 +157,27 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
 }
 
+###  Post Process @SGP$SGProjections duplicates for MATH grade 7 get produced for G7_MATH_EOC.  Not sure how to avoid this because need it for LAGGED_PROJECTIONS
+Georgia_SGP@SGP$SGProjections$MATHEMATICS.2017 <- Georgia_SGP@SGP$SGProjections$MATHEMATICS.2017[!duplicated(Georgia_SGP@SGP$SGProjections$MATHEMATICS.2017)]
+
 
 ###
 ###   combineSGP
 ###
 
-Georgia_SGP <- combineSGP(Georgia_SGP, years="2017", sgp.target.scale.scores=TRUE, sgp.config = GA_2017.config)
+Georgia_SGP <- combineSGP(Georgia_SGP,
+    years="2017",
+    sgp.target.scale.scores=TRUE,
+    sgp.config = GA_2017.config,
+    parallel.config = list(
+      BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+      WORKERS=list(SGP_SCALE_SCORE_TARGETS = 10)))
+
+for (n in names(Georgia_SGP@SGP$SGProjections)){
+  if (any(duplicated(Georgia_SGP@SGP$SGProjections[[n]]))) {
+    Georgia_SGP@SGP$SGProjections[[n]] <- Georgia_SGP@SGP$SGProjections[[n]][!duplicated(Georgia_SGP@SGP$SGProjections[[n]])]
+  }
+}
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
@@ -207,6 +222,8 @@ visualizeSGP(Georgia_SGP,
              gaPlot.years = "2017",
              gaPlot.content_areas = c("ELA", "MATHEMATICS"),
              gaPlot.max.order.for.progression=2,
+            #  gaPlot.start.points="Achievement Percentiles",
+             gaPlot.students="1001089863",
 						 parallel.config=list(
 						 	BACKEND='FOREACH', TYPE="doParallel",
 						 	WORKERS=list(GA_PLOTS=10)))

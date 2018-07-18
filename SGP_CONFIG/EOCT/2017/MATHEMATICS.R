@@ -13,7 +13,7 @@ MATHEMATICS_2017.config <- list(
     sgp.panel.years.within=c(rep('LAST_OBSERVATION', 2), 'FIRST_OBSERVATION'),
     sgp.panel.years=c('2015', '2016', '2017'),
     sgp.grade.sequences=list(c('3', '4'), c('3', '4', '5'), c('4', '5', '6'), c('5', '6', '7'), c('6', '7', '8')),
-    sgp.projection.sequence = c('MATH_ALG_I', 'MATH_COORD_ALG')))
+    sgp.projection.sequence = c('MATH_ALG_I', 'MATH_COORD_ALG', 'G7_MATH_EOC')))
 
 
 ### Coordinate Algebra
@@ -85,6 +85,7 @@ COORDINATE_ALGEBRA_2017.config <- list(
     sgp.panel.years=c('2015', '2016', '2017'),
     sgp.grade.sequences=list(c(6, 7, 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.exact.grade.progression=TRUE,
     sgp.norm.group.preference=4),
 
@@ -156,7 +157,7 @@ ANALYTIC_GEOMETRY_2017.config <- list(
     sgp.grade.sequences=list(c(8, 'EOCT', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
-    # sgp.projection.grade.sequences="NO_PROJECTIONS", # Math Projections with Milestones data only!
+    # sgp.projection.grade.sequences="NO_PROJECTIONS", # CANONICAL
     sgp.norm.group.preference=5),
 
   ANALYTIC_GEOMETRY.2017 = list( #33
@@ -278,7 +279,8 @@ ALGEBRA_I_2017.config <- list(
     sgp.grade.sequences=list(c('6', '7', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
-    sgp.projection.grade.sequences="NO_PROJECTIONS",
+    # sgp.projection.grade.sequences="NO_PROJECTIONS", # Experimental
+    sgp.projection.sequence = 'G7_MATH_EOC',
     sgp.norm.group.preference=4),
 
   ALGEBRA_I.2017 = list( #45
@@ -347,7 +349,8 @@ GEOMETRY_2017.config <- list(
     sgp.grade.sequences=list(c(7, 'EOCT', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
-    sgp.projection.grade.sequences="NO_PROJECTIONS",
+    # sgp.projection.grade.sequences="NO_PROJECTIONS", # Experimental
+    sgp.projection.sequence = 'G7_MATH_EOC',
     sgp.norm.group.preference=5),
 
   GEOMETRY.2017 = list( #52
