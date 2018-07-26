@@ -42,11 +42,13 @@ load("Data/Georgia_Data_LONG_2018_EOG.Rdata")
 ###  SGPstateData addition to use the internal L/HOSS adjustement (DO NOT RUN IF YOU WANT TO MANUALLY ADJUST SGPs)
 SGPstateData[["GA"]][["SGP_Configuration"]][["sgp.loss.hoss.adjustment"]] <- "GA"
 
+###  SGPstateData addition to use the "Frisch-Newton" quantile regression estimation method.
+SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
 
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2018, ## PRELIM CODE ## [SUBJECT_CODE %in% c("ELA", "MATHEMATICS")],
+  with_sgp_data_LONG=Georgia_Data_LONG_2018,
   sgp.config = GA_2018.config,
   steps=c("prepareSGP", "analyzeSGP", "combineSGP"),
   sgp.percentiles = TRUE,
@@ -57,14 +59,12 @@ Georgia_SGP <- updateSGP(
   sgp.projections.lagged.baseline = FALSE,
   sgp.percentiles.equated = FALSE,
   simulate.sgps = TRUE,
-  calculate.simex = TRUE, #  Use list below for PRELIM data tests.
+  calculate.simex = TRUE,
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # SNOW_TEST=TRUE,
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
-
-
 
 ###
 ###    EOC Analyses
