@@ -26,8 +26,8 @@ Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/EOG_Prelim_Data_2018.txt",  h
 ###   End EOG
 
 ###   Start EOC
-Georgia_Data_LONG_2017_Testout <- fread("./Data/Base_Files/2018 SGP Preliminary Data/2017_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
-Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/2018_Georgia_Milestones_EOC_Prelim_Data.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+Georgia_Data_LONG_2017_Testout <- fread("./Data/Base_Files/2018 SGP Preliminary Data/EOC_Final_TestOut_Data_2017.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/2018 SGP Preliminary Data/EOG_EOC_Prelim_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
 
 
 ### Combine 2017 test out priors with 2018 current data
