@@ -38,19 +38,24 @@ GA_2018.config <- c(
 load("Data/Georgia_SGP-Shell_2018.Rdata")
 load("Data/Georgia_Data_LONG_2018_EOG.Rdata")
 
+ ##  PRELIM CODE ONLY  -  Speed up prelim tests  ##
+ # SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
+ # prelim.simex <- list(lambda=seq(0,2,0.5), simulation.iterations=7, simex.sample.size=1500, csem.data.vnames="SCALE_SCORE_CSEM", extrapolation="linear", save.matrices=TRUE)
+
 
 ###  SGPstateData addition to use the internal L/HOSS adjustement (DO NOT RUN IF YOU WANT TO MANUALLY ADJUST SGPs)
 SGPstateData[["GA"]][["SGP_Configuration"]][["sgp.loss.hoss.adjustment"]] <- "GA"
 
 ###  SGPstateData addition to use the "Frisch-Newton" quantile regression estimation method.
-SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
+# SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
 
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2018,
+  with_sgp_data_LONG=Georgia_Data_LONG_2018, ## PRELIM CODE ## [SUBJECT_CODE %in% c("ELA", "MATHEMATICS")],
   sgp.config = GA_2018.config,
   steps=c("prepareSGP", "analyzeSGP", "combineSGP"),
+  # sgp.use.my.coefficient.matrices = TRUE,    ## PRELIM CODE ##
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
   sgp.projections.lagged = FALSE,
@@ -59,20 +64,21 @@ Georgia_SGP <- updateSGP(
   sgp.projections.lagged.baseline = FALSE,
   sgp.percentiles.equated = FALSE,
   simulate.sgps = TRUE,
-  calculate.simex = TRUE,
+  calculate.simex = TRUE, #  Use list below for PRELIM data tests.
+  # calculate.simex = list(csem.data.vnames="SCALE_SCORE_CSEM", lambda=seq(0,2,0.5), simulation.iterations=75, simex.sample.size=5000, extrapolation="linear", save.matrices=TRUE, verbose=TRUE),          ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
-   parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # SNOW_TEST=TRUE,
+   parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # TAUS=11, SNOW_TEST=TRUE,
 
-save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP-prelim_FN.Rdata")
 
 ###
 ###    EOC Analyses
 ###
 
 ###  Combine 2018 SGP EOC Configuration Scripts
-source("SGP_CONFIG/EOCT/2018/ELA_all")
-source("SGP_CONFIG/EOCT/2018/MATHEMATICS_all")
+source("SGP_CONFIG/EOCT/2018/ELA.R")
+source("SGP_CONFIG/EOCT/2018/MATHEMATICS.R")
 
 GA_2018.config <- c(
   COORDINATE_ALGEBRA_2018.config,
@@ -84,7 +90,6 @@ GA_2018.config <- c(
   AMERICAN_LIT_2018.config
 )
 
-eoc.subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")
 
 load("Data/Georgia_SGP.Rdata")
 load("Data/Georgia_Data_LONG_2018_EOC.Rdata")
@@ -92,7 +97,7 @@ load("Data/Georgia_Data_LONG_2018_EOC.Rdata")
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2018, ## PRELIM CODE ## [SUBJECT_CODE %in% eoc.subjects],
+  with_sgp_data_LONG=Georgia_Data_LONG_2018,
   sgp.config = GA_2018.config,
   steps=c("prepareSGP", "analyzeSGP"),
   overwrite.existing.data=FALSE,
@@ -109,7 +114,7 @@ Georgia_SGP <- updateSGP(
   # calculate.simex = prelim.simex,  ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
-    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE, WORKERS=list(TAUS=12, SIMEX=12)))
+    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # SNOW_TEST=TRUE, 
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
