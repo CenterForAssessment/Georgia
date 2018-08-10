@@ -15,15 +15,18 @@ ELA_2018.config <- list(
 ### GRADE_9_LIT
 
 GRADE_9_LIT_2018.config <- list(
-  # GRADE_9_LIT.2018 = list( # 1
-  #   sgp.content.areas=c('ELA', 'GRADE_9_LIT'),
-  #   sgp.panel.years=c('2015', '2018'),
-  #   sgp.grade.sequences=list(c(8, 'EOCT')),
-  #   sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-  #   sgp.projection.grade.sequences="NO_PROJECTIONS",
-  #   sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA', 'GRADE_9_LIT'),
-  #                                      YEAR=c('2016', '2016', '2017', '2017'), GRADE=c('8', 'EOCT')),
-  #   sgp.norm.group.preference=8),
+  GRADE_9_LIT.2018 = list( #  --  <1500 :: Include for SGP_NOTE
+    sgp.content.areas=c('ELA', 'GRADE_9_LIT'),
+    sgp.panel.years=c('2015', '2018'),
+    sgp.grade.sequences=list(c(8, 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
+    sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('ELA', 'GRADE_9_LIT'),
+                                       YEAR=c('2016', '2016', '2017', '2017'), GRADE=c('8', 'EOCT')),
+    sgp.norm.group.preference=999),
+
+  ###  Cohort > 1,500
+
   GRADE_9_LIT.2018 = list( # 1
     sgp.content.areas=c('ELA', 'GRADE_9_LIT'),
     sgp.panel.years=c('2016', '2018'),
@@ -101,6 +104,17 @@ GRADE_9_LIT_2018.config <- list(
 ### AMERICAN_LIT
 
 AMERICAN_LIT_2018.config <- list(
+  AMERICAN_LIT.2018 = list( #  --  <1500 :: Include for SGP_NOTE
+    sgp.content.areas=c('ELA', 'GRADE_9_LIT', 'AMERICAN_LIT'),
+    sgp.panel.years=c('2016', '2017', '2018'),
+    sgp.grade.sequences=list(c(7, 'EOCT', 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exact.grade.progression=TRUE,
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
+    sgp.norm.group.preference=999),
+
+  ###  Cohort > 1,500
+
   AMERICAN_LIT.2018 = list( # 10
     sgp.content.areas=c('GRADE_9_LIT', 'AMERICAN_LIT'),
     sgp.panel.years=c('2015', '2018'),
@@ -159,15 +173,6 @@ AMERICAN_LIT_2018.config <- list(
     sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=2),
-
-  # AMERICAN_LIT.2018 = list( # 15
-  #   sgp.content.areas=c('ELA', 'GRADE_9_LIT', 'AMERICAN_LIT'),
-  #   sgp.panel.years=c('2016', '2017', '2018'),
-  #   sgp.grade.sequences=list(c(7, 'EOCT', 'EOCT')),
-  #   sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
-  #   sgp.exact.grade.progression=TRUE,
-  #   sgp.projection.grade.sequences="NO_PROJECTIONS",
-  #   sgp.norm.group.preference=2),
 
   AMERICAN_LIT.2018 = list( # 16
     sgp.content.areas=c('AMERICAN_LIT', 'AMERICAN_LIT'),
