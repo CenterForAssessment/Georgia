@@ -114,7 +114,7 @@ Georgia_SGP <- updateSGP(
   # calculate.simex = prelim.simex,  ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
-    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # SNOW_TEST=TRUE, 
+    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # SNOW_TEST=TRUE,
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
@@ -145,11 +145,12 @@ Georgia_SGP <- analyzeSGP(
   goodness.of.fit.print=FALSE,
   sgp.sqlite=FALSE,
   parallel.config = list(
-    BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+    BACKEND="FOREACH", TYPE="doParallel", # SNOW_TEST=TRUE,
     WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
 
 
-###  Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row
+###  Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row.
+###  This is necessary for CONTENT_AREA configs in which `sgp.exact.grade.progression` is used for 2 prior progressions
 
 for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   tmp.SGPercentiles <- Georgia_SGP@SGP$SGPercentiles[[ca]]
@@ -164,8 +165,8 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
 }
 
-###  Post Process @SGP$SGProjections duplicates for MATH grade 7 get produced for G7_MATH_EOC.  Not sure how to avoid this because need it for LAGGED_PROJECTIONS
-Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018 <- Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018[!duplicated(Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018)]
+# ###  Post Process @SGP$SGProjections duplicates for MATH grade 7 get produced for G7_MATH_EOC.  Not sure how to avoid this because need it for LAGGED_PROJECTIONS
+# Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018 <- Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018[!duplicated(Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018)]
 
 
 ###
@@ -177,7 +178,7 @@ Georgia_SGP <- combineSGP(Georgia_SGP,
     sgp.target.scale.scores=TRUE,
     sgp.config = GA_2018.config,
     parallel.config = list(
-      BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+      BACKEND="FOREACH", TYPE="doParallel", # SNOW_TEST=TRUE,
       WORKERS=list(SGP_SCALE_SCORE_TARGETS = 10)))
 
 for (n in names(Georgia_SGP@SGP$SGProjections)){
