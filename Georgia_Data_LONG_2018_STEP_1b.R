@@ -22,7 +22,7 @@ Georgia_Data_LONG_2018 <- fread("U:/DATA/SGP/Data/2018 SGPs/Computer Matched Dat
 
 
 ###   Start EOG
-Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/EOG_Prelim_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/2018 SGP Preliminary Data/EOG_Prelim_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
 ###   End EOG
 
 ###   Start EOC
@@ -60,10 +60,9 @@ Georgia_Data_LONG_2018[, SCHOOL_ENROLLMENT_STATUS := factor(1, levels=0:1, label
 Georgia_Data_LONG_2018[, DISTRICT_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled District: No", "Enrolled District: Yes"))]
 Georgia_Data_LONG_2018[, STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
-# Georgia_Data_LONG_2018[, Rownumber_dup1 := NULL]
-# Georgia_Data_LONG_2018[, Rownumber_dup2 := NULL]
 
 ###  Invalidate duplicates (No duplicate cases in 2018 prelim data)
+
 setkey(Georgia_Data_LONG_2018, VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
 setkey(Georgia_Data_LONG_2018, VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
 # sum(duplicated(Georgia_Data_LONG_2018[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2018))) # 285 EOC duplicates with valid GTIDs - (((take the highest score if any exist)))
