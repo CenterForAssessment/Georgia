@@ -42,20 +42,12 @@ load("Data/Georgia_Data_LONG_2018_EOG.Rdata")
  # SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
  # prelim.simex <- list(lambda=seq(0,2,0.5), simulation.iterations=7, simex.sample.size=1500, csem.data.vnames="SCALE_SCORE_CSEM", extrapolation="linear", save.matrices=TRUE)
 
-
-###  SGPstateData addition to use the internal L/HOSS adjustement (DO NOT RUN IF YOU WANT TO MANUALLY ADJUST SGPs)
-SGPstateData[["GA"]][["SGP_Configuration"]][["sgp.loss.hoss.adjustment"]] <- "GA"
-
-###  SGPstateData addition to use the "Frisch-Newton" quantile regression estimation method.
-# SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
-
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2018, ## PRELIM CODE ## [SUBJECT_CODE %in% c("ELA", "MATHEMATICS")],
+  with_sgp_data_LONG=Georgia_Data_LONG_2018,
   sgp.config = GA_2018.config,
-  steps=c("prepareSGP", "analyzeSGP", "combineSGP"),
-  # sgp.use.my.coefficient.matrices = TRUE,    ## PRELIM CODE ##
+  steps=c("prepareSGP", "analyzeSGP"),
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
   sgp.projections.lagged = FALSE,
@@ -68,13 +60,70 @@ Georgia_SGP <- updateSGP(
   # calculate.simex = list(csem.data.vnames="SCALE_SCORE_CSEM", lambda=seq(0,2,0.5), simulation.iterations=75, simex.sample.size=5000, extrapolation="linear", save.matrices=TRUE, verbose=TRUE),          ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
-   parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # TAUS=11, SNOW_TEST=TRUE,
+   parallel.config = list(BACKEND="PARALLEL", WORKERS=list(TAUS=20, SIMEX=15))) # BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
 
-save(Georgia_SGP, file="Data/Georgia_SGP-prelim_FN.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+
+
+###   analyzeSGP to produce Projections for EOG subjects
+
+##  Load EOC Coefficient_Matrices produced from preliminary analyses (see EOC section below)
+##  Combine these with EOG matrices to run EOG projections.
+load("Data/Georgia_EOC_Coef_Matrices_2018.rda")
+
+Georgia_SGP@SGP$Coefficient_Matrices <- c(Georgia_SGP@SGP$Coefficient_Matrices, Georgia_EOC_Coef_Matrices_2018)
+
+GA_2018.config <- c(
+  MATHEMATICS_2018.config,
+  ALGEBRA_I_2018.config,
+  COORDINATE_ALGEBRA_2018.config,
+
+  ELA_2018.config,
+  GRADE_9_LIT_2018.config)
+
+Georgia_SGP <- analyzeSGP(
+  Georgia_SGP,
+  sgp.config = GA_2018.config,
+  sgp.percentiles = FALSE,
+  sgp.projections = TRUE,
+  sgp.projections.lagged = TRUE,
+  sgp.percentiles.baseline = FALSE,
+  sgp.projections.baseline = FALSE,
+  sgp.projections.lagged.baseline = FALSE,
+  goodness.of.fit.print=FALSE,
+  parallel.config = list(
+    BACKEND="FOREACH", TYPE="doParallel", # SNOW_TEST=TRUE,
+    WORKERS=list(PROJECTIONS = 9, LAGGED_PROJECTIONS = 6)))
+
+
+###   combineSGP  -- EOG
+
+Georgia_SGP <- combineSGP(Georgia_SGP,
+    years = "2018",
+    sgp.target.scale.scores = TRUE,
+    sgp.config = GA_2018.config,
+    parallel.config = list(
+      BACKEND = "PARALLEL", # "FOREACH", TYPE = "doParallel", SNOW_TEST=TRUE,
+      WORKERS = list(SGP_SCALE_SCORE_TARGETS = 10)))
+
+
+###   outputSGP
+
+outputSGP(Georgia_SGP, output.type = "LONG_FINAL_YEAR_Data")
+
+
+###   Remove EOC preliminary coef matrices from object before saving
+
+Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_SGP@SGP$Coefficient_Matrices[grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
+save(Georgia_SGP, file="Data/Georgia_SGP-prelim_fin.Rdata")
+
 
 ###
 ###    EOC Analyses
 ###
+
+load("Data/Georgia_SGP.Rdata")
+load("Data/Georgia_Data_LONG_2018_EOC.Rdata")
 
 ###  Combine 2018 SGP EOC Configuration Scripts
 source("SGP_CONFIG/EOCT/2018/ELA.R")
@@ -89,10 +138,6 @@ GA_2018.config <- c(
   GRADE_9_LIT_2018.config,
   AMERICAN_LIT_2018.config
 )
-
-
-load("Data/Georgia_SGP.Rdata")
-load("Data/Georgia_Data_LONG_2018_EOC.Rdata")
 
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
@@ -116,21 +161,22 @@ Georgia_SGP <- updateSGP(
   save.intermediate.results=FALSE,
     parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # SNOW_TEST=TRUE,
 
-save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+###  Save Coefficient_Matrices from preliminary and use for projections
+Georgia_EOC_Coef_Matrices_2018 <- Georgia_SGP@SGP$Coefficient_Matrices[-grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
+save(Georgia_EOC_Coef_Matrices_2018, file="Data/Georgia_EOC_Coef_Matrices_2018.rda")
 
-###   analyzeSGP to produce Projections for all subjects
+# save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+
+###   analyzeSGP to produce Projections for EOC subjects
 
 GA_2018.config <- c(
-  MATHEMATICS_2018.config,
-  COORDINATE_ALGEBRA_2018.config,
+  # COORDINATE_ALGEBRA_2018.config,
   ANALYTIC_GEOMETRY_2018.config,
-  ALGEBRA_I_2018.config,
+  # ALGEBRA_I_2018.config,
   GEOMETRY_2018.config,
 
-  ELA_2018.config,
-  GRADE_9_LIT_2018.config,
+  # GRADE_9_LIT_2018.config,
   AMERICAN_LIT_2018.config)
-
 
 Georgia_SGP <- analyzeSGP(
   Georgia_SGP,
@@ -141,16 +187,16 @@ Georgia_SGP <- analyzeSGP(
   sgp.percentiles.baseline = FALSE,
   sgp.projections.baseline = FALSE,
   sgp.projections.lagged.baseline = FALSE,
-  sgp.projections.max.forward.progression.years=5,
   goodness.of.fit.print=FALSE,
-  sgp.sqlite=FALSE,
   parallel.config = list(
     BACKEND="FOREACH", TYPE="doParallel", # SNOW_TEST=TRUE,
-    WORKERS=list(PROJECTIONS = 12, LAGGED_PROJECTIONS = 6)))
+    WORKERS=list(PROJECTIONS = 6, LAGGED_PROJECTIONS = 6)))
 
 
-###  Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row.
-###  This is necessary for CONTENT_AREA configs in which `sgp.exact.grade.progression` is used for 2 prior progressions
+####
+###   Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row.
+###   This is necessary for CONTENT_AREA configs in which `sgp.exact.grade.progression` is used for 2 prior progressions
+####
 
 for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   tmp.SGPercentiles <- Georgia_SGP@SGP$SGPercentiles[[ca]]
@@ -165,7 +211,7 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
 }
 
-# ###  Post Process @SGP$SGProjections duplicates for MATH grade 7 get produced for G7_MATH_EOC.  Not sure how to avoid this because need it for LAGGED_PROJECTIONS
+###  Post Process @SGP$SGProjections duplicates for MATH grade 7 get produced for G7_MATH_EOC.  Not sure how to avoid this because need it for LAGGED_PROJECTIONS
 # Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018 <- Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018[!duplicated(Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018)]
 
 
@@ -174,18 +220,22 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
 ###
 
 Georgia_SGP <- combineSGP(Georgia_SGP,
-    years="2018",
-    sgp.target.scale.scores=TRUE,
+    years = "2018",
+    max.sgp.target.years.forward = 1,
+    sgp.target.scale.scores = TRUE,
     sgp.config = GA_2018.config,
     parallel.config = list(
-      BACKEND="FOREACH", TYPE="doParallel", # SNOW_TEST=TRUE,
-      WORKERS=list(SGP_SCALE_SCORE_TARGETS = 10)))
+      BACKEND = "FOREACH", TYPE = "doParallel", # SNOW_TEST=TRUE,
+      WORKERS = list(SGP_SCALE_SCORE_TARGETS = 10)))
 
-for (n in names(Georgia_SGP@SGP$SGProjections)){
-  if (any(duplicated(Georgia_SGP@SGP$SGProjections[[n]]))) {
-    Georgia_SGP@SGP$SGProjections[[n]] <- Georgia_SGP@SGP$SGProjections[[n]][!duplicated(Georgia_SGP@SGP$SGProjections[[n]])]
-  }
-}
+# for (n in names(Georgia_SGP@SGP$SGProjections)){
+#   if (any(duplicated(Georgia_SGP@SGP$SGProjections[[n]]))) {
+#     print(n)
+#     print(dim(Georgia_SGP@SGP$SGProjections[[n]]))
+#     print(dim(Georgia_SGP@SGP$SGProjections[[n]][!duplicated(Georgia_SGP@SGP$SGProjections[[n]])]))
+#     # Georgia_SGP@SGP$SGProjections[[n]] <- Georgia_SGP@SGP$SGProjections[[n]][!duplicated(Georgia_SGP@SGP$SGProjections[[n]])]
+#   }
+# }
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
