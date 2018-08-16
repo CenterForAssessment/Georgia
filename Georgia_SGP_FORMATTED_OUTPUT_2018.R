@@ -12,8 +12,13 @@ load("U:/DATA/SGP/Data/2018 SGPs/2018 SGP Calculation/Working Directory_QQ/Data/
 
 ###   CFA/AVI
 setwd('~/SGP_Projects/Georgia')
-load("Data/Georgia_SGP.Rdata")
-load("Data/Georgia_SGP_LONG_Data_2018-EOG.Rdata")
+load("Data/Georgia_SGP-EOC.Rdata")
+load("Data/Georgia_SGP_LONG_Data_2018.Rdata")
+
+###   For EOC Analyses/Data:
+Georgia_SGP_LONG_Data_2018 <- Georgia_SGP_LONG_Data_2018[!SUBJECT_CODE %in% c("ELA", "MATHEMATICS")]
+###
+
 
 ### Variables to output
 variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "YEAR_WITHIN", "GRADE", "GRADE_REPORTED", "SCALE_SCORE", "SCALE_SCORE_PRIOR_STANDARDIZED",
@@ -101,12 +106,12 @@ table(tmp.long.data[, SCHOOL_YEAR_PRIOR_1, GRADE_PRIOR_1], exclude=NULL) #  All 
 tmp.long.data[which(GRADE_PRIOR_1=='EOCT'), ASSESSMENT_TYPE_PRIOR_1 := "EOC"]
 tmp.long.data[which(GRADE_PRIOR_1 %in% c('3','4', '5','6','7','8')), ASSESSMENT_TYPE_PRIOR_1 := "EOG"]
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_1, SCHOOL_YEAR_PRIOR_1], exclude=NULL) # All priors from current year (block/repeaters) should be EOC
-table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_1, SUBJECT_CODE_PRIOR_1], exclude=NULL) # All priors from current year (block/repeaters) should be EOC
+table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_1, SUBJECT_CODE_PRIOR_1], exclude=NULL) # Subjects should line up as expected
 
 table(tmp.long.data[, SCHOOL_YEAR_PRIOR_2, GRADE_PRIOR_2], exclude=NULL) #  All Milestones test years (CRCT has now sunset w/ singe prior)
 # tmp.long.data[which(GRADE_PRIOR_2=='EOCT'), ASSESSMENT_TYPE_PRIOR_2 := "EOC"] # None -- all EOGs
 tmp.long.data[which(GRADE_PRIOR_2 %in% c('3','4', '5','6','7','8')), ASSESSMENT_TYPE_PRIOR_2 := "EOG"]
-table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_2, SCHOOL_YEAR_PRIOR_2], exclude=NULL) # All priors from current year (block/repeaters) should be EOC
+table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_2, SCHOOL_YEAR_PRIOR_2], exclude=NULL) # All priors should be EOG Math/ELA
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_2, SUBJECT_CODE_PRIOR_2], exclude=NULL)
 
 
@@ -118,8 +123,8 @@ my.variable.names <- c("ID", "YEAR_WITHIN", "SGP_PROJECTION_GROUP", "LEVEL_1_SGP
 tmp.list.current <- list()
 
 my.projection.table.names <- c(
-          "ELA.2018", "MATHEMATICS.2018")#, #  EOG
-          # "GRADE_9_LIT.2018", "COORDINATE_ALGEBRA.2018", "ALGEBRA_I.2018")  #  EOC
+          # "ELA.2018", "MATHEMATICS.2018")#, #  EOG
+          "GRADE_9_LIT.2018", "COORDINATE_ALGEBRA.2018", "ALGEBRA_I.2018")  #  EOC
 for (i in my.projection.table.names) {
 	tmp.list.current[[i]] <- data.table(
 			VALID_CASE="VALID_CASE",
@@ -151,7 +156,7 @@ setkeyv(Georgia_SGP_Data_LONG_2018_FORMATTED, c("VALID_CASE", "SUBJECT_CODE", "S
 ###   Add a SGP_Final to accommondate bussiness rule to eliminate (SGP - SGP_SIMEX_RANKED) greater than 20
 ###   99 assigned to HOSS scores automatically now through SGPstateData `sgp.loss.hoss.adjustment` element.
 
-dim(Georgia_SGP_Data_LONG_2018_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) > 20), ]) #  9 EOG students in prelim 2018
+dim(Georgia_SGP_Data_LONG_2018_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) > 20), ]) #  9 EOG / 128 EOC students in prelim 2018
 Georgia_SGP_Data_LONG_2018_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) <= 20), SGP_Final := SGP_SIMEX_RANKED]
 
 
@@ -162,6 +167,8 @@ save(Georgia_SGP_Data_LONG_2018_FORMATTED, file="U:/DATA/SGP/Data/2018 SGPs/2018
 fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="U:/DATA/SGP/Data/2018 SGPs/2018 SGP Calculation/Working Directory_QQ/Data/Georgia_SGP_Data_LONG_2018_FORMATTED.txt", sep="|")
 
 ##    CFA
+
+#   Change the file name appendix to -EOG or -EOC depending on what is being formatted
 save(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.Rdata")
 fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.txt", sep="|")
 zip(zipfile="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.txt.zip", files="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.txt")

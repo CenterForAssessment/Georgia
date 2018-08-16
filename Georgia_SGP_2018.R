@@ -38,9 +38,6 @@ GA_2018.config <- c(
 load("Data/Georgia_SGP-Shell_2018.Rdata")
 load("Data/Georgia_Data_LONG_2018_EOG.Rdata")
 
- ##  PRELIM CODE ONLY  -  Speed up prelim tests  ##
- # SGPstateData[["GA"]][["SGP_Configuration"]][["rq.method"]] <- "fn"
- # prelim.simex <- list(lambda=seq(0,2,0.5), simulation.iterations=7, simex.sample.size=1500, csem.data.vnames="SCALE_SCORE_CSEM", extrapolation="linear", save.matrices=TRUE)
 
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
@@ -67,12 +64,13 @@ save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 ###   analyzeSGP to produce Projections for EOG subjects
 
-##  Load EOC Coefficient_Matrices produced from preliminary analyses (see EOC section below)
-##  Combine these with EOG matrices to run EOG projections.
+##    Load EOC Coefficient_Matrices produced from preliminary analyses (see EOC section below)
+##    Combine these with EOG matrices to run EOG projections.
 load("Data/Georgia_EOC_Coef_Matrices_2018.rda")
 
 Georgia_SGP@SGP$Coefficient_Matrices <- c(Georgia_SGP@SGP$Coefficient_Matrices, Georgia_EOC_Coef_Matrices_2018)
 
+##    Include ALGEBRA_I, COORDINATE_ALGEBRA and GRADE_9_LIT in configs to get 8th grade projections
 GA_2018.config <- c(
   MATHEMATICS_2018.config,
   ALGEBRA_I_2018.config,
@@ -96,15 +94,9 @@ Georgia_SGP <- analyzeSGP(
     WORKERS=list(PROJECTIONS = 9, LAGGED_PROJECTIONS = 6)))
 
 
-###   combineSGP  -- EOG
+###   combineSGP  -- EOG (Run target scale scores in final combineSGP with EOC)
 
-Georgia_SGP <- combineSGP(Georgia_SGP,
-    years = "2018",
-    sgp.target.scale.scores = TRUE,
-    sgp.config = GA_2018.config,
-    parallel.config = list(
-      BACKEND = "PARALLEL", # "FOREACH", TYPE = "doParallel", SNOW_TEST=TRUE,
-      WORKERS = list(SGP_SCALE_SCORE_TARGETS = 10)))
+Georgia_SGP <- combineSGP(Georgia_SGP, years = "2018")
 
 
 ###   outputSGP
@@ -113,8 +105,8 @@ outputSGP(Georgia_SGP, output.type = "LONG_FINAL_YEAR_Data")
 
 
 ###   Remove EOC preliminary coef matrices from object before saving
-
 Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_SGP@SGP$Coefficient_Matrices[grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
+
 save(Georgia_SGP, file="Data/Georgia_SGP-prelim_fin.Rdata")
 
 
@@ -167,15 +159,11 @@ save(Georgia_EOC_Coef_Matrices_2018, file="Data/Georgia_EOC_Coef_Matrices_2018.r
 
 # save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
-###   analyzeSGP to produce Projections for EOC subjects
+###   analyzeSGP to produce Projections for EOC subjects (only final year subjects - other EOCs ran above with EOGs)
 
 GA_2018.config <- c(
-  # COORDINATE_ALGEBRA_2018.config,
   ANALYTIC_GEOMETRY_2018.config,
-  # ALGEBRA_I_2018.config,
   GEOMETRY_2018.config,
-
-  # GRADE_9_LIT_2018.config,
   AMERICAN_LIT_2018.config)
 
 Georgia_SGP <- analyzeSGP(
@@ -211,31 +199,32 @@ for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
   tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
 }
 
-###  Post Process @SGP$SGProjections duplicates for MATH grade 7 get produced for G7_MATH_EOC.  Not sure how to avoid this because need it for LAGGED_PROJECTIONS
-# Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018 <- Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018[!duplicated(Georgia_SGP@SGP$SGProjections$MATHEMATICS.2018)]
-
 
 ###
 ###   combineSGP
 ###
 
+###   Calculate all Target Scale Scores at same time (not used in FORMATTED results)
+
+GA_2018.config <- c(
+  MATHEMATICS_2018.config,
+  ALGEBRA_I_2018.config,
+  COORDINATE_ALGEBRA_2018.config,
+  ANALYTIC_GEOMETRY_2018.config,
+  GEOMETRY_2018.config,
+
+  ELA_2018.config,
+  GRADE_9_LIT_2018.config,
+  AMERICAN_LIT_2018.config)
+
 Georgia_SGP <- combineSGP(Georgia_SGP,
     years = "2018",
-    max.sgp.target.years.forward = 1,
+    # max.sgp.target.years.forward = 1,
     sgp.target.scale.scores = TRUE,
     sgp.config = GA_2018.config,
     parallel.config = list(
       BACKEND = "FOREACH", TYPE = "doParallel", # SNOW_TEST=TRUE,
       WORKERS = list(SGP_SCALE_SCORE_TARGETS = 10)))
-
-# for (n in names(Georgia_SGP@SGP$SGProjections)){
-#   if (any(duplicated(Georgia_SGP@SGP$SGProjections[[n]]))) {
-#     print(n)
-#     print(dim(Georgia_SGP@SGP$SGProjections[[n]]))
-#     print(dim(Georgia_SGP@SGP$SGProjections[[n]][!duplicated(Georgia_SGP@SGP$SGProjections[[n]])]))
-#     # Georgia_SGP@SGP$SGProjections[[n]] <- Georgia_SGP@SGP$SGProjections[[n]][!duplicated(Georgia_SGP@SGP$SGProjections[[n]])]
-#   }
-# }
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
@@ -246,7 +235,6 @@ save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 outputSGP(Georgia_SGP)
 
-
 ###
 ###   summarizeSGP
 ###
@@ -254,7 +242,7 @@ outputSGP(Georgia_SGP)
 Georgia_SGP <- summarizeSGP(
 	Georgia_SGP,
 	parallel.config=list(
-		BACKEND="PARALLEL", WORKERS=list(SUMMARY=2))
+		BACKEND="PARALLEL", WORKERS=list(SUMMARY=3))
 )
 
 Georgia_Summary_2018 <- Georgia_SGP@Summary
@@ -281,7 +269,6 @@ visualizeSGP(Georgia_SGP,
              gaPlot.content_areas = c("ELA", "MATHEMATICS"),
              gaPlot.max.order.for.progression=2,
             #  gaPlot.start.points="Achievement Percentiles",
-             gaPlot.students="1001089863",
 						 parallel.config=list(
 						 	BACKEND='FOREACH', TYPE="doParallel",
 						 	WORKERS=list(GA_PLOTS=10)))
