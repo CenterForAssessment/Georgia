@@ -12,7 +12,7 @@ load("U:/DATA/SGP/Data/2018 SGPs/2018 SGP Calculation/Working Directory_QQ/Data/
 
 ###   CFA/AVI
 setwd('~/SGP_Projects/Georgia')
-load("Data/Georgia_SGP-EOC.Rdata")
+load("Data/Georgia_SGP.Rdata")
 load("Data/Georgia_SGP_LONG_Data_2018.Rdata")
 
 ###   For EOC Analyses/Data:
@@ -27,7 +27,6 @@ variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "Y
                          "SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SGP_LEVEL", "SGP_STANDARD_ERROR", "SGP_NORM_GROUP_SCALE_SCORES", "SGP_NOTE",
                          "SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "PERFORMANCE_LEVEL_PRIOR_1", "GRADE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1", "ASSESSMENT_TYPE_PRIOR_1",
                          "SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "SCALE_SCORE_PRIOR_2", "PERFORMANCE_LEVEL_PRIOR_2", "GRADE_PRIOR_2", "ADMINISTRATION_PERIOD_PRIOR_2", "ASSESSMENT_TYPE_PRIOR_2",
-                        #  "SCHOOL_YEAR_PRIOR_3", "SUBJECT_CODE_PRIOR_3", "SCALE_SCORE_PRIOR_3", "PERFORMANCE_LEVEL_PRIOR_3", "GRADE_PRIOR_3", "ADMINISTRATION_PERIOD_PRIOR_3", "ASSESSMENT_TYPE_PRIOR_3",
                          "SGP_PROJECTION_GROUP_CURRENT", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT",
                          "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
 
@@ -119,7 +118,7 @@ table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_2, SUBJECT_CODE_PRIOR_2], exclude=NU
 ###  Add in CURRENT Projections
 ####
 
-my.variable.names <- c("ID", "YEAR_WITHIN", "SGP_PROJECTION_GROUP", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT", "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
+my.variable.names <- c("ID", "YEAR_WITHIN", "GRADE", "SGP_PROJECTION_GROUP", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT", "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
 tmp.list.current <- list()
 
 my.projection.table.names <- c(
@@ -137,12 +136,13 @@ for (i in my.projection.table.names) {
 tmp.projections.c <- data.table(rbindlist(tmp.list.current), FIRST_OBSERVATION = 1L, key=c("ID", "SUBJECT_CODE"))
 
 setnames(tmp.projections.c, "ID", "GTID")
-setkeyv(tmp.projections.c, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION"))
-setkeyv(tmp.long.data, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION"))
+setkeyv(tmp.projections.c, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION", "GRADE"))
+setkeyv(tmp.long.data, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION", "GRADE"))
 
 ###   Need to keep multiple projections for MATHEMATICS (allow.cartesian=TRUE)
 Georgia_SGP_Data_LONG_2018_FORMATTED <- tmp.projections.c[tmp.long.data, allow.cartesian=TRUE]
 setnames(Georgia_SGP_Data_LONG_2018_FORMATTED, "SGP_PROJECTION_GROUP", "SGP_PROJECTION_GROUP_CURRENT")
+
 
 ###  Final arrangement of variables
 Georgia_SGP_Data_LONG_2018_FORMATTED <- Georgia_SGP_Data_LONG_2018_FORMATTED[, variables.to.output, with=FALSE]
@@ -156,7 +156,7 @@ setkeyv(Georgia_SGP_Data_LONG_2018_FORMATTED, c("VALID_CASE", "SUBJECT_CODE", "S
 ###   Add a SGP_Final to accommondate bussiness rule to eliminate (SGP - SGP_SIMEX_RANKED) greater than 20
 ###   99 assigned to HOSS scores automatically now through SGPstateData `sgp.loss.hoss.adjustment` element.
 
-dim(Georgia_SGP_Data_LONG_2018_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) > 20), ]) #  9 EOG / 128 EOC students in prelim 2018
+dim(Georgia_SGP_Data_LONG_2018_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) > 20), ]) #  9 EOG / 137 EOC students in prelim 2018
 Georgia_SGP_Data_LONG_2018_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) <= 20), SGP_Final := SGP_SIMEX_RANKED]
 
 
@@ -169,7 +169,7 @@ fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="U:/DATA/SGP/Data/2018 SGPs/20
 ##    CFA
 
 #   Change the file name appendix to -EOG or -EOC depending on what is being formatted
-save(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.Rdata")
-fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.txt", sep="|")
-zip(zipfile="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.txt.zip", files="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.txt")
-unlink("Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOG.txt")
+save(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.Rdata")
+fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt", sep="|")
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt.zip", files="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt")
+unlink("Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt")

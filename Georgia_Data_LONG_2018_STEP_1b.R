@@ -17,38 +17,40 @@ setwd('U:/DATA/SGP/Data/2018 SGPs/SGP Calculation/Working Directory_QQ/')
 ####  Load 2018 Milestones Data ####
 
 Georgia_Data_LONG_2017_Testout <- fread("U:/DATA/SGP/Data/2018 SGPs/Computer Matched Data/2017_Georgia_Milestones_EOC_TestOut.txt",  header = TRUE, sep = "|", colClasses=rep("character", 28))
-Georgia_Data_LONG_2018 <- fread("U:/DATA/SGP/Data/2018 SGPs/Computer Matched Data/EOG_Prelim_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
+Georgia_Data_LONG_2018 <- fread("U:/DATA/SGP/Data/2018 SGPs/Computer Matched Data/EOG_EOC_Final_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
 ###   GA DOE   ###
 
 
 ###   Start EOG
-Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/2018 SGP Preliminary Data/EOG_Prelim_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/EOG_Final_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))
 ###   End EOG
 
-###   Start EOC
-Georgia_Data_LONG_2017_Testout <- fread("./Data/Base_Files/2018 SGP Preliminary Data/EOC_Final_TestOut_Data_2017.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
-Georgia_Data_LONG_2018 <- fread("./Data/Base_Files/2018 SGP Preliminary Data/EOG_EOC_Prelim_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
 
+###   Start EOC
+###
+Georgia_Data_LONG_2017_Testout <- fread("./Data/Base_Files/2018 SGP Preliminary Data/EOC_Final_TestOut_Data_2017.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+Georgia_Data_LONG_2018 <- rbindlist(list(
+          fread("./Data/Base_Files/EOC_Final_Spring_Winter_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31)),
+          fread("./Data/Base_Files/EOC_Final_Summer_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))))
+          # fread("./Data/Base_Files/2018 SGP Preliminary Data/EOC_Prelim_Summer_Data_2018.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))))
 
 ### Combine 2017 test out priors with 2018 current data
 eoc.subjects <- c("GRADE_9_LIT", "AMERICAN_LIT", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "GEOMETRY")
 
-Georgia_Data_LONG_2017_Testout[, VALID_CASE := "VALID_CASE"]
 Georgia_Data_LONG_2017_Testout[is.na(as.numeric(SCALE_SCORE)), VALID_CASE := "INVALID_CASE"]
-Georgia_Data_LONG_2018 <- rbindlist(list(Georgia_Data_LONG_2017_Testout[SUBJECT_CODE %in% eoc.subjects], Georgia_Data_LONG_2018[SUBJECT_CODE %in% eoc.subjects]), fill=TRUE)
+Georgia_Data_LONG_2018 <- rbindlist(list(Georgia_Data_LONG_2017_Testout, Georgia_Data_LONG_2018), fill=TRUE)
+###
 ###   End EOC
 
 
 ###   Tidy up data
-
-setnames(Georgia_Data_LONG_2018, 'CONDSEM', 'SCALE_SCORE_CSEM')
 
 Georgia_Data_LONG_2018[, SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)*10000 + as.numeric(SR_SCHOOL_ID)]
 Georgia_Data_LONG_2018[which(as.numeric(SR_SYSTEM_ID) > 1000), SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)]
 Georgia_Data_LONG_2018[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
 
 Georgia_Data_LONG_2018[, SCALE_SCORE := as.numeric(SCALE_SCORE)]
-Georgia_Data_LONG_2018[, SCALE_SCORE_CSEM := as.numeric(SCALE_SCORE_CSEM)]
+Georgia_Data_LONG_2018[, CONDSEM := as.numeric(CONDSEM)]
 
 Georgia_Data_LONG_2018[, GRADE := gsub("0", "", GRADE)]
 
@@ -60,6 +62,7 @@ Georgia_Data_LONG_2018[, SCHOOL_ENROLLMENT_STATUS := factor(1, levels=0:1, label
 Georgia_Data_LONG_2018[, DISTRICT_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled District: No", "Enrolled District: Yes"))]
 Georgia_Data_LONG_2018[, STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, labels=c("Enrolled State: No", "Enrolled State: Yes"))]
 
+Georgia_Data_LONG_2018[, c("Rownumber_dup1", "Rownumber_dup2") := NULL]
 
 ###  Invalidate duplicates (No duplicate cases in 2018 prelim data)
 

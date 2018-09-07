@@ -51,7 +51,6 @@ Georgia_SGP <- updateSGP(
   sgp.percentiles.baseline = FALSE,
   sgp.projections.baseline = FALSE,
   sgp.projections.lagged.baseline = FALSE,
-  sgp.percentiles.equated = FALSE,
   simulate.sgps = TRUE,
   calculate.simex = TRUE, #  Use list below for PRELIM data tests.
   # calculate.simex = list(csem.data.vnames="SCALE_SCORE_CSEM", lambda=seq(0,2,0.5), simulation.iterations=75, simex.sample.size=5000, extrapolation="linear", save.matrices=TRUE, verbose=TRUE),          ## PRELIM CODE ##
@@ -107,7 +106,7 @@ outputSGP(Georgia_SGP, output.type = "LONG_FINAL_YEAR_Data")
 ###   Remove EOC preliminary coef matrices from object before saving
 Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_SGP@SGP$Coefficient_Matrices[grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
 
-save(Georgia_SGP, file="Data/Georgia_SGP-prelim_fin.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 
 ###
@@ -145,19 +144,18 @@ Georgia_SGP <- updateSGP(
   sgp.percentiles.baseline=FALSE,
   sgp.projections.baseline = FALSE,
   sgp.projections.lagged.baseline = FALSE,
-  sgp.percentiles.equated = FALSE,
   simulate.sgps = TRUE,
   calculate.simex = TRUE, #  Use list below for PRELIM data tests.
   # calculate.simex = prelim.simex,  ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
   save.intermediate.results=FALSE,
-    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=15, SIMEX=15))) # SNOW_TEST=TRUE,
+    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=20, SIMEX=15))) # SNOW_TEST=TRUE,
 
 ###  Save Coefficient_Matrices from preliminary and use for projections
-Georgia_EOC_Coef_Matrices_2018 <- Georgia_SGP@SGP$Coefficient_Matrices[-grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
-save(Georgia_EOC_Coef_Matrices_2018, file="Data/Georgia_EOC_Coef_Matrices_2018.rda")
+# Georgia_EOC_Coef_Matrices_2018 <- Georgia_SGP@SGP$Coefficient_Matrices[-grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
+# save(Georgia_EOC_Coef_Matrices_2018, file="Data/Georgia_EOC_Coef_Matrices_2018.rda")
 
-# save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 ###   analyzeSGP to produce Projections for EOC subjects (only final year subjects - other EOCs ran above with EOGs)
 
@@ -175,10 +173,7 @@ Georgia_SGP <- analyzeSGP(
   sgp.percentiles.baseline = FALSE,
   sgp.projections.baseline = FALSE,
   sgp.projections.lagged.baseline = FALSE,
-  goodness.of.fit.print=FALSE,
-  parallel.config = list(
-    BACKEND="FOREACH", TYPE="doParallel", # SNOW_TEST=TRUE,
-    WORKERS=list(PROJECTIONS = 6, LAGGED_PROJECTIONS = 6)))
+  goodness.of.fit.print=FALSE)
 
 
 ####
@@ -221,10 +216,7 @@ Georgia_SGP <- combineSGP(Georgia_SGP,
     years = "2018",
     # max.sgp.target.years.forward = 1,
     sgp.target.scale.scores = TRUE,
-    sgp.config = GA_2018.config,
-    parallel.config = list(
-      BACKEND = "FOREACH", TYPE = "doParallel", # SNOW_TEST=TRUE,
-      WORKERS = list(SGP_SCALE_SCORE_TARGETS = 10)))
+    sgp.config = GA_2018.config)
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
