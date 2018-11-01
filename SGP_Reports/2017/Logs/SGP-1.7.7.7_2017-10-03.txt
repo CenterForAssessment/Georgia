@@ -1,0 +1,25 @@
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+
+Started visualizeSGP Tuesday October 03 23:15:09 2017 
+
+Started bubblePlot in visualizeSGP Tuesday October 03 23:15:09 2017 
+
+Finished bubblePlot in visualizeSGP Tuesday October 03 23:15:13 2017 in 3.751 Seconds 
+
+Finished visualizeSGP Tuesday October 03 23:15:13 2017 in 3.77 Seconds 
+
+
+Started visualizeSGP Tuesday October 03 23:26:18 2017 
+
+Started bubblePlot in visualizeSGP Tuesday October 03 23:26:18 2017 
+
+Finished bubblePlot in visualizeSGP Tuesday October 03 23:26:20 2017 in 2.747 Seconds 
+
+Finished visualizeSGP Tuesday October 03 23:26:20 2017 in 2.756 Seconds 
+

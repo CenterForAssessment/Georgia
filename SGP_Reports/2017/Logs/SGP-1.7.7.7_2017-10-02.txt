@@ -1,0 +1,30 @@
+
+Started prepareSGP Monday October 02 13:42:34 2017
+
+
+	prepareSGP(
+		 data = Georgia_SGP_LONG_Data_2017[, c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "YEAR_WITHIN", "ID", "SGP", "SGP_SIMEX", "SGP_NORM_GROUP", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SCALE_SCORE_PRIOR_STANDARDIZED", "SCHOOL_NUMBER", "DISTRICT_NUMBER"), with = FALSE]
+		state = GA
+		create.additional.variables = FALSE )
+
+
+Started prepareSGP Monday October 02 13:47:46 2017
+
+
+	prepareSGP(
+		 data = Georgia_SGP_LONG_Data_2017[, c("VALID_CASE", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR", "YEAR_WITHIN", "GTID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SGP_NORM_GROUP", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SCALE_SCORE_PRIOR_STANDARDIZED", "Most_Recent_Prior", "SCHOOL_NUMBER", "DISTRICT_NUMBER"), with = FALSE]
+		state = GA
+		create.additional.variables = FALSE )
+
+
+Started prepareSGP Monday October 02 13:48:59 2017
+
+
+	prepareSGP(
+		 data = Georgia_SGP_LONG_Data_2017[, c("VALID_CASE", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR", "YEAR_WITHIN", "GTID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SGP_NORM_GROUP", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SCALE_SCORE_PRIOR_STANDARDIZED", "Most_Recent_Prior", "SCHOOL_NUMBER", "SR_SYSTEM_ID"), with = FALSE]
+		state = GA
+		create.additional.variables = FALSE )
+
+	NOTE: Added variable ACHIEVEMENT_LEVEL to @Data using GA cutscores embedded in SGPstateData.
+Finished prepareSGP Monday October 02 13:49:09 2017 in 10 Seconds 
+
