@@ -51,7 +51,7 @@ This document was written by Damian Betebenner & Adam VanIwaarden for the State 
 
 # Introduction
 
-This report contains details on the 2017-2018 implementation of the student growth percentile (SGP) model for the state of Georgia.  The National Center for the Improvement of Educational Assessment (NCIEA) contracted with the Georgia Department of Education (DOE) to implement the SGP methodology using data derived from the [Georgia Milestones Assessment System](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) to create the [Georgia Student Growth Model (GSGM)](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Student-Growth-Model.aspx).  The goal of the engagement with DOE is to create a set of open source analytics techniques and conduct analyses that will eventually be conducted exclusively by DOE in following years.
+This report contains details on the 2017-2018 implementation of the student growth percentiles (SGP) model for the state of Georgia.  The National Center for the Improvement of Educational Assessment (NCIEA) contracted with the Georgia Department of Education (DOE) to implement the SGP methodology using data derived from the [Georgia Milestones Assessment System](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) to create the [Georgia Student Growth Model (GSGM)](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Student-Growth-Model.aspx).  The goal of the engagement with DOE is to create a set of open source analytics techniques and conduct analyses that will eventually be conducted exclusively by DOE in following years.
 
 The SGP methodology is an open source norm- and criterion-referenced student growth analysis that produces student growth percentiles and student growth projections/targets for each student in the state with adequate longitudinal data.  The methodology is currently used for many purposes.  States and districts have used the results in various ways including parent/student diagnostic reporting, institutional improvement, and school and educator accountability.  Specifics about the manner in which growth is included in school and educator accountability can be found in documents related to those accountability systems.
 
@@ -64,9 +64,7 @@ This report includes four sections:
 
 This report also includes multiple appendices.  Appendix A displays Goodness of Fit plots for each analysis conducted in 2018.  Appendix B provides a technical description of the SIMEX correction for measurement error with specific applications to Georgia.  Appendix C is an investigation of potential ceiling and/or floor effects present in the Georgia assessment data and growth analyses.
 
-```{r, cache=FALSE, results="asis", echo=FALSE}
-	Literasee:::pageBreak()
-```
+`r pageBreak()`
 
 
 # Data
@@ -86,14 +84,12 @@ Growth analyses on assessment data require data that are linked to individual st
 
 Beginning in 2014 Georgia DOE has performed the majority of the selection and invalidation of student records, incorporating these and other business rules into the `SQL` code used to pull student records from their data warehouse.
 
-```{r, cache=FALSE, results="asis", echo=FALSE}
-	Literasee:::pageBreak()
-```
+`r pageBreak()`
 
 
 ### EOG specific business rules
 
-1.  If a student has multiple records (duplicate from the same subject and grade), the record with the highest score was selected.
+1.  If a student has multiple records (duplicate from the same subject, grade and administration period), their highest score was selected.
 2.  If a student took more than one assessment in the same subject and school year but was identified as being in two different grades, the record with the highest grade level was selected.
 
 Table `r tblNum(1)` shows the number of valid EOG student records available for analysis after applying the general and EOG specific business rules.^[This does not represent the number of SGPs produced, however, because students are required to have at least one prior score available as well.]
@@ -112,14 +108,16 @@ Table `r tblNum(1)` shows the number of valid EOG student records available for 
   	align=paste(rep('r', dim(n_tbl_EOG_B)[2]), collapse=''),
 		n.cgroup=c(1, dim(n_tbl_EOG_B)[2]-1), cgroup=c("", "Grades"),
 		caption='Number of Valid EOG Student Records by Grade and Subject for 2018'))
+  
+  pageBreak()
 ```
 
 
 ### EOC specific business rules
 
-1.  If a student has multiple records from the same subject and administration period, the record with the highest score was selected.
-2.  For students who participated in two main administrations in 2018 (i.e., students who failed and retook an EOC course in the same year), the first attempt is used as a prior to produce an SGP for the final attempt.  In subsequent years, their final attempt may be used as a prior for other EOC analyses.
-3.  Students who have tested out of EOC courses are invalidated.^[Beginning in 2013-2014, students had the opportunity to test out of an EOC course by taking the test early and scoring at highest performance level ("Distinguished Learner"). SGPs are not calculated for any current year test out attempt. Successful attempts, however, are used as prior scores in subsequent years' analyses.]
+1.  If a student has multiple records from the same subject and administration period, their highest score was selected.
+2.  For students who participate in two main administrations in 2018 (i.e., students who failed and retook an EOC course in the same year), the first attempt is used as a prior to produce an SGP for the final attempt.  In subsequent years, their final attempt may be used as a prior for other EOC analyses.
+3.  Students who have tested out of EOC courses are invalidated.^[Beginning in 2013-2014, students had the opportunity to test out of an EOC course by taking the test early and scoring at highest performance level ("Exceeds Expectations" for EOCT or "Distinguished Learner" for Milestones EOC). SGPs are not calculated for any current year test out attempt. Successful attempts, however, are used as prior scores in subsequent years' analyses.]
 
 Table `r tblNum(1)` shows the total number of valid EOC student records available for analysis after applying the general and EOC specific business rules.
 
@@ -148,7 +146,7 @@ Broadly, the SGP analysis of the Georgia longitudinal student assessment data ta
 1. Data Preparation
 2. Data Analysis
 
-The majority of the effort in the above two step process lies with Step 1: Data Preparation.  Following thorough data cleaning and preparation, data analysis using the `SGP` package takes clean data and makes it as easy as possible to calculate, summarize, output and visualize the results from SGP analyses.
+Those familiar with data analysis know that the bulk of the effort in the above two step process lies with Step 1: Data Preparation.  Following thorough data cleaning and preparation, data analysis using the `SGP` package takes clean data and makes it as easy as possible to calculate, summarize, output and visualize the results from SGP analyses.
 
 ## Data Preparation
 
@@ -160,11 +158,11 @@ In this first step a formatted data set is extracted from the Georgia student da
 
 <div class='caption'>**Step 1b.** *Final data cleaning and preparation in* `R`</div>
 
-In this step the data from step 1a is read into [`R`](http://www.r-project.org/) and modified slightly. The result is a `.Rdata` file containing data in the format suitable for analysis with the [`SGP` package](https://github.com/CenterForAssessment/SGP).  This data is combined with prior years' Milestones data to complete the 2018 analyses and is stored in a updated [`SGP` class object](http://cran.r-project.org/web/packages/SGP/SGP.pdf).  With an appropriate longitudinal data set prepared, we move to the calculation of student-level SGPs.
+In this step the data from step 1a is read into [`R`](http://www.r-project.org/) and modified slightly. The result is a `.Rdata` file containing data in the format suitable for analysis with the [`SGP` package](https://github.com/CenterForAssessment/SGP).  This data is combined with a subset of prior years' Milestones data necessary to complete the 2018 analyses and is stored in a new [`SGP` class object](http://cran.r-project.org/web/packages/SGP/SGP.pdf).  With an appropriate longitudinal data set prepared, we move to the calculation of student-level SGPs.
 
 ## 2018 Data Analysis
 
-The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her *academic peers* (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf)). This norm-referenced growth quantity is estimated using quantile regression [@Koenker:2005] to model curvilinear functional relationships between student's prior and current scores.  One hundred such regression models are calculated for each separate analysis (defined as a unique ***year** by **content area** by **grade** by **prior order*** combination).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to tens of thousands of model calculations (and many more when SIMEX measurement error corrections are performed) during each of Georgia's annual batch of analyses.  For a more in-depth discussion of SGP calculation, see Betebenner [-@Betebenner:2009], and see Shang, VanIwaarden and Betebenner [-@ShangVanIBet:2015] and Appendix B of this report for further information on the SIMEX measurement error correction methodology.
+The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her *academic peers* (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf) and [this presentation](https://github.com/CenterForAssessment/SGP_Resources/blob/master/presentations/Academic_Peer_Slides.pdf)). This norm-referenced growth quantity is estimated using quantile regression [@Koenker:2005] to model curvilinear functional relationships between student's prior and current scores.  One hundred such regression models are calculated for each separate analysis (defined as a unique ***year** by **content area** by **grade** by **prior order*** combination).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to tens of thousands of model calculations (and many more when SIMEX measurement error corrections are performed) during each of Georgia's annual batch of analyses.  For a more in-depth discussion of SGP calculation, see Betebenner [-@Betebenner:2009], and see Shang, VanIwaarden and Betebenner [-@ShangVanIBet:2015] and Appendix B of this report for further information on the SIMEX measurement error correction methodology.
 
 The 2018 Georgia SGP analyses follow a work flow established in previous years that includes the following 4 steps:
 
@@ -182,12 +180,12 @@ The use of higher-level functions included in the `SGP` package (e.g. `analyzeSG
 
 Unlike most EOG analyses, EOC analyses are specialized enough so that it is necessary to specify the analyses to be performed via explicit configuration code.  For several years, configurations have been employed to conduct EOC SGP analyses for Georgia.  Beginning in 2016 configurations were used for EOG SGP analyses as well, which allows for consistency between the EOC subjects and for all analyses (particularly student growth projections) to be run concurrently.
 
-Configurations are `R` code scripts that are used as part of the larger SGP analysis to be discussed later.  They are broken up into separate R scripts based on content area (ELA and Mathematics).  Each configuration code chunk specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Because Georgia allows for repeated test administrations within each year, the sequence in which score observations occur must also be included.  Therefore, every configuration used contains the first four elements listed below.  The EOC analyses also contain the fifth through eighth elements:
+Configurations are `R` code scripts that are used as part of the larger SGP analysis to be discussed later.  They are broken up into separate R scripts based on content domain (ELA and Mathematics).  Each configuration code chunk specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Because Georgia allows for repeated test administrations within each year, the sequence in which score observations occur must also be included.  Therefore, every configuration used contains the first four elements listed below.  The EOC analyses also contain the fifth through eighth elements:
 
 - **`sgp.content.areas`:** The progression of content areas to be looked at and their order.
 - **`sgp.panel.years`:** The progression of the years associated with the content area progression (`sgp.content.areas`), potentially allowing for skipped or repeated years, etc.
 - **`sgp.panel.years.within`:** The progression of the observation sequence associated with each year.  Required when multiple test scores are present within a given year.  Values may be set to `LAST_OBSERVATION` or `FIRST_OBSERVATION`.
-- **`sgp.grade.sequences`:** The grade progression associated with the configuration content areas and years. The value **'EOCT'** stands for 'End Of Course Test'.^[This abbreviation differs from Georgia's use of "EOC", and is a required facet of the `SGP` package.]  The use of the generic 'EOCT' allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level designation.
+- **`sgp.grade.sequences`:** The grade progression associated with the configuration content areas and years. The value **'EOCT'** stands for 'End Of Course Test'.  The use of the generic 'EOCT' allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level designation.
 - **`sgp.exact.grade.progression`:** When set to `TRUE`, this element will force the lower level functions to analyze *only* the progression as specified in its entirety.  Otherwise these functions will analyze subsets of the progression for every possible order (i.e. each number of prior time periods of data available). When set to `TRUE`, a norm group preference system is usually required as well.
 - **`sgp.norm.group.preference`:** Because a student can potentially be included in more than one analysis/configuration, multiple SGPs will be produced for some students and a system is required to identify the preferred SGP that will be matched with the student in the `combineSGP` step.  This argument provides a ranking that specifies how preferable SGPs produced from the analysis in question is relative to other possible SGPs.  ***Lower numbers correspond with higher preference.***  Higher preference is given to:
     * Progressions with the greatest number of prior scale scores.
@@ -197,9 +195,7 @@ Configurations are `R` code scripts that are used as part of the larger SGP anal
 - **`sgp.projection.grade.sequences`:** This element is used to identify the grade sequence that will be used to produce straight and/or lagged student growth projections.  It can either be left out or set explicitly to `NULL` to produce projections based on the values provided in the `sgp.content.areas` and `sgp.grade.sequences` elements.  Alternatively, when set to "`NO_PROJECTIONS`", no projections will be produced.  For EOC analyses, only configurations that correspond to the canonical course progressions can produce student growth projections.  The canonical progressions are codified in the `SGP` package here: [`SGPstateData[["GA"]][["SGP_Configuration"]][["content_area.projection.sequence"]]`](https://github.com/CenterForAssessment/SGPstateData/blob/fda10b20d92f5c9dcba3fa6eaf98844bab5bb05b/SGPstateData.R#L2614).
 - **`sgp.exclude.sequences`:** Lookup table containing the grade, subject, and year combinations of students that should be excluded from a cohort.  This element is used in progressions in which a year or similar time period is skipped (i.e. a gap in time exists).  For example, in a progression that goes from 8<sup>th</sup> grade Mathematics to EOC Algebra I with a skipped year in between one may want to exclude kids that repeated either 8<sup>th</sup> grade Mathematics or Algebra I, or took other math related subjects (e.g. Geometry) in the skipped year.  Students with different course progressions may be inappropriate to include with the cohort of students who truly had no mathematics related course in the intervening year.
 
-```{r, cache=FALSE, results="asis", echo=FALSE}
-	Literasee:::pageBreak()
-```
+`r pageBreak()`
 
 As an example, here is one Algebra I configuration used to define a 2018 SGP analysis:
 
@@ -227,20 +223,15 @@ As an example, here is one Algebra I configuration used to define a 2018 SGP ana
 
 ### Conduct SGP analyses
 
-Due to differences in the time-frames in which the EOG and EOC were validated and made available, EOG and EOC SGPs were calculated at seperate times.  Cohort-referenced (uncorrected) and SIMEX corrected SGPs were calculated concurrently for each individual analysis.  We use the [`updateSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/updateSGP) function to ***a)*** do the final preparation and addition of the 2018 cleaned and formatted data to the new `SGP` class object ([`prepareSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/prepareSGP) step) and ***b)*** calculate SGP estimates ([`analyzeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/analyzeSGP) step).  
+Due to differences in the time-frames in which the EOG and EOC were validated and made available, EOG and EOC SGPs were calculated at seperate times.  Cohort-referenced (uncorrected) and SIMEX corrected SGPs were calculated concurrently for each individual analysis.^[In addition to these quantities, baseline-referenced SGPs (uncorrected and SIMEX corrected) had been calculated in previous years and used as the "official" SGP quantity, but this method of SGP calculation will be unavailable until at least 3 years of Milestones assessment data are available for all analyses to form the baseline cohorts.]  We use the [`updateSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/updateSGP) function to ***a)*** do the final preparation and addition of the 2018 cleaned and formatted data to the new `SGP` class object ([`prepareSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/prepareSGP) step) and ***b)*** calculate SGP estimates ([`analyzeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/analyzeSGP) step).  
 
 Once both EOG and EOC student growth analyses had been completed, student growth projections were computed using the `analyzeSGP` function.
 
 ### Merge, output, summarize and visualize results
 
-Once all analyses were completed the results were merged into the master longitudinal data set ([`combineSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/combineSGP) step).  A pipe delimited version of the complete long data is output ([`outputSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/outputSGP) step) and submitted to the Georgia DOE after some additional formatting to add fields needed for rendering data in the state's [visualization tool](http://gastudentgrowth.gadoe.org/) such as students' entire prior score and course progression history.  In this stage an additional check is also performed in which SGP results are removed when the absolute value of the difference between the uncorrected SGP and Ranked SIMEX SGP is equal to 20 or more ($|SGP_ {Uncorrected} - SGP_ {Ranked SIMEX}| > = 20$).
+Once all analyses were completed the results were merged into the master longitudinal data set ([`combineSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/combineSGP) step).  A pipe delimited version of the complete long data is output ([`outputSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/outputSGP) step) and submitted to the Georgia DOE after some additional formatting to add fields needed for rendering data in the state's [visualization tool](http://gastudentgrowth.gadoe.org/) such as students' entire prior score and course progression history.  The data is also summarized using the [`summarizeSGP` function](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/summarizeSGP), which produces many tables of descriptive statistics that are disaggregated at the state, district, school and instructor levels, as well as other factors of interest.  Finally, visualizations (such as bubble charts) are produced from the data and summary tables using the [`visualizeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/visualizeSGP) function. 
 
-Finally, the SGP results are summarized using the [`summarizeSGP` function](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/summarizeSGP), which produces many tables of descriptive statistics that are disaggregated at the state, district, school and instructor levels, as well as other factors of interest.  Visualizations (such as the bubble charts used in this report and "growth and achievement" charts) are produced from the results and summary tables using the [`visualizeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/visualizeSGP) function.
-
-```{r, cache=FALSE, results="asis", echo=FALSE}
-	Literasee:::pageBreak()
-```
-
+`r pageBreak()`
 
 # Goodness of Fit
 
@@ -278,7 +269,7 @@ The bottom right panel of each plot is a Q-Q plot which compares the observed di
   ##  Keep using that from year to year to show it IS arbitrary - no need to change year to year ... ...
 
   dat <- Georgia_SGP@Data[SGP_NORM_GROUP %in% "2016/ELA_6; 2017/ELA_7; 2018/ELA_8", 
-  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
+  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
 
 	gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP", output.format="PNG")
 	# gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP_SIMEX", output.format="PNG")
@@ -339,7 +330,7 @@ To investigate the possibility that individual level misfit might impact summary
 
 Student-level correlations for EOG subjects are presented in Table `r tblNum(1)`, and the results are generally as expected.  Strong relationships exist between prior and current scale scores for the grade level analyses (column 3).  With cohort-referenced (uncorrected) percentiles, the correlation between students' most recent prior achievement scores and their student growth percentiles is zero when the model is perfectly fit to the data.  This also indicates that students can demonstrate high (or low) growth regardless of prior achievement.  Correlations for Georgia's uncorrected SGPs are all essentially zero (column 4).
 
-SIMEX corrected SGPs induce a negative correlation between growth and prior achievement.  Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students' is weighted upward and higher achieving students' growth is weighted down.  In theory, this bias in student-level SGPs may decrease the bias in aggregate growth measures (as documented in previous SIMEX reports and Shang et al., 2015).  Subsequently, the correlations between both student- and aggregate-level "uncorrected" SGPs and prior achievement are typically higher than those with SIMEX corrected SGPs (see the "Group Level Results" section for aggregate-level correlations).
+SIMEX corrected SGPs induce a negative correlation between growth and prior achievement.  Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students' is weighted upward and higher achieving students' growth is weighted down.  In theory, this bias in student-level SGPs may decrease the bias in aggregate growth measures (as documented in previous SIMEX reports and Shang et al., 2015).  Subsequently, the correlations between both student- and aggregate-level "uncorrected" SGPs and prior achievement are typically higher than those with SIMEX corrected SGPs (see the "Group Level Results" section for aggregate-level correlations).^[Note that correlations that are initially negative also become increasingly negative rather than return to zero.]
 
 
 ### EOG Subjects
@@ -408,7 +399,9 @@ The relationships between growth and prior achievement reported in Table `r tblN
 
 # SGP Results
 
-In the following sections basic descriptive statistics from the 2018 analyses are provided, including the state-level mean and median growth percentiles.  Beginning in 2014 the Georgia DOE has used the SIMEX measurement error correction method in the calculation of student-level SGPs.  A system of ranking the SIMEX SGPs in order to improve some student level properties of the growth measure [@CastMcCaf:2017] was added as well in 2017.  Descriptive statistics from the uncorrected and Ranked SIMEX corrected SGP results are both presented here.  The interested reader can find more in depth discussions of the SGP methodology in the [available literature](https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles), and information about the SIMEX measurement error correction methodology is available in Appendix B of this report as well as in recent academic articles [@ShangVanIBet:2015; @CastMcCaf:2017].
+In the following sections basic descriptive statistics from the 2018 analyses are provided, including the state-level mean and median growth percentiles.  Currently Georgia uses Ranked SIMEX corrected cohort-referenced SGPs as the official student growth metric.  Although Georgia DOE intends to eventually use baseline-referenced SGPs, the transition to [Georgia Milestones](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) assessments requires the exclusive use of cohort-referenced analyses for several years until baseline referencing is again feasible.
+
+Georgia DOE decided to use the SIMEX measurement error correction method in the calculation of student-level SGPs several years ago.  This correction has been applied to the 2018 SGPs in addition to a system of ranking the SIMEX SGPs in order to improve some student level properties of the growth measure [@CastMcCaf:2017].  Descriptive statistics from the uncorrected and Ranked SIMEX corrected SGP results are both presented here.  The interested reader can find more in depth discussions of the SGP methodology in the [available literature](https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles), and information about the SIMEX measurement error correction methodology is available in Appendix B of this report as well as in recent academic articles [@ShangVanIBet:2015; @CastMcCaf:2017].
 
 ## Uncorrected SGPs
 
@@ -516,7 +509,7 @@ To illustrate these relationships visually, the bubble charts in Figures `r getC
 ```{r, results="asis", echo=FALSE, ELA_Bubble}
 		placeFigure(
 			files = "../img/Bubble_Plots/2018/State/Style_1/Georgia_2018_ELA_State_Bubble_Plot_(Prior_Achievement).png",
-			caption = "School-level Bubble Plots for Georgia: ELA, 2017-2018.", pdf.width = 0.925)
+			caption = "School-level Bubble Plots for Georgia: ELA, 2017-2018.")
 ```
 
 <p></p>
@@ -526,7 +519,7 @@ To illustrate these relationships visually, the bubble charts in Figures `r getC
 ```{r, results="asis", echo=FALSE, Math_Bubble}
 		placeFigure(
 			files = "../img/Bubble_Plots/2018/State/Style_1/Georgia_2018_Mathematics_State_Bubble_Plot_(Prior_Achievement).png",
-			caption = "School-level Bubble Plots for Georgia: Mathematics, 2017-2018.", pdf.width = 0.925)
+			caption = "School-level Bubble Plots for Georgia: Mathematics, 2017-2018.")
 ```
 
 <p></p>
@@ -548,6 +541,7 @@ The relationship between average prior student achievement and median SGP observ
 			MEAN_SGP=round(cor(MEAN_SGP, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
 			MEDIAN_SIMEX_SGP = round(cor(MEDIAN_SGP_SIMEX_RANKED, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2), 
 			MEAN_SIMEX_SGP = round(cor(MEAN_SGP_SIMEX_RANKED, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2)), keyby = 'YEAR']
+	setkey(sch.cor, YEAR)
 
 	##  Multiple year - School_EOG_Correlations, School_EOC_Cor
 	sch.cor.subj <- sch.msgp.subj[, list(
