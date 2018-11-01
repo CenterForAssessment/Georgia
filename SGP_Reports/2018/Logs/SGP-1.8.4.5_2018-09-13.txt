@@ -1,0 +1,12 @@
+
+Started prepareSGP Thursday September 13 14:46:20 2018
+
+
+	prepareSGP(
+		 data = Georgia_SGP_LONG_Data_2018[, c("VALID_CASE", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR", "YEAR_WITHIN", "GTID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SGP_NORM_GROUP", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SCALE_SCORE_PRIOR_STANDARDIZED", "Most_Recent_Prior", "SCHOOL_NUMBER", "SR_SYSTEM_ID"), with = FALSE]
+		state = GA
+		create.additional.variables = FALSE )
+
+	NOTE: Added variable ACHIEVEMENT_LEVEL to @Data using GA cutscores embedded in SGPstateData.
+Finished prepareSGP Thursday September 13 14:46:32 2018 in 12 Seconds 
+

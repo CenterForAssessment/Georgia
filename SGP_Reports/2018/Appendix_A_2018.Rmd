@@ -1,0 +1,306 @@
+---
+title: "Appendix A to the 2018 Georgia Milestones Growth Model Report:"
+subtitle: "Growth Model Fit Plots"
+date: October 2018
+---
+
+<!--SGPreport-->
+
+<!-- Appendix A - Model Fit Plots -->
+
+```{r, echo=FALSE, include=FALSE}
+  # require(Gmisc)
+	require(data.table)
+	require(Gmisc)
+
+  knitr::opts_chunk$set(cache.path = "_cache/Appendix_A_2018")
+
+  ##  Set Table, Figure and Equation Counters
+  options(table_counter=FALSE)
+  options(table_number=0)
+  options(table_counter_str = "<strong>Table A.%s:</strong> ")
+  options("fig_caption_no"=0)
+  options(fig_caption_no_sprintf = "**Fig. A.%s:**  %s")
+	options("fig_caption_no_roman"=FALSE)
+	options("equation_counter" = 0)
+	
+```
+
+# Student Growth Percentile Fit Plots
+
+A goodness of fit plot is produced for each unique analysis run in 2018.  All fit plots will contain at least four panels.  Each panel is a different depiction of the distribution of the Student Growth Percentiles (SGPs) calculated in that analysis relative to the students' prior or current achievement (i.e. the test scores used as the independent and dependent variables in the model).
+
+The top panel is a mosaic plot that shows the percentage of students that fall into each prior proficiency level, and the location of the 10<sup>th</sup> through 90<sup>th</sup> quantiles of the SGP distribution represented as dashed white lines (with the exception of the solid white line for the median/50<sup>th</sup> percentile).  Ideally the median SGP will be at or near 50 for all prior achievement level groups.  The top panel is excluded when students' prior achievement level data is unavailable.
+
+The "Ceiling/Floor Effects Test" panel helps identify problems in SGP estimation at the Highest and Lowest Obtainable/Observed Scale Scores (HOSS and LOSS).  Appendix C provides a more detailed description of ceiling and floor effects and their causes.  The table of values shows whether the current year scores at both extremes yield expected SGP values.  The expectation is that the majority of SGPs for students scoring at or near the LOSS will be low (preferably less than 5 and not higher than 20), and that SGPs for students scoring at or near the HOSS will be high (preferably higher than 95 and not less than 80).  Because few students may score *exactly* at the HOSS/LOSS, the top/bottom 50 students are selected and any student scoring within their range of scores are selected for inclusion in these tables. Consequently, there may be a range of scores at the HOSS/LOSS rather than a single score, and there may be more than 50 students included in the HOSS/LOSS row if the 50 students at the extremes only contain the single HOSS/LOSS score.
+
+The "Student Growth Percentile Range" panel at bottom left shows the empirical distribution of SGPs given prior scale score deciles in the form of a 10 by 10 cell grid.  Percentages of student growth percentiles between the 10<sup>th</sup>, 20<sup>th</sup>, 30<sup>th</sup>, 40<sup>th</sup>, 50<sup>th</sup>, 60<sup>th</sup>, 70<sup>th</sup>, 80<sup>th</sup>, and 90<sup>th</sup> percentiles were calculated based upon the empirical decile of the cohort's prior year scaled score distribution^[The total students in each analysis varies depending on grade and subject, and prior score deciles are based only on scores for students used in the SGP calculations.]. Deviations from perfect fit are indicated by red and blue shading. The further above 10 the darker the red, and the further below 10 the darker the blue. A more detailed discussion about the reasons for and implications of model misfit can be found in the "Goodness of Fit" section of the 2018 Georgia Student Growth Model report.
+
+The bottom right panel of each plot is a [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) which compares the observed distribution of SGPs with the theoretical (uniform) distribution.  An ideal plot here will show black step function lines that do not deviate from the ideal, red line which traces the 45 degree angle of perfect fit.
+
+Goodness of fit plots for SIMEX measurement error corrected models are also presented here for each analysis.  The expectations in the SGP distribution panels are different for these models, where lower attaining students will recieve higher SGPs and vice versa.  This typically shifts the median lines in the mosaic plot panel and causes a red shift (more SGPs than expected) in the upper right and lower left quadrants of the "Student Growth Percentile Range" panel.  See Appendix B of this report for a more detailed discussion of SIMEX models and description of their impact on SGP distributions.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	pageBreak()
+```
+
+# End-of-Grade Analyses
+
+## ELA
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_EOG_ELA}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/ELA.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files) {
+	tmp.seq <- strsplit(gof, ";")[[1]]
+	tmp.grd <- gsub("2018_ELA_", "", tmp.seq[1])
+	
+	if ((length(tmp.seq)-1) == 1) {tmp.priors <- "One"; tmp.mult <- NULL}
+	if ((length(tmp.seq)-1) == 2) {tmp.priors <- "Two"; tmp.mult <- "s"}
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ELA.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade ", tmp.grd, " ELA (Uncorrected - ", tmp.priors, " Prior", tmp.mult, ")."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ELA.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade ", tmp.grd, " ELA (SIMEX Corrected - ", tmp.priors, " Prior", tmp.mult, ")."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ELA.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade ", tmp.grd, " ELA (Ranked SIMEX - ", tmp.priors, " Prior", tmp.mult, ")."))
+
+# cat('<!-- HTML_Start -->
+# <!-- LaTeX_Start 
+# \\clearpage 
+# LaTeX_End -->')
+}
+```
+
+
+## Mathematics
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_EOG_Math}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/MATHEMATICS.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files) {
+	tmp.seq <- strsplit(gof, ";")[[1]]
+	tmp.grd <- gsub("2018_MATH_", "", tmp.seq[1])
+	
+	if ((length(tmp.seq)-1) == 1) {tmp.priors <- "One"; tmp.mult <- NULL}
+	if ((length(tmp.seq)-1) == 2) {tmp.priors <- "Two"; tmp.mult <- "s"}
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/MATHEMATICS.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade ", tmp.grd, " Mathematics (Uncorrected - ", tmp.priors, " Prior", tmp.mult, ")."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/MATHEMATICS.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade ", tmp.grd, " Mathematics (SIMEX Corrected - ", tmp.priors, " Prior", tmp.mult, ")."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/MATHEMATICS.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade ", tmp.grd, " Mathematics (Ranked SIMEX - ", tmp.priors, " Prior", tmp.mult, ")."))
+
+# cat('<!-- HTML_Start -->
+# <!-- LaTeX_Start 
+# \\clearpage 
+# LaTeX_End -->')
+}
+```
+
+
+# End-of-Course Analyses (by Course Progression)
+
+##  Grade 9 Literature
+
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_G9L}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/GRADE_9_LIT.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files[c(1:2, 4:7, 3, 8:9)]) { # re-order to put repeaters last
+	tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+	
+	tmp.priors <- gsub(" EOCT", "", tmp.priors)
+	tmp.priors <- gsub(" 8", " Grade 8", tmp.priors)
+	tmp.priors <- gsub(" 7", " Grade 7", tmp.priors)
+	tmp.priors <- gsub(" 6", " Grade 6", tmp.priors)
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/GRADE_9_LIT.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade 9 Lit (Priors ", tmp.priors, " - Uncorrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/GRADE_9_LIT.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade 9 Lit (Priors ", tmp.priors, " - SIMEX Corrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/GRADE_9_LIT.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Grade 9 Lit (Priors ", tmp.priors, " - Ranked SIMEX)."))
+}
+```
+
+
+##  American Literature
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_AMLit}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/AMERICAN_LIT.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files[c(1:4, 6:7, 5,8)]) { # re-order to put repeaters last
+	tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+	
+	tmp.priors <- gsub(" EOCT", "", tmp.priors)
+	tmp.priors <- gsub(" 8", " Grade 8", tmp.priors)
+	tmp.priors <- gsub(" 7", " Grade 7", tmp.priors)
+	tmp.priors <- gsub(" 6", " Grade 6", tmp.priors)
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/AMERICAN_LIT.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 American Lit (Priors ", tmp.priors, " - Uncorrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/AMERICAN_LIT.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 American Lit (Priors ", tmp.priors, " - SIMEX Corrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/AMERICAN_LIT.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 American Lit (Priors ", tmp.priors, " - Ranked SIMEX)."))
+
+# cat('<!-- HTML_Start -->
+# <!-- LaTeX_Start 
+# \\clearpage 
+# LaTeX_End -->')
+}
+```
+
+
+##  Algebra I
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_AlgI}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/ALGEBRA_I.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files[c(1:2, 4:7, 3,8)]) { # re-order to put repeaters last
+	tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+	
+	tmp.priors <- gsub(" EOCT", "", tmp.priors)
+	tmp.priors <- gsub(" 8", " Grade 8", tmp.priors)
+	tmp.priors <- gsub(" 7", " Grade 7", tmp.priors)
+	tmp.priors <- gsub(" 6", " Grade 6", tmp.priors)
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ALGEBRA_I.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 Algebra I (Priors ", tmp.priors, " - Uncorrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ALGEBRA_I.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Algebra I (Priors ", tmp.priors, " - SIMEX Corrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ALGEBRA_I.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Algebra I (Priors ", tmp.priors, " - Ranked SIMEX)."))
+
+# cat('<!-- HTML_Start -->
+# <!-- LaTeX_Start 
+# \\clearpage 
+# LaTeX_End -->')
+}
+```
+
+
+##  Geometry
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_Geom}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/GEOMETRY.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files[c(1:3, 5, 4, 6)]) {
+	tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+	
+	tmp.priors <- gsub(" EOCT", "", tmp.priors)
+	tmp.priors <- gsub(" 8", " Grade 8", tmp.priors)
+	tmp.priors <- gsub(" 7", " Grade 7", tmp.priors)
+	tmp.priors <- gsub(" 6", " Grade 6", tmp.priors)
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/GEOMETRY.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 Geometry (Priors ", tmp.priors, " - Uncorrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/GEOMETRY.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Geometry (Priors ", tmp.priors, " - SIMEX Corrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/GEOMETRY.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Geometry (Priors ", tmp.priors, " - Ranked SIMEX)."))
+
+# cat('<!-- HTML_Start -->
+# <!-- LaTeX_Start 
+# \\clearpage 
+# LaTeX_End -->')
+}
+```
+
+
+##  Coordinate Algebra
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_CoordAlg}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/COORDINATE_ALGEBRA.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files) {
+	tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+	
+	tmp.priors <- gsub(" EOCT", "", tmp.priors)
+	tmp.priors <- gsub(" 8", " Grade 8", tmp.priors)
+	tmp.priors <- gsub(" 7", " Grade 7", tmp.priors)
+	tmp.priors <- gsub(" 6", " Grade 6", tmp.priors)
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/COORDINATE_ALGEBRA.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 Coordinate Algebra (Priors ", tmp.priors, " - Uncorrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/COORDINATE_ALGEBRA.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Coordinate Algebra (Priors ", tmp.priors, " - SIMEX Corrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/COORDINATE_ALGEBRA.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Coordinate Algebra (Priors ", tmp.priors, " - Ranked SIMEX)."))
+
+# cat('<!-- HTML_Start -->
+# <!-- LaTeX_Start 
+# \\clearpage 
+# LaTeX_End -->')
+}
+```
+
+
+##  Analytic Geometry
+
+```{r, comment=NA, results='asis', highlight=NA, echo=FALSE, goFit_AnGeom}
+tmp.files <- unique(gsub(".png|.pdf", "", list.files("../img/Appendices/Goodness_of_Fit/ANALYTIC_GEOMETRY.2018")))
+tmp.files <- tmp.files[order(tmp.files)]
+
+for (gof in tmp.files) {
+	tmp.priors <- paste(sapply(strsplit(gof, ";")[[1]][-1], function(f) capwords(f, special.words =c("II", "ELA", "EOCT", "US"))), collapse=", ")
+	
+	tmp.priors <- gsub(" EOCT", "", tmp.priors)
+	tmp.priors <- gsub(" 8", " Grade 8", tmp.priors)
+	tmp.priors <- gsub(" 7", " Grade 7", tmp.priors)
+	tmp.priors <- gsub(" 6", " Grade 6", tmp.priors)
+	
+	if (gof == tmp.files[1]) tmp.width <- 0.9 else tmp.width <- 1.0
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ANALYTIC_GEOMETRY.2018/", gof, ".png"), page.break= TRUE, pdf.width = tmp.width,
+							caption = paste0("Goodness of Fit Plot for 2018 Analytic Geometry (Priors ", tmp.priors, " - Uncorrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ANALYTIC_GEOMETRY.2018.SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Analytic Geometry (Priors ", tmp.priors, " - SIMEX Corrected)."))
+
+	placeFigure(files = paste0("../img/Appendices/Goodness_of_Fit/ANALYTIC_GEOMETRY.2018.RANKED_SIMEX/", gof, ".png"), page.break= TRUE, pdf.width = 0.95,
+							caption = paste0("Goodness of Fit Plot for 2018 Analytic Geometry (Priors ", tmp.priors, " - Ranked SIMEX)."))
+
+# cat('<!-- HTML_Start -->
+# <!-- LaTeX_Start 
+# \\clearpage 
+# LaTeX_End -->')
+}
+```

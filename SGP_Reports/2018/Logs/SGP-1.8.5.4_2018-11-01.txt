@@ -1,0 +1,11 @@
+
+Started prepareSGP Thursday November 01 09:37:34 2018
+
+
+	prepareSGP(
+		 data = unique(Georgia_SGP_Data_LONG_2018)
+		create.additional.variables = FALSE )
+
+	NOTE: SCALE_SCORE_PRIOR in @Data converted from character to numeric.
+Finished prepareSGP Thursday November 01 09:37:44 2018 in 9.719 Seconds 
+

@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+<title>The Georgia Student Growth Model</title>
+
+
+
+
+<style type="text/css">
+  p.abstract{
+    text-align: center;
+    font-weight: bold;
+  }
+  div.abstract{
+    margin: auto;
+    width: 90%;
+  }
+</style>
+
+
+<link rel="stylesheet" href="docx.css" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore" style="margin: 24pt 0pt 0pt 0pt;">The Georgia Student Growth Model</h1>
+<h3 class="subtitle" style="margin: 24pt 0pt 0pt 0pt;"><em>A Technical Overview of the 2017-2018 Student Growth Percentile Calculations</em></h3>
+<h4 class="author" style="margin: 24pt 0pt 0pt 0pt;"><em>Adam R. VanIwaarden</em></h4>
+<h4 class="author" style="margin: 24pt 0pt 0pt 0pt;"><em>Damian W. Betebenner</em></h4>
+<h4 class="author" style="margin: 24pt 0pt 0pt 0pt;"><em><em>National Center for the Improvement<br></br> of Educational Assessment (NCIEA)</em></em></h4>
+<h4 class="date" style="margin: 24pt 0pt 0pt 0pt;"><em>October 2018</em></h4>
+<div class="abstract">
+<p class="abstract">Abstract</p>
+DRAFT REPORT - DO NOT CITE! <br></br> This report provides details about the Georgia Student Growth Model methodology and presents a descriptive analysis of the 2018 SGP calculation process and results.
+</div>
+
+
+
+<div id="introduction" class="section level1">
+<h1 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">1</span> Introduction</h1>
+<p>This report contains details on the 2017-2018 implementation of the student growth percentiles (SGP) model for the state of Georgia. The National Center for the Improvement of Educational Assessment (NCIEA) contracted with the Georgia Department of Education (DOE) to implement the SGP methodology using data derived from the <a href="http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx">Georgia Milestones Assessment System</a> to create the <a href="http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Student-Growth-Model.aspx">Georgia Student Growth Model (GSGM)</a>. The goal of the engagement with DOE is to create a set of open source analytics techniques and conduct analyses that will eventually be conducted exclusively by DOE in following years.</p>
+<p>The SGP methodology is an open source norm- and criterion-referenced student growth analysis that produces student growth percentiles and student growth projections/targets for each student in the state with adequate longitudinal data. The methodology is currently used for many purposes. States and districts have used the results in various ways including parent/student diagnostic reporting, institutional improvement, and school and educator accountability. Specifics about the manner in which growth is included in school and educator accountability can be found in documents related to those accountability systems.</p>
+<p>This report includes four sections:</p>
+<ul>
+<li><strong><em>Data - </em></strong> includes details on the decision rules used in the raw data preparation and student record validation.</li>
+<li><strong><em>Analytics - </em></strong> introduces some of the basic statistical methods and the computational process implemented in the 2018 analyses.<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></li>
+<li><strong><em>Goodness of Fit - </em></strong> investigates how well the statistical models used to produce SGPs fit Georgia students’ data. This includes discussion of goodness of fit plots and the student-level correlations between SGP and prior achievement.</li>
+<li><strong><em>SGP Results - </em></strong> provides basic descriptive statistics from the 2018 analyses at both the state and school levels.</li>
+</ul>
+<p>This report also includes multiple appendices. Appendix A displays Goodness of Fit plots for each analysis conducted in 2018. Appendix B provides a technical description of the SIMEX correction for measurement error with specific applications to Georgia. Appendix C is an investigation of potential ceiling and/or floor effects present in the Georgia assessment data and growth analyses.</p>
+</div>
+<div id="data" class="section level1">
+<h1 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">2</span> Data</h1>
+<p>Data for the Georgia Milestones end-of-grade (EOG) and end-of-course (EOC) tests used in the SGP analyses were supplied by the Georgia DOE to the NCIEA for analysis in late summer of 2018. These Milestones test records were added to existing Georgia assessment data<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> to create the longitudinal data set from which the 2018 SGPs were calculated. Subsequent years’ analyses will augment this multi-year data set allowing DOE to maintain comprehensive longitudinal data for all students taking the EOG and EOC Milestones assessments.</p>
+<p>Student Growth Percentiles have been produced for students that have a current score and at least one prior score in either the same subject or a related content area. For the 2018 academic year SGPs were produced for grade-level English Language Arts (ELA) and Mathematics, as well as for EOC test subjects including 9<sup>th</sup> Grade Literature, American Literature, Algebra I, Geometry, Coordinate Algebra and Analytic Geometry.</p>
+<div id="longitudinal-data" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">2.1</span> Longitudinal Data</h2>
+<p>Growth analyses on assessment data require data that are linked to individual students over time. Student growth percentile analyses require, at a minimum two, and preferably three years of assessment data for analysis of student progress. To this end it is necessary that a unique student identifier be available so that student data records across years can be merged with one another and subsequently examined. Because some records in the assessment data set contain students with more than one test score in a content area in a given year, a process to create unique student records in each content area by year combination was required in order to carry out subsequent growth analyses. Furthermore, student records may be invalidated for other reasons. The following business rules were used to either invalidate particular student records or select the appropriate record for use in the analyses.</p>
+<div id="general-business-rules" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">2.1.1</span> General business rules</h3>
+<ol style="list-style-type: decimal">
+<li>Student records are invalidated if the student identifier is not exactly 10 digits long.</li>
+<li>Student records with missing (“NA”) scores or scale scores outside of the possible range (usually 0) are invalidated.</li>
+<li>Student records with any administrative invalidation flag (for example, identifying test irregularities, students that did not attempt the test, or other issues) are invalidated.</li>
+</ol>
+<p>Beginning in 2014 Georgia DOE has performed the majority of the selection and invalidation of student records, incorporating these and other business rules into the <code>SQL</code> code used to pull student records from their data warehouse.</p>
+</div>
+<div id="eog-specific-business-rules" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">2.1.2</span> EOG specific business rules</h3>
+<ol style="list-style-type: decimal">
+<li>If a student has multiple records (duplicate from the same subject, grade and administration period), their highest score was selected.</li>
+<li>If a student took more than one assessment in the same subject and school year but was identified as being in two different grades, the record with the highest grade level was selected.</li>
+</ol>
+<p>Table 1 shows the number of valid EOG student records available for analysis after applying the general and EOG specific business rules.<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></p>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="8" style="text-align: left;">
+<strong>Table 1:</strong> Number of Valid EOG Student Records by Grade and Subject for 2018
+</td>
+</tr>
+<tr>
+<th colspan="1" style="font-weight: 900; border-top: 2px solid grey; text-align: center;">
+</th>
+<th style="border-top: 2px solid grey;; border-bottom: hidden;">
+ 
+</th>
+<th colspan="6" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Grades
+</th>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey;" colspan="1">
+ 
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+3
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+4
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+5
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+6
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+7
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+8
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+134,141
+</td>
+<td style="text-align: right;">
+136,210
+</td>
+<td style="text-align: right;">
+137,138
+</td>
+<td style="text-align: right;">
+132,986
+</td>
+<td style="text-align: right;">
+130,344
+</td>
+<td style="text-align: right;">
+124,956
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Mathematics
+</td>
+<td style="border-bottom: 2px solid grey;" colspan="1">
+ 
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+134,067
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+136,120
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+137,091
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+132,856
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+129,770
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+104,619
+</td>
+</tr>
+</tbody>
+</table>
+<div class="breakboth">
+
+</div>
+</div>
+<div id="eoc-specific-business-rules" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">2.1.3</span> EOC specific business rules</h3>
+<ol style="list-style-type: decimal">
+<li>If a student has multiple records from the same subject and administration period, their highest score was selected.</li>
+<li>For students who participate in two main administrations in 2018 (i.e., students who failed and retook an EOC course in the same year), the first attempt is used as a prior to produce an SGP for the final attempt. In subsequent years, their final attempt may be used as a prior for other EOC analyses.</li>
+<li>Students who have tested out of EOC courses are invalidated.<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></li>
+</ol>
+<p>Table 2 shows the total number of valid EOC student records available for analysis after applying the general and EOC specific business rules.</p>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="2" style="text-align: left;">
+<strong>Table 2:</strong> Total Number of Valid EOC Student Records by Subject for 2018
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Valid Records
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: right;">
+140,207
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: right;">
+125,800
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: right;">
+124,686
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: right;">
+111,434
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: right;">
+22,479
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Analytic Geometry
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+26,320
+</td>
+</tr>
+</tbody>
+</table>
+<div class="breakboth">
+
+</div>
+</div>
+</div>
+</div>
+<div id="analytics" class="section level1">
+<h1 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">3</span> Analytics</h1>
+<p>This section provides basic details about the calculation of student growth percentiles from Georgia state assessment data using the <a href="http://www.r-project.org/"><code>R</code> Software Environment</a> <span class="citation">(R Development Core Team, 2017)</span> in conjunction with the <a href="https://github.com/CenterForAssessment/SGP"><code>SGP</code> package</a> <span class="citation">(Damian W. Betebenner, VanIwaarden, Domingue, &amp; Shang, 2018)</span>. More in depth treatment of the data analysis process with code examples has been provided to Georgia DOE staff in the 2018 Calculation Manual.</p>
+<p>Broadly, the SGP analysis of the Georgia longitudinal student assessment data takes place in two steps:</p>
+<ol style="list-style-type: decimal">
+<li>Data Preparation</li>
+<li>Data Analysis</li>
+</ol>
+<p>Those familiar with data analysis know that the bulk of the effort in the above two step process lies with Step 1: Data Preparation. Following thorough data cleaning and preparation, data analysis using the <code>SGP</code> package takes clean data and makes it as easy as possible to calculate, summarize, output and visualize the results from SGP analyses.</p>
+<div id="data-preparation" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">3.1</span> Data Preparation</h2>
+<p>The data preparation step involves taking data provided by the Georgia DOE and producing a <code>.Rdata</code> file that will subsequently be analyzed in Step 2. This process is carried out annually as new data becomes available from the state assessment program. The data housed by the Georgia DOE Information Technology department is extracted, cleaned and processed using a two step process:</p>
+<div class="caption">
+<strong>Step 1a.</strong> <em>Initial data extraction and cleaning</em>
+</div>
+<p>In this first step a formatted data set is extracted from the Georgia student data warehouse using an internal <code>SQL</code> connection and command script. Through this process, student records are selected and invalidated based upon the business rules discussed above. The end result is a pipe-delimited file where each valid student record is unique by content area, school year, student identifier (GTID), and test administration period.</p>
+<div class="caption">
+<strong>Step 1b.</strong> <em>Final data cleaning and preparation in</em> <code>R</code>
+</div>
+<p>In this step the data from step 1a is read into <a href="http://www.r-project.org/"><code>R</code></a> and modified slightly. The result is a <code>.Rdata</code> file containing data in the format suitable for analysis with the <a href="https://github.com/CenterForAssessment/SGP"><code>SGP</code> package</a>. This data is combined with a subset of prior years’ Milestones data necessary to complete the 2018 analyses and is stored in a new <a href="http://cran.r-project.org/web/packages/SGP/SGP.pdf"><code>SGP</code> class object</a>. With an appropriate longitudinal data set prepared, we move to the calculation of student-level SGPs.</p>
+</div>
+<div id="data-analysis" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">3.2</span> 2018 Data Analysis</h2>
+<p>The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student’s growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her <em>academic peers</em> (see <a href="https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf">Section 2 of the GSGM FAQ</a> and <a href="https://github.com/CenterForAssessment/SGP_Resources/blob/master/presentations/Academic_Peer_Slides.pdf">this presentation</a>). This norm-referenced growth quantity is estimated using quantile regression <span class="citation">(Koenker, 2005)</span> to model curvilinear functional relationships between student’s prior and current scores. One hundred such regression models are calculated for each separate analysis (defined as a unique <em><strong>year</strong> by <strong>content area</strong> by <strong>grade</strong> by <strong>prior order</strong></em> combination). The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to tens of thousands of model calculations (and many more when SIMEX measurement error corrections are performed) during each of Georgia’s annual batch of analyses. For a more in-depth discussion of SGP calculation, see Betebenner <span class="citation">(2009)</span>, and see Shang, VanIwaarden and Betebenner <span class="citation">(2015)</span> and Appendix B of this report for further information on the SIMEX measurement error correction methodology.</p>
+<p>The 2018 Georgia SGP analyses follow a work flow established in previous years that includes the following 4 steps:</p>
+<ol style="list-style-type: decimal">
+<li>Update the Georgia assessment meta-data required for SGP calculations using the <code>SGP</code> package.</li>
+<li>Create annual SGP configurations for analyses.</li>
+<li>Conduct all EOG and EOC SGP analyses concurrently.</li>
+<li>Combine results into the master longitudinal data set, summarize results and output data.</li>
+</ol>
+<div id="update-georgia-meta-data" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">3.2.1</span> Update Georgia meta-data</h3>
+<p>The use of higher-level functions included in the <code>SGP</code> package (e.g. <code>analyzeSGP</code>) requires the availability of state specific assessment information. This meta-data is compiled in a <code>R</code> object named <code>SGPstateData</code> that is housed in the package. Only a few updates to Georgia’s metadata were required for the 2018 analyses. The most significant addition in 2018 was to codify the SGP “correction” for Highest and Lowest Obtainable Scale Scores (HOSS and LOSS). Students with scores at the HOSS and LOSS extremes in 2018 are automatically assigned an SGP of 99 and 1 respectively. Beginning in 2016 these adjustments were made manually by Georgia DOE after the SGP calculations were completed. In addition to this correction, metadata configurations added to return a variable that indicates students’ test scores used to calculate student growth projections.</p>
+</div>
+<div id="create-sgp-configurations" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">3.2.2</span> Create SGP configurations</h3>
+<p>Unlike most EOG analyses, EOC analyses are specialized enough so that it is necessary to specify the analyses to be performed via explicit configuration code. For several years, configurations have been employed to conduct EOC SGP analyses for Georgia. Beginning in 2016 configurations were used for EOG SGP analyses as well, which allows for consistency between the EOC subjects and for all analyses (particularly student growth projections) to be run concurrently.</p>
+<p>Configurations are <code>R</code> code scripts that are used as part of the larger SGP analysis to be discussed later. They are broken up into separate R scripts based on content domain (ELA and Mathematics). Each configuration code chunk specifies a set of parameters that defines the norm group of students to be examined. Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level. Because Georgia allows for repeated test administrations within each year, the sequence in which score observations occur must also be included. Therefore, every configuration used contains the first four elements listed below. The EOC analyses also contain the fifth through eighth elements:</p>
+<ul>
+<li><strong><code>sgp.content.areas</code>:</strong> The progression of content areas to be looked at and their order.</li>
+<li><strong><code>sgp.panel.years</code>:</strong> The progression of the years associated with the content area progression (<code>sgp.content.areas</code>), potentially allowing for skipped or repeated years, etc.</li>
+<li><strong><code>sgp.panel.years.within</code>:</strong> The progression of the observation sequence associated with each year. Required when multiple test scores are present within a given year. Values may be set to <code>LAST_OBSERVATION</code> or <code>FIRST_OBSERVATION</code>.</li>
+<li><strong><code>sgp.grade.sequences</code>:</strong> The grade progression associated with the configuration content areas and years. The value <strong>‘EOCT’</strong> stands for ‘End Of Course Test’. The use of the generic ‘EOCT’ allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level designation.</li>
+<li><strong><code>sgp.exact.grade.progression</code>:</strong> When set to <code>TRUE</code>, this element will force the lower level functions to analyze <em>only</em> the progression as specified in its entirety. Otherwise these functions will analyze subsets of the progression for every possible order (i.e. each number of prior time periods of data available). When set to <code>TRUE</code>, a norm group preference system is usually required as well.</li>
+<li><strong><code>sgp.norm.group.preference</code>:</strong> Because a student can potentially be included in more than one analysis/configuration, multiple SGPs will be produced for some students and a system is required to identify the preferred SGP that will be matched with the student in the <code>combineSGP</code> step. This argument provides a ranking that specifies how preferable SGPs produced from the analysis in question is relative to other possible SGPs. <strong><em>Lower numbers correspond with higher preference.</em></strong> Higher preference is given to:
+<ul>
+<li>Progressions with the greatest number of prior scale scores.</li>
+<li>Progressions in which a student has repeated a course.</li>
+<li>Progressions that do not include a skipped year (i.e. a gap in the scale score history).</li>
+<li>Progressions for block-schedule course taking patterns.</li>
+</ul></li>
+<li><strong><code>sgp.projection.grade.sequences</code>:</strong> This element is used to identify the grade sequence that will be used to produce straight and/or lagged student growth projections. It can either be left out or set explicitly to <code>NULL</code> to produce projections based on the values provided in the <code>sgp.content.areas</code> and <code>sgp.grade.sequences</code> elements. Alternatively, when set to “<code>NO_PROJECTIONS</code>”, no projections will be produced. For EOC analyses, only configurations that correspond to the canonical course progressions can produce student growth projections. The canonical progressions are codified in the <code>SGP</code> package here: <a href="https://github.com/CenterForAssessment/SGPstateData/blob/fda10b20d92f5c9dcba3fa6eaf98844bab5bb05b/SGPstateData.R#L2614"><code>SGPstateData[[&quot;GA&quot;]][[&quot;SGP_Configuration&quot;]][[&quot;content_area.projection.sequence&quot;]]</code></a>.</li>
+<li><strong><code>sgp.exclude.sequences</code>:</strong> Lookup table containing the grade, subject, and year combinations of students that should be excluded from a cohort. This element is used in progressions in which a year or similar time period is skipped (i.e. a gap in time exists). For example, in a progression that goes from 8<sup>th</sup> grade Mathematics to EOC Algebra I with a skipped year in between one may want to exclude kids that repeated either 8<sup>th</sup> grade Mathematics or Algebra I, or took other math related subjects (e.g. Geometry) in the skipped year. Students with different course progressions may be inappropriate to include with the cohort of students who truly had no mathematics related course in the intervening year.</li>
+</ul>
+<p>As an example, here is one Algebra I configuration used to define a 2018 SGP analysis:</p>
+<pre class="r"><code>...
+
+  ALGEBRA_I.2018 = list(
+    sgp.content.areas=c(&#39;MATHEMATICS&#39;, &#39;MATHEMATICS&#39;, &#39;ALGEBRA_I&#39;),
+    sgp.panel.years=c(&#39;2015&#39;, &#39;2016&#39;, &#39;2018&#39;),
+    sgp.panel.years.within=c(&quot;LAST_OBSERVATION&quot;, 
+        &quot;LAST_OBSERVATION&quot;, &quot;FIRST_OBSERVATION&quot;),
+    sgp.grade.sequences=list(c(&#39;7&#39;, &#39;8&#39;, &#39;EOCT&#39;)),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=6,
+    sgp.projection.grade.sequences=&quot;NO_PROJECTIONS&quot;,
+    sgp.exclude.sequences = data.table(
+        VALID_CASE = &#39;VALID_CASE&#39;,
+        CONTENT_AREA=c(&#39;MATHEMATICS&#39;, &#39;ALGEBRA_I&#39;, &#39;GEOMETRY&#39;),
+        YEAR=c(&#39;2017&#39;, &#39;2017&#39;, &#39;2017&#39;), 
+        GRADE=c(&#39;8&#39;, &#39;EOCT&#39;, &#39;EOCT&#39;))),
+...
+</code></pre>
+</div>
+<div id="conduct-sgp-analyses" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">3.2.3</span> Conduct SGP analyses</h3>
+<p>Due to differences in the time-frames in which the EOG and EOC were validated and made available, EOG and EOC SGPs were calculated at seperate times. Cohort-referenced (uncorrected) and SIMEX corrected SGPs were calculated concurrently for each individual analysis.<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a> We use the <a href="https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/updateSGP"><code>updateSGP</code></a> function to <strong><em>a)</em></strong> do the final preparation and addition of the 2018 cleaned and formatted data to the new <code>SGP</code> class object (<a href="https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/prepareSGP"><code>prepareSGP</code></a> step) and <strong><em>b)</em></strong> calculate SGP estimates (<a href="https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/analyzeSGP"><code>analyzeSGP</code></a> step).</p>
+<p>Once both EOG and EOC student growth analyses had been completed, student growth projections were computed using the <code>analyzeSGP</code> function.</p>
+</div>
+<div id="merge-output-summarize-and-visualize-results" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">3.2.4</span> Merge, output, summarize and visualize results</h3>
+<p>Once all analyses were completed the results were merged into the master longitudinal data set (<a href="https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/combineSGP"><code>combineSGP</code></a> step). A pipe delimited version of the complete long data is output (<a href="https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/outputSGP"><code>outputSGP</code></a> step) and submitted to the Georgia DOE after some additional formatting to add fields needed for rendering data in the state’s <a href="http://gastudentgrowth.gadoe.org/">visualization tool</a> such as students’ entire prior score and course progression history. The data is also summarized using the <a href="https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/summarizeSGP"><code>summarizeSGP</code> function</a>, which produces many tables of descriptive statistics that are disaggregated at the state, district, school and instructor levels, as well as other factors of interest. Finally, visualizations (such as bubble charts) are produced from the data and summary tables using the <a href="https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/visualizeSGP"><code>visualizeSGP</code></a> function.</p>
+</div>
+</div>
+</div>
+<div id="goodness-of-fit" class="section level1">
+<h1 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">4</span> Goodness of Fit</h1>
+<p>Assessment data are generally imperfect and require sophisticated statistical methods to deal with the various issues they present. Cubic B-spline basis functions are used in the calculation of SGPs to more adequately model the heteroscedasticity, non-linearity and skewness. Despite this, assumptions that are made in the statistical modeling process can impact how well the percentile curves fit the data.<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a> Accordingly a thorough evaluation of the models’ fit is always required.</p>
+<p>Examination of the Georgia Student Growth Model goodness-of-fit was conducted by first inspecting model fit plots the <code>SGP</code> software package produced for each analysis, and subsequently inspecting student level correlations between growth and achievement. Discussion of the model fit plots in general and examples of them are provided below, as are tables of the correlation results. The complete portfolio of model fit plots is provided in Appendix A.</p>
+<div id="model-fit-plots" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">4.1</span> Model Fit Plots</h2>
+<p>Using all available EOG and EOC scores as the variables, estimation of student growth percentiles was conducted for each possible student (those with a current score and at least one prior score). Each analysis is defined by the grade and content area for the grade-level analyses and exact content area (and grade when relevant) sequences for the EOC subjects. Georgia has added an additional requirement that an analysis cohort must have at least 1,500 students in order to calculate SGPs. A goodness of fit plot is produced for each unique analysis run in 2018 and are all provided in Appendix A to this report.</p>
+<p>As an example, Figure 1 shows the results for 8<sup>th</sup> grade ELA as an example of good model fit. Figure 2 is an example of minor model misfit from the Geometry “same-year” course repeater analysis (i.e. students have two Geometry scores in 2018).</p>
+<p>The “Ceiling/Floor Effects Test” panel is intended to help identify potential problems in SGP estimation at the Highest and Lowest Obtainable (or Observed) Scale Scores (HOSS and LOSS). Most often these effects are caused when it is relatively typical for extremely high (low) achieving students to consistently score at or near the HOSS (LOSS) each year leading to the SGPs for these students to be unexpectedly low (high). That is, for example, if a sufficient number of students maintain performance at the HOSS over time, this performance will be estimated as typical, and therefore SGP estimates will reflect typical growth (e.g. 50th percentile). In some cases small deviations from these extreme score values might even yield low growth estimates. Although these score patterns can legitimately be estimated as a typical or low percentile, it is potentially an unfair description of actual student growth (and by proxy teacher or school, etc. performance metrics that use them). Ultimately this is usually an artifact of the assessments’ inability to adequately measure student performance at extreme ability levels.</p>
+<p>The table of values here shows whether the current year scale scores at both extremes yield the expected SGPs<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a>. The expectation is that the majority of SGPs for students scoring at or near the LOSS will be low (preferably less than 5 and not higher than 10), and that SGPs for students scoring at or near the HOSS will be high (preferably higher than 95 and not less than 90). Because few students may score <em>exactly</em> at the HOSS/LOSS, the top/bottom 50 students are selected and any student scoring within their range of scores are selected for inclusion in these tables. Consequently, there may be a range of scores at the HOSS/LOSS rather than a single score, and there may be more than 50 students included in the HOSS/LOSS row if the 50 students at the extremes only contain the single HOSS/LOSS score.</p>
+<p>This table is meant to serve more as a “canary in the coal mine” than as a detailed, conclusive indicator of ceiling or floor effects, and a more fine grained analysis that considers the relationship between score histories and SGPs may be necessary. Appendix C of this report provides a more in depth investigation.</p>
+<p>The two bottom panels compare the observed conditional density of the SGP estimates with the theoretical (uniform) density. The bottom left panel shows the empirical distribution of SGPs given prior scale score deciles in the form of a 10 by 10 cell grid. Percentages of student growth percentiles between the 10<sup>th</sup>, 20<sup>th</sup>, 30<sup>th</sup>, 40<sup>th</sup>, 50<sup>th</sup>, 60<sup>th</sup>, 70<sup>th</sup>, 80<sup>th</sup>, and 90<sup>th</sup> percentiles were calculated based upon the empirical decile of the cohort’s prior year scaled score distribution<a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a>. With an infinite population of test takers, at each prior scaled score, with perfect model fit, the expectation is to have 10 percent of the estimated growth percentiles between 1 and 9, 10 and 19, 20 and 29, …, and 90 and 99. Deviations from 10 percent, indicated by red and blue shading, suggests lack of model fit. The further <em>above</em> 10 the darker the red, and the further <em>below</em> 10 the darker the blue.</p>
+<p>When large deviations occur, one likely cause is a clustering of scale scores that makes it impossible to “split” the score at a dividing point forcing a majority of the scores into an adjacent cell. This occurs more often in lowest grade levels where fewer prior scores are available (particularly in the lowest grade when only a single prior is available). Another common cause of this is small cohort size (e.g. fewer than 5,000 students).</p>
+<p>The bottom right panel of each plot is a Q-Q plot which compares the observed distribution of SGPs with the theoretical (uniform) distribution. An ideal plot here will show black step function lines that do not deviate greatly from the ideal, red line which traces the 45 degree angle of perfect fit.</p>
+<div id="uncorrected-model-fit" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">4.1.1</span> Uncorrected model fit</h3>
+<p>Although the <em>official</em> SGPs incorporate SIMEX measurement error correction, we provide uncorrected SGP plots here as exemplars of cohort-referenced model fit, and to compare with SIMEX models that use the same student data in the subsequent section. The results in all subjects are excellent with few exceptions (see Appendix A).</p>
+<div class="caption">
+<strong>Figure 1:</strong> Goodness of Fit Plot for 2018 <strong><em>Uncorrected</em></strong> 8<sup>th</sup> Grade ELA: Example of good model fit.
+</div>
+<div class="content-node image">
+<div class="image-content">
+<p><img src='../img/Goodness_of_Fit/ELA.2018/gofSGP_Grade_8.png' style='width: 640px;'/></p>
+</div>
+</div>
+<div class="breakboth">
+
+</div>
+<p>Minor misfit in the Geometry model is likely due to the relatively small cohort size, as well as the course repeater progression (resulting in a relatively homogenous cohort of low academic achievers). The indication of a potential ceiling effect in this plot is probably overstated given the range of scores included in the HOSS (bottom) row. That is, the low SGPs are likely attributed to students scoring just below the HOSS, and therefore less concerning. This situation is investigated in greater detail in Appendix C of this report.</p>
+<div class="caption">
+<strong>Figure 2:</strong> Goodness of Fit Plot for a 2018 <strong><em>Uncorrected</em></strong> Geometry Progression: Example of slight model mis-fit.
+</div>
+<div class="content-node image">
+<div class="image-content">
+<p><img src='../img/Goodness_of_Fit/GEOMETRY.2018/2018_GEOMETRY_EOCT;2018_GEOMETRY_EOCT.png' style='width: 640px;'/></p>
+</div>
+</div>
+<div class="breakboth">
+
+</div>
+</div>
+<div id="simex-model-fit" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">4.1.2</span> SIMEX model fit</h3>
+<p>SIMEX model fit is not expected to be perfect. In these models we <strong><em>expect misfit</em></strong> in the form of increased high SGPs for students with lower prior performance (and a complementary decrease in low SGPs for those students), and the reverse expectation for high achieving students. This effect is alleviated to some extent through the ranking of the SIMEX SGPs <span class="citation">(Castellano &amp; McCaffrey, 2017)</span>. This shift is visible in the goodness of fit plots in Figure 3 where the Ranked SIMEX correction method has been applied to the 8<sup>th</sup> grade ELA model, and Figure 4 for the same Geometry progression as presented above. Most notable is the shift from blue to red in the top half (and red to blue in the bottom half) of the “Student Growth Percentile Range” panel.</p>
+<p>
+</p>
+<div class="caption">
+<strong>Figure 3:</strong> Goodness of Fit Plot for 2018 <strong><em>Ranked SIMEX Corrected</em></strong> 8<sup>th</sup> Grade ELA: Example of good model fit.
+</div>
+<div class="content-node image">
+<div class="image-content">
+<p><img src='../img/Goodness_of_Fit/ELA.2018.RANKED_SIMEX/gofSGP_Grade_8.png' style='width: 640px;'/></p>
+</div>
+</div>
+<div class="breakboth">
+
+</div>
+<div class="caption">
+<strong>Figure 4:</strong> Goodness of Fit Plot for a 2018 <strong><em>Ranked SIMEX Corrected</em></strong> Geometry Progression.
+</div>
+<div class="content-node image">
+<div class="image-content">
+<p><img src='../img/Goodness_of_Fit/GEOMETRY.2018.RANKED_SIMEX/2018_GEOMETRY_EOCT;2018_GEOMETRY_EOCT.png' style='width: 640px;'/></p>
+</div>
+</div>
+</div>
+</div>
+<div id="growth-and-prior-achievement-at-the-student-level" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">4.2</span> Growth and Prior Achievement at the Student Level</h2>
+<p>To investigate the possibility that individual level misfit might impact summary level results, student level SGP results were examined relative to prior achievement. With perfect fit to data, the correlation between students’ most recent prior achievement scores and their student growth percentiles is zero (i.e., the goodness of fit tables would have a uniform distribution of percentiles across all previous scale score levels). To investigate in another way, correlations between <strong>a)</strong> prior and current scale scores (achievement) and <strong>b)</strong> prior score and student growth percentiles were calculated. Evidence of good model fit begins with a strong positive relationship between prior and current achievement, which suggests that growth is detectable and modeling it is reasonable to begin with. A lack of relationship (zero correlation) between prior achievement and growth confirms that the model has fit the data well and produced a uniform distribution of percentiles across all previous scale score levels.</p>
+<p>Student-level correlations for EOG subjects are presented in Table 3, and the results are generally as expected. Strong relationships exist between prior and current scale scores for the grade level analyses (column 3). With cohort-referenced (uncorrected) percentiles, the correlation between students’ most recent prior achievement scores and their student growth percentiles is zero when the model is perfectly fit to the data. This also indicates that students can demonstrate high (or low) growth regardless of prior achievement. Correlations for Georgia’s uncorrected SGPs are all essentially zero (column 4).</p>
+<p>SIMEX corrected SGPs induce a negative correlation between growth and prior achievement. Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students’ is weighted upward and higher achieving students’ growth is weighted down. In theory, this bias in student-level SGPs may decrease the bias in aggregate growth measures (as documented in previous SIMEX reports and Shang et al., 2015). Subsequently, the correlations between both student- and aggregate-level “uncorrected” SGPs and prior achievement are typically higher than those with SIMEX corrected SGPs (see the “Group Level Results” section for aggregate-level correlations).<a href="#fn9" class="footnoteRef" id="fnref9"><sup>9</sup></a></p>
+<div id="eog-subjects" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">4.2.1</span> EOG Subjects</h3>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="6" style="text-align: left;">
+<strong>Table 3:</strong> EOG Student Level Correlations between Prior Standardized Scale Score and 1) Current Scale Score, 2) SGP and 3) Ranked SIMEX SGP.
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Grade
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?%5C%0Ar_%20%7B%20Test%20Scores%7D" alt="\
+r_ { Test Scores}" title="\
+r_ { Test Scores}" />
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?%5C%0Ar_%20%7B%20SGP%7D" alt="\
+r_ { SGP}" title="\
+r_ { SGP}" />
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?%5C%0Ar_%20%7B%20Ranked%20SIMEX%7D" alt="\
+r_ { Ranked SIMEX}" title="\
+r_ { Ranked SIMEX}" />
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+N Size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style="text-align: right;">
+4
+</td>
+<td style="text-align: right;">
+0.83
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.12
+</td>
+<td style="text-align: right;">
+127,588
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+5
+</td>
+<td style="text-align: right;">
+0.85
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.09
+</td>
+<td style="text-align: right;">
+128,687
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+6
+</td>
+<td style="text-align: right;">
+0.84
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.08
+</td>
+<td style="text-align: right;">
+124,371
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+7
+</td>
+<td style="text-align: right;">
+0.84
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.08
+</td>
+<td style="text-align: right;">
+121,958
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+8
+</td>
+<td style="text-align: right;">
+0.84
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.09
+</td>
+<td style="text-align: right;">
+117,070
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Mathematics
+</td>
+<td style="text-align: right;">
+4
+</td>
+<td style="text-align: right;">
+0.84
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.09
+</td>
+<td style="text-align: right;">
+127,989
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+5
+</td>
+<td style="text-align: right;">
+0.86
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.07
+</td>
+<td style="text-align: right;">
+129,130
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+6
+</td>
+<td style="text-align: right;">
+0.85
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.06
+</td>
+<td style="text-align: right;">
+124,765
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+7
+</td>
+<td style="text-align: right;">
+0.87
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.07
+</td>
+<td style="text-align: right;">
+121,786
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+8
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+0.82
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+0.01
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+-0.06
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+97,805
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="eoc-subjects" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">4.2.2</span> EOC Subjects</h3>
+<p>Each EOC test subject is analyzed using more than one sequence of prior subjects, grades and years, and these unique progressions are disaggregated in Table 4 using the most recent prior available for each norm group (although more prior years’ scores are used in SGP calculations when available). These correlations between current and prior scale score are notably lower than in the grade level norm groups, and overall lower correlations may be expected in EOC subjects due to the change in specific subject from one course to the next.</p>
+<p>Additionally, there are three types of norm groups in which the correlations are markedly lower: skipped year groups, course repeaters and high prior-achievers. The use of skipped-year sequences will likely decrease correlations due simply to weakening of students’ skills and knowledge during these time gaps (e.g. see the first row for Grade 9 Literature, - <img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?r%20%3D%200.76" alt="r = 0.76" title="r = 0.76" />). In the repeated course norm groups, decrease (attenuation) in the correlations is likely due to “self-selection bias” in the cohort. That is, mainly lower attaining students will repeat a course, which results in a restriction of range in the prior scores, as well as the expected range of current scores. This can lead to attenuated correlations. As an example, see the Grade 9 Literature repeaters (second, fifth and sixth rows) with correlations of <img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?r%20%3D%200.62" alt="r = 0.62" title="r = 0.62" />, <img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?r%20%3D%200.69" alt="r = 0.69" title="r = 0.69" /> and <img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?r%20%3D%200.61" alt="r = 0.61" title="r = 0.61" />. A similar issue is likely at play in the norm groups in which the most recent prior is a 7<sup>th</sup> grade subject. Here higher attaining students have enrolled in advanced classes, and we expect a restriction of range in the scores at the upper end of the score distributions.</p>
+<p>The relationships between growth and prior achievement reported in Table 4 are still non-existent for cohort referenced SGPs and slightly negative after SIMEX correction. These results are as expected for appropriate fit to the respective models as discussed in the EOG section above.</p>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="6" style="text-align: left;">
+<strong>Table 4:</strong> EOC Student Level Correlations between Prior Standardized Scale Score and 1) Current Scale Score, 2) SGP and 3) Ranked SIMEX SGP - Disaggregated by Norm Group.
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Most Recent Prior
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?%5C%0Ar_%20%7B%20Test%20Scores%7D" alt="\
+r_ { Test Scores}" title="\
+r_ { Test Scores}" />
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?%5C%0Ar_%20%7B%20SGP%7D" alt="\
+r_ { SGP}" title="\
+r_ { SGP}" />
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<img style="vertical-align:middle" src="https://latex.codecogs.com/png.latex?%5C%0Ar_%20%7B%20Ranked%20SIMEX%7D" alt="\
+r_ { Ranked SIMEX}" title="\
+r_ { Ranked SIMEX}" />
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+N Size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: right;">
+2016 ELA Grade 8
+</td>
+<td style="text-align: right;">
+0.76
+</td>
+<td style="text-align: right;">
+-0.03
+</td>
+<td style="text-align: right;">
+-0.11
+</td>
+<td style="text-align: right;">
+1,876
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2016 Grade 9 Lit
+</td>
+<td style="text-align: right;">
+0.62
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.11
+</td>
+<td style="text-align: right;">
+2,058
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 ELA Grade 7
+</td>
+<td style="text-align: right;">
+0.75
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.11
+</td>
+<td style="text-align: right;">
+5,939
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 ELA Grade 8
+</td>
+<td style="text-align: right;">
+0.83
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.08
+</td>
+<td style="text-align: right;">
+110,300
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 Grade 9 Lit
+</td>
+<td style="text-align: right;">
+0.69
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.10
+</td>
+<td style="text-align: right;">
+5,603
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018 Grade 9 Lit
+</td>
+<td style="text-align: right;">
+0.61
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.10
+</td>
+<td style="text-align: right;">
+2,572
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: right;">
+2015 Grade 9 Lit
+</td>
+<td style="text-align: right;">
+0.77
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.10
+</td>
+<td style="text-align: right;">
+2,603
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2016 Grade 9 Lit
+</td>
+<td style="text-align: right;">
+0.81
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.09
+</td>
+<td style="text-align: right;">
+97,146
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 American Lit
+</td>
+<td style="text-align: right;">
+0.65
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.10
+</td>
+<td style="text-align: right;">
+4,715
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 Grade 9 Lit
+</td>
+<td style="text-align: right;">
+0.78
+</td>
+<td style="text-align: right;">
+-0.02
+</td>
+<td style="text-align: right;">
+-0.11
+</td>
+<td style="text-align: right;">
+10,177
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018 American Lit
+</td>
+<td style="text-align: right;">
+0.57
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.09
+</td>
+<td style="text-align: right;">
+2,414
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: right;">
+2016 Math Grade 8
+</td>
+<td style="text-align: right;">
+0.57
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.08
+</td>
+<td style="text-align: right;">
+7,640
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 Algebra I
+</td>
+<td style="text-align: right;">
+0.79
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.12
+</td>
+<td style="text-align: right;">
+8,403
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 Math Grade 7
+</td>
+<td style="text-align: right;">
+0.75
+</td>
+<td style="text-align: right;">
+0.01
+</td>
+<td style="text-align: right;">
+-0.08
+</td>
+<td style="text-align: right;">
+21,285
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 Math Grade 8
+</td>
+<td style="text-align: right;">
+0.80
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.06
+</td>
+<td style="text-align: right;">
+73,027
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018 Algebra I
+</td>
+<td style="text-align: right;">
+0.60
+</td>
+<td style="text-align: right;">
+-0.01
+</td>
+<td style="text-align: right;">
+-0.12
+</td>
+<td style="text-align: right;">
+3,246
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: right;">
+2017 Algebra I
+</td>
+<td style="text-align: right;">
+0.73
+</td>
+<td style="text-align: right;">
+0.01
+</td>
+<td style="text-align: right;">
+-0.07
+</td>
+<td style="text-align: right;">
+90,621
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 Geometry
+</td>
+<td style="text-align: right;">
+0.68
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.10
+</td>
+<td style="text-align: right;">
+4,583
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018 Algebra I
+</td>
+<td style="text-align: right;">
+0.87
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.09
+</td>
+<td style="text-align: right;">
+3,240
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018 Geometry
+</td>
+<td style="text-align: right;">
+0.71
+</td>
+<td style="text-align: right;">
+-0.01
+</td>
+<td style="text-align: right;">
+-0.13
+</td>
+<td style="text-align: right;">
+2,617
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: right;">
+2017 Math Grade 7
+</td>
+<td style="text-align: right;">
+0.69
+</td>
+<td style="text-align: right;">
+0.01
+</td>
+<td style="text-align: right;">
+-0.11
+</td>
+<td style="text-align: right;">
+2,509
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017 Math Grade 8
+</td>
+<td style="text-align: right;">
+0.79
+</td>
+<td style="text-align: right;">
+0.00
+</td>
+<td style="text-align: right;">
+-0.07
+</td>
+<td style="text-align: right;">
+13,708
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Analytic Geometry
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+2017 Coordinate Algebra
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+0.74
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+0.01
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+-0.08
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+20,563
+</td>
+</tr>
+</tbody>
+</table>
+<div class="breakboth">
+
+</div>
+</div>
+</div>
+</div>
+<div id="sgp-results" class="section level1">
+<h1 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">5</span> SGP Results</h1>
+<p>In the following sections basic descriptive statistics from the 2018 analyses are provided, including the state-level mean and median growth percentiles. Currently Georgia uses Ranked SIMEX corrected cohort-referenced SGPs as the official student growth metric. Although Georgia DOE intends to eventually use baseline-referenced SGPs, the transition to <a href="http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx">Georgia Milestones</a> assessments requires the exclusive use of cohort-referenced analyses for several years until baseline referencing is again feasible.</p>
+<p>Georgia DOE decided to use the SIMEX measurement error correction method in the calculation of student-level SGPs several years ago. This correction has been applied to the 2018 SGPs in addition to a system of ranking the SIMEX SGPs in order to improve some student level properties of the growth measure <span class="citation">(Castellano &amp; McCaffrey, 2017)</span>. Descriptive statistics from the uncorrected and Ranked SIMEX corrected SGP results are both presented here. The interested reader can find more in depth discussions of the SGP methodology in the <a href="https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles">available literature</a>, and information about the SIMEX measurement error correction methodology is available in Appendix B of this report as well as in recent academic articles <span class="citation">(Castellano &amp; McCaffrey, 2017; Shang et al., 2015)</span>.</p>
+<div id="uncorrected-sgps" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">5.1</span> Uncorrected SGPs</h2>
+<p>Growth percentiles, being quantities associated with each individual student, can be easily summarized across numerous grouping indicators to provide summary results regarding growth. The median and mean of a collection of growth percentiles are used as measures of central tendency that summarize the distribution as a single number. With perfect data fit, we expect the state median of all student growth percentiles in any grade to be 50 because the data are norm-referenced across all students in the state. Median (and mean) growth percentiles well below 50 represent growth less than the state “average” and median growth percentiles well above 50 represent growth in excess of the state “average”.</p>
+<p>To demonstrate the norm-referenced nature of the growth percentiles viewed at the state level, Tables 5 and 6 present the cohort-referenced growth percentile medians and means for the EOG and EOC content areas respectively.</p>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="7" style="text-align: left;">
+<strong>Table 5:</strong> 2018 EOG Median (Mean) Student Growth Percentile by Grade and Content Area.
+</td>
+</tr>
+<tr>
+<th colspan="1" style="font-weight: 900; border-top: 2px solid grey; text-align: center;">
+</th>
+<th style="border-top: 2px solid grey;; border-bottom: hidden;">
+ 
+</th>
+<th colspan="5" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Grades
+</th>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey;" colspan="1">
+ 
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+4
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+5
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+6
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+7
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+8
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+50 (49.9)
+</td>
+<td style="text-align: right;">
+50 (50.1)
+</td>
+<td style="text-align: right;">
+50 (50)
+</td>
+<td style="text-align: right;">
+50 (50)
+</td>
+<td style="text-align: right;">
+50 (49.9)
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Mathematics
+</td>
+<td style="border-bottom: 2px solid grey;" colspan="1">
+ 
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (49.8)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (50)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (50.1)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (50)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (49.9)
+</td>
+</tr>
+</tbody>
+</table>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="3" style="text-align: left;">
+<strong>Table 6:</strong> 2018 EOC Median and Mean Student Growth Percentile by Content Area.
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SGP
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+49.9
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+50.0
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+49.9
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: center;">
+49
+</td>
+<td style="text-align: center;">
+49.2
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+50.0
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Analytic Geometry
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+49
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+49.4
+</td>
+</tr>
+</tbody>
+</table>
+<p>Based upon perfect model fit to the data, the median of all state growth percentiles in each grade by year by subject combination should be 50. That is, in the conditional distributions, 50 percent of growth percentiles should be less than 50 and 50 percent should be greater than 50. Deviations from 50 indicate imperfect model fit to the data. Imperfect model fit can occur for a number of reasons, some due to issues with the data (e.g., floor and ceiling effects leading to a “bunching” up of the data) as well as issues due to the way that the SGP function fits the data. The results in Tables 5 and 6 are close to perfect, with almost all values equal to 50.</p>
+<p>The results are coarse in that they are aggregated across tens of thousands of students. More refined fit analyses were presented in the Goodness-of-Fit section. Depending upon feedback from Georgia DOE, it may be desirable to tweak some operational parameters and attempt to improve fit even further. The impact upon the operational results based on better fit is expected to be extremely minor.</p>
+<p>It is important to note how, at the entire state level, the <em>norm-referenced</em> growth information returns little information on annual trends due to its norm-reference nature. What the results indicate is that a typical (or average) student in the state demonstrates 50<sup>th</sup> percentile growth. That is, “typical students” demonstrate “typical growth”. One benefit of the norm-referenced results follows when subgroups are examined (e.g., schools, district, demographic groups, etc.) Examining subgroups in terms of the mean or median of their student growth percentiles, it is then possible to investigate why some subgroups display lower/higher student growth than others. Moreover, because the subgroup summary statistic (i.e., the median) is composed of many individual student growth percentiles, one can break out the result and further examine the distribution of individual results.</p>
+</div>
+<div id="ranked-simex-adjusted-sgps" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">5.2</span> Ranked SIMEX Adjusted SGPs</h2>
+<p>The use of error-prone standardized test scores in statistical models can lead to numerous problems. Understanding the effects of measurement error and correcting for it is particularly difficult in the SGP model given that it is based on non-parametric quantile regression. Preliminary investigations suggest that the use of error-prone measures may lead SGP estimates to be inflated for students with high prior achievement and underestimated for students with lower prior achievement. This bias at the individual student-level can translate to bias in aggregate measures (such as median and mean SGPs) when student sorting based on prior achievement exists at the level of aggregation (e.g. classrooms or schools). As a result, growth and prior achievement are (positively) correlated, giving schools and teachers with higher achieving students an undue advantage and disadvantaging those with lower achieving students.</p>
+<p>Simulation-extrapolation (SIMEX) methods of correcting for measurement error induced bias in the SGP estimation has been proposed and tested in Georgia. Descriptive statistics from these analyses are provided here and in the Goodness-of-Fit section. Additional technical information about the SIMEX procedure in general and its use in the calculation of cohort-referenced SGPs is provided in Appendix B of this report.</p>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="7" style="text-align: left;">
+<strong>Table 7:</strong> SIMEX Corrected EOG Median (Mean) Student Growth Percentile by Grade and Content Area for 2018
+</td>
+</tr>
+<tr>
+<th colspan="1" style="font-weight: 900; border-top: 2px solid grey; text-align: center;">
+</th>
+<th style="border-top: 2px solid grey;; border-bottom: hidden;">
+ 
+</th>
+<th colspan="5" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Grades
+</th>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey;" colspan="1">
+ 
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+4
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+5
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+6
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+7
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+8
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+50 (50)
+</td>
+<td style="text-align: right;">
+50 (50.2)
+</td>
+<td style="text-align: right;">
+50 (50.1)
+</td>
+<td style="text-align: right;">
+50 (50.1)
+</td>
+<td style="text-align: right;">
+50 (50)
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Mathematics
+</td>
+<td style="border-bottom: 2px solid grey;" colspan="1">
+ 
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (50)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (50.1)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (50.1)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (50.1)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+50 (49.9)
+</td>
+</tr>
+</tbody>
+</table>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="3" style="text-align: left;">
+<strong>Table 8:</strong> SIMEX Corrected EOC Median (Mean) Student Growth Percentile by Content Area for 2018
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SGP
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+50.0
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+50.2
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+50.0
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: center;">
+49
+</td>
+<td style="text-align: center;">
+49.4
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+50.1
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Analytic Geometry
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+50
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+49.8
+</td>
+</tr>
+</tbody>
+</table>
+<p>A comparison of the unadjusted (Tables 5 and 6) and SIMEX corrected (Tables 7 and 8) shows very little difference in the medians and means. This is not surprising as the majority of the growth percentiles for students in the middle of the prior score distributions change very little after SIMEX correction, and the larger changes that occur for students in the extremes of the prior score distributions tend to even out.</p>
+</div>
+<div id="group-level-results" class="section level2">
+<h2 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">5.3</span> Group Level Results</h2>
+<p>Unlike when reporting SGPs at the individual level, when aggregating to the group level (e.g., school) the correlation between aggregate prior student achievement and aggregate growth is rarely zero. The correlation between prior student achievement and growth at the school level is a compelling descriptive statistic because it indicates whether students attending schools serving higher achieving students grow faster (on average) than those students attending schools serving lower achieving students. Results from previous state analyses show a correlation between prior achievement of students associated with a current school (quantified as percent at/above proficient) and the median SGP are typically between 0.1 and 0.3 (although higher numbers have been observed in some states as well). That is, these results indicate that on average, students attending schools serving lower achieving students tend to demonstrate less exemplary growth than those attending schools serving higher achieving students. Equivalently, based upon ordinary least squares (OLS) regression assumptions, the prior achievement level of students attending a school accounts for between 1 and 10 percent of the variability observed in student growth. There are no definitive numbers on what this correlation should be, but recent studies on value-added models show similar results <span class="citation">(D. McCaffrey, Han, &amp; Lockwood, 2008)</span>.</p>
+<div id="school-level-results" class="section level3">
+<h3 style="margin: 24pt 0pt 0pt 0pt;"><span class="header-section-number">5.3.1</span> School Level Results</h3>
+<p>To illustrate these relationships visually, the bubble charts in Figures 5 and 6 depict growth as quantified by the median SGP of students at the school against prior achievement status, quantified by percentage of student at/above proficient at the school. “Prior Percent at/above Proficient” in this case is determined by the percent of student’s that scored in the “Proficient Learner” or “Distinguished Learner” range of the prior year’s Milestones test out of all student’s that received a score.<a href="#fn10" class="footnoteRef" id="fnref10"><sup>10</sup></a> The charts have been successful in helping to motivate the discussion of the two qualities: student achievement and student growth. Though the figures are not detailed enough to indicate strength of relationship between growth and achievement, they are suggestive and valuable for discussions with stakeholders who are being introduced to the growth model for the first time. Only charts for the EOG subjects are shown here.</p>
+<div class="caption">
+<strong>Figure 5:</strong> School-level Bubble Plots for Georgia: ELA, 2017-2018.
+</div>
+<div class="content-node image">
+<div class="image-content">
+<p><img src='../img/Bubble_Plots/2018/State/Style_1/Georgia_2018_ELA_State_Bubble_Plot_(Prior_Achievement).png' style='width: 640px;'/></p>
+</div>
+</div>
+<p>
+</p>
+<p>
+</p>
+<div class="caption">
+<strong>Figure 6:</strong> School-level Bubble Plots for Georgia: Mathematics, 2017-2018.
+</div>
+<div class="content-node image">
+<div class="image-content">
+<p><img src='../img/Bubble_Plots/2018/State/Style_1/Georgia_2018_Mathematics_State_Bubble_Plot_(Prior_Achievement).png' style='width: 640px;'/></p>
+</div>
+</div>
+<p>
+</p>
+<p>
+</p>
+<p>The relationship between average prior student achievement and median SGP observed for Georgia is relatively strong compared to some other states for which the NCIEA has done SGP analyses. Table 9 shows overall correlation between prior achievement (measured here as the mean prior standardized scale score) for the previous three years. All results shown here are for schools with 15 or more students.</p>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<caption style="caption-side: top">
+<strong>Table 9:</strong> 2016 to 2018 Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs - (Combined Subjects)
+</caption>
+<thead>
+<tr>
+<th colspan="1" style="font-weight: 900; border-top: 2px solid grey; text-align: center;">
+</th>
+<th style="border-top: 2px solid grey;; border-bottom: hidden;">
+ 
+</th>
+<th colspan="4" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+SGP Aggregate Type
+</th>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Year
+</th>
+<th style="border-bottom: 1px solid grey;" colspan="1">
+ 
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Median SGP
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Mean SGP
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Median SIMEX SGP
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Mean SIMEX SGP
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">
+2016
+</td>
+<td style colspan="1">
+ 
+</td>
+<td style="text-align: center;">
+0.62
+</td>
+<td style="text-align: center;">
+0.63
+</td>
+<td style="text-align: center;">
+0.51
+</td>
+<td style="text-align: center;">
+0.52
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+2017
+</td>
+<td style colspan="1">
+ 
+</td>
+<td style="text-align: center;">
+0.54
+</td>
+<td style="text-align: center;">
+0.55
+</td>
+<td style="text-align: center;">
+0.40
+</td>
+<td style="text-align: center;">
+0.41
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+2018
+</td>
+<td style="border-bottom: 2px solid grey;" colspan="1">
+ 
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.52
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.53
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.37
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.38
+</td>
+</tr>
+</tbody>
+</table>
+<div class="breakboth">
+
+</div>
+<p>Correlation tables describing the relationship between prior standardized scale score and aggregate growth percentiles are presented below in separate subsections for EOG and EOC subjects. The first correlation table in the each subsection provides these overall SGP aggregates’ relationships with mean prior standardized scale scores. The additional correlation tables are disaggregated by content area, and content area and grade to provide more detail.</p>
+<div class="caption">
+<strong>End-of-Grade Content Areas</strong>
+</div>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="6" style="text-align: left;">
+<strong>Table 10:</strong> 2016 to 2018 School Level EOG Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs by Content Area.
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Year
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SIMEX SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SIMEX SGP
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.56
+</td>
+<td style="text-align: center;">
+0.58
+</td>
+<td style="text-align: center;">
+0.41
+</td>
+<td style="text-align: center;">
+0.43
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.50
+</td>
+<td style="text-align: center;">
+0.52
+</td>
+<td style="text-align: center;">
+0.31
+</td>
+<td style="text-align: center;">
+0.33
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018
+</td>
+<td style="text-align: center;">
+0.47
+</td>
+<td style="text-align: center;">
+0.48
+</td>
+<td style="text-align: center;">
+0.28
+</td>
+<td style="text-align: center;">
+0.29
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Mathematics
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.50
+</td>
+<td style="text-align: center;">
+0.51
+</td>
+<td style="text-align: center;">
+0.40
+</td>
+<td style="text-align: center;">
+0.41
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.40
+</td>
+<td style="text-align: center;">
+0.42
+</td>
+<td style="text-align: center;">
+0.29
+</td>
+<td style="text-align: center;">
+0.30
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+2018
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.39
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.40
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.28
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.29
+</td>
+</tr>
+</tbody>
+</table>
+<p>
+</p>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="6" style="text-align: left;">
+<strong>Table 11:</strong> 2018 School Level EOG Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs by Content Area and Grade.
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Grade
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SIMEX SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SIMEX SGP
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style="text-align: right;">
+4
+</td>
+<td style="text-align: center;">
+0.38
+</td>
+<td style="text-align: center;">
+0.38
+</td>
+<td style="text-align: center;">
+0.19
+</td>
+<td style="text-align: center;">
+0.19
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+5
+</td>
+<td style="text-align: center;">
+0.24
+</td>
+<td style="text-align: center;">
+0.25
+</td>
+<td style="text-align: center;">
+0.08
+</td>
+<td style="text-align: center;">
+0.08
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+6
+</td>
+<td style="text-align: center;">
+0.30
+</td>
+<td style="text-align: center;">
+0.32
+</td>
+<td style="text-align: center;">
+0.15
+</td>
+<td style="text-align: center;">
+0.16
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+7
+</td>
+<td style="text-align: center;">
+0.37
+</td>
+<td style="text-align: center;">
+0.37
+</td>
+<td style="text-align: center;">
+0.22
+</td>
+<td style="text-align: center;">
+0.22
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+8
+</td>
+<td style="text-align: center;">
+0.33
+</td>
+<td style="text-align: center;">
+0.36
+</td>
+<td style="text-align: center;">
+0.19
+</td>
+<td style="text-align: center;">
+0.21
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Mathematics
+</td>
+<td style="text-align: right;">
+4
+</td>
+<td style="text-align: center;">
+0.27
+</td>
+<td style="text-align: center;">
+0.28
+</td>
+<td style="text-align: center;">
+0.15
+</td>
+<td style="text-align: center;">
+0.16
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+5
+</td>
+<td style="text-align: center;">
+0.14
+</td>
+<td style="text-align: center;">
+0.15
+</td>
+<td style="text-align: center;">
+0.05
+</td>
+<td style="text-align: center;">
+0.06
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+6
+</td>
+<td style="text-align: center;">
+0.23
+</td>
+<td style="text-align: center;">
+0.23
+</td>
+<td style="text-align: center;">
+0.16
+</td>
+<td style="text-align: center;">
+0.16
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+7
+</td>
+<td style="text-align: center;">
+0.30
+</td>
+<td style="text-align: center;">
+0.31
+</td>
+<td style="text-align: center;">
+0.21
+</td>
+<td style="text-align: center;">
+0.22
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+8
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.28
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.29
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.20
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.21
+</td>
+</tr>
+</tbody>
+</table>
+<div class="breakboth">
+
+</div>
+<div class="caption">
+<strong>End-of-Course Subjects</strong>
+</div>
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;" id="table_0">
+<thead>
+<tr>
+<td colspan="6" style="text-align: left;">
+<strong>Table 12:</strong> 2016 to 2018 School Level EOC Correlations between Mean Prior Standardized Scale Score and Aggregate SGPs by Content Area.
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Content Area
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Year
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median SIMEX SGP
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean SIMEX SGP
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.54
+</td>
+<td style="text-align: center;">
+0.55
+</td>
+<td style="text-align: center;">
+0.41
+</td>
+<td style="text-align: center;">
+0.42
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.38
+</td>
+<td style="text-align: center;">
+0.40
+</td>
+<td style="text-align: center;">
+0.22
+</td>
+<td style="text-align: center;">
+0.23
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018
+</td>
+<td style="text-align: center;">
+0.43
+</td>
+<td style="text-align: center;">
+0.44
+</td>
+<td style="text-align: center;">
+0.25
+</td>
+<td style="text-align: center;">
+0.26
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.58
+</td>
+<td style="text-align: center;">
+0.60
+</td>
+<td style="text-align: center;">
+0.48
+</td>
+<td style="text-align: center;">
+0.51
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.56
+</td>
+<td style="text-align: center;">
+0.59
+</td>
+<td style="text-align: center;">
+0.46
+</td>
+<td style="text-align: center;">
+0.49
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018
+</td>
+<td style="text-align: center;">
+0.56
+</td>
+<td style="text-align: center;">
+0.57
+</td>
+<td style="text-align: center;">
+0.43
+</td>
+<td style="text-align: center;">
+0.43
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.35
+</td>
+<td style="text-align: center;">
+0.35
+</td>
+<td style="text-align: center;">
+0.23
+</td>
+<td style="text-align: center;">
+0.24
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.36
+</td>
+<td style="text-align: center;">
+0.37
+</td>
+<td style="text-align: center;">
+0.26
+</td>
+<td style="text-align: center;">
+0.28
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018
+</td>
+<td style="text-align: center;">
+0.35
+</td>
+<td style="text-align: center;">
+0.37
+</td>
+<td style="text-align: center;">
+0.25
+</td>
+<td style="text-align: center;">
+0.27
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.56
+</td>
+<td style="text-align: center;">
+0.59
+</td>
+<td style="text-align: center;">
+0.43
+</td>
+<td style="text-align: center;">
+0.48
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.45
+</td>
+<td style="text-align: center;">
+0.48
+</td>
+<td style="text-align: center;">
+0.34
+</td>
+<td style="text-align: center;">
+0.36
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018
+</td>
+<td style="text-align: center;">
+0.39
+</td>
+<td style="text-align: center;">
+0.41
+</td>
+<td style="text-align: center;">
+0.24
+</td>
+<td style="text-align: center;">
+0.26
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.32
+</td>
+<td style="text-align: center;">
+0.33
+</td>
+<td style="text-align: center;">
+0.22
+</td>
+<td style="text-align: center;">
+0.23
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.31
+</td>
+<td style="text-align: center;">
+0.33
+</td>
+<td style="text-align: center;">
+0.20
+</td>
+<td style="text-align: center;">
+0.20
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2018
+</td>
+<td style="text-align: center;">
+0.18
+</td>
+<td style="text-align: center;">
+0.18
+</td>
+<td style="text-align: center;">
+0.10
+</td>
+<td style="text-align: center;">
+0.07
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Analytic Geometry
+</td>
+<td style="text-align: right;">
+2016
+</td>
+<td style="text-align: center;">
+0.52
+</td>
+<td style="text-align: center;">
+0.53
+</td>
+<td style="text-align: center;">
+0.41
+</td>
+<td style="text-align: center;">
+0.42
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+2017
+</td>
+<td style="text-align: center;">
+0.25
+</td>
+<td style="text-align: center;">
+0.30
+</td>
+<td style="text-align: center;">
+0.13
+</td>
+<td style="text-align: center;">
+0.16
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+2018
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.35
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.38
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.22
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.23
+</td>
+</tr>
+</tbody>
+</table>
+<div class="breakboth">
+
+</div>
+</div>
+</div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 style="margin: 24pt 0pt 0pt 0pt;">References</h1>
+<div id="refs" class="references">
+<div id="ref-Betebenner:2009">
+<p>Betebenner, D. W. (2009). Norm- and criterion-referenced student growth. <em>Educational Measurement: Issues and Practice</em>, <em>28</em>(4), 42–51.</p>
+</div>
+<div id="ref-sgp2018">
+<p>Betebenner, D. W., VanIwaarden, A., Domingue, B., &amp; Shang, Y. (2018). <em>SGP: Student growth percentiles &amp; percentile growth trajectories.</em> Retrieved from <a href="sgp.io" class="uri">sgp.io</a></p>
+</div>
+<div id="ref-CastMcCaf:2017">
+<p>Castellano, K. E., &amp; McCaffrey, D. F. (2017). The accuracy of aggregate student growth percentiles as indicators of educator performance. <em>Educational Measurement: Issues and Practice</em>, <em>36</em>(1), 14–27. Retrieved from <a href="http://dx.doi.org/10.1111/emip.12144" class="uri">http://dx.doi.org/10.1111/emip.12144</a></p>
+</div>
+<div id="ref-chernozhukov2010quantile">
+<p>Chernozhukov, V., Fernández-Val, I., &amp; Galichon, A. (2010). Quantile and probability curves without crossing. <em>Econometrica</em>, <em>78</em>(3), 1093–1125. Wiley Online Library.</p>
+</div>
+<div id="ref-Koenker:2005">
+<p>Koenker, R. (2005). <em>Quantile regression</em>. Cambridge: Cambridge University Press.</p>
+</div>
+<div id="ref-MccaLock:2008">
+<p>McCaffrey, D., Han, B., &amp; Lockwood, J. (2008). From data to bonuses: A case study of the issues related to awarding teachers pay on the basis of their students’ progress. In <em>Performance incentives: Their growing impact on american k-12 education (conference)</em>. Vanderbilt University, Nashville, TN: National Center for Performance Incentives.</p>
+</div>
+<div id="ref-Rsoftware">
+<p>R Development Core Team. (2017). <em>R: A language and environment for statistical computing</em>. Vienna, Austria: R Foundation for Statistical Computing. Retrieved from <a href="http://www.R-project.org" class="uri">http://www.R-project.org</a></p>
+</div>
+<div id="ref-ShangVanIBet:2015">
+<p>Shang, Y., VanIwaarden, A., &amp; Betebenner, D. W. (2015). Covariate measurement error correction for student growth percentiles using the simex method. <em>Educational Measurement: Issues and Practice</em>, <em>34</em>(1), 4–14. Retrieved from <a href="http://dx.doi.org/10.1111/emip.12058" class="uri">http://dx.doi.org/10.1111/emip.12058</a></p>
+</div>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>More in-depth treatment of the SGP Methodology can be found <a href="https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles">here</a>.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>2018 Prior assessment data includes Milestones data from 2014-2015 through 2016-2017. Data from the Criterion-Referenced Competency Tests (CRCT) and EOCT assessment program are no longer used in SGP calculations.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>This does not represent the number of SGPs produced, however, because students are required to have at least one prior score available as well.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Beginning in 2013-2014, students had the opportunity to test out of an EOC course by taking the test early and scoring at highest performance level (“Exceeds Expectations” for EOCT or “Distinguished Learner” for Milestones EOC). SGPs are not calculated for any current year test out attempt. Successful attempts, however, are used as prior scores in subsequent years’ analyses.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>In addition to these quantities, baseline-referenced SGPs (uncorrected and SIMEX corrected) had been calculated in previous years and used as the “official” SGP quantity, but this method of SGP calculation will be unavailable until at least 3 years of Milestones assessment data are available for all analyses to form the baseline cohorts.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>It should be noted that the independent estimation of the regression functions can potentially result in the crossing of the quantile functions. This occurs near the extremes of the distributions and is potentially more likely to occur given the use of non-linear functions. A potential result of allowing the quantile functions to cross would be <em>lower</em> estimated growth percentiles for <em>higher</em> observed scale scores at the extremes (give all else equal in prior scores) and vice versa. In order to deal with these contradictory estimates, quantile regression results are isotonized to prevent quantile crossing following the methods derived by Chernozhukov, Fernandez-Val and Glichon <span class="citation">(2010)</span>.<a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p>Note that the prior year scale scores are not represented here, but are also a critical factor in ceiling effects.<a href="#fnref7">↩</a></p></li>
+<li id="fn8"><p>The total students in each analysis varies depending on grade and subject, and prior score deciles are based only on scores for students used in the SGP calculations.<a href="#fnref8">↩</a></p></li>
+<li id="fn9"><p>Note that correlations that are initially negative also become increasingly negative rather than return to zero.<a href="#fnref9">↩</a></p></li>
+<li id="fn10"><p>This measure does not reflect student’s that did not receive a score but are included in the denominator of Percent Meeting Standard as displayed in the Georgia DOE Report Card.<a href="#fnref10">↩</a></p></li>
+</ol>
+</div>
+
+
+
+
+</body>
+</html>
