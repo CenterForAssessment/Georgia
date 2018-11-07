@@ -43,6 +43,7 @@ save(Georgia_SGP, file="../Data/Georgia_SGP.Rdata")
 
 ###
 
+setwd("/Users/avi/Dropbox (SGP)/Github_Repos/Documentation/Georgia/SGP_Reports/2018")
 load("../Data/Georgia_SGP.Rdata")
 require(Literasee)
 
@@ -56,6 +57,11 @@ renderMultiDocument(rmd_input = "Appendix_A_2018.Rmd",
 										report_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
 										# cleanup_aux_files = FALSE,
 										add_cover_title=TRUE)
+
+load("../Data/GA_Agg_Data_Long_v3-Ranked_SIMEX_w_EOCT.Rdata")
+renderMultiDocument(rmd_input = "Appendix_B.Rmd",
+									report_format = c("HTML", "PDF"),
+									pandoc_args = "--webtex")
 
 renderMultiDocument(rmd_input = "Appendix_C_2018.Rmd",
 										report_format = c("HTML", "PDF"), #, "EPUB", "DOCX"

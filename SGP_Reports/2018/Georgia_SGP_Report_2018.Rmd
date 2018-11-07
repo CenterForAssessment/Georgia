@@ -5,7 +5,7 @@ author:
   - name: Adam R. VanIwaarden
   - name: Damian W. Betebenner
   - name: <em>National Center for the Improvement<br></br> of Educational Assessment (NCIEA)</em>
-date: October 2018
+date: November 2018
 abstract: "DRAFT REPORT - DO NOT CITE! <br></br> This report provides details about the Georgia Student Growth Model methodology and presents a descriptive analysis of the 2018 SGP calculation process and results."
 ---
 
@@ -21,7 +21,7 @@ This document was written by Damian Betebenner & Adam VanIwaarden for the State 
 
 ```{r, echo=FALSE, include=FALSE}
   ## set a universal Cache path
-  knitr::opts_chunk$set(cache.path = "_cache/GA_SGP_2018")
+  knitr::opts_chunk$set(cache.path = "_cache/GA_SGP_2018", fig.path="../img/Tech_Reports/2018/")
 
   ##  Load some R packages and functions required for HTML table creation silently.  
   ##  Load SGP and other packages here to avoid messages.
@@ -51,7 +51,7 @@ This document was written by Damian Betebenner & Adam VanIwaarden for the State 
 
 # Introduction
 
-This report contains details on the 2017-2018 implementation of the student growth percentiles (SGP) model for the state of Georgia.  The National Center for the Improvement of Educational Assessment (NCIEA) contracted with the Georgia Department of Education (DOE) to implement the SGP methodology using data derived from the [Georgia Milestones Assessment System](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) to create the [Georgia Student Growth Model (GSGM)](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Student-Growth-Model.aspx).  The goal of the engagement with DOE is to create a set of open source analytics techniques and conduct analyses that will eventually be conducted exclusively by DOE in following years.
+This report contains details on the 2017-2018 implementation of the student growth percentile (SGP) model for the state of Georgia.  The National Center for the Improvement of Educational Assessment (NCIEA) contracted with the Georgia Department of Education (DOE) to implement the SGP methodology using data derived from the [Georgia Milestones Assessment System](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) to create the [Georgia Student Growth Model (GSGM)](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Student-Growth-Model.aspx).  The goal of the engagement with DOE is to create a set of open source analytics techniques and conduct analyses that will eventually be conducted exclusively by DOE in following years.
 
 The SGP methodology is an open source norm- and criterion-referenced student growth analysis that produces student growth percentiles and student growth projections/targets for each student in the state with adequate longitudinal data.  The methodology is currently used for many purposes.  States and districts have used the results in various ways including parent/student diagnostic reporting, institutional improvement, and school and educator accountability.  Specifics about the manner in which growth is included in school and educator accountability can be found in documents related to those accountability systems.
 
@@ -64,7 +64,9 @@ This report includes four sections:
 
 This report also includes multiple appendices.  Appendix A displays Goodness of Fit plots for each analysis conducted in 2018.  Appendix B provides a technical description of the SIMEX correction for measurement error with specific applications to Georgia.  Appendix C is an investigation of potential ceiling and/or floor effects present in the Georgia assessment data and growth analyses.
 
-`r pageBreak()`
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
 
 
 # Data
@@ -84,18 +86,20 @@ Growth analyses on assessment data require data that are linked to individual st
 
 Beginning in 2014 Georgia DOE has performed the majority of the selection and invalidation of student records, incorporating these and other business rules into the `SQL` code used to pull student records from their data warehouse.
 
-`r pageBreak()`
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
 
 
 ### EOG specific business rules
 
-1.  If a student has multiple records (duplicate from the same subject, grade and administration period), their highest score was selected.
+1.  If a student has multiple records (duplicate from the same subject and grade), the record with the highest score was selected.
 2.  If a student took more than one assessment in the same subject and school year but was identified as being in two different grades, the record with the highest grade level was selected.
 
 Table `r tblNum(1)` shows the number of valid EOG student records available for analysis after applying the general and EOG specific business rules.^[This does not represent the number of SGPs produced, however, because students are required to have at least one prior score available as well.]
 
 ```{r, cache=TRUE, echo=FALSE, include=FALSE}
-	n_tbl_EOG <- table(Georgia_SGP@Data[YEAR=='2018' & CONTENT_AREA %in% GL_subjects & VALID_CASE=='VALID_CASE']$CONTENT_AREA, Georgia_SGP@Data[YEAR=='2018' & CONTENT_AREA %in% GL_subjects & VALID_CASE=='VALID_CASE']$GRADE)
+	n_tbl_EOG <- table(Georgia_SGP@Data[YEAR=='2018' & CONTENT_AREA %in% GL_subjects & VALID_CASE=='VALID_CASE', GRADE, CONTENT_AREA])
 ```
 ```{r, results='asis', echo=FALSE, N_tableEOG}
 	n_tbl_EOG_B <- n_tbl_EOG[match(GL_subjects, row.names(n_tbl_EOG)) ,]
@@ -108,21 +112,19 @@ Table `r tblNum(1)` shows the number of valid EOG student records available for 
   	align=paste(rep('r', dim(n_tbl_EOG_B)[2]), collapse=''),
 		n.cgroup=c(1, dim(n_tbl_EOG_B)[2]-1), cgroup=c("", "Grades"),
 		caption='Number of Valid EOG Student Records by Grade and Subject for 2018'))
-  
-  pageBreak()
 ```
 
 
 ### EOC specific business rules
 
-1.  If a student has multiple records from the same subject and administration period, their highest score was selected.
-2.  For students who participate in two main administrations in 2018 (i.e., students who failed and retook an EOC course in the same year), the first attempt is used as a prior to produce an SGP for the final attempt.  In subsequent years, their final attempt may be used as a prior for other EOC analyses.
-3.  Students who have tested out of EOC courses are invalidated.^[Beginning in 2013-2014, students had the opportunity to test out of an EOC course by taking the test early and scoring at highest performance level ("Exceeds Expectations" for EOCT or "Distinguished Learner" for Milestones EOC). SGPs are not calculated for any current year test out attempt. Successful attempts, however, are used as prior scores in subsequent years' analyses.]
+1.  If a student has multiple records from the same subject and administration period, the record with the highest score was selected.
+2.  For students who participated in two main administrations in 2018 (i.e., students who failed and retook an EOC course in the same year), the first attempt is used as a prior to produce an SGP for the final attempt.  In subsequent years, their final attempt may be used as a prior for other EOC analyses.
+3.  Students who have tested out of EOC courses are invalidated.^[Beginning in 2013-2014, students had the opportunity to test out of an EOC course by taking the test early and scoring at highest performance level ("Distinguished Learner"). SGPs are not calculated for any current year test out attempt. Successful attempts, however, are used as prior scores in subsequent years' analyses.]
 
 Table `r tblNum(1)` shows the total number of valid EOC student records available for analysis after applying the general and EOC specific business rules.
 
 ```{r, cache=TRUE, echo=FALSE, include=FALSE}
-	n_tbl_EOC <- table(Georgia_SGP@Data[YEAR=='2018' & CONTENT_AREA %in% EOC_subjects & VALID_CASE=='VALID_CASE']$CONTENT_AREA, Georgia_SGP@Data[YEAR=='2018' & CONTENT_AREA %in% EOC_subjects & VALID_CASE=='VALID_CASE']$GRADE)
+	n_tbl_EOC <- table(Georgia_SGP@Data[YEAR=='2018' & CONTENT_AREA %in% EOC_subjects & VALID_CASE=='VALID_CASE', GRADE, CONTENT_AREA])
 ```
 ```{r, results='asis', echo=FALSE, N_tableEOC}
 	n_tbl_EOC_B <- n_tbl_EOC[match(EOC_subjects, row.names(n_tbl_EOC)) ,]
@@ -146,7 +148,7 @@ Broadly, the SGP analysis of the Georgia longitudinal student assessment data ta
 1. Data Preparation
 2. Data Analysis
 
-Those familiar with data analysis know that the bulk of the effort in the above two step process lies with Step 1: Data Preparation.  Following thorough data cleaning and preparation, data analysis using the `SGP` package takes clean data and makes it as easy as possible to calculate, summarize, output and visualize the results from SGP analyses.
+The majority of the effort in the above two step process lies with Step 1: Data Preparation.  Following thorough data cleaning and preparation, data analysis using the `SGP` package takes clean data and makes it as easy as possible to calculate, summarize, output and visualize the results from SGP analyses.
 
 ## Data Preparation
 
@@ -158,11 +160,11 @@ In this first step a formatted data set is extracted from the Georgia student da
 
 <div class='caption'>**Step 1b.** *Final data cleaning and preparation in* `R`</div>
 
-In this step the data from step 1a is read into [`R`](http://www.r-project.org/) and modified slightly. The result is a `.Rdata` file containing data in the format suitable for analysis with the [`SGP` package](https://github.com/CenterForAssessment/SGP).  This data is combined with a subset of prior years' Milestones data necessary to complete the 2018 analyses and is stored in a new [`SGP` class object](http://cran.r-project.org/web/packages/SGP/SGP.pdf).  With an appropriate longitudinal data set prepared, we move to the calculation of student-level SGPs.
+In this step the data from step 1a is read into [`R`](http://www.r-project.org/) and modified slightly. The result is a `.Rdata` file containing data in the format suitable for analysis with the [`SGP` package](https://github.com/CenterForAssessment/SGP).  This data is combined with prior years' Milestones data to complete the 2018 analyses and is stored in a updated [`SGP` class object](http://cran.r-project.org/web/packages/SGP/SGP.pdf).  With an appropriate longitudinal data set prepared, we move to the calculation of student-level SGPs.
 
 ## 2018 Data Analysis
 
-The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her *academic peers* (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf) and [this presentation](https://github.com/CenterForAssessment/SGP_Resources/blob/master/presentations/Academic_Peer_Slides.pdf)). This norm-referenced growth quantity is estimated using quantile regression [@Koenker:2005] to model curvilinear functional relationships between student's prior and current scores.  One hundred such regression models are calculated for each separate analysis (defined as a unique ***year** by **content area** by **grade** by **prior order*** combination).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to tens of thousands of model calculations (and many more when SIMEX measurement error corrections are performed) during each of Georgia's annual batch of analyses.  For a more in-depth discussion of SGP calculation, see Betebenner [-@Betebenner:2009], and see Shang, VanIwaarden and Betebenner [-@ShangVanIBet:2015] and Appendix B of this report for further information on the SIMEX measurement error correction methodology.
+The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her *academic peers* (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf)). This norm-referenced growth quantity is estimated using quantile regression [@Koenker:2005] to model curvilinear functional relationships between student's prior and current scores.  One hundred such regression models are calculated for each separate analysis (defined as a unique ***year** by **content area** by **grade** by **prior order*** combination).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to tens of thousands of model calculations (and many more when SIMEX measurement error corrections are performed) during each of Georgia's annual batch of analyses.  For a more in-depth discussion of SGP calculation, see Betebenner [-@Betebenner:2009], and see Shang, VanIwaarden and Betebenner [-@ShangVanIBet:2015] and Appendix B of this report for further information on the SIMEX measurement error correction methodology.
 
 The 2018 Georgia SGP analyses follow a work flow established in previous years that includes the following 4 steps:
 
@@ -180,12 +182,12 @@ The use of higher-level functions included in the `SGP` package (e.g. `analyzeSG
 
 Unlike most EOG analyses, EOC analyses are specialized enough so that it is necessary to specify the analyses to be performed via explicit configuration code.  For several years, configurations have been employed to conduct EOC SGP analyses for Georgia.  Beginning in 2016 configurations were used for EOG SGP analyses as well, which allows for consistency between the EOC subjects and for all analyses (particularly student growth projections) to be run concurrently.
 
-Configurations are `R` code scripts that are used as part of the larger SGP analysis to be discussed later.  They are broken up into separate R scripts based on content domain (ELA and Mathematics).  Each configuration code chunk specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Because Georgia allows for repeated test administrations within each year, the sequence in which score observations occur must also be included.  Therefore, every configuration used contains the first four elements listed below.  The EOC analyses also contain the fifth through eighth elements:
+Configurations are `R` code scripts that are used as part of the larger SGP analysis to be discussed later.  They are broken up into separate R scripts based on content area (ELA and Mathematics).  Each configuration code chunk specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area, academic year and grade-level.  Because Georgia allows for repeated test administrations within each year, the sequence in which score observations occur must also be included.  Therefore, every configuration used contains the first four elements listed below.  The EOC analyses also contain the fifth through eighth elements:
 
 - **`sgp.content.areas`:** The progression of content areas to be looked at and their order.
 - **`sgp.panel.years`:** The progression of the years associated with the content area progression (`sgp.content.areas`), potentially allowing for skipped or repeated years, etc.
 - **`sgp.panel.years.within`:** The progression of the observation sequence associated with each year.  Required when multiple test scores are present within a given year.  Values may be set to `LAST_OBSERVATION` or `FIRST_OBSERVATION`.
-- **`sgp.grade.sequences`:** The grade progression associated with the configuration content areas and years. The value **'EOCT'** stands for 'End Of Course Test'.  The use of the generic 'EOCT' allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level designation.
+- **`sgp.grade.sequences`:** The grade progression associated with the configuration content areas and years. The value **'EOCT'** stands for 'End Of Course Test'.^[This abbreviation differs from Georgia's use of "EOC", and is a required facet of the `SGP` package.]  The use of the generic 'EOCT' allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level designation.
 - **`sgp.exact.grade.progression`:** When set to `TRUE`, this element will force the lower level functions to analyze *only* the progression as specified in its entirety.  Otherwise these functions will analyze subsets of the progression for every possible order (i.e. each number of prior time periods of data available). When set to `TRUE`, a norm group preference system is usually required as well.
 - **`sgp.norm.group.preference`:** Because a student can potentially be included in more than one analysis/configuration, multiple SGPs will be produced for some students and a system is required to identify the preferred SGP that will be matched with the student in the `combineSGP` step.  This argument provides a ranking that specifies how preferable SGPs produced from the analysis in question is relative to other possible SGPs.  ***Lower numbers correspond with higher preference.***  Higher preference is given to:
     * Progressions with the greatest number of prior scale scores.
@@ -195,7 +197,9 @@ Configurations are `R` code scripts that are used as part of the larger SGP anal
 - **`sgp.projection.grade.sequences`:** This element is used to identify the grade sequence that will be used to produce straight and/or lagged student growth projections.  It can either be left out or set explicitly to `NULL` to produce projections based on the values provided in the `sgp.content.areas` and `sgp.grade.sequences` elements.  Alternatively, when set to "`NO_PROJECTIONS`", no projections will be produced.  For EOC analyses, only configurations that correspond to the canonical course progressions can produce student growth projections.  The canonical progressions are codified in the `SGP` package here: [`SGPstateData[["GA"]][["SGP_Configuration"]][["content_area.projection.sequence"]]`](https://github.com/CenterForAssessment/SGPstateData/blob/fda10b20d92f5c9dcba3fa6eaf98844bab5bb05b/SGPstateData.R#L2614).
 - **`sgp.exclude.sequences`:** Lookup table containing the grade, subject, and year combinations of students that should be excluded from a cohort.  This element is used in progressions in which a year or similar time period is skipped (i.e. a gap in time exists).  For example, in a progression that goes from 8<sup>th</sup> grade Mathematics to EOC Algebra I with a skipped year in between one may want to exclude kids that repeated either 8<sup>th</sup> grade Mathematics or Algebra I, or took other math related subjects (e.g. Geometry) in the skipped year.  Students with different course progressions may be inappropriate to include with the cohort of students who truly had no mathematics related course in the intervening year.
 
-`r pageBreak()`
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
 
 As an example, here is one Algebra I configuration used to define a 2018 SGP analysis:
 
@@ -223,15 +227,20 @@ As an example, here is one Algebra I configuration used to define a 2018 SGP ana
 
 ### Conduct SGP analyses
 
-Due to differences in the time-frames in which the EOG and EOC were validated and made available, EOG and EOC SGPs were calculated at seperate times.  Cohort-referenced (uncorrected) and SIMEX corrected SGPs were calculated concurrently for each individual analysis.^[In addition to these quantities, baseline-referenced SGPs (uncorrected and SIMEX corrected) had been calculated in previous years and used as the "official" SGP quantity, but this method of SGP calculation will be unavailable until at least 3 years of Milestones assessment data are available for all analyses to form the baseline cohorts.]  We use the [`updateSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/updateSGP) function to ***a)*** do the final preparation and addition of the 2018 cleaned and formatted data to the new `SGP` class object ([`prepareSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/prepareSGP) step) and ***b)*** calculate SGP estimates ([`analyzeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/analyzeSGP) step).  
+Due to differences in the time-frames in which the EOG and EOC were validated and made available, EOG and EOC SGPs were calculated at separate times.  Cohort-referenced (uncorrected) and SIMEX corrected SGPs were calculated concurrently for each individual analysis.  We use the [`updateSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/updateSGP) function to ***a)*** do the final preparation and addition of the 2018 cleaned and formatted data to the new `SGP` class object ([`prepareSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/prepareSGP) step) and ***b)*** calculate SGP estimates ([`analyzeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/analyzeSGP) step).  
 
-Once both EOG and EOC student growth analyses had been completed, student growth projections were computed using the `analyzeSGP` function.
+Student growth projections were computed once both EOG and EOC student growth analyses had been completed.  The `analyzeSGP` function is also used for the growth projection/target computations.
 
 ### Merge, output, summarize and visualize results
 
-Once all analyses were completed the results were merged into the master longitudinal data set ([`combineSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/combineSGP) step).  A pipe delimited version of the complete long data is output ([`outputSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/outputSGP) step) and submitted to the Georgia DOE after some additional formatting to add fields needed for rendering data in the state's [visualization tool](http://gastudentgrowth.gadoe.org/) such as students' entire prior score and course progression history.  The data is also summarized using the [`summarizeSGP` function](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/summarizeSGP), which produces many tables of descriptive statistics that are disaggregated at the state, district, school and instructor levels, as well as other factors of interest.  Finally, visualizations (such as bubble charts) are produced from the data and summary tables using the [`visualizeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/visualizeSGP) function. 
+Once all analyses were completed the results were merged into the master longitudinal data set ([`combineSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/combineSGP) step).  A pipe delimited version of the complete long data is output ([`outputSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/outputSGP) step) and submitted to the Georgia DOE after some additional formatting to add fields needed for rendering data in the state's [visualization tool](http://gastudentgrowth.gadoe.org/) such as students' entire prior score and course progression history.  In this stage an additional check is also performed in which SGP results are removed when the absolute value of the difference between the uncorrected SGP and Ranked SIMEX SGP is equal to 20 or more ($|SGP_ {Uncorrected} - SGP_ {Ranked SIMEX}| > = 20$).
 
-`r pageBreak()`
+Finally, the SGP results are summarized using the [`summarizeSGP` function](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/summarizeSGP), which produces many tables of descriptive statistics that are disaggregated at the state, district and school levels, as well as other factors of interest.  Visualizations (such as the bubble charts used in this report and "growth and achievement" charts) are produced from the SGP results and summary tables using the [`visualizeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.8-0.0/topics/visualizeSGP) function.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
 
 # Goodness of Fit
 
@@ -269,14 +278,14 @@ The bottom right panel of each plot is a Q-Q plot which compares the observed di
   ##  Keep using that from year to year to show it IS arbitrary - no need to change year to year ... ...
 
   dat <- Georgia_SGP@Data[SGP_NORM_GROUP %in% "2016/ELA_6; 2017/ELA_7; 2018/ELA_8", 
-  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
+  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
 
 	gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP", output.format="PNG")
 	# gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP_SIMEX", output.format="PNG")
 	gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP_SIMEX_RANKED", output.format="PNG") # Run before SIMEX and Rename folder???
 
   dat <- Georgia_SGP@Data[SGP_NORM_GROUP %in% "2018/GEOMETRY_EOCT; 2018/GEOMETRY_EOCT",
-  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
+  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
 
 	gofSGP(dat, state="GA", years='2018', content_areas='GEOMETRY', use.sgp="SGP", output.format="PNG")
 	# gofSGP(dat, state="GA", years='2018', content_areas='GEOMETRY', use.sgp="SGP_SIMEX", output.format="PNG")
@@ -296,7 +305,7 @@ Although the *official* SGPs incorporate SIMEX measurement error correction, we 
 			caption = "Goodness of Fit Plot for 2018 ***Uncorrected*** 8<sup>th</sup> Grade ELA:  Example of good model fit.")
 ```
 
-Minor misfit in the Geometry model is likely due to the relatively small cohort size, as well as the course repeater progression (resulting in a relatively homogenous cohort of low academic achievers).  The indication of a potential ceiling effect in this plot is probably overstated given the range of scores included in the HOSS (bottom) row.  That is, the low SGPs are likely attributed to students scoring just below the HOSS, and therefore less concerning.  This situation is investigated in greater detail in Appendix C of this report.
+Minor misfit in the Geometry model is likely due to the relatively small cohort size, as well as the course repeater progression (resulting in a relatively homogeneous cohort of low academic achievers).  The indication of a potential ceiling effect in this plot is probably overstated given the range of scores included in the HOSS (bottom) row.  That is, the low SGPs are likely attributed to students scoring just below the HOSS, and therefore less concerning.  This situation is investigated in greater detail in Appendix C of this report.
 
 ```{r, results="asis", echo=FALSE, Geom_GoF_Cohort}
 		placeFigure(page.break= TRUE,
@@ -330,7 +339,7 @@ To investigate the possibility that individual level misfit might impact summary
 
 Student-level correlations for EOG subjects are presented in Table `r tblNum(1)`, and the results are generally as expected.  Strong relationships exist between prior and current scale scores for the grade level analyses (column 3).  With cohort-referenced (uncorrected) percentiles, the correlation between students' most recent prior achievement scores and their student growth percentiles is zero when the model is perfectly fit to the data.  This also indicates that students can demonstrate high (or low) growth regardless of prior achievement.  Correlations for Georgia's uncorrected SGPs are all essentially zero (column 4).
 
-SIMEX corrected SGPs induce a negative correlation between growth and prior achievement.  Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students' is weighted upward and higher achieving students' growth is weighted down.  In theory, this bias in student-level SGPs may decrease the bias in aggregate growth measures (as documented in previous SIMEX reports and Shang et al., 2015).  Subsequently, the correlations between both student- and aggregate-level "uncorrected" SGPs and prior achievement are typically higher than those with SIMEX corrected SGPs (see the "Group Level Results" section for aggregate-level correlations).^[Note that correlations that are initially negative also become increasingly negative rather than return to zero.]
+SIMEX corrected SGPs induce a negative correlation between growth and prior achievement.  Rather than a uniform distribution, SIMEX produces a distribution in which growth for lower prior achieving students' is weighted upward and higher achieving students' growth is weighted down.  In theory, this bias in student-level SGPs may decrease the bias in aggregate growth measures (as documented in previous SIMEX reports and Shang et al., 2015).  Subsequently, the correlations between both student- and aggregate-level "uncorrected" SGPs and prior achievement are typically higher than those with SIMEX corrected SGPs (see the "Group Level Results" section for aggregate-level correlations).
 
 
 ### EOG Subjects
@@ -399,9 +408,7 @@ The relationships between growth and prior achievement reported in Table `r tblN
 
 # SGP Results
 
-In the following sections basic descriptive statistics from the 2018 analyses are provided, including the state-level mean and median growth percentiles.  Currently Georgia uses Ranked SIMEX corrected cohort-referenced SGPs as the official student growth metric.  Although Georgia DOE intends to eventually use baseline-referenced SGPs, the transition to [Georgia Milestones](http://www.gadoe.org/Curriculum-Instruction-and-Assessment/Assessment/Pages/Georgia-Milestones-Assessment-System.aspx) assessments requires the exclusive use of cohort-referenced analyses for several years until baseline referencing is again feasible.
-
-Georgia DOE decided to use the SIMEX measurement error correction method in the calculation of student-level SGPs several years ago.  This correction has been applied to the 2018 SGPs in addition to a system of ranking the SIMEX SGPs in order to improve some student level properties of the growth measure [@CastMcCaf:2017].  Descriptive statistics from the uncorrected and Ranked SIMEX corrected SGP results are both presented here.  The interested reader can find more in depth discussions of the SGP methodology in the [available literature](https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles), and information about the SIMEX measurement error correction methodology is available in Appendix B of this report as well as in recent academic articles [@ShangVanIBet:2015; @CastMcCaf:2017].
+In the following sections basic descriptive statistics from the 2018 analyses are provided, including the state-level mean and median growth percentiles.  Beginning in 2014 the Georgia DOE has used the SIMEX measurement error correction method in the calculation of student-level SGPs.  A system of ranking the SIMEX SGPs in order to improve some student level properties of the growth measure [@CastMcCaf:2017] was added as well in 2017.  Descriptive statistics from the uncorrected and Ranked SIMEX corrected SGP results are both presented here.  The interested reader can find more in depth discussions of the SGP methodology in the [available literature](https://github.com/CenterForAssessment/SGP_Resources/tree/master/articles), and information about the SIMEX measurement error correction methodology is available in Appendix B of this report as well as in recent academic articles [@ShangVanIBet:2015; @CastMcCaf:2017].
 
 ## Uncorrected SGPs
 
@@ -485,6 +492,10 @@ Simulation-extrapolation (SIMEX) methods of correcting for measurement error ind
 
 A comparison of the unadjusted (Tables `r tblNum(-3)` and `r tblNum(-2)`) and SIMEX corrected (Tables `r tblNum(-1)` and `r tblNum()`) shows very little difference in the medians and means.  This is not surprising as the majority of the growth percentiles for students in the middle of the prior score distributions change very little after SIMEX correction, and the larger changes that occur for students in the extremes of the prior score distributions tend to even out.  
 
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
 
 ## Group Level Results
 
@@ -509,7 +520,7 @@ To illustrate these relationships visually, the bubble charts in Figures `r getC
 ```{r, results="asis", echo=FALSE, ELA_Bubble}
 		placeFigure(
 			files = "../img/Bubble_Plots/2018/State/Style_1/Georgia_2018_ELA_State_Bubble_Plot_(Prior_Achievement).png",
-			caption = "School-level Bubble Plots for Georgia: ELA, 2017-2018.")
+			caption = "School-level Bubble Plots for Georgia: ELA, 2017-2018.", pdf.width = 0.925)
 ```
 
 <p></p>
@@ -519,7 +530,7 @@ To illustrate these relationships visually, the bubble charts in Figures `r getC
 ```{r, results="asis", echo=FALSE, Math_Bubble}
 		placeFigure(
 			files = "../img/Bubble_Plots/2018/State/Style_1/Georgia_2018_Mathematics_State_Bubble_Plot_(Prior_Achievement).png",
-			caption = "School-level Bubble Plots for Georgia: Mathematics, 2017-2018.")
+			caption = "School-level Bubble Plots for Georgia: Mathematics, 2017-2018.", pdf.width = 0.925)
 ```
 
 <p></p>
@@ -541,7 +552,6 @@ The relationship between average prior student achievement and median SGP observ
 			MEAN_SGP=round(cor(MEAN_SGP, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2),
 			MEDIAN_SIMEX_SGP = round(cor(MEDIAN_SGP_SIMEX_RANKED, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2), 
 			MEAN_SIMEX_SGP = round(cor(MEAN_SGP_SIMEX_RANKED, MEAN_SCALE_SCORE_PRIOR_STANDARDIZED), 2)), keyby = 'YEAR']
-	setkey(sch.cor, YEAR)
 
 	##  Multiple year - School_EOG_Correlations, School_EOC_Cor
 	sch.cor.subj <- sch.msgp.subj[, list(
@@ -627,6 +637,313 @@ Correlation tables describing the relationship between prior standardized scale 
 	
 	pageBreak()
 ```
+
+
+#  Student Growth Targets
+
+To fully understand the rates of student growth in the state, it is necessary to complement the normative growth results with a standard based interpretation (i.e. a growth-to-standard measure).  Whereas normative growth answers the question "What is?", growth-to-standard analyses attempt to establish a threshold answering "What should be?".  For example, if universal proficiency is the goal of the education system, then growth adequacy can be anchored to that achievement target.
+
+Student growth targets describe how much growth a student will likely need to be on track to reach a desired achievement level within a specific time frame. By defining a future achievement target for each student, growth percentile analyses can be used to quantify what level of growth, expressed as a per/year growth percentile, is required by the student to reach their achievement target. Unique to the SGP Methodology is the ability to stipulate *both* what the growth standard is as well as how much the student actually grew in a metric that is informative to stakeholders.
+
+Establishing thresholds for growth for each student that can be used to make adequacy judgments requires pre-established achievement targets and a time-frame to reach the target for each student against which growth can be assessed.  Georgia uses a single year from the establishment of the target for describing students growth-to-standard and has established three growth target levels based on the state's performance levels:
+
+- **Developing Learner Target:** The Developing Learner Target describes the amount of growth a student needs to become or remain a Developing Learner.
+- **Proficient Learner Target:** The Proficient Learner Target describes the amount of growth a student needs to become or remain a Proficient Learner.
+- **Distinguished Learner Target:** The Distinguished Learner Target describes the amount of growth a student needs to become or remain a Distinguished Learner.
+
+Targets are initially established in the prior academic year, so that students' growth towards specific targets in the current year are considered relative to growth norms from the previous years' cohort.  The 2018 growth target analyses will be used in the [Georgia visualization tool](http://gastudentgrowth.gadoe.org/) to provide stakeholders with prospective information about student growth needs in the current year.  The 2018 targets will also be "banked" and used to compare with 2019 SGPs to determine growth adequacy.  The following sections provide descriptive statistics of the 2018 growth target results.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+##  Growth Target Summary Statistics
+
+The following tables and figures summarize the distributions of the 2019 Developing, Proficient and Distinguished Growth Targets for all students in 2018.  The summaries are disaggregated by the current achievement level to demonstrate how students' academic starting points impacts their one-year growth targets.  As would be expected students in lower achievement levels need to demonstrate more growth than students with higher achievement to reach the same proficiency levels.  These summary tables and visualizations help us better understand the extent to which some groups must grow in the next year, the likelihood of those goals being attained, and the variability of those growth targets within achievement level groups.
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE, Target_Sum}
+	target_smry <- Georgia_SGP@Data[,list( # [YEAR=='2018' & CONTENT_AREA %in% GL_subjects]
+				MEDIAN_Developing=median(as.numeric(DEVELOPING_SGP_TARGET_YEAR_1_CURRENT), na.rm=TRUE),
+				MEAN_Developing=format(round(mean(DEVELOPING_SGP_TARGET_YEAR_1_CURRENT, na.rm=TRUE), 1), nsmall = 1),
+				MEDIAN_Proficient=median(as.numeric(PROFICIENT_SGP_TARGET_YEAR_1_CURRENT), na.rm=TRUE),
+				MEAN_Proficient=format(round(mean(PROFICIENT_SGP_TARGET_YEAR_1_CURRENT, na.rm=TRUE), 1), nsmall = 1),
+				MEDIAN_Distinguished=median(as.numeric(DISTINGUISHED_SGP_TARGET_YEAR_1_CURRENT), na.rm=TRUE),
+				MEAN_Distinguished=format(round(mean(DISTINGUISHED_SGP_TARGET_YEAR_1_CURRENT, na.rm=TRUE), 1), nsmall = 1)),
+			by=c('CONTENT_AREA', 'ACHIEVEMENT_LEVEL', 'SGP_PROJECTION_GROUP_CURRENT')][!is.na(ACHIEVEMENT_LEVEL)][!is.na(SGP_PROJECTION_GROUP_CURRENT)]
+
+	target_smry_long <- merge(
+		melt(target_smry, id = c('CONTENT_AREA', 'ACHIEVEMENT_LEVEL', 'SGP_PROJECTION_GROUP_CURRENT'), measure.vars = c("MEDIAN_Developing", "MEDIAN_Proficient", "MEDIAN_Distinguished"), variable.name = "Target", value.name = "Median")[, Target := gsub("MEDIAN_", "", Target)],
+		melt(target_smry, id = c('CONTENT_AREA', 'ACHIEVEMENT_LEVEL', 'SGP_PROJECTION_GROUP_CURRENT'), measure.vars = c("MEAN_Developing", "MEAN_Proficient", "MEAN_Distinguished"), variable.name = "Target", value.name = "Mean")[, Target := gsub("MEAN_", "", Target)], by=c("CONTENT_AREA", "ACHIEVEMENT_LEVEL", 'SGP_PROJECTION_GROUP_CURRENT', "Target"))
+
+	target_smry_long[, ACHIEVEMENT_LEVEL := factor(ACHIEVEMENT_LEVEL, levels=c("Beginning Learner", "Developing Learner", "Proficient Learner", "Distinguished Learner"))]
+	target_smry_long[, Target := factor(Target, levels=c("Developing", "Proficient", "Distinguished"))]
+	target_smry_long[, SGP_PROJECTION_GROUP_CURRENT := gsub("MATH_ALG_I", "MATHEMATICS", SGP_PROJECTION_GROUP_CURRENT)]
+
+	setkey(target_smry_long)
+```
+
+```{r, echo=FALSE, include=FALSE, cache=TRUE, Box_Plots, fig.height=8, fig.width=6}
+	dir.create("../img/Tech_Reports/2018/", recursive = TRUE, showWarnings = FALSE)
+
+  tmp.data <- Georgia_SGP@Data[, list(SCALE_SCORE, SGP_PROJECTION_GROUP_CURRENT, DEVELOPING_SGP_TARGET_YEAR_1_CURRENT, PROFICIENT_SGP_TARGET_YEAR_1_CURRENT, DISTINGUISHED_SGP_TARGET_YEAR_1_CURRENT, ACHIEVEMENT_LEVEL)] # SGP_PROJECTION_GROUP_CURRENT %in% c("ELA", "MATH_ALG_I")
+ 	tmp.data[, SGP_PROJECTION_GROUP_CURRENT := gsub("MATH_ALG_I", "MATHEMATICS", SGP_PROJECTION_GROUP_CURRENT)]
+	tmp.data[, SGP_PROJECTION_GROUP_CURRENT := factor(SGP_PROJECTION_GROUP_CURRENT, levels=subject_order, labels=sapply(subject_order, capwords, USE.NAMES = FALSE))]
+ 	tmp.data[, ACHIEVEMENT_LEVEL := gsub(" Learner", "", ACHIEVEMENT_LEVEL)]
+ 	tmp.data[, ACHIEVEMENT_LEVEL := factor(ACHIEVEMENT_LEVEL, levels=c("Beginning", "Developing", "Proficient", "Distinguished"))]
+	tmp.data <- melt(tmp.data, id = c('SCALE_SCORE', 'ACHIEVEMENT_LEVEL', 'SGP_PROJECTION_GROUP_CURRENT'), measure.vars = c("DEVELOPING_SGP_TARGET_YEAR_1_CURRENT", "PROFICIENT_SGP_TARGET_YEAR_1_CURRENT", "DISTINGUISHED_SGP_TARGET_YEAR_1_CURRENT"), variable.name = "Target_Level", value.name = "Target")
+	tmp.data[, Target_Level := gsub("_SGP_TARGET_YEAR_1_CURRENT", "", Target_Level)]
+ 	tmp.data[, Target_Level := factor(Target_Level, levels=c("DEVELOPING", "PROFICIENT", "DISTINGUISHED"), labels=c("Developing Target", "Proficient Target", "Distinguished Target"))]
+	setnames(tmp.data, c("ACHIEVEMENT_LEVEL", "SGP_PROJECTION_GROUP_CURRENT", "Target_Level"), c("Achievement Level", "Target Content Area", "Target Level"))
+
+	ggplot(data=tmp.data[`Target Content Area` %in% c("ELA", "Mathematics"), ], aes(x=`Target Content Area`, y=Target, col=`Target Content Area`)) + 
+				geom_boxplot() + labs(x="", y="") + scale_color_brewer(palette="Set1") + 
+				theme(axis.text.x = element_blank(), legend.position = "bottom") + facet_grid(`Achievement Level` ~ `Target Level`)
+
+	ggplot(data=tmp.data[`Target Content Area` %in% c("Grade 9 Lit", "American Lit"), ], aes(x=`Target Content Area`, y=Target, col=`Target Content Area`)) +
+				geom_boxplot() + labs(x="", y="") + scale_color_brewer(palette="Dark2") + 
+				theme(axis.text.x = element_blank(), legend.position = "bottom") + facet_grid(`Achievement Level` ~ `Target Level`)
+
+	ggplot(data=tmp.data[`Target Content Area` %in% c("Algebra I", "Geometry", "Coordinate Algebra", "Analytic Geometry"), ], aes(x=`Target Content Area`, y=Target, col=`Target Content Area`)) +
+				geom_boxplot() + labs(x="", y="") + scale_color_brewer(palette="Paired") + 
+				theme(axis.text.x = element_blank(), legend.position = "bottom", legend.title = element_blank()) + 
+				facet_grid(`Achievement Level` ~ `Target Level`) + guides(col=guide_legend(nrow=2))
+```
+
+###  End of Grade
+
+The EOG summaries include targets that project from one grade level to the next.  This includes ELA and Mathematics targets for grades 4 through 8 in 2019 (i.e. 2018 3<sup>rd</sup> to 7<sup>th</sup> graders).
+
+```{r, results='asis', echo=FALSE, Target_Sum_EOG}
+	target_smry_A <- data.frame()
+	for (ca in GL_subjects) {
+		tmp.ca <- ca
+		for (achlev in c("Beginning Learner", "Developing Learner", "Proficient Learner", "Distinguished Learner")) {
+			tmp_data <- target_smry_long[SGP_PROJECTION_GROUP_CURRENT==ca & ACHIEVEMENT_LEVEL==achlev,]
+			tmp_EOG_smry <- paste(t(as.matrix(tmp_data[, list(Median)])), " (", t(as.matrix(tmp_data[, list(Mean)])), ")", sep="")
+			tmp_EOG_smry <- data.frame(matrix(c(capwords(tmp.ca), achlev, tmp_EOG_smry), 1, length(tmp_EOG_smry)+2))
+			names(tmp_EOG_smry) <- c("Target Content Area", "Achievement Level", t(as.matrix(tmp_data[, list(Target)])))
+			target_smry_A <- rbindlist(list(target_smry_A, tmp_EOG_smry))
+			if (achlev == "Beginning Learner") tmp.ca <- ""
+		}
+	}
+	target_smry_A[is.na(target_smry_A)] <- ""
+	
+  cat(dualTable(as.matrix(target_smry_A), title="", n.cgroup=c(1, 1, dim(target_smry_A)[2]-2), cgroup=c("", "", "Growth Targets"),
+  	align=paste(rep('r', dim(target_smry_A)[2]), collapse=''),
+		caption='Median (Mean) 2019 EOG Growth Targets by Target Content Area and Current Achievement Level'))
+```
+
+```{r, results="asis", echo=FALSE, EOG_BoxPlots}
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Box_Plots-1.png", page.break= TRUE,
+			caption = "2019 EOG growth target box plots by current achievement level.")
+```
+
+###  End of Course
+
+The EOC summaries include targets that project from one content area to the next related subject that represents the most typical course progression in Georgia.  For example, 8<sup>th</sup> grade students typically move from grade level ELA and Mathematics to 9<sup>th</sup> Grade Literature and Algebra I respectively, and then subsequently from these content areas to American Literature and Geometry.  Some less typical, but important, course progression targets are also calculated.  For example, each 8<sup>th</sup> grade student has both a Grade 8 Math to Algebra I and Grade 8 Math to Coordinate Algebra target calculated in 2018.  The target used for each student with depend on the high school math course actually taken in 2019.
+
+
+```{r, results='asis', echo=FALSE, Target_Sum_EOC}
+	target_smry_B <- data.frame()
+	for (ca in EOC_subjects) {
+		tmp.ca <- ca
+		for (achlev in c("Beginning Learner", "Developing Learner", "Proficient Learner", "Distinguished Learner")) {
+			tmp_data <- target_smry_long[SGP_PROJECTION_GROUP_CURRENT==ca & ACHIEVEMENT_LEVEL==achlev,]
+			tmp_EOG_smry <- paste(t(as.matrix(tmp_data[, list(Median)])), " (", t(as.matrix(tmp_data[, list(Mean)])), ")", sep="")
+			tmp_EOG_smry <- data.frame(matrix(c(capwords(tmp.ca), achlev, tmp_EOG_smry), 1, length(tmp_EOG_smry)+2))
+			names(tmp_EOG_smry) <- c("Target Content Area", "Achievement Level", t(as.matrix(tmp_data[, list(Target)])))
+			target_smry_B <- rbindlist(list(target_smry_B, tmp_EOG_smry))
+			if (achlev == "Beginning Learner") tmp.ca <- ""
+		}
+	}
+	target_smry_B[is.na(target_smry_B)] <- ""
+	
+  cat(dualTable(as.matrix(target_smry_B), title="", n.cgroup=c(1, 1, dim(target_smry_B)[2]-2), cgroup=c("", "", "Growth Targets"),
+  	align=paste(rep('r', dim(target_smry_B)[2]), collapse=''),
+		caption='2019 EOC Median (Mean) Growth Targets by Subject and Current Achievement.'))
+```
+
+```{r, results="asis", echo=FALSE, EOC_BoxPlots}
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Box_Plots-2.png", page.break= TRUE,
+			caption = "Language Arts related EOC 2019 growth target box plots by current achievement level.")
+
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Box_Plots-3.png", page.break= TRUE,
+			caption = "Mathematics related EOC 2019 growth target box plots by current achievement level.")
+```
+
+
+##  Growth Targets and Current Achievement
+
+Examining the relationship between growth targets and current achievement also provides valuable insight into the targets and what they can tell us about expectations for student growth and proficiency attainment in the next year.  Correlation tables and scatter plots are provided in the subsequent sections to describe the relationship between Georgia's one-year targets and 2018 scale scores.  The correlation tables show negative relationships across the board, suggesting that lower achieving students have higher growth targets and vice versa.  This relationship is as expected - the further below an achievement level a student starts, the higher their target will be.  
+
+Scatter plots show that this usually is not a simple linear relationship the Pearson correlation describes, with target ceilings and floors at the growth percentile and scale score extremes.  The scatter plots also help to show how the targets for the same current scores change relative to the three performance level target cuts.  The points in each scatter plot are color coded by current achievement level, and also contain contour lines that show the target distribution density more clearly.   
+
+```{r, cache=TRUE, echo=FALSE, include=FALSE, Target_Cor}
+	target_cor <- Georgia_SGP@Data[,list( # [YEAR=='2018' & CONTENT_AREA %in% GL_subjects]
+				Developing=round(cor(SCALE_SCORE, DEVELOPING_SGP_TARGET_YEAR_1_CURRENT, use='pairwise.complete'), 2),
+				# Prior_Developing=round(cor(SCALE_SCORE_PRIOR_STANDARDIZED, DEVELOPING_SGP_TARGET_YEAR_1_CURRENT, use='pairwise.complete'), 2),
+				Proficient=round(cor(SCALE_SCORE, PROFICIENT_SGP_TARGET_YEAR_1_CURRENT, use='pairwise.complete'), 2),
+				Distinguished=round(cor(SCALE_SCORE, DISTINGUISHED_SGP_TARGET_YEAR_1_CURRENT, use='pairwise.complete'), 2), N = .N),
+			by=c('CONTENT_AREA', 'SGP_PROJECTION_GROUP_CURRENT', 'GRADE')][!is.na(SGP_PROJECTION_GROUP_CURRENT)]
+
+	target_cor[, SGP_PROJECTION_GROUP_CURRENT := gsub("MATH_ALG_I", "MATHEMATICS", SGP_PROJECTION_GROUP_CURRENT)]
+
+	setkey(target_cor)
+```
+
+### End of Grade Content Areas
+
+```{r, results='asis', echo=FALSE, Target_Cor_EOG}
+	tmp_EOG_smry <- target_cor[SGP_PROJECTION_GROUP_CURRENT %in% GL_subjects]
+	tmp_EOG_smry[, GRADE := as.numeric(GRADE)+1]
+	tmp_EOG_smry[, CONTENT_AREA := NULL]
+	tmp_EOG_smry[, SGP_PROJECTION_GROUP_CURRENT := sapply(SGP_PROJECTION_GROUP_CURRENT, SGP::capwords)]
+	tmp_EOG_smry[, N := prettyNum(N, preserve.width = "individual", big.mark=',')]
+	setkey(tmp_EOG_smry, SGP_PROJECTION_GROUP_CURRENT, GRADE)
+	# tmp_EOG_smry <- tmp_EOG_smry[][order(match(tmp_EOG_smry$SGP_PROJECTION_GROUP_CURRENT, GL_subjects))]
+	tmp_EOG_smry[duplicated(SGP_PROJECTION_GROUP_CURRENT), SGP_PROJECTION_GROUP_CURRENT := ""]
+	setnames(tmp_EOG_smry, c("SGP_PROJECTION_GROUP_CURRENT", "GRADE"), c("Target Content Area", "Target Grade"))
+
+	tmp.cap <- "EOG Student Level Correlations between 2018 Growth Target and Current Scale Score."
+
+  cat(dualTable(as.matrix(tmp_EOG_smry), align=paste(rep('r', dim(tmp_EOG_smry)[2]), collapse=''), caption = tmp.cap))
+```
+
+```{r, echo=FALSE, include=FALSE, cache=TRUE, Scatter_Plot1, fig.height=3.25, fig.width=5.5}
+	levels(tmp.data[["Target Level"]]) <- c("Developing", "Proficient", "Distinguished")
+	tmp.points <- unique(tmp.data, by=c("SCALE_SCORE", "Target", "Target Level", "Target Content Area"))[!is.na(Target)]
+
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) + # NULL data to use different data sets below
+			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "ELA"], size=0.5) + # , alpha=0.65
+			stat_density2d(data=tmp.data[`Target Content Area` == "ELA"], geom="density2d", colour="red", contour = TRUE) + #, size=1
+			labs(y = "2019 Target", x = "Current Grade Level ELA Scale Score") + theme(axis.title=element_text(size=10, face="bold"), legend.position="none", legend.title = element_blank()) + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") # + guides(col=guide_legend(nrow=2, "Current ELA Achievement Level"))
+
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "Grade 9 Lit"], size=0.5) +
+			stat_density2d(data=tmp.data[`Target Content Area` == "Grade 9 Lit"], geom="density2d", colour="red", contour = TRUE) +
+			labs(y = "2019 Target", x = "Grade 8 ELA Scale Score") + theme(axis.title=element_text(size=10, face="bold"), legend.position="none", legend.title = element_blank()) + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") # + guides(col=guide_legend(nrow=2, "Grade 8 ELA Achievement Level"))
+
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "Algebra I"], size=0.5) +
+			stat_density2d(data=tmp.data[`Target Content Area` == "Algebra I"], geom="density2d", colour="red", contour = TRUE) +
+			labs(y = "2019 Target", x = "Grade 8 Math Scale Score") + theme(axis.title=element_text(size=10, face="bold"), legend.position="none", legend.title = element_blank()) + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") # + guides(col=guide_legend(nrow=2, "Grade 8 Math Achievement Level"))
+
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "Coordinate Algebra"], size=0.5) +
+			stat_density2d(data=tmp.data[`Target Content Area` == "Coordinate Algebra"], geom="density2d", colour="red", contour = TRUE) +
+			labs(y = "2019 Target", x = "Grade 8 Math Scale Score") + theme(axis.title=element_text(size=10, face="bold"), legend.position="none", legend.title = element_blank()) + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") # + guides(col=guide_legend(nrow=2, "Grade 8 Math Achievement Level"))
+
+	# ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+	# 		theme_bw() + geom_point(data=tmp.points[`Target Content Area` %in% c("Coordinate Algebra", "Analytic Geometry")], size=0.5) +
+	# 		stat_density2d(data=tmp.data[`Target Content Area` %in% c("Coordinate Algebra", "Analytic Geometry")], geom="density2d", colour="red", contour = TRUE) +
+	# 		labs(y = "2019 Target", x = "Current Scale Score") + theme(axis.title=element_text(size=10, face="bold"), legend.position="bottom") + 
+	# 		facet_grid(`Target Content Area` ~ `Target Level`) + scale_color_brewer(palette="Paired") + guides(col=guide_legend(nrow=2, "Current Achievement Level"))
+```
+
+```{r, echo=FALSE, include=FALSE, cache=TRUE, Scatter_Plot2, fig.height=3.75, fig.width=5.5}
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+			theme_bw() + geom_point(data=tmp.data[`Target Content Area` == "Mathematics"], size=0.5) +
+			stat_density2d(data=tmp.data[`Target Content Area` == "Mathematics"], geom="density2d", colour="red", contour = TRUE, size=0.5) +
+			labs(y = "2019 Target", x = "Current Grade Level Math Scale Score") + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:"))
+
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "American Lit"], size=0.5) +
+			stat_density2d(data=tmp.data[`Target Content Area` == "American Lit"], geom="density2d", colour="red", contour = TRUE) +
+			labs(y = "2019 Target", x = "Grade 9 Lit Scale Score") + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:")) # + guides(col=guide_legend(nrow=2, "Grade 9 Lit Achievement Level"))
+
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "Geometry"], size=0.5) +
+			stat_density2d(data=tmp.data[`Target Content Area` == "Geometry"], geom="density2d", colour="red", contour = TRUE) +
+			labs(y = "2019 Target", x = "Algebra I Scale Score")  + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:"))
+
+	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
+			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "Analytic Geometry"], size=0.5) +
+			stat_density2d(data=tmp.data[`Target Content Area` == "Analytic Geometry"], geom="density2d", colour="red", contour = TRUE) +
+			labs(y = "2019 Target", x = "Coordinate Algebra Scale Score") + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:"))
+```
+
+```{r, results="asis", echo=FALSE, EOG_ScatterPlots}
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot1-1.png", pdf.width = 0.95,
+			caption = "ELA 2019 growth target box plots by current scale score.")
+
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot2-1.png", pdf.width = 0.95, page.break= TRUE,
+			caption = "Mathematics 2019 growth target box plots by current scale score.")
+```
+
+###   End of Course Test Subjects
+
+```{r, results='asis', echo=FALSE, Target_Cor_EOC}
+	tmp_EOC_smry <- target_cor[SGP_PROJECTION_GROUP_CURRENT %in% EOC_subjects]
+	tmp_EOC_smry[, GRADE := NULL]
+	tmp_EOC_smry[, CONTENT_AREA := sapply(CONTENT_AREA, SGP::capwords)]
+	tmp_EOC_smry <- tmp_EOC_smry[][order(match(tmp_EOC_smry$SGP_PROJECTION_GROUP_CURRENT, EOC_subjects))]
+	tmp_EOC_smry[, SGP_PROJECTION_GROUP_CURRENT := sapply(SGP_PROJECTION_GROUP_CURRENT, SGP::capwords)]
+	tmp_EOC_smry[, N := prettyNum(N, preserve.width = "individual", big.mark=',')]
+	# setkey(tmp_EOC_smry, CONTENT_AREA, SGP_PROJECTION_GROUP_CURRENT)
+	tmp_EOC_smry[duplicated(SGP_PROJECTION_GROUP_CURRENT), SGP_PROJECTION_GROUP_CURRENT := ""]
+	setnames(tmp_EOC_smry, c("CONTENT_AREA", "SGP_PROJECTION_GROUP_CURRENT"), c("Content Area", "Target Content Area"))
+
+	tmp.cap <- "EOC Student Level Correlations between 2018 Growth Target and Current Scale Score."
+
+  cat(dualTable(as.matrix(tmp_EOC_smry), align=paste(rep('r', dim(tmp_EOC_smry)[2]), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+```{r, results="asis", echo=FALSE, EOC_ScatterPlots}
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot1-2.png", pdf.width = 0.95,
+			caption = "Grade 9 Lit 2019 growth targets by current scale score.")
+
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot2-2.png", pdf.width = 0.95, page.break= TRUE,
+			caption = "American Lit 2019 growth targets by current scale score.")
+
+######
+######
+######
+		
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot1-3.png", pdf.width = 0.95,
+			caption = "2019 Algebra I growth targets by current scale score.")
+
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot2-3.png", pdf.width = 0.95,
+			caption = "2019 Geometry growth targets by current scale score.", page.break= TRUE)
+		
+######
+######
+######
+		
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot1-4.png", pdf.width = 0.95,
+			caption = "Coordinate Algebra 2019 growth targets by current scale score.")
+
+		placeFigure(
+			files = "../img/Tech_Reports/2018/Scatter_Plot2-4.png", pdf.width = 0.95, page.break= TRUE,
+			caption = "Analytic Geometry 2019 growth targets by current scale score.")
+		
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
 
 
 # References

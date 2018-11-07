@@ -1,0 +1,9 @@
+
+Started visualizeSGP Tuesday November 06 01:45:23 2018 
+
+Started bubblePlot in visualizeSGP Tuesday November 06 01:45:23 2018 
+
+Finished bubblePlot in visualizeSGP Tuesday November 06 01:45:26 2018 in 2.872 Seconds 
+
+Finished visualizeSGP Tuesday November 06 01:45:26 2018 in 2.881 Seconds 
+

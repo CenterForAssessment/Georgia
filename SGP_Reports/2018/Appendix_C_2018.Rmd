@@ -5,7 +5,7 @@ author:
   - name: Adam R. VanIwaarden
   - name: Damian W. Betebenner
   - name: <em>National Center for the Improvement<br></br> of Educational Assessment (NCIEA)</em>
-date: October 2018
+date: November 2018
 abstract: "DRAFT REPORT - DO NOT CITE!"
 ---
 
