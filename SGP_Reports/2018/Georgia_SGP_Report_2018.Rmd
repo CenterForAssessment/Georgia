@@ -633,7 +633,7 @@ Correlation tables describing the relationship between prior standardized scale 
 
 	tmp_tbl[is.na(tmp_tbl)] <- ""
 
-	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', rep('c', dim(tmp_tbl)[2]-2)), caption = tmp.cap))
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', rep('c', dim(tmp_tbl)[2]-2)), n.rgroup=rep(3, length(EOC_subjects)), caption = tmp.cap))
 	
 	pageBreak()
 ```
@@ -651,7 +651,7 @@ Establishing thresholds for growth for each student that can be used to make ade
 - **Proficient Learner Target:** The Proficient Learner Target describes the amount of growth a student needs to become or remain a Proficient Learner.
 - **Distinguished Learner Target:** The Distinguished Learner Target describes the amount of growth a student needs to become or remain a Distinguished Learner.
 
-Targets are initially established in the prior academic year, so that students' growth towards specific targets in the current year are considered relative to growth norms from the previous years' cohort.  The 2018 growth target analyses will be used in the [Georgia visualization tool](http://gastudentgrowth.gadoe.org/) to provide stakeholders with prospective information about student growth needs in the current year.  The 2018 targets will also be "banked" and used to compare with 2019 SGPs to determine growth adequacy.  The following sections provide descriptive statistics of the 2018 growth target results.
+Targets are initially established in the prior academic year, so that students' growth towards specific targets in the current year are considered relative to growth norms from the previous years' cohort.  The growth target analyses done in 2018 will be used in the [Georgia visualization tool](http://gastudentgrowth.gadoe.org/) to provide stakeholders with prospective information about student growth needs in the upcoming year.  The 2018 targets will also be "banked" and used to compare with 2019 SGPs to determine growth adequacy.  The following sections provide descriptive statistics of the growth target results.
 
 ```{r, cache=FALSE, results="asis", echo=FALSE}
 	Literasee:::pageBreak()
@@ -759,9 +759,12 @@ The EOC summaries include targets that project from one content area to the next
 	}
 	target_smry_B[is.na(target_smry_B)] <- ""
 	
-  cat(dualTable(as.matrix(target_smry_B), title="", n.cgroup=c(1, 1, dim(target_smry_B)[2]-2), cgroup=c("", "", "Growth Targets"),
-  	align=paste(rep('r', dim(target_smry_B)[2]), collapse=''),
-		caption='2019 EOC Median (Mean) Growth Targets by Subject and Current Achievement.'))
+	# rgroups <- target_smry_B[, list(length(`Achievement Level`)), by=`Target Content Area`]$V1
+	rgroups <- rep(4, length(EOC_subjects))
+
+  cat(dualTable(as.matrix(target_smry_B), title="", align=paste(rep('r', dim(target_smry_B)[2]), collapse=''),
+  							n.cgroup=c(1, 1, dim(target_smry_B)[2]-2), cgroup=c("", "", "Growth Targets"), n.rgroup=rgroups,
+  							caption='2019 EOC Median (Mean) Growth Targets by Subject and Current Achievement.'))
 ```
 
 ```{r, results="asis", echo=FALSE, EOC_BoxPlots}
@@ -807,7 +810,7 @@ Scatter plots show that this usually is not a simple linear relationship the Pea
 	tmp_EOG_smry[duplicated(SGP_PROJECTION_GROUP_CURRENT), SGP_PROJECTION_GROUP_CURRENT := ""]
 	setnames(tmp_EOG_smry, c("SGP_PROJECTION_GROUP_CURRENT", "GRADE"), c("Target Content Area", "Target Grade"))
 
-	tmp.cap <- "EOG Student Level Correlations between 2018 Growth Target and Current Scale Score."
+	tmp.cap <- "EOG Student Level Correlations between 2019 Growth Target and Current Scale Score."
 
   cat(dualTable(as.matrix(tmp_EOG_smry), align=paste(rep('r', dim(tmp_EOG_smry)[2]), collapse=''), caption = tmp.cap))
 ```
@@ -896,7 +899,7 @@ Scatter plots show that this usually is not a simple linear relationship the Pea
 	tmp_EOC_smry[duplicated(SGP_PROJECTION_GROUP_CURRENT), SGP_PROJECTION_GROUP_CURRENT := ""]
 	setnames(tmp_EOC_smry, c("CONTENT_AREA", "SGP_PROJECTION_GROUP_CURRENT"), c("Content Area", "Target Content Area"))
 
-	tmp.cap <- "EOC Student Level Correlations between 2018 Growth Target and Current Scale Score."
+	tmp.cap <- "EOC Student Level Correlations between 2019 Growth Target and Current Scale Score."
 
   cat(dualTable(as.matrix(tmp_EOC_smry), align=paste(rep('r', dim(tmp_EOC_smry)[2]), collapse=''), caption = tmp.cap))
 ```
