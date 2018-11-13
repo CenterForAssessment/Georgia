@@ -278,17 +278,17 @@ The bottom right panel of each plot is a Q-Q plot which compares the observed di
   ##  Keep using that from year to year to show it IS arbitrary - no need to change year to year ... ...
 
   dat <- Georgia_SGP@Data[SGP_NORM_GROUP %in% "2016/ELA_6; 2017/ELA_7; 2018/ELA_8", 
-  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
+  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
 
 	gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP", output.format="PNG")
-	# gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP_SIMEX", output.format="PNG")
+	gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP_SIMEX", output.format="PNG")   #   Run for TAC presentation
 	gofSGP(dat, state="GA", years='2018', content_areas="ELA", use.sgp="SGP_SIMEX_RANKED", output.format="PNG") # Run before SIMEX and Rename folder???
 
   dat <- Georgia_SGP@Data[SGP_NORM_GROUP %in% "2018/GEOMETRY_EOCT; 2018/GEOMETRY_EOCT",
-  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
+  				 c("VALID_CASE", "CONTENT_AREA", "GRADE", "YEAR", "ID", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SCALE_SCORE", "SCALE_SCORE_PRIOR", "SGP_NORM_GROUP"), with=FALSE]
 
 	gofSGP(dat, state="GA", years='2018', content_areas='GEOMETRY', use.sgp="SGP", output.format="PNG")
-	# gofSGP(dat, state="GA", years='2018', content_areas='GEOMETRY', use.sgp="SGP_SIMEX", output.format="PNG")
+	gofSGP(dat, state="GA", years='2018', content_areas='GEOMETRY', use.sgp="SGP_SIMEX", output.format="PNG")   #   Run for TAC presentation
 	gofSGP(dat, state="GA", years='2018', content_areas='GEOMETRY', use.sgp="SGP_SIMEX_RANKED", output.format="PNG") # Rename folder???
 
 	setwd("../2018")
@@ -362,7 +362,7 @@ SIMEX corrected SGPs induce a negative correlation between growth and prior achi
 	gl_tmp_tbl$N_Size <- prettyNum(gl_tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
 	setnames(gl_tmp_tbl, c(1:2,6), sapply(names(gl_tmp_tbl)[c(1:2,6)], capwords))
 
-  cat(dualTable(as.matrix(gl_tmp_tbl), align=paste(rep('r', dim(gl_tmp_tbl)[2]), collapse=''), caption = tmp.cap))
+  cat(dualTable(as.matrix(gl_tmp_tbl), align=paste(rep('r', dim(gl_tmp_tbl)[2]), collapse=''), n.rgroup=c(5,5), caption = tmp.cap))
 
 ```
 
@@ -396,11 +396,12 @@ The relationships between growth and prior achievement reported in Table `r tblN
 	eoct_tmp_tbl[, Most_Recent_Prior := gsub("Mathematics", "Math", Most_Recent_Prior)]
 
 	eoct_tmp_tbl$CONTENT_AREA <- sapply(eoct_tmp_tbl$CONTENT_AREA, capwords, USE.NAMES=FALSE)
+	rgroups <- eoct_tmp_tbl[, list(length(Most_Recent_Prior)), by=CONTENT_AREA]$V1
 	eoct_tmp_tbl$CONTENT_AREA[duplicated(eoct_tmp_tbl$CONTENT_AREA)] <- ""
 	eoct_tmp_tbl$N_Size <- prettyNum(eoct_tmp_tbl$N_Size, preserve.width = "individual", big.mark=',')
 	setnames(eoct_tmp_tbl, c(1:2,6), sapply(names(eoct_tmp_tbl)[c(1:2,6)], capwords))
 
-	cat(dualTable(as.matrix(eoct_tmp_tbl), align=paste(rep('r', dim(eoct_tmp_tbl)[2]), collapse=''), caption = tmp.cap))
+	cat(dualTable(as.matrix(eoct_tmp_tbl), align=paste(rep('r', dim(eoct_tmp_tbl)[2]), collapse=''), n.rgroup=rgroups, caption = tmp.cap))
 	
 	pageBreak()
 ```
@@ -603,7 +604,7 @@ Correlation tables describing the relationship between prior standardized scale 
 
 	tmp_tbl[is.na(tmp_tbl)] <- ""
 
-	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', rep('c', dim(tmp_tbl)[2]-2)), caption  = tmp.cap))
+	cat(dualTable(as.matrix(tmp_tbl), align=c('r', 'r', rep('c', dim(tmp_tbl)[2]-2)), n.rgroup=c(3,3), caption  = tmp.cap))
 	
 ```
 <p></p>
@@ -616,7 +617,7 @@ Correlation tables describing the relationship between prior standardized scale 
 	gl_cor_tbl$CONTENT_AREA[duplicated(gl_cor_tbl$CONTENT_AREA)] <- ""
 	setnames(gl_cor_tbl, sapply(names(gl_cor_tbl), capwords))
 
-	cat(dualTable(as.matrix(gl_cor_tbl), align=c('r', 'r', rep('c', dim(gl_cor_tbl)[2]-2)), caption = tmp.cap))
+	cat(dualTable(as.matrix(gl_cor_tbl), align=c('r', 'r', rep('c', dim(gl_cor_tbl)[2]-2)), n.rgroup=c(5,5), caption = tmp.cap))
 	
 	pageBreak()
 ```
@@ -651,7 +652,7 @@ Establishing thresholds for growth for each student that can be used to make ade
 - **Proficient Learner Target:** The Proficient Learner Target describes the amount of growth a student needs to become or remain a Proficient Learner.
 - **Distinguished Learner Target:** The Distinguished Learner Target describes the amount of growth a student needs to become or remain a Distinguished Learner.
 
-Targets are initially established in the prior academic year, so that students' growth towards specific targets in the current year are considered relative to growth norms from the previous years' cohort.  The growth target analyses done in 2018 will be used in the [Georgia visualization tool](http://gastudentgrowth.gadoe.org/) to provide stakeholders with prospective information about student growth needs in the upcoming year.  The 2018 targets will also be "banked" and used to compare with 2019 SGPs to determine growth adequacy.  The following sections provide descriptive statistics of the growth target results.
+Targets are initially established in the prior academic year, so that students' growth towards specific targets in the current year are considered relative to growth norms from the previous years' cohort.  The growth target analyses done in 2018 will be used in the [Georgia visualization tool](http://gastudentgrowth.gadoe.org/) to provide stakeholders with prospective information about student growth needs in the upcoming year.  These targets will also be used to compare with 2019 SGPs to determine growth adequacy.  The following sections provide descriptive statistics of the growth target results.
 
 ```{r, cache=FALSE, results="asis", echo=FALSE}
 	Literasee:::pageBreak()
@@ -709,7 +710,7 @@ The following tables and figures summarize the distributions of the 2019 Develop
 				facet_grid(`Achievement Level` ~ `Target Level`) + guides(col=guide_legend(nrow=2))
 ```
 
-###  End of Grade
+###  End of Grade Growth Targets
 
 The EOG summaries include targets that project from one grade level to the next.  This includes ELA and Mathematics targets for grades 4 through 8 in 2019 (i.e. 2018 3<sup>rd</sup> to 7<sup>th</sup> graders).
 
@@ -721,16 +722,16 @@ The EOG summaries include targets that project from one grade level to the next.
 			tmp_data <- target_smry_long[SGP_PROJECTION_GROUP_CURRENT==ca & ACHIEVEMENT_LEVEL==achlev,]
 			tmp_EOG_smry <- paste(t(as.matrix(tmp_data[, list(Median)])), " (", t(as.matrix(tmp_data[, list(Mean)])), ")", sep="")
 			tmp_EOG_smry <- data.frame(matrix(c(capwords(tmp.ca), achlev, tmp_EOG_smry), 1, length(tmp_EOG_smry)+2))
-			names(tmp_EOG_smry) <- c("Target Content Area", "Achievement Level", t(as.matrix(tmp_data[, list(Target)])))
+			names(tmp_EOG_smry) <- c("Target Content Area", "Current Achievement Level", t(as.matrix(tmp_data[, list(Target)])))
 			target_smry_A <- rbindlist(list(target_smry_A, tmp_EOG_smry))
 			if (achlev == "Beginning Learner") tmp.ca <- ""
 		}
 	}
 	target_smry_A[is.na(target_smry_A)] <- ""
 	
-  cat(dualTable(as.matrix(target_smry_A), title="", n.cgroup=c(1, 1, dim(target_smry_A)[2]-2), cgroup=c("", "", "Growth Targets"),
-  	align=paste(rep('r', dim(target_smry_A)[2]), collapse=''),
-		caption='Median (Mean) 2019 EOG Growth Targets by Target Content Area and Current Achievement Level'))
+  cat(dualTable(as.matrix(target_smry_A), title="", align=paste(rep('r', dim(target_smry_A)[2]), collapse=''),
+  							n.cgroup=c(1, 1, dim(target_smry_A)[2]-2), cgroup=c("", "", "Growth Target Levels"), n.rgroup=c(4,4),
+  							caption='Median (Mean) 2019 EOG Growth Targets by Target Content Area and Current Achievement Level'))
 ```
 
 ```{r, results="asis", echo=FALSE, EOG_BoxPlots}
@@ -739,7 +740,7 @@ The EOG summaries include targets that project from one grade level to the next.
 			caption = "2019 EOG growth target box plots by current achievement level.")
 ```
 
-###  End of Course
+###  End of Course Growth Targets
 
 The EOC summaries include targets that project from one content area to the next related subject that represents the most typical course progression in Georgia.  For example, 8<sup>th</sup> grade students typically move from grade level ELA and Mathematics to 9<sup>th</sup> Grade Literature and Algebra I respectively, and then subsequently from these content areas to American Literature and Geometry.  Some less typical, but important, course progression targets are also calculated.  For example, each 8<sup>th</sup> grade student has both a Grade 8 Math to Algebra I and Grade 8 Math to Coordinate Algebra target calculated in 2018.  The target used for each student with depend on the high school math course actually taken in 2019.
 
@@ -752,37 +753,36 @@ The EOC summaries include targets that project from one content area to the next
 			tmp_data <- target_smry_long[SGP_PROJECTION_GROUP_CURRENT==ca & ACHIEVEMENT_LEVEL==achlev,]
 			tmp_EOG_smry <- paste(t(as.matrix(tmp_data[, list(Median)])), " (", t(as.matrix(tmp_data[, list(Mean)])), ")", sep="")
 			tmp_EOG_smry <- data.frame(matrix(c(capwords(tmp.ca), achlev, tmp_EOG_smry), 1, length(tmp_EOG_smry)+2))
-			names(tmp_EOG_smry) <- c("Target Content Area", "Achievement Level", t(as.matrix(tmp_data[, list(Target)])))
+			names(tmp_EOG_smry) <- c("Target Content Area", "Current Achievement Level", t(as.matrix(tmp_data[, list(Target)])))
 			target_smry_B <- rbindlist(list(target_smry_B, tmp_EOG_smry))
 			if (achlev == "Beginning Learner") tmp.ca <- ""
 		}
 	}
 	target_smry_B[is.na(target_smry_B)] <- ""
 	
-	# rgroups <- target_smry_B[, list(length(`Achievement Level`)), by=`Target Content Area`]$V1
 	rgroups <- rep(4, length(EOC_subjects))
 
   cat(dualTable(as.matrix(target_smry_B), title="", align=paste(rep('r', dim(target_smry_B)[2]), collapse=''),
-  							n.cgroup=c(1, 1, dim(target_smry_B)[2]-2), cgroup=c("", "", "Growth Targets"), n.rgroup=rgroups,
+  							n.cgroup=c(1, 1, dim(target_smry_B)[2]-2), cgroup=c("", "", "Growth Target Levels"), n.rgroup=rgroups,
   							caption='2019 EOC Median (Mean) Growth Targets by Subject and Current Achievement.'))
 ```
 
 ```{r, results="asis", echo=FALSE, EOC_BoxPlots}
 		placeFigure(
 			files = "../img/Tech_Reports/2018/Box_Plots-2.png", page.break= TRUE,
-			caption = "Language Arts related EOC 2019 growth target box plots by current achievement level.")
+			caption = "English Language Arts EOC 2019 growth target box plots by current achievement level.")
 
 		placeFigure(
 			files = "../img/Tech_Reports/2018/Box_Plots-3.png", page.break= TRUE,
-			caption = "Mathematics related EOC 2019 growth target box plots by current achievement level.")
+			caption = "Mathematics EOC 2019 growth target box plots by current achievement level.")
 ```
 
 
 ##  Growth Targets and Current Achievement
 
-Examining the relationship between growth targets and current achievement also provides valuable insight into the targets and what they can tell us about expectations for student growth and proficiency attainment in the next year.  Correlation tables and scatter plots are provided in the subsequent sections to describe the relationship between Georgia's one-year targets and 2018 scale scores.  The correlation tables show negative relationships across the board, suggesting that lower achieving students have higher growth targets and vice versa.  This relationship is as expected - the further below an achievement level a student starts, the higher their target will be.  
+Examining the relationship between growth targets and current achievement also provides valuable insight into the targets and what they can tell us about expectations for student growth and proficiency attainment on the next assessment.  Correlation tables and scatter plots are provided in the subsequent sections to describe the relationship between Georgia's growth targets and 2018 scale scores.  The correlation tables show negative relationships across the board, suggesting that lower achieving students have higher growth targets and vice versa.  This relationship is as expected - the further below an achievement level a student starts, the higher their target will be.
 
-Scatter plots show that this usually is not a simple linear relationship the Pearson correlation describes, with target ceilings and floors at the growth percentile and scale score extremes.  The scatter plots also help to show how the targets for the same current scores change relative to the three performance level target cuts.  The points in each scatter plot are color coded by current achievement level, and also contain contour lines that show the target distribution density more clearly.   
+Scatter plots show that this usually is not a simple linear relationship as the Pearson correlation describes due to the ceiling and floor of the growth targets at the lower and higher end of the current scale scores distributions.  The scatter plots also help to show how the targets for the same current scores change relative to the three performance level target cuts.  The points in each scatter plot are color coded by current achievement level, and also contain contour lines that show the target distribution density more clearly.
 
 ```{r, cache=TRUE, echo=FALSE, include=FALSE, Target_Cor}
 	target_cor <- Georgia_SGP@Data[,list( # [YEAR=='2018' & CONTENT_AREA %in% GL_subjects]
@@ -812,7 +812,8 @@ Scatter plots show that this usually is not a simple linear relationship the Pea
 
 	tmp.cap <- "EOG Student Level Correlations between 2019 Growth Target and Current Scale Score."
 
-  cat(dualTable(as.matrix(tmp_EOG_smry), align=paste(rep('r', dim(tmp_EOG_smry)[2]), collapse=''), caption = tmp.cap))
+  cat(dualTable(as.matrix(tmp_EOG_smry), align=paste(rep('r', dim(tmp_EOG_smry)[2]), collapse=''),
+  							n.cgroup=c(2, dim(tmp_EOG_smry)[2]-3, 1), cgroup=c("", "Growth Target Levels", ""), n.rgroup=c(5,5), caption = tmp.cap))
 ```
 
 ```{r, echo=FALSE, include=FALSE, cache=TRUE, Scatter_Plot1, fig.height=3.25, fig.width=5.5}
@@ -855,25 +856,25 @@ Scatter plots show that this usually is not a simple linear relationship the Pea
 			theme_bw() + geom_point(data=tmp.data[`Target Content Area` == "Mathematics"], size=0.5) +
 			stat_density2d(data=tmp.data[`Target Content Area` == "Mathematics"], geom="density2d", colour="red", contour = TRUE, size=0.5) +
 			labs(y = "2019 Target", x = "Current Grade Level Math Scale Score") + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
-			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:"))
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achievement Levels:", size = 6, title.theme = element_text(size = 8, face = "bold")))
 
 	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
 			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "American Lit"], size=0.5) +
 			stat_density2d(data=tmp.data[`Target Content Area` == "American Lit"], geom="density2d", colour="red", contour = TRUE) +
 			labs(y = "2019 Target", x = "Grade 9 Lit Scale Score") + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
-			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:")) # + guides(col=guide_legend(nrow=2, "Grade 9 Lit Achievement Level"))
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achievement Levels:", size = 6, title.theme = element_text(size = 8, face = "bold"))) # + guides(col=guide_legend(nrow=2, "Grade 9 Lit Achievement Level"))
 
 	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
 			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "Geometry"], size=0.5) +
 			stat_density2d(data=tmp.data[`Target Content Area` == "Geometry"], geom="density2d", colour="red", contour = TRUE) +
 			labs(y = "2019 Target", x = "Algebra I Scale Score")  + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
-			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:"))
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achievement Levels:", size = 6, title.theme = element_text(size = 8, face = "bold")))
 
 	ggplot(NULL, aes(x=SCALE_SCORE, y=Target, col=`Achievement Level`)) +
 			theme_bw() + geom_point(data=tmp.points[`Target Content Area` == "Analytic Geometry"], size=0.5) +
 			stat_density2d(data=tmp.data[`Target Content Area` == "Analytic Geometry"], geom="density2d", colour="red", contour = TRUE) +
 			labs(y = "2019 Target", x = "Coordinate Algebra Scale Score") + theme(axis.title=element_text(size=6, face="bold"), legend.position="bottom") + 
-			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achvmnt Levs:"))
+			facet_grid(`Target Level`~.) + scale_color_brewer(palette="Paired") + guides(col=guide_legend("Achievement Levels:", size = 6, title.theme = element_text(size = 8, face = "bold")))
 ```
 
 ```{r, results="asis", echo=FALSE, EOG_ScatterPlots}
@@ -901,7 +902,8 @@ Scatter plots show that this usually is not a simple linear relationship the Pea
 
 	tmp.cap <- "EOC Student Level Correlations between 2019 Growth Target and Current Scale Score."
 
-  cat(dualTable(as.matrix(tmp_EOC_smry), align=paste(rep('r', dim(tmp_EOC_smry)[2]), collapse=''), caption = tmp.cap))
+  cat(dualTable(as.matrix(tmp_EOC_smry), align=paste(rep('r', dim(tmp_EOC_smry)[2]), collapse=''),
+  							n.cgroup=c(2, dim(tmp_EOC_smry)[2]-3, 1), cgroup=c("", "Growth Target Levels", ""), caption = tmp.cap))
 ```
 
 ```{r, cache=FALSE, results="asis", echo=FALSE}
