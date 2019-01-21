@@ -255,8 +255,8 @@ ALGEBRA_I_2018.config <- list(
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS",
-    sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('MATHEMATICS', 'ALGEBRA_I'),
-                                       YEAR=c('2017', '2017'), GRADE=c('8', 'EOCT')),
+    sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('MATHEMATICS', 'ALGEBRA_I'), #  Add in 'GEOMETRY' in 2019
+                                       YEAR=c('2017', '2017'), GRADE=c('8', 'EOCT')), # YEAR=c('2017', '2017', '2017'), GRADE=c('8', 'EOCT', 'EOCT')
     sgp.norm.group.preference=6),
 
   ALGEBRA_I.2018 = list( #32
@@ -290,7 +290,7 @@ ALGEBRA_I_2018.config <- list(
     sgp.grade.sequences=list(c('6', '7', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
-    # sgp.projection.grade.sequences="NO_PROJECTIONS", # Experimental
+    # sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.projection.sequence = 'G7_MATH_EOC',
     sgp.norm.group.preference=2),
 
@@ -368,7 +368,7 @@ GEOMETRY_2018.config <- list(
     sgp.grade.sequences=list(c(7, 'EOCT', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
-    # sgp.projection.grade.sequences="NO_PROJECTIONS", # Experimental
+    # sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.projection.sequence = 'G7_MATH_EOC',
     sgp.norm.group.preference=3),
 

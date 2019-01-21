@@ -177,6 +177,76 @@ Georgia_SGP <- analyzeSGP(
 
 
 ####
+###   Re-run SGP/SGP_STANDARD_ERROR
+####
+
+# trace(parallel:::sendMaster, at = 3L, tracer = quote({ str(list(what = what)) }))
+later:::ensureInitialized()
+
+Georgia_SGP@SGP$SGPercentiles <- NULL
+Georgia_SGP@SGP$Coefficient_Matrices <- NULL
+
+###   Remove original SGPercentiles EXCEPT the progressions with SGP_NOTE (fewer than 1500 kids)
+# for (n in names(Georgia_SGP@SGP$SGPercentiles)) {
+#   if (any(grepl("SGP_NOTE", names(Georgia_SGP@SGP$SGPercentiles[[n]])))) {
+#     Georgia_SGP@SGP$SGPercentiles[[n]] <- Georgia_SGP@SGP$SGPercentiles[[n]][!is.na(SGP_NOTE)]
+#     Georgia_SGP@SGP$SGPercentiles$Most_Recent_Prior <- NULL
+#   } else {
+#     Georgia_SGP@SGP$SGPercentiles[[n]] <- NULL
+#   }
+# }
+
+setnames(Georgia_SGP@Data, gsub("SGP", "ORIG", names(Georgia_SGP@Data)))
+
+GA_2018.config <- c(
+  MATHEMATICS_2018.config,
+  ELA_2018.config,
+
+  COORDINATE_ALGEBRA_2018.config,
+  ANALYTIC_GEOMETRY_2018.config,
+  ALGEBRA_I_2018.config,
+  GEOMETRY_2018.config,
+
+  GRADE_9_LIT_2018.config,
+  AMERICAN_LIT_2018.config
+)
+
+Georgia_SGP <- analyzeSGP(
+  Georgia_SGP,
+  sgp.config = GA_2018.config,
+  trim.sgp.config=FALSE,
+  sgp.percentiles = TRUE,
+  sgp.projections = FALSE,
+  sgp.projections.lagged = FALSE,
+  sgp.percentiles.baseline = FALSE,
+  sgp.projections.baseline = FALSE,
+  sgp.projections.lagged.baseline = FALSE,
+
+  # sgp.use.my.coefficient.matrices=TRUE,
+  # calculate.simex = list(csem.data.vnames="SCALE_SCORE_CSEM", lambda=seq(0,2,0.5),
+  #                        simulation.iterations=75, extrapolation="linear",
+  #                        simex.use.my.coefficient.matrices=TRUE),
+  calculate.simex = TRUE,
+  simulate.sgps = TRUE,
+  goodness.of.fit.print=FALSE,
+
+  parallel.config = list(
+    BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=20, SIMEX=20))) # list(SIMEX=15))) #
+
+###   Tests
+#  Georgia_SGP@Data[!is.na(SGP_SIMEX_RANKED) & YEAR=='2018', as.list(summary(SGP_SIMEX_RANKED)), keyby= c("CONTENT_AREA", "Most_Recent_Prior")]
+#  Georgia_SGP@Data[!is.na(SGP_SIMEX_RANKED) & YEAR=='2018', as.list(summary(ORIG_SIMEX_RANKED-SGP_SIMEX_RANKED)), keyby= c("CONTENT_AREA", "Most_Recent_Prior")]
+
+###   Run next section (post processing for orders),
+###   Run simplified combineSGP [ Georgia_SGP <- combineSGP(Georgia_SGP, years = "2018") ] and outputSGP
+###   Save, outputSGP, format, etc.
+
+####
+###   End re-run of SGP/SGP_STANDARD_ERROR
+####
+
+
+####
 ###   Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to highest order row.
 ###   This is necessary for CONTENT_AREA configs in which `sgp.exact.grade.progression` is used for 2 prior progressions
 ####
@@ -258,7 +328,7 @@ visualizeSGP(Georgia_SGP,
              bPlot.content_areas=c("ELA", "MATHEMATICS"),
 						 bPlot.anonymize=TRUE,
              gaPlot.years = "2018",
-             gaPlot.content_areas = c("ELA", "MATHEMATICS"),
+             # gaPlot.content_areas = c("ELA", "MATHEMATICS"),
              gaPlot.max.order.for.progression=2,
             #  gaPlot.start.points="Achievement Percentiles",
 						 parallel.config=list(

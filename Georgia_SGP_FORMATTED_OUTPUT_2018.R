@@ -16,7 +16,7 @@ load("Data/Georgia_SGP.Rdata")
 load("Data/Georgia_SGP_LONG_Data_2018.Rdata")
 
 ###   For EOC Analyses/Data:
-Georgia_SGP_LONG_Data_2018 <- Georgia_SGP_LONG_Data_2018[!SUBJECT_CODE %in% c("ELA", "MATHEMATICS")]
+# Georgia_SGP_LONG_Data_2018 <- Georgia_SGP_LONG_Data_2018[!SUBJECT_CODE %in% c("ELA", "MATHEMATICS")]
 ###
 
 
@@ -55,7 +55,7 @@ tmp.long.data$SCALE_SCORE_PRIOR_2 <- sapply(my.tmp.split.scale_score, function(x
 
 ###  PERFORMANCE_LEVEL Prior
 
-## Set name of GRADE to GRADE_CURRENT for all 4 prior var creations
+## Set name of GRADE to GRADE_CURRENT for both prior var creations
 setnames(tmp.long.data, "GRADE", "GRADE_CURRENT")
 
 ## Create the 1st Prior PERFORMANCE_LEVEL
@@ -118,26 +118,29 @@ table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_2, SUBJECT_CODE_PRIOR_2], exclude=NU
 ###  Add in CURRENT Projections
 ####
 
-my.variable.names <- c("ID", "YEAR_WITHIN", "GRADE", "SGP_PROJECTION_GROUP", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT", "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
+my.variable.names <- c("ID", "YEAR_WITHIN", "GRADE", "SGP_PROJECTION_GROUP",
+                       "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT",
+                       "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
+
 tmp.list.current <- list()
 
 my.projection.table.names <- c(
-          # "ELA.2018", "MATHEMATICS.2018")#, #  EOG
+          "ELA.2018", "MATHEMATICS.2018", #  EOG
           "GRADE_9_LIT.2018", "COORDINATE_ALGEBRA.2018", "ALGEBRA_I.2018")  #  EOC
 for (i in my.projection.table.names) {
 	tmp.list.current[[i]] <- data.table(
 			VALID_CASE="VALID_CASE",
 			SUBJECT_CODE=unlist(strsplit(i, "\\."))[1],
 			SCHOOL_YEAR=unlist(strsplit(i, "\\."))[2],
-			Georgia_SGP@SGP$SGProjections[[i]][,my.variable.names, with=FALSE])
+			Georgia_SGP@SGP$SGProjections[[i]][, my.variable.names, with=FALSE])
 }
 
 ###  Merge projection/target data in.  Do this seperately so that 8th grade students get their prior merged in (no current target).
-tmp.projections.c <- data.table(rbindlist(tmp.list.current), FIRST_OBSERVATION = 1L, key=c("ID", "SUBJECT_CODE"))
+tmp.projections.c <- data.table(rbindlist(tmp.list.current), key=c("ID", "SUBJECT_CODE")) ## Remove the "FIRST_OBSERVATION" for within year repeaters
 
 setnames(tmp.projections.c, "ID", "GTID")
-setkeyv(tmp.projections.c, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION", "GRADE"))
-setkeyv(tmp.long.data, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "FIRST_OBSERVATION", "GRADE"))
+setkeyv(tmp.projections.c, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "GRADE")) ## Remove the "FIRST_OBSERVATION" for within year repeaters
+setkeyv(tmp.long.data, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "GRADE"))
 
 ###   Need to keep multiple projections for MATHEMATICS (allow.cartesian=TRUE)
 Georgia_SGP_Data_LONG_2018_FORMATTED <- tmp.projections.c[tmp.long.data, allow.cartesian=TRUE]
@@ -168,8 +171,8 @@ fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="U:/DATA/SGP/Data/2018 SGPs/20
 
 ##    CFA
 
-#   Change the file name appendix to -EOG or -EOC depending on what is being formatted
-save(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.Rdata")
-fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt", sep="|")
-zip(zipfile="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt.zip", files="Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt")
-unlink("Data/Georgia_SGP_Data_LONG_2018_FORMATTED-EOC.txt")
+#   Change the file name appendix to -EOG or -EOC depending on what is being formatted (Removed when EOC/EOG combined with updated SGP_STANDARD_ERROR)
+save(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED.Rdata")
+fwrite(Georgia_SGP_Data_LONG_2018_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2018_FORMATTED.txt", sep="|")
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2018_FORMATTED.txt.zip", files="Data/Georgia_SGP_Data_LONG_2018_FORMATTED.txt")
+unlink("Data/Georgia_SGP_Data_LONG_2018_FORMATTED.txt")
