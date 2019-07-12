@@ -4,7 +4,7 @@
 ###                                                           ###
 #################################################################
 
-### Load required packages
+### Load required packages ###
 require(SGP)
 require(data.table)
 
