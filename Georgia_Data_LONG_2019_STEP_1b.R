@@ -112,12 +112,12 @@ Georgia_Data_LONG_2019[which(duplicated(Georgia_Data_LONG_2019, by=key(Georgia_D
 ### Save results
 
 ###  EOG
-assign("Georgia_Data_LONG_2018_EOG", Georgia_Data_LONG_2019)
-save(Georgia_Data_LONG_2018_EOG, file="./Data/Georgia_Data_LONG_2019_EOG.Rdata")
+assign("Georgia_Data_LONG_2019_EOG", Georgia_Data_LONG_2019)
+save(Georgia_Data_LONG_2019_EOG, file="./Data/Georgia_Data_LONG_2019_EOG.Rdata")
 
 ###  EOC
 assign("Georgia_Data_LONG_2018_EOC", Georgia_Data_LONG_2019)
-save(Georgia_Data_LONG_2018_EOC, file="./Data/Georgia_Data_LONG_2019_EOC.Rdata")
+save(Georgia_Data_LONG_2019_EOC, file="./Data/Georgia_Data_LONG_2019_EOC.Rdata")
 
 ###  Test Out data
 assign("Georgia_Data_LONG_2018_Testout", Georgia_Data_LONG_2019)

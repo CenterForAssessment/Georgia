@@ -42,9 +42,10 @@ load("Data/Georgia_Data_LONG_2019_EOG.Rdata")
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
   what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2019,
+  with_sgp_data_LONG=Georgia_Data_LONG_2019_EOG,
   sgp.config = GA_2019.config,
-  steps=c("prepareSGP", "analyzeSGP"),
+  steps=c("prepareSGP", "analyzeSGP", "combineSGP", "outputSGP"),
+  save.intermediate.results=FALSE,
   sgp.percentiles = TRUE,
   sgp.projections = FALSE,
   sgp.projections.lagged = FALSE,
@@ -55,7 +56,8 @@ Georgia_SGP <- updateSGP(
   calculate.simex = TRUE, #  Use list below for PRELIM data tests.
   # calculate.simex = list(csem.data.vnames="SCALE_SCORE_CSEM", lambda=seq(0,2,0.5), simulation.iterations=75, simex.sample.size=5000, extrapolation="linear", save.matrices=TRUE, verbose=TRUE),          ## PRELIM CODE ##
   goodness.of.fit.print=TRUE,
-  save.intermediate.results=FALSE,
+  outputSGP.output.type="LONG_FINAL_YEAR_Data",
+  outputSGP.directory="Data/Base_Files/2019 SGP Preliminary Data/",
   parallel.config = list(
     BACKEND="PARALLEL",
     WORKERS=list(TAUS=20, SIMEX=15))) # BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
