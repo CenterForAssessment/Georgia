@@ -158,7 +158,7 @@ ANALYTIC_GEOMETRY_2019.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS", # Math Projections for canonical progressions only
     sgp.norm.group.preference=995),
 
-###  Cohort > 1,500
+  ###  Cohort > 1,500
 
   ANALYTIC_GEOMETRY.2019 = list( #25
     sgp.content.areas=c('COORDINATE_ALGEBRA', 'ANALYTIC_GEOMETRY'),
@@ -333,7 +333,10 @@ GEOMETRY_2019.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=998),
 
-  GEOMETRY.2019 = list( #38b #  --  <1500 :: Include for SGP_NOTE
+
+  ###  Cohort > 1,500
+
+  GEOMETRY.2019 = list( #38
     sgp.content.areas=c('ALGEBRA_I', 'GEOMETRY'),
     sgp.panel.years=c('2017', '2019'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
@@ -341,28 +344,37 @@ GEOMETRY_2019.config <- list(
     sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
                                        YEAR=c('2018', '2018', '2018'), GRADE=c('8', 'EOCT', 'EOCT')),
     sgp.projection.grade.sequences="NO_PROJECTIONS",
-    sgp.norm.group.preference=997),
+    sgp.norm.group.preference=8),
 
-  ###  Cohort > 1,500
-
+  # New for 2019, check goodness of fit plot
   GEOMETRY.2019 = list( #39
+    sgp.content.areas=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
+    sgp.panel.years=c('2016', '2017', '2019'),
+    sgp.grade.sequences=list(c('8', 'EOCT', 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
+                                       YEAR=c('2018', '2018', '2018'), GRADE=c('8', 'EOCT', 'EOCT')),
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
+    sgp.norm.group.preference=7),
+
+  GEOMETRY.2019 = list( #40
     sgp.content.areas=c('ALGEBRA_I', 'GEOMETRY'),
     sgp.panel.years=c('2018', '2019'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.projection.grade.sequences="NO_PROJECTIONS",
-    sgp.norm.group.preference=5),
+    sgp.norm.group.preference=6),
 
-  GEOMETRY.2019 = list( #40
+  GEOMETRY.2019 = list( #41
     sgp.content.areas=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
     sgp.panel.years=c('2017', '2018', '2019'),
     sgp.grade.sequences=list(c(8, 'EOCT', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exact.grade.progression=TRUE,
     # sgp.projection.grade.sequences="NO_PROJECTIONS", # CANONICAL
-    sgp.norm.group.preference=4),
+    sgp.norm.group.preference=5),
 
-  GEOMETRY.2019 = list( #41
+  GEOMETRY.2019 = list( #42
     sgp.content.areas=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
     sgp.panel.years=c('2017', '2018', '2019'),
     sgp.grade.sequences=list(c(7, 'EOCT', 'EOCT')),
@@ -370,9 +382,20 @@ GEOMETRY_2019.config <- list(
     sgp.exact.grade.progression=TRUE,
     # sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.projection.sequence = 'G7_MATH_EOC',
+    sgp.norm.group.preference=4),
+
+  ## New sequence and reordered preferences
+  GEOMETRY.2019 = list( #43
+    sgp.content.areas=c('GEOMETRY', 'GEOMETRY'),
+    sgp.panel.years=c('2017', '2019'),
+    sgp.grade.sequences=list(c('EOCT', 'EOCT')),
+    sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
+                                       YEAR=c('2018', '2018', '2018'), GRADE=c('8', 'EOCT', 'EOCT')),
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=3),
 
-  GEOMETRY.2019 = list( #42
+  GEOMETRY.2019 = list( #44
     sgp.content.areas=c('GEOMETRY', 'GEOMETRY'),
     sgp.panel.years=c('2018', '2019'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
@@ -380,7 +403,7 @@ GEOMETRY_2019.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=2),
 
-  GEOMETRY.2019 = list( #43
+  GEOMETRY.2019 = list( #45
     sgp.content.areas=c('GEOMETRY', 'GEOMETRY'),
     sgp.panel.years=c('2019', '2019'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
@@ -388,11 +411,13 @@ GEOMETRY_2019.config <- list(
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=1),
 
-  GEOMETRY.2019 = list( #44
+  GEOMETRY.2019 = list( #46
     sgp.content.areas=c('ALGEBRA_I', 'GEOMETRY'),
     sgp.panel.years=c('2019', '2019'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
     sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=0)
-) ### END GEOMETRY_2019.config
+
+
+  ) ### END GEOMETRY_2019.config
