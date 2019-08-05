@@ -46,6 +46,7 @@ Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/2019 SGP Preliminary Data/E
 
 ###   Start EOC
 ###
+Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/2019 SGP Preliminary Data/EOC_Prelim_data_WINTER_SPRING_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
 Georgia_Data_LONG_2019 <- rbindlist(list(
           fread("./Data/Base_Files/EOC_Final_Spring_Winter_Data_2019.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31)),
           fread("./Data/Base_Files/EOC_Final_Summer_Data_2019.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))))
@@ -116,7 +117,7 @@ assign("Georgia_Data_LONG_2019_EOG", Georgia_Data_LONG_2019)
 save(Georgia_Data_LONG_2019_EOG, file="./Data/Georgia_Data_LONG_2019_EOG.Rdata")
 
 ###  EOC
-assign("Georgia_Data_LONG_2018_EOC", Georgia_Data_LONG_2019)
+assign("Georgia_Data_LONG_2019_EOC", Georgia_Data_LONG_2019)
 save(Georgia_Data_LONG_2019_EOC, file="./Data/Georgia_Data_LONG_2019_EOC.Rdata")
 
 ###  Test Out data

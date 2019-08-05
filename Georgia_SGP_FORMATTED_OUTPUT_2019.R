@@ -27,6 +27,10 @@ variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "Y
                          "SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SGP_LEVEL", "SGP_STANDARD_ERROR", "SGP_NORM_GROUP_SCALE_SCORES", "SGP_NOTE",
                          "SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "PERFORMANCE_LEVEL_PRIOR_1", "GRADE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1", "ASSESSMENT_TYPE_PRIOR_1",
                          "SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "SCALE_SCORE_PRIOR_2", "PERFORMANCE_LEVEL_PRIOR_2", "GRADE_PRIOR_2", "ADMINISTRATION_PERIOD_PRIOR_2", "ASSESSMENT_TYPE_PRIOR_2",
+   ###   Add in LAGGED targets in 2019 -- Verify with Tianna & Niveen what we'll need
+                         "SGP_PROJECTION_GROUP_PRIOR", "LEVEL_1_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_2_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_3_SGP_TARGET_YEAR_1_PRIOR",
+                         "P1_PROJ_YEAR_1_PRIOR", "P35_PROJ_YEAR_1_PRIOR", "P66_PROJ_YEAR_1_PRIOR", "P99_PROJ_YEAR_1_PRIOR",
+
                          "SGP_PROJECTION_GROUP_CURRENT", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT",
                          "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
 
@@ -137,6 +141,22 @@ for (i in my.projection.table.names) {
 
 ###  Merge projection/target data in.  Do this seperately so that 8th grade students get their prior merged in (no current target).
 tmp.projections.c <- data.table(rbindlist(tmp.list.current), key=c("ID", "SUBJECT_CODE")) ## Remove the "FIRST_OBSERVATION" for within year repeaters
+
+####
+###   Add in LAGGED targets in 2019 -- Verify with Tianna & Niveen what we'll need
+####
+
+??? ...
+
+my.variable.names <- c("ID", "YEAR_WITHIN", "GRADE", "SGP_PROJECTION_GROUP_PRIOR",
+                       "LEVEL_1_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_2_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_3_SGP_TARGET_YEAR_1_PRIOR",
+                       "P1_PROJ_YEAR_1_PRIOR", "P35_PROJ_YEAR_1_PRIOR", "P66_PROJ_YEAR_1_PRIOR", "P99_PROJ_YEAR_1_PRIOR") #  Just adequate growth?
+
+tmp.list.lagged <- list()
+
+  ...
+
+
 
 setnames(tmp.projections.c, "ID", "GTID")
 setkeyv(tmp.projections.c, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "GRADE")) ## Remove the "FIRST_OBSERVATION" for within year repeaters
