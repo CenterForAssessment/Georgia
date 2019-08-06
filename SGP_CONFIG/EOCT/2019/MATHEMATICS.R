@@ -354,6 +354,7 @@ GEOMETRY_2019.config <- list(
     sgp.panel.years.within=c('LAST_OBSERVATION', 'LAST_OBSERVATION', 'FIRST_OBSERVATION'),
     sgp.exclude.sequences = data.table(VALID_CASE = 'VALID_CASE', CONTENT_AREA=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
                                        YEAR=c('2018', '2018', '2018'), GRADE=c('8', 'EOCT', 'EOCT')),
+    sgp.exact.grade.progression=TRUE,
     sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=7),
 
