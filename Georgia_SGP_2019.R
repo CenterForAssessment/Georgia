@@ -60,7 +60,7 @@ Georgia_SGP <- updateSGP(
   outputSGP.directory="Data/Base_Files/2019 SGP Preliminary Data/",
   parallel.config = list(
     BACKEND="PARALLEL",
-    WORKERS=list(TAUS=20, SIMEX=15))) # BACKEND="FOREACH", TYPE="doParallel", SNOW_TEST=TRUE,
+    WORKERS=list(TAUS=20, SIMEX=15)))
 
 save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
@@ -136,24 +136,29 @@ GA_2019.config <- c(
 
 ###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
 Georgia_SGP <- updateSGP(
-  what_sgp_object=Georgia_SGP,
-  with_sgp_data_LONG=Georgia_Data_LONG_2019,
-  sgp.config = GA_2019.config,
-  steps=c("prepareSGP", "analyzeSGP"),
-  overwrite.existing.data=FALSE,
-	output.updated.data=FALSE,
-  sgp.percentiles = TRUE,
-  sgp.projections = FALSE,
-  sgp.projections.lagged = FALSE,
-  sgp.percentiles.baseline=FALSE,
-  sgp.projections.baseline = FALSE,
-  sgp.projections.lagged.baseline = FALSE,
-  simulate.sgps = TRUE,
-  calculate.simex = TRUE, #  Use list below for PRELIM data tests.
-  # calculate.simex = prelim.simex,  ## PRELIM CODE ##
-  goodness.of.fit.print=TRUE,
-  save.intermediate.results=FALSE,
-    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=20, SIMEX=15))) # SNOW_TEST=TRUE,
+    what_sgp_object=Georgia_SGP,
+    with_sgp_data_LONG=Georgia_Data_LONG_2019_EOC,
+    sgp.config = GA_2019.config,
+    steps=c("prepareSGP", "analyzeSGP"),
+    overwrite.existing.data=FALSE,
+  	output.updated.data=FALSE,
+    sgp.percentiles = TRUE,
+    sgp.projections = FALSE,
+    sgp.projections.lagged = FALSE,
+    sgp.percentiles.baseline=FALSE,
+    sgp.projections.baseline = FALSE,
+    sgp.projections.lagged.baseline = FALSE,
+    simulate.sgps = TRUE,
+    # calculate.simex = TRUE,
+    ###   Use these four lines for the small sample test run.  Delete/comment out and set calculate.simex = TRUE for full EOC run.
+    ###
+      calculate.simex = list(lambda=seq(0,2,0.5), simulation.iterations=40, csem.data.vnames="SCALE_SCORE_CSEM", extrapolation="linear", save.matrices=TRUE),
+      sgp.test.cohort.size = 2500, # comment out for full run of EOGs
+      goodness.of.fit.print=FALSE,
+    ###
+    ###
+    save.intermediate.results=FALSE,
+    parallel.config = list(BACKEND="FOREACH", TYPE="doParallel", WORKERS=list(TAUS=11, SIMEX=11)))
 
 ###  Save Coefficient_Matrices from preliminary and use for projections
 # Georgia_EOC_Coef_Matrices_2019 <- Georgia_SGP@SGP$Coefficient_Matrices[-grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
