@@ -42,6 +42,7 @@ COORDINATE_ALGEBRA_2019.config <- list(
     sgp.panel.years=c('2019', '2019'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
     sgp.panel.years.within=c('FIRST_OBSERVATION', 'LAST_OBSERVATION'),
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=997),
 
   ###  Cohort > 1,500
@@ -106,6 +107,7 @@ COORDINATE_ALGEBRA_2019.config <- list(
     sgp.panel.years=c('2018', '2019'),
     sgp.grade.sequences=list(c('EOCT', 'EOCT')),
     sgp.panel.years.within=c('LAST_OBSERVATION', 'FIRST_OBSERVATION'),
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
     sgp.norm.group.preference=0)
 ) ### END COORDINATE_ALGEBRA_2019.config
 
