@@ -14,7 +14,7 @@ load("Data/Georgia_Data_LONG_2019_EOG.Rdata")
 
 ##    Load EOC Coefficient_Matrices produced from Fall/Spring data (see Georgia_SGP_EOC_Matrices_2019.R)
 ##    Populate @SGP$Coefficient_Matrices slot with these with EOC matrices to run EOG projections.
-load("Data/Georgia_EOC_Coef_Matrices_2019-Prelim.rda")
+load("Data/Georgia_EOC_Coef_Matrices_2019.rda")
 Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_EOC_Coef_Matrices_2019
 
 ###  Read in 2019 SGP Configuration Scripts
@@ -73,7 +73,7 @@ Georgia_SGP <- updateSGP(
 ###   Remove EOC preliminary coef matrices from object before saving
 Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_SGP@SGP$Coefficient_Matrices[grep("ELA|MATHEMATICS", names(Georgia_SGP@SGP$Coefficient_Matrices))]
 
-save(Georgia_SGP, file="Data/Georgia_SGP-EOG.Rdata")
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
 
 
 ###

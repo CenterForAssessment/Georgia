@@ -40,16 +40,18 @@ Georgia_Data_LONG_2019 <- fread("U:/DATA/SGP/Data/2019 SGPs/Computer Matched Dat
 
 ###   NCIEA data loading process
 ###   Start EOG
-Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/2019 SGP Preliminary Data/EOG_Prelim_data_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/EOG_Final_data_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+# Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/2019 SGP Preliminary Data/EOG_Prelim_data_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
 ###   End EOG
 
 
 ###   Start EOC
 ###
-Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/2019 SGP Preliminary Data/EOC_Prelim_data_WINTER_SPRING_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
-Georgia_Data_LONG_2019 <- rbindlist(list(
-          fread("./Data/Base_Files/EOC_Final_Spring_Winter_Data_2019.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31)),
-          fread("./Data/Base_Files/EOC_Final_Summer_Data_2019.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))))
+Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/EOC_Final_data_WINTER_SPRING_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+# Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/2019 SGP Preliminary Data/EOC_Prelim_data_WINTER_SPRING_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+# Georgia_Data_LONG_2019 <- rbindlist(list(
+#           fread("./Data/Base_Files/EOC_Final_Spring_Winter_Data_2019.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31)),
+#           fread("./Data/Base_Files/EOC_Final_Summer_Data_2019.txt",  header = TRUE, sep = "|", colClasses=rep("character", 31))))
 ###   End EOC
 
 ###   Start Testout
@@ -101,12 +103,12 @@ Georgia_Data_LONG_2019[, STATE_ENROLLMENT_STATUS := factor(1, levels=0:1, labels
 
 # Georgia_Data_LONG_2019[, c("Rownumber_dup1", "Rownumber_dup2") := NULL]
 
-###  Invalidate duplicates (No duplicate cases in 2019 prelim data)
+###  Invalidate duplicates (No duplicate cases in 2019 prelim EOG data --  497 in EOC Winter/Spring)
 
 setkey(Georgia_Data_LONG_2019, VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR, YEAR_WITHIN, GTID, SCALE_SCORE)
 setkey(Georgia_Data_LONG_2019, VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR, YEAR_WITHIN, GTID)
-# sum(duplicated(Georgia_Data_LONG_2019[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2019))) # 285 EOC duplicates with valid GTIDs - (((take the highest score if any exist)))
-# dups <- data.table(Georgia_Data_LONG_2019[unique(c(which(duplicated(Georgia_Data_LONG_2019, by=key(Georgia_Data_LONG_2019)))-1, which(duplicated(Georgia_Data_LONG_2019, by=key(Georgia_Data_LONG_2019))))), ], key=key(Georgia_Data_LONG_2019))
+sum(duplicated(Georgia_Data_LONG_2019[VALID_CASE != "INVALID_CASE"], by=key(Georgia_Data_LONG_2019))) # 285 EOC duplicates with valid GTIDs - (((take the highest score if any exist)))
+dups <- data.table(Georgia_Data_LONG_2019[unique(c(which(duplicated(Georgia_Data_LONG_2019, by=key(Georgia_Data_LONG_2019)))-1, which(duplicated(Georgia_Data_LONG_2019, by=key(Georgia_Data_LONG_2019))))), ], key=key(Georgia_Data_LONG_2019))
 Georgia_Data_LONG_2019[which(duplicated(Georgia_Data_LONG_2019, by=key(Georgia_Data_LONG_2019)))-1, VALID_CASE := "INVALID_CASE"]
 
 
