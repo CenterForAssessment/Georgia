@@ -107,7 +107,7 @@ tmp.long.data[which(GRADE_PRIOR_1 %in% c('3','4', '5','6','7','8')), ASSESSMENT_
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_1, SCHOOL_YEAR_PRIOR_1], exclude=NULL) # All priors from current year (block/repeaters) should be EOC
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_1, SUBJECT_CODE_PRIOR_1], exclude=NULL) # Subjects should line up as expected
 
-table(tmp.long.data[, SCHOOL_YEAR_PRIOR_2, GRADE_PRIOR_2], exclude=NULL) #  All Milestones test years (CRCT has now sunset w/ singe prior)
+table(tmp.long.data[, SCHOOL_YEAR_PRIOR_2, GRADE_PRIOR_2], exclude=NULL) #  All Milestones test years (CRCT has now sunset)
 # tmp.long.data[which(GRADE_PRIOR_2=='EOCT'), ASSESSMENT_TYPE_PRIOR_2 := "EOC"] # None -- all EOGs
 tmp.long.data[which(GRADE_PRIOR_2 %in% c('3','4', '5','6','7','8')), ASSESSMENT_TYPE_PRIOR_2 := "EOG"]
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_2, SCHOOL_YEAR_PRIOR_2], exclude=NULL) # All priors should be EOG Math/ELA
@@ -128,6 +128,8 @@ my.projection.table.names <- c(
           "ELA.2018", "MATHEMATICS.2018", #  EOG
           "GRADE_9_LIT.2018", "COORDINATE_ALGEBRA.2018", "ALGEBRA_I.2018")  #  EOC
 for (i in my.projection.table.names) {
+  setnames(Georgia_SGP@SGP$SGProjections[[i]], gsub("_CURRENT_CURRENT", "_CURRENT", names(Georgia_SGP@SGP$SGProjections[[i]])))
+  if ("YEAR_WITHIN_CURRENT" %in% names(Georgia_SGP@SGP$SGProjections[[i]])) setnames(Georgia_SGP@SGP$SGProjections[[i]], "YEAR_WITHIN_CURRENT", "YEAR_WITHIN")
 	tmp.list.current[[i]] <- data.table(
 			VALID_CASE="VALID_CASE",
 			SUBJECT_CODE=unlist(strsplit(i, "\\."))[1],

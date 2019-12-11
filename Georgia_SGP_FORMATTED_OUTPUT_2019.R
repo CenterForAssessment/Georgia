@@ -16,7 +16,7 @@ load("Data/Georgia_SGP.Rdata")
 load("Data/Georgia_SGP_LONG_Data_2019.Rdata")
 
 ###   For EOC Analyses/Data:
-# Georgia_SGP_LONG_Data_2019 <- Georgia_SGP_LONG_Data_2019[!SUBJECT_CODE %in% c("ELA", "MATHEMATICS")]
+Georgia_SGP_LONG_Data_2019 <- Georgia_SGP_LONG_Data_2019[!SUBJECT_CODE %in% c("ELA", "MATHEMATICS")]
 ###
 
 
@@ -27,10 +27,6 @@ variables.to.output <- c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "Y
                          "SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SGP_LEVEL", "SGP_STANDARD_ERROR", "SGP_NORM_GROUP_SCALE_SCORES", "SGP_NOTE",
                          "SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "PERFORMANCE_LEVEL_PRIOR_1", "GRADE_PRIOR_1", "ADMINISTRATION_PERIOD_PRIOR_1", "ASSESSMENT_TYPE_PRIOR_1",
                          "SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "SCALE_SCORE_PRIOR_2", "PERFORMANCE_LEVEL_PRIOR_2", "GRADE_PRIOR_2", "ADMINISTRATION_PERIOD_PRIOR_2", "ASSESSMENT_TYPE_PRIOR_2",
-   ###   Add in LAGGED targets in 2019 -- Verify with Tianna & Niveen what we'll need
-                         "SGP_PROJECTION_GROUP_PRIOR", "LEVEL_1_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_2_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_3_SGP_TARGET_YEAR_1_PRIOR",
-                         "P1_PROJ_YEAR_1_PRIOR", "P35_PROJ_YEAR_1_PRIOR", "P66_PROJ_YEAR_1_PRIOR", "P99_PROJ_YEAR_1_PRIOR",
-
                          "SGP_PROJECTION_GROUP_CURRENT", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT", "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT",
                          "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
 
@@ -111,7 +107,7 @@ tmp.long.data[which(GRADE_PRIOR_1 %in% c('3','4', '5','6','7','8')), ASSESSMENT_
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_1, SCHOOL_YEAR_PRIOR_1], exclude=NULL) # All priors from current year (block/repeaters) should be EOC
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_1, SUBJECT_CODE_PRIOR_1], exclude=NULL) # Subjects should line up as expected
 
-table(tmp.long.data[, SCHOOL_YEAR_PRIOR_2, GRADE_PRIOR_2], exclude=NULL) #  All Milestones test years (CRCT has now sunset w/ singe prior)
+table(tmp.long.data[, SCHOOL_YEAR_PRIOR_2, GRADE_PRIOR_2], exclude=NULL) #  All Milestones test years (CRCT has now sunset)
 # tmp.long.data[which(GRADE_PRIOR_2=='EOCT'), ASSESSMENT_TYPE_PRIOR_2 := "EOC"] # None -- all EOGs
 tmp.long.data[which(GRADE_PRIOR_2 %in% c('3','4', '5','6','7','8')), ASSESSMENT_TYPE_PRIOR_2 := "EOG"]
 table(tmp.long.data[, ASSESSMENT_TYPE_PRIOR_2, SCHOOL_YEAR_PRIOR_2], exclude=NULL) # All priors should be EOG Math/ELA
@@ -132,6 +128,8 @@ my.projection.table.names <- c(
           "ELA.2019", "MATHEMATICS.2019", #  EOG
           "GRADE_9_LIT.2019", "COORDINATE_ALGEBRA.2019", "ALGEBRA_I.2019")  #  EOC
 for (i in my.projection.table.names) {
+  setnames(Georgia_SGP@SGP$SGProjections[[i]], gsub("_CURRENT_CURRENT", "_CURRENT", names(Georgia_SGP@SGP$SGProjections[[i]])))
+  if ("YEAR_WITHIN_CURRENT" %in% names(Georgia_SGP@SGP$SGProjections[[i]])) setnames(Georgia_SGP@SGP$SGProjections[[i]], "YEAR_WITHIN_CURRENT", "YEAR_WITHIN")
 	tmp.list.current[[i]] <- data.table(
 			VALID_CASE="VALID_CASE",
 			SUBJECT_CODE=unlist(strsplit(i, "\\."))[1],
@@ -141,22 +139,6 @@ for (i in my.projection.table.names) {
 
 ###  Merge projection/target data in.  Do this seperately so that 8th grade students get their prior merged in (no current target).
 tmp.projections.c <- data.table(rbindlist(tmp.list.current), key=c("ID", "SUBJECT_CODE")) ## Remove the "FIRST_OBSERVATION" for within year repeaters
-
-####
-###   Add in LAGGED targets in 2019 -- Verify with Tianna & Niveen what we'll need
-####
-
-??? ...
-
-my.variable.names <- c("ID", "YEAR_WITHIN", "GRADE", "SGP_PROJECTION_GROUP_PRIOR",
-                       "LEVEL_1_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_2_SGP_TARGET_YEAR_1_PRIOR", "LEVEL_3_SGP_TARGET_YEAR_1_PRIOR",
-                       "P1_PROJ_YEAR_1_PRIOR", "P35_PROJ_YEAR_1_PRIOR", "P66_PROJ_YEAR_1_PRIOR", "P99_PROJ_YEAR_1_PRIOR") #  Just adequate growth?
-
-tmp.list.lagged <- list()
-
-  ...
-
-
 
 setnames(tmp.projections.c, "ID", "GTID")
 setkeyv(tmp.projections.c, c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN", "GRADE")) ## Remove the "FIRST_OBSERVATION" for within year repeaters
@@ -179,7 +161,7 @@ setkeyv(Georgia_SGP_Data_LONG_2019_FORMATTED, c("VALID_CASE", "SUBJECT_CODE", "S
 ###   Add a SGP_Final to accommondate bussiness rule to eliminate (SGP - SGP_SIMEX_RANKED) greater than 20
 ###   99 assigned to HOSS scores automatically now through SGPstateData `sgp.loss.hoss.adjustment` element.
 
-dim(Georgia_SGP_Data_LONG_2019_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) > 20), ]) #  9 EOG / 137 EOC students in prelim 2019
+dim(Georgia_SGP_Data_LONG_2019_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) > 20), ]) #  19 EOG / 119 EOC students in Final 2019
 Georgia_SGP_Data_LONG_2019_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) <= 20), SGP_Final := SGP_SIMEX_RANKED]
 
 
@@ -191,8 +173,9 @@ fwrite(Georgia_SGP_Data_LONG_2019_FORMATTED, file="U:/DATA/SGP/Data/2019 SGPs/20
 
 ##    CFA
 
-#   Change the file name appendix to -EOG or -EOC depending on what is being formatted (Removed when EOC/EOG combined with updated SGP_STANDARD_ERROR)
-save(Georgia_SGP_Data_LONG_2019_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2019_FORMATTED.Rdata")
-fwrite(Georgia_SGP_Data_LONG_2019_FORMATTED, file="Data/Georgia_SGP_Data_LONG_2019_FORMATTED.txt", sep="|")
-zip(zipfile="Data/Georgia_SGP_Data_LONG_2019_FORMATTED.txt.zip", files="Data/Georgia_SGP_Data_LONG_2019_FORMATTED.txt")
-unlink("Data/Georgia_SGP_Data_LONG_2019_FORMATTED.txt")
+#   Change the file name appendix to _EOG or _EOC depending on what is being formatted (Removed when EOC/EOG combined with updated SGP_STANDARD_ERROR)
+assign("Georgia_SGP_Data_LONG_2019_FORMATTED_EOC", Georgia_SGP_Data_LONG_2019_FORMATTED)
+save(Georgia_SGP_Data_LONG_2019_FORMATTED_EOC, file="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.Rdata")
+fwrite(Georgia_SGP_Data_LONG_2019_FORMATTED_EOC, file="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt", sep="|")
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt.zip", files="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt")
+unlink("Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt")

@@ -64,7 +64,7 @@ Georgia_SGP <- updateSGP(
   sgp.projections.baseline = FALSE,
   sgp.projections.lagged.baseline = FALSE,
   simulate.sgps = TRUE,
-  calculate.simex = TRUE, #  Use list below for PRELIM data tests.
+  calculate.simex = TRUE,
 
   outputSGP.output.type="LONG_FINAL_YEAR_Data",
   outputSGP.directory="Data/Archive/2019/EOG",
