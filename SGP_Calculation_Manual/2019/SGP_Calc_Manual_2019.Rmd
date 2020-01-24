@@ -1,0 +1,1065 @@
+---
+title: "Student Growth Percentile Calculation Manual"
+subtitle: "2018-2019 Data Analyses"
+author:
+- name: National Center for the Improvement of Educational Assessment (NCIEA)
+- name: Damian W. Betebenner
+- email: DBetebenner@nciea.org
+  name: Adam R. VanIwaarden
+- email: avaniwaarden@gmail.com
+date: "January 2020"
+output:
+  word_document: default
+bibliography: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/Literasee/rmarkdown/content/bibliography/Literasee.bib
+---
+
+# Introduction
+
+This manual provides technical details associated with the Georgia Student Growth Model, including the calculation of student growth percentiles and targets from Georgia Milestones assessment data using the [`R` Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [`SGP` package](http://www.sgp.io) [@sgp2019].
+
+Broadly, the SGP analysis of the Georgia longitudinal student assessment data takes place in two steps:
+
+1. Data Preparation
+2. Data Analysis
+
+Those familiar with data analysis know that the bulk of the effort in the above two step process lies with Step 1: Data Preparation.  Following thorough data cleaning and preparation, data analysis using the `SGP` package takes clean data and makes it as easy as possible to calculate, summarize, output and visualize the results from SGP analyses.
+
+# Student Data Preparation
+
+Data preparation involves taking data provided by the Georgia Department of Education (DOE) and producing a `.Rdata` file that will subsequently be analyzed in Step 2. This process is carried out annually as new data becomes available from the state assessment program.  In the following sections we first detail the data preparation business rules used and steps taken in 2019, and then provide information about additional steps that have been required in past years for data preparation.
+
+## Initial SQL Data Pull and Cleaning of 2019 Student-Level Data
+
+In the source code below, data is cleaned and processed using a two step process:
+
+***1a.*** In the first step the data is formatted and pulled from the Georgia data warehouse using GADOE `SQL` code (not displayed).  Student records are selected and invalidated based upon business rules specified in the `SQL` code itself. The result is an exportable pipe delimited file where `VALID_CASES` are unique by `CONTENT_AREA`, `GRADE`, `YEAR`, `ID`, and `YEAR_WITHIN`.
+
+***1b.*** In the second step the formatted data from step 1 is read into [`R`](http://www.r-project.org/) and modified slightly with regard to variable types/classes. The result is an `.Rdata` file that is suitable for analysis with the `SGP` package.
+
+
+### Step 1a: Cleaning data with SQL
+
+The `SQL` script used for SGP data extraction is no longer provided to the Center for use in this document.  GADOE staff should refer to the source files themselves for reference to this process.
+
+
+### Step 1b: Creating an R version of the cleaned data
+
+After test data has been formatted and pulled from the GADOE data warehouse, pipe delimited text files are output and need to be read into `R` in order to create an `R` based data set to be used for subsequent analysis in the `SGP` package.  Four distinct parts are identified in the `R` code displayed below:  data loading, variable addition, variable tidying, and student record invalidation.
+
+A total of four raw data files containing student records from 2018 and 2019 were produced in Step 1a and are all read into `R` in Part 1 of the script below.  The first file contains the final EOG data.  The second and third files referenced in the code pertain to the EOC Data. One includes the initial matched student data from winter 2018 and spring 2019 that were used to produce quantile regression coefficient matrices that were used in the EOG target calculations.  The other EOC file contains the final data from the summer test administration.  The third data group contains scores from 2018 for students who successfully "tested out" of a course.  These scores were excluded from SGP production in 2018, but are included for the 2019 analyses to be used as prior scores (i.e. conditioning or dependent variables).
+
+For all four files, the data was read into `R` separately and assigned the same "object" name - `Georgia_Data_LONG_2019`.  This initial data object is then run through the second part of the data prep process (detailed below) in the same manner for all three data sets.
+
+
+```R
+
+###                    Georgia_Data_LONG_2019_STEP_1b.R                   ###
+
+#############################################################################
+###                                                                       ###
+###    Prepare and format the 2019 EOG and EOC Georgia Milestones data    ###
+###                                                                       ###
+#############################################################################
+
+###
+###            Part 1:  Load 2019 Raw Data
+###
+
+require(data.table)
+
+
+#   Function to load base data
+readZIP <- function(file, ...) {
+  if(!file.exists(file)) stop("File requested does not exist in path.")
+  my.file <- gsub(".zip",  "", file)
+  tmp.dir <- getwd()
+  setwd(tempdir())
+  system(paste0("unzip '", file.path(tmp.dir, paste0(my.file, ".zip")), "'"))
+
+  TMP <- try(data.table::fread(
+              file = grep(basename(my.file), 
+                          list.files(), value=TRUE), ...), silent=TRUE)
+  if(any(class(TMP) == "try-error")) {
+    message(paste(
+     "\n\t\tError reported from data.table::fread!\n\n", 
+     attributes(TMP)$condition))
+  }
+  unlink(grep(basename(my.file), 
+              list.files(all.files = TRUE, recursive = TRUE), value=TRUE))
+  setwd(tmp.dir)
+  if(!any(class(TMP) == "try-error")) return(TMP)
+}
+
+###   Start EOG
+
+Georgia_Data_LONG_2019 <- 
+    readZIP("./Data/Base_Files/EOG_Final_data_2019.txt.zip",
+            header = TRUE, sep = "|", colClasses=rep("character", 29))
+###   End EOG
+
+
+###   Start EOC
+
+####  This is the file used to compute coefficient matrices for the EOG growth targets
+# Georgia_Data_LONG_2019 <- 
+#     readZIP("./Data/Base_Files/EOC_Final_data_WINTER_SPRING_2019.txt.zip",
+#             header = TRUE, sep = "|", colClasses=rep("character", 29))
+
+####  This is the final/official file used to compute EOC growth percentiles and targets
+Georgia_Data_LONG_2019 <- rbindlist(list(
+   readZIP("./Data/Base_Files/EOC_Final_data_WINTER_SPRING_2019.txt.zip", 
+           header = TRUE, sep = "|", colClasses=rep("character", 29)),
+   fread("./Data/Base_Files/EOC_Final_data_SUMMER_2019.txt",  
+           header = TRUE, sep = "|", colClasses=rep("character", 29))))
+
+###   End EOC
+
+
+###   Start Testout
+Georgia_Data_LONG_2019 <- 
+    fread("./Data/Base_Files/2018_EOC_Final_Testout.txt",
+          header = TRUE, sep = "|", colClasses=rep("character", 35))
+
+####  Remove cases from unused Subject Codes
+Georgia_Data_LONG_2019[, SUBJECT_CODE := as.factor(ASSESSMENT_SUBJECT_CODE)]
+levels(Georgia_Data_LONG_2019$SUBJECT_CODE) <- 
+        c("GRADE_9_LIT", "ANALYTIC_GEOMETRY", "ALGEBRA_I", "AMERICAN_LIT", 
+          "BIO", "COORDINATE_ALGEBRA", "ECO", "GEOMETRY", "PHY", "USH")
+Georgia_Data_LONG_2019[, SUBJECT_CODE := as.character(SUBJECT_CODE)]
+Georgia_Data_LONG_2019 <- Georgia_Data_LONG_2019[
+     SUBJECT_CODE %in% c("GRADE_9_LIT", "AMERICAN_LIT", 
+       "ALGEBRA_I", "GEOMETRY", "ANALYTIC_GEOMETRY", "COORDINATE_ALGEBRA"),]
+
+####  Set all GRADE levels to EOCT to conform with the SGP conventions
+Georgia_Data_LONG_2019[, GRADE := "EOCT"]
+
+####  Set all Perfomance Level Variables to conventions used in other files
+Georgia_Data_LONG_2019[, PERFORMANCE_LEVEL := as.factor(PERFORMANCE_LEVEL)]
+levels(Georgia_Data_LONG_2019$PERFORMANCE_LEVEL) <- 
+        c("Beginning Learner", "Developing Learner", 
+          "Distinguished Learner", "Proficient Learner")
+Georgia_Data_LONG_2019[, PERFORMANCE_LEVEL := as.character(PERFORMANCE_LEVEL)]
+
+####  Create VALID_CASE variable
+Georgia_Data_LONG_2019[, VALID_CASE := "VALID_CASE"]
+
+####  Create YEAR_WITHIN variable based on ADMINISTRATION_PERIOD
+Georgia_Data_LONG_2019[, YEAR_WITHIN := as.numeric(NA)]
+Georgia_Data_LONG_2019[ADMINISTRATION_PERIOD=="Fall", YEAR_WITHIN := 1]
+Georgia_Data_LONG_2019[ADMINISTRATION_PERIOD=="Spring", YEAR_WITHIN := 2]
+Georgia_Data_LONG_2019[ADMINISTRATION_PERIOD=="Summer", YEAR_WITHIN := 3]
+###   End Testout
+```
+
+The second part of the data preparation script goes through and tidies up variables on a case-by-case basis.  School numbers are changed to a format that matches what has been done in previous years, numeric variables that were read in as characters are fixed, enrollment status variables are created, etc.
+
+```R
+###
+###            Part 2:  Tidy up variables
+###
+
+Georgia_Data_LONG_2019[, SCHOOL_NUMBER := 
+    as.numeric(SR_SYSTEM_ID)*10000 + as.numeric(SR_SCHOOL_ID)]
+Georgia_Data_LONG_2019[which(as.numeric(SR_SYSTEM_ID) > 1000), 
+    SCHOOL_NUMBER := as.numeric(SR_SYSTEM_ID)]
+Georgia_Data_LONG_2019[, SCHOOL_NUMBER := as.integer(SCHOOL_NUMBER)]
+
+Georgia_Data_LONG_2019[, SCALE_SCORE := as.numeric(SCALE_SCORE)]
+Georgia_Data_LONG_2019[, CONDSEM := as.numeric(CONDSEM)]
+
+Georgia_Data_LONG_2019[, GRADE := gsub("0", "", GRADE)]
+
+Georgia_Data_LONG_2019[PERFORMANCE_LEVEL=="", 
+    PERFORMANCE_LEVEL := NA] # Avoid NOTE in prepareSGP / checkSGP
+
+Georgia_Data_LONG_2019[, ADMINISTRATION_PERIOD := 
+    paste(YEAR_WITHIN, toupper(ADMINISTRATION_PERIOD), sep=": ")]
+
+Georgia_Data_LONG_2019[, SCHOOL_ENROLLMENT_STATUS := 
+    factor(1, levels=0:1,
+           labels=c("Enrolled School: No", "Enrolled School: Yes"))]
+Georgia_Data_LONG_2019[, DISTRICT_ENROLLMENT_STATUS := 
+    factor(1, levels=0:1,
+           labels=c("Enrolled District: No", "Enrolled District: Yes"))]
+Georgia_Data_LONG_2019[, STATE_ENROLLMENT_STATUS := 
+    factor(1, levels=0:1,
+           labels=c("Enrolled State: No", "Enrolled State: Yes"))]
+```
+
+In the third part of the data cleaning, the duplicated cases are removed.
+
+
+```R
+###
+###            Part 3:  Invalidate records
+###
+
+####   Invalidate duplicates 
+####   No duplicate cases in 2019 EOG data -- 497 in EOC Winter/Spring)
+
+setkey(Georgia_Data_LONG_2019, 
+       VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR, 
+       YEAR_WITHIN, GTID, SCALE_SCORE)
+    
+setkey(Georgia_Data_LONG_2019, 
+       VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR,
+       YEAR_WITHIN, GTID)
+    
+Georgia_Data_LONG_2019[
+    which(duplicated(Georgia_Data_LONG_2019, 
+          by=key(Georgia_Data_LONG_2019)))-1, 
+      VALID_CASE := "INVALID_CASE"]
+```
+
+In the final step of the data preparation, the three separately cleaned data objects (EOG, EOC and Test Out) are renamed and saved.  These are the files that will later be opened in `R` and used in the various steps of the data analysis (Step 2).  
+
+```R
+### Save results
+
+####  EOG
+assign("Georgia_Data_LONG_2019_EOG", Georgia_Data_LONG_2019)
+save(Georgia_Data_LONG_2019_EOG,
+     file="./Data/Georgia_Data_LONG_2019_EOG.Rdata")
+
+####  EOC
+assign("Georgia_Data_LONG_2019_EOC", Georgia_Data_LONG_2019)
+save(Georgia_Data_LONG_2019_EOC,
+     file="./Data/Georgia_Data_LONG_2019_EOC.Rdata")
+
+####  Test Out data
+assign("Georgia_Data_LONG_2018_Testout", Georgia_Data_LONG_2019)
+save(Georgia_Data_LONG_2018_Testout,
+     file="./Data/Georgia_Data_LONG_2018_Testout.Rdata")
+
+```
+
+##  Student data preparation issues
+
+This is a running list of issues and requirements from previous years.
+
+* ***Rescores*** - Students scores were re-scored after found to be incorrect.  Original records were invalidated.
+* ***Administration Invalidation*** - Invalidate student records with test administration flags including PTNA, PIV, DNA, TAR, AYP_CTBRC, etc.
+* ***Malformed Student IDs*** - Student GTID values with fewer than 10 digits or including a decimal point.
+* ***Missing and '0' Scores*** - Students with NA values or even 0 for missing (which is far outside the range of observable scale scores).
+* ***Multiple Test Scores*** - Duplicate student records from the same test administration period, or multiple records from the "matched" and "unmatched" data files.
+* ***Retest Scores*** - Students have been allowed to re-take an exam.
+* ***Schools Involved in Cheating*** - Student records from schools caught cheating on exams were all removed.
+
+
+## Variable naming conventions
+
+Note that the naming conventions associated with Georgia data as provided by the DOE and the naming conventions used by the `SGP` package are different.  Different naming conventions can be accommodated through the use of a meta-data look-up table embedded within the [SGPstateData](https://github.com/CenterForAssessment/SGPstateData) `.Rdata` object in the package. The variable name look-up table for Georgia is shown below with **`names.provided`** giving the state specific names **`names.sgp`** the SGP package specific names, **`names.type`** giving the type associated with the variable which is used within [`summarizeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/summarizeSGP) to construct group summaries, **`names.info`** providing meta-data associated with the variable, and **`names.output`** a Boolean indicator of whether variable should be used with [`summarizeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/summarizeSGP).
+
+|**names.provided**|**names.sgp**|**names.type**|**names.info**|
+|--------------|---------|----------|----------|
+VALID_CASE|VALID_CASE|individual_inclusion|Valid Case Identifier|
+SUBJECT_CODE|CONTENT_AREA|content|Content area of assessment|
+SCHOOL_YEAR|YEAR|time|Year (testing year) associated with record|
+SR_SYSTEM_ID|DISTRICT_NUMBER|institution|District Number|
+SCHOOL_NUMBER|SCHOOL_NUMBER|institution|Unique School Identifier created from SR_SCHOOL_ID and SR_SYSTEM_ID|
+GRADE|GRADE|institution_level|Grade level of test taken except EOC|
+GRADE_REPORTED|GRADE_REPORTED|institution_level|Grade level of test taken or reported|
+SCALE_SCORE|SCALE_SCORE|measure|Scale score|
+CONDSEM|SCALE_SCORE_CSEM|measure|Scale score CSEM|
+PERFORMANCE_LEVEL|ACHIEVEMENT_LEVEL|measure|Achievement level associated with student score|
+GTID|ID|individual|Unique student identifier|
+LAST_NAME|LAST_NAME|other|LAST_NAME|
+FIRST_NAME|FIRST_NAME|other|FIRST_NAME|
+MIDDLE_NAME|MIDDLE_NAME|other|MIDDLE_NAME|
+BIRTH_DATE|BIRTH_DATE|other|BIRTH_DATE|
+RACE_CODE|RACE_CODE|demographic|Ethnicity/Race code|
+GENDER_CODE|GENDER_CODE|demographic|GENDER|
+ED|ED|demographic|Economically Disadvantaged indicator|
+SWD|SWD|demographic|Students with disabilities|
+LEP|LEP|demographic|LEP/ELL Students|
+GIFT|GIFT|demographic|Gifted/Talented Students|
+MATCH_STATUS|MATCH_STATUS|other|Match Status|
+ADMIN_INVALIDATION|ADMIN_INVALIDATION|other|Combination of TAR PTNA DNA and other invalidation indicators|
+ADMINISTRATION_PERIOD|ADMINISTRATION_PERIOD|other|Administration time for EOC assessments|
+YEAR_WITHIN|YEAR_WITHIN|other - time|Administrative time associated with record (integer)|
+RETEST_INDICATOR|RETEST_INDICATOR|other|Indicator|
+FIRST_OBSERVATION|FIRST_OBSERVATION|other - time|Indicator whether record is first observed for YEAR_WITHIN|
+LAST_OBSERVATION|LAST_OBSERVATION|other - time|Indicator whether record is last observed for YEAR_WITHIN|
+SCHOOL_ENROLLMENT_STATUS|SCHOOL_ENROLLMENT_STATUS|institution_inclusion|School inclusion/accountability indicator|
+DISTRICT_ENROLLMENT_STATUS|DISTRICT_ENROLLMENT_STATUS|institution_inclusion|District inclusion/accountability indicator|
+STATE_ENROLLMENT_STATUS|STATE_ENROLLMENT_STATUS|institution_inclusion|State inclusion/accountability indicator|
+
+
+## New SGP "Shell" Object Creation
+
+After the transition to the Milestones assessment program, it was decided that the SGP objects would be archived after each round of annual analyses and a new "shell" SGP object would be created at the beginning of each new year.  This new SGP object would be established containing only the necessary longitudinal data from the previous years (also archived as `Georgia_SGP_LONG_Data.Rdata`).  Given the use of skipped years of various lengths in the end-of-course (EOC) analyses, the subset of the prior years' longitudinal data stretches back to 2016 in some subjects.  The [`prepareSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/prepareSGP) is used to create the new SGP object from this data subset.
+
+```R
+###                       Georgia_SGP-SHELL_2019.R                        ###
+
+#############################################################################
+###                                                                       ###
+###       Create a Shell SGP object for Georgia's 2019 SGP Analyses       ###
+###                                                                       ###
+#############################################################################
+
+###
+
+### Load required packages
+
+require(SGP)
+require(data.table)
+
+###  Use @Data from outputSGP in 2018 as the base for the new object
+load("./Data/Archive/2018/Georgia_SGP_LONG_Data.Rdata")
+load("./Data/Georgia_Data_LONG_2018_Testout.Rdata")
+
+Georgia_SGP_LONG_Data <- 
+    Georgia_SGP_LONG_Data[
+        VALID_CASE == "VALID_CASE" & SCHOOL_YEAR %in% 2016:2018]
+
+vars.to.keep <- 
+    names(Georgia_Data_LONG_2018_Testout)[
+       names(Georgia_Data_LONG_2018_Testout) %in% 
+             names(Georgia_SGP_LONG_Data)]
+
+Georgia_LONG_Data <- 
+    rbindlist(list(
+               Georgia_SGP_LONG_Data,
+               Georgia_Data_LONG_2018_Testout[,vars.to.keep, with=FALSE]), 
+              fill=TRUE)
+
+
+###   Invalidate duplicate cases
+setkey(Georgia_LONG_Data, 
+       VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR,
+       YEAR_WITHIN, GTID, SCALE_SCORE)
+    
+setkey(Georgia_LONG_Data,
+       VALID_CASE, SUBJECT_CODE, GRADE, SCHOOL_YEAR,
+       YEAR_WITHIN, GTID)
+    
+Georgia_LONG_Data[
+    which(duplicated(Georgia_LONG_Data, by=key(Georgia_LONG_Data)))-1, 
+      VALID_CASE := "INVALID_CASE"]
+
+
+###    Create New Georgia_SGP object via prepareSGP
+Georgia_SGP <- prepareSGP(Georgia_LONG_Data, 
+                          create.additional.variables=FALSE)
+
+###  Save New SGP Shell Object
+save(Georgia_SGP, file="Data/Georgia_SGP-Shell_2019.Rdata")
+```
+
+# Data Analysis
+
+Data analysis is conducted using the [`R` Software Environment](http://www.r-project.org/) [@Rsoftware] in conjunction with the [`SGP` package](http://www.sgp.io) [@sgp2019].  The 2019 annual analysis scripts are provided below as well as a description of the steps required to run the annual SGP analyses for the Georgia Student Growth Model.
+
+
+## 2019 SGP Analyses
+
+The objective of the student growth percentile (SGP) analysis is to describe how (a)typical a student's growth is by examining his/her current achievement relative to students with a similar achievement history; i.e his/her *academic peers* (see [Section 2 of the GSGM FAQ](https://docs.google.com/viewer?url=http%3A%2F%2Fwww.gadoe.org%2FCurriculum-Instruction-and-Assessment%2FAssessment%2FDocuments%2FSGP%2520FAQ%2520072214.pdf)). This norm-referenced growth quantity is estimated using quantile regression [@Koenker:2005] to model curvilinear functional relationships between students' prior and current scores.  One hundred such regression models are calculated for each separate analysis (defined as a unique ***year** by **content area** by **grade** by **prior order*** combination, with student grade-level ignored in EOC subjects).  The end product of these 100 separate regression models is a single coefficient matrix, which serves as a look-up table to relate prior student achievement to current achievement for each percentile. This process ultimately leads to tens of thousands of model calculations (and many more when SIMEX measurement error corrections are performed) during each of Georgia's annual batch of analyses.
+
+The 2019 Georgia SGP analyses follow a work flow established in previous years that includes the following 4 steps:
+
+1. Update the Georgia assessment meta-data required for SGP calculations using the `SGP` package.
+2. Create annual SGP configurations for analyses.
+3. Conduct all EOG and EOC SGP analyses.
+4. Combine results into the master longitudinal data set, summarize results and output data.
+
+### 1. Update the Georgia metadata in `SGPstateData`.
+
+The use of higher-level functions included in the `SGP` package (e.g. `analyzeSGP`) requires the availability of state specific assessment information.  This meta-data is compiled in a `R` object named `SGPstateData` that is housed in the package.  No updates to Georgia's metadata were required for the 2019 analyses.
+
+
+### 2. Create annual SGP configurations
+
+Unlike most EOG analyses, EOC analyses are specialized enough so that it is necessary to specify the analyses to be performed via explicit configuration code.  For several years, configurations have been employed to conduct EOC SGP analyses for Georgia.  Beginning in 2015 configurations were used for EOG SGP analyses as well, which allows for consistency between the EOC subjects and for all analyses (particularly student growth projections) to be run concurrently.  The configurations associated with the 2019 annual SGP analyses are located in the Georgia Github repository folder named [SGP_CONFIG](https://github.com/CenterForAssessment/Georgia/tree/master/SGP_CONFIG/EOCT/2019).  This file should also be available on existing Georgia DOE hard and/or shared drives.
+
+The configurations are broken up into two separate R scripts: [ELA.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2019/ELA.R), [MATHEMATICS.R](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2019/MATHEMATICS.R), 
+
+Configurations are `R` code scripts that are used as part of the larger SGP analysis to be discussed later.  They are broken up into separate R scripts based on content area (ELA and Mathematics).  Each configuration code chunk specifies a set of parameters that defines the norm group of students to be examined.  Every potential norm group is defined by, at a minimum, the progressions of content area and academic year, as well as grade-level for the EOG analyses.  Because Georgia allows for repeated test administrations within each year, the sequence in which score observations occur must also be included.  Therefore, every configuration used contains the first four elements listed below.  The EOC analyses also contain the fifth through eighth elements:
+
+1. **`sgp.content.areas`:** The progression of content areas to be looked at and their order.
+2. **`sgp.panel.years`:** The progression of the years associated with the content area progression (`sgp.content.areas`), potentially allowing for skipped or repeated years, etc.
+3. **`sgp.panel.years.within`:** The progression of the observation sequence associated with each year.  Required when multiple test scores are present within a given year.  Values may be set to `LAST_OBSERVATION` or `FIRST_OBSERVATION`.
+4. **`sgp.grade.sequences`:** The grade progression associated with the configuration content areas and years. The value **'EOCT'** stands for 'End Of Course Test'.^[This abbreviation differs from Georgia's use of "EOC", but is a required convention in the `SGP` package.]  The use of the generic 'EOCT' allows for secondary students to be compared based on the pattern of course taking rather than being dependent upon grade-level designation.
+5. **`sgp.exact.grade.progression`:** When set to `TRUE`, this element will force the lower level functions to analyze *only* the progression as specified in its entirety.  Otherwise these functions will analyze subsets of the progression for every possible order (i.e. each number of prior time periods of data available). When set to `TRUE`, a norm group preference system is usually required as well.
+6. **`sgp.norm.group.preference`:** Because a student can potentially be included in more than one analysis/configuration, multiple SGPs will be produced for some students and a system is required to identify the preferred SGP that will be matched with the student in the `combineSGP` step.  This argument provides a ranking that specifies how preferable SGPs produced from the analysis in question is relative to other possible SGPs.  ***Lower numbers correspond with higher preference.***  Higher preference is given to:
+    * Progressions with the greatest number of prior scale scores.
+    * Progressions in which a student has repeated a course.
+    * Progressions that do not include a skipped year (i.e. a gap in the scale score history).
+    * Progressions for block-schedule course taking patterns.
+7. **`sgp.projection.grade.sequences`:** This element is used to identify the grade sequence that will be used to produce straight and/or lagged student growth projections.  It can either be left out or set explicitly to `NULL` to produce projections based on the values provided in the `sgp.content.areas` and `sgp.grade.sequences` elements.  Alternatively, when set to "`NO_PROJECTIONS`", no projections will be produced.  For EOC analyses, only configurations that correspond to the canonical course progressions can produce student growth projections.  The canonical progressions are codified in the `SGP` package here: [`SGPstateData[["GA"]][["SGP_Configuration"]][["content_area.projection.sequence"]]`](https://github.com/CenterForAssessment/SGPstateData/blob/fda10b20d92f5c9dcba3fa6eaf98844bab5bb05b/SGPstateData.R#L2614).
+8. **`sgp.exclude.sequences`:** Look-up table containing the grade, subject, and year combinations of students that should be excluded from a cohort.  This element is used in progressions in which a year or similar time period is skipped (i.e. a gap in time exists).  For example, in a progression that goes from 8<sup>th</sup> grade Mathematics to EOC Algebra I with a skipped year in between one may want to exclude kids that repeated either 8<sup>th</sup> grade Mathematics or Algebra I, or took other math related subjects (e.g. Geometry) in the skipped year.  Students with different course progressions may be inappropriate to include with the cohort of students who truly had no mathematics related course in the intervening year.
+
+Note that `sgp.content.areas`, `sgp.panel.years`, and `sgp.grade.sequences` elements are all character strings, and their values correspond to levels found in the `CONTENT_AREA`, `YEAR`, and `GRADE` variables in the `Georgia_SGP@Data` slot respectively.  
+
+As an example, here is one Algebra I configuration used to define a 2019 SGP analysis that includes a skipped year and requires all eight configuration elements (located [here on Github](https://github.com/CenterForAssessment/Georgia/blob/master/SGP_CONFIG/EOCT/2019/MATHEMATICS.R#L253)):
+
+```R
+...
+
+  ALGEBRA_I.2019 = list(
+    sgp.content.areas=c('MATHEMATICS', 'MATHEMATICS', 'ALGEBRA_I'),
+    sgp.panel.years=c('2016', '2017', '2019'),
+    sgp.panel.years.within=c("LAST_OBSERVATION", 
+        "LAST_OBSERVATION", "FIRST_OBSERVATION"),
+    sgp.grade.sequences=list(c('7', '8', 'EOCT')),
+    sgp.exact.grade.progression=TRUE,
+    sgp.norm.group.preference=6,
+    sgp.projection.grade.sequences="NO_PROJECTIONS",
+    sgp.exclude.sequences = data.table(
+        VALID_CASE = 'VALID_CASE',
+        CONTENT_AREA=c('MATHEMATICS', 'ALGEBRA_I', 'GEOMETRY'),
+        YEAR=c('2018', '2018', '2018'), 
+        GRADE=c('8', 'EOCT', 'EOCT')))
+...
+
+```
+
+This analysis contains a skipped year and requires the `sgp.exclude.sequences` element.  The `sgp.exclude.sequences` element provides a data table with the cases to exclude from the analysis cohort.  Here we want to exclude any kids who may have not actually skipped a math related course in 2018, which might include students who repeated either 8<sup>th</sup> grade Math or Algebra I, or who might have taken Geometry in 2018.  These students will be included in other course progressions/configurations and should be excluded from the calculation of the skipped year SGPs.
+
+Accordingly, the data table constructed in the `sgp.exclude.sequences` element looks like this:
+
+```R
+     VALID_CASE   CONTENT_AREA   YEAR   GRADE
+1:   VALID_CASE    MATHEMATICS   2018       8
+2:   VALID_CASE      ALGEBRA_I   2018    EOCT
+3:   VALID_CASE       GEOMETRY   2018    EOCT
+
+```
+
+
+### 3. Conduct grade-level SGP analyses.
+
+The 2019 Georgia SGP analyses required three steps to complete.  First preliminary EOC coefficient matrices were calculated with the final winter (2018) and spring (2019) data for use with the EOG growth target analyses.  The second step was to calculate the EOG growth percentiles and targets.  Finally, when the final summer (2019) EOC data was available, the EOC growth percentiles and targets were then calculated.
+
+
+####  3a.  EOC Preliminary Coefficient Matrix Calculation
+
+Due to differences in the time-frames in which the EOG and EOC were validated and made available, EOG and EOC SGPs were calculated at separate times.  Because GADOE requires EOG growth percentiles and targets to be provided before the final (summer) EOC data is available, preliminary EOC coefficient matrices are first calculated using the final winter and spring data.  These coefficient matrices are then inserted into the 2019 Georgia SGP shell object before running the EOG analyses, and subsequently removed before the final EOC analyses.
+
+```R
+###                     Georgia_SGP_EOC_Matrices_2019.R                   ###
+
+#############################################################################
+###                                                                       ###
+###          Calculate EOC Matrices for 2019 Georgia EOG Targets          ###
+###                                                                       ###
+#############################################################################
+
+### Load required packages ###
+require(SGP)
+require(data.table)
+
+###  Load Required Data (Prior Years in SGP Shell object, Current Year in data table)
+load("Data/Georgia_SGP-Shell_2019.Rdata")
+load("Data/Georgia_Data_LONG_2019_EOC.Rdata") # Final Winter/Spring Data only
+
+###  Combine 2019 SGP EOC Configuration Scripts
+source("SGP_CONFIG/EOCT/2019/ELA.R")
+source("SGP_CONFIG/EOCT/2019/MATHEMATICS.R")
+
+GA_2019.config <- c(
+  COORDINATE_ALGEBRA_2019.config,
+  ANALYTIC_GEOMETRY_2019.config,
+  ALGEBRA_I_2019.config,
+  GEOMETRY_2019.config,
+
+  GRADE_9_LIT_2019.config,
+  AMERICAN_LIT_2019.config
+)
+
+###   Reduce config to include only progressions that will be used to calculate SGProjections
+GA_2019.config <- 
+  GA_2019.config[
+    !sapply(GA_2019.config, function(f) any(grepl("NO_PROJECTIONS", f)))]
+
+###   Remove sgp.exact.grade.progression for all progressions EXCEPT G7_MATH_EOC
+for (f in 1:length(GA_2019.config)) {
+  if (!(tail(GA_2019.config[[f]]$sgp.content.areas,1)=="GEOMETRY" & 
+      head(GA_2019.config[[f]]$sgp.grade.sequences[[1]],1) == 7)) {
+    GA_2019.config[[f]][["sgp.exact.grade.progression"]] <- NULL
+  }
+}
+
+###
+###    Run EOC Analyses for SGPs only.
+###    No combineSGP, outputSGP, etc.  Only need Coefficient_Matrices
+###
+
+Georgia_SGP <- updateSGP(
+    what_sgp_object=Georgia_SGP,
+    with_sgp_data_LONG=Georgia_Data_LONG_2019_EOC,
+    sgp.config = GA_2019.config,
+    steps=c("prepareSGP", "analyzeSGP"),
+    sgp.percentiles = TRUE,
+    sgp.projections = FALSE,
+    sgp.projections.lagged = FALSE,
+    sgp.percentiles.baseline=FALSE,
+    sgp.projections.baseline = FALSE,
+    sgp.projections.lagged.baseline = FALSE,
+    goodness.of.fit.print=FALSE,
+    save.intermediate.results=FALSE,
+    parallel.config = list(BACKEND="FOREACH",
+                           TYPE="doParallel",
+                           WORKERS=list(TAUS=20)))
+
+
+###  Save Coefficient_Matrices from preliminary and use for projections
+Georgia_EOC_Coef_Matrices_2019 <- Georgia_SGP@SGP$Coefficient_Matrices
+save(Georgia_EOC_Coef_Matrices_2019, 
+     file="Data/Georgia_EOC_Coef_Matrices_2019.rda")
+
+###  DON'T Save Georgia_SGP!  Only want Georgia_EOC_Coef_Matrices_2019
+```
+
+####  3b.  EOG SGP Analyses
+
+Once the EOC preliminary coefficient matrices were produced, the cohort-referenced (uncorrected) and SIMEX corrected SGPs were calculated for each individual analysis (`sgp.percentiles = TRUE` and `calculate.simex = TRUE` in the call to `updateSGP` in the code displayed below).  
+
+Student growth projections were also computed for both EOG and EOC student growth analyses (`sgp.projections = TRUE`). The projections follow the "canonical" (i.e. most typical) course progressions.  This is implemented in the configuration code by setting the `sgp.projection.grade.sequences` element to "NO_PROJECTIONS" for non-canonical course progressions.  This avoids duplicate projections from being calculated (and provides a more thorough/explicit source code record).  Canonical progressions' `sgp.projection.grade.sequences` elements are omitted, and are thus constructed automatically by the `SGP` software.
+
+For EOG canonical progressions are simply grades 3 to 8 to the next in that subject.
+The EOC targets project from one subject to the next related subject that represents the most typical course progression in Georgia: 
+
+- 8<sup>th</sup> Grade ELA $\rightarrow$ 9<sup>th</sup> Grade Literature
+- 9<sup>th</sup> Grade Literature $\rightarrow$ American Literature
+
+- 8<sup>th</sup> Grade Mathematics $\rightarrow$ Algebra I
+- Algebra I $\rightarrow$ Geometry
+
+- 8<sup>th</sup> Grade Mathematics $\rightarrow$ Coordinate Algebra
+- Coordinate Algebra $\rightarrow$ Analytic Geometry
+
+A less typical, but important, course progression target is also calculated for grade 8 students:
+
+For mathematics, it is unknown which high school math course sequence will be taken in 2020 by current 8th grade students in 2019.  Therefore, each 8<sup>th</sup> grade student receives both a Grade 8 Math to Algebra I target (typical progression) and Grade 8 Math to Coordinate Algebra target (less typical progression). 
+
+We use the [`updateSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/updateSGP) function to ***a)*** do the final preparation and addition of the 2019 cleaned and formatted data to a `SGP` class object ([`prepareSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/prepareSGP) step) and ***b)*** calculate SGP estimates ([`analyzeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/analyzeSGP) step).  
+
+Here is the code used to run the EOG analyses, using the pre-calculated EOC coefficient matrices for the growth target calculations.
+
+```R
+###                          Georgia_SGP_2019.R                          ###
+
+#############################################################################
+###                                                                       ###
+###                   Calculate SGPs for Georgia - 2019                   ###
+###                                                                       ###
+#############################################################################
+
+
+### Load required packages ###
+require(SGP)
+require(data.table)
+
+###  Load Required Data (Prior Years in SGP Shell object, Current Year in data table)
+load("Data/Georgia_SGP-Shell_2019.Rdata")
+load("Data/Georgia_Data_LONG_2019_EOG.Rdata")
+
+##    Load EOC Coefficient_Matrices produced from Winter/Spring data (see Georgia_SGP_EOC_Matrices_2019.R)
+##    Populate @SGP$Coefficient_Matrices slot with these with EOC matrices to run EOG projections.
+load("Data/Georgia_EOC_Coef_Matrices_2019.rda")
+Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_EOC_Coef_Matrices_2019
+
+###  Read in 2019 SGP Configuration Scripts
+source("SGP_CONFIG/EOCT/2019/ELA.R")
+source("SGP_CONFIG/EOCT/2019/MATHEMATICS.R")
+
+
+###    EOG Analyses
+###
+###    Include ALGEBRA_I, COORDINATE_ALGEBRA and GRADE_9_LIT 
+###    in configs to get 8th grade projections
+
+GA_2019.config <- c(
+  MATHEMATICS_2019.config,
+  ALGEBRA_I_2019.config,
+  COORDINATE_ALGEBRA_2019.config,
+
+  ELA_2019.config,
+  GRADE_9_LIT_2019.config)
+
+
+###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
+Georgia_SGP <- updateSGP(
+  what_sgp_object=Georgia_SGP,
+  with_sgp_data_LONG=Georgia_Data_LONG_2019_EOG,
+  sgp.config = GA_2019.config,
+  steps=c("prepareSGP", "analyzeSGP", "combineSGP", "outputSGP"),
+  save.intermediate.results=FALSE,
+  overwrite.existing.data=FALSE,
+  output.updated.data=FALSE,
+
+  sgp.percentiles = TRUE,
+  sgp.projections = TRUE,
+  sgp.projections.lagged = TRUE,
+  sgp.percentiles.baseline = FALSE,
+  sgp.projections.baseline = FALSE,
+  sgp.projections.lagged.baseline = FALSE,
+  simulate.sgps = TRUE,
+  calculate.simex = TRUE,
+
+  outputSGP.output.type="LONG_FINAL_YEAR_Data",
+  outputSGP.directory="Data/Archive/2019/EOG",
+  parallel.config = list(
+      BACKEND="FOREACH",
+      TYPE="doParallel",
+      WORKERS=list(TAUS=20, SIMEX=15)))
+
+###   Remove EOC preliminary coef matrices from object before saving
+Georgia_SGP@SGP$Coefficient_Matrices <-
+    Georgia_SGP@SGP$Coefficient_Matrices[grep("ELA|MATHEMATICS", 
+                        names(Georgia_SGP@SGP$Coefficient_Matrices))]
+
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+
+```
+
+####  3c.  EOC SGP Analyses
+
+Once the final summer data was matched and finalized, the final data preparation was run (see code above) and the following code was used to produce the EOC growth percentiles and projections.
+
+```R
+#####
+###    EOC Analyses
+#####
+
+load("Data/Georgia_SGP.Rdata")
+load("Data/Georgia_Data_LONG_2019_EOC.Rdata")
+
+###  Combine 2019 SGP EOC Configuration Scripts
+source("SGP_CONFIG/EOCT/2019/ELA.R")
+source("SGP_CONFIG/EOCT/2019/MATHEMATICS.R")
+
+GA_2019.config <- c(
+  COORDINATE_ALGEBRA_2019.config,
+  ANALYTIC_GEOMETRY_2019.config,
+  ALGEBRA_I_2019.config,
+  GEOMETRY_2019.config,
+
+  GRADE_9_LIT_2019.config,
+  AMERICAN_LIT_2019.config
+)
+
+###  Run SGP Object Preparation and Student Growth Percentiles via `updateSGP` function
+Georgia_SGP <- updateSGP(
+    what_sgp_object=Georgia_SGP,
+    with_sgp_data_LONG=Georgia_Data_LONG_2019_EOC,
+    sgp.config = GA_2019.config,
+    steps=c("prepareSGP", "analyzeSGP"),
+    overwrite.existing.data=FALSE,
+    output.updated.data=FALSE,
+    sgp.percentiles = TRUE,
+    sgp.projections = TRUE,
+    sgp.projections.lagged = TRUE,
+    sgp.percentiles.baseline=FALSE,
+    sgp.projections.baseline = FALSE,
+    sgp.projections.lagged.baseline = FALSE,
+    simulate.sgps = TRUE,
+    calculate.simex = TRUE,
+    save.intermediate.results=FALSE,
+    parallel.config = list(
+        BACKEND="FOREACH", 
+        TYPE="doParallel", 
+        WORKERS=list(TAUS=20, SIMEX=15)))
+
+```
+
+### 4.  Merge 2019 results into the `@Data` slot, and output data
+
+Once all analyses were completed the results were merged into the master longitudinal data set ([`combineSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/combineSGP) step).  Note that this step first requires post-processing to combine the results from some analyses that were run separately using single and double priors (required for progressions that use the same first prior and different second priors).  Target scale scores are also produced in this step, although these are not currently used by GADOE or returned in the formatted results
+
+```R
+####
+###   Post Process @SGP$SGPercentiles to get SGP_ORDER_1 info merged in to
+###   highest order row. This is necessary for CONTENT_AREA configs in 
+###   which `sgp.exact.grade.progression` is used for 2 prior progressions
+####
+
+for (ca in names(Georgia_SGP@SGP$SGPercentiles)) {
+  tmp.SGPercentiles <- Georgia_SGP@SGP$SGPercentiles[[ca]]
+  tmp.SGPercentiles$Most_Recent_Prior <- as.character(NA)
+  tmp.SGPercentiles[, Most_Recent_Prior := 
+      sapply(strsplit(as.character(tmp.SGPercentiles$SGP_NORM_GROUP), "; "), 
+             function(x) rev(x)[2])]
+
+  setkey(tmp.SGPercentiles, ID, Most_Recent_Prior)
+  tmp.SGPercentiles <- 
+    tmp.SGPercentiles[!is.na(SGP_ORDER_1), 
+      list(ID, Most_Recent_Prior, SGP_ORDER_1)][ tmp.SGPercentiles][,
+        i.SGP_ORDER_1 := NULL]
+  tmp.SGPercentiles <- 
+    tmp.SGPercentiles[!is.na(SGP_SIMEX_ORDER_1), 
+      list(ID, Most_Recent_Prior, SGP_SIMEX_ORDER_1)][tmp.SGPercentiles][, 
+        i.SGP_SIMEX_ORDER_1 := NULL]
+  tmp.SGPercentiles <- 
+    tmp.SGPercentiles[!is.na(SGP_SIMEX_RANKED_ORDER_1), 
+      list(ID, Most_Recent_Prior, SGP_SIMEX_RANKED_ORDER_1)][
+      tmp.SGPercentiles][, i.SGP_SIMEX_RANKED_ORDER_1 := NULL]
+
+  tmp.SGPercentiles -> Georgia_SGP@SGP$SGPercentiles[[ca]]
+}
+
+
+###
+###   combineSGP
+###
+
+###   Calculate all Target Scale Scores at same time (not used in FORMATTED results)
+
+GA_2019.config <- c(
+  MATHEMATICS_2019.config,
+  ALGEBRA_I_2019.config,
+  COORDINATE_ALGEBRA_2019.config,
+  ANALYTIC_GEOMETRY_2019.config,
+  GEOMETRY_2019.config,
+
+  ELA_2019.config,
+  GRADE_9_LIT_2019.config,
+  AMERICAN_LIT_2019.config)
+
+Georgia_SGP <- combineSGP(Georgia_SGP,
+    years = "2019",
+    sgp.target.scale.scores = TRUE,
+    sgp.config = GA_2019.config)
+
+save(Georgia_SGP, file="Data/Georgia_SGP.Rdata")
+```
+
+
+#### Summarize and visualize data
+Finally, the SGP results are summarized using the [`summarizeSGP` function](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/summarizeSGP), which produces many tables of descriptive statistics that are disaggregated at the state, district and school levels. These basic summary tables are also further disaggregated by the demographic groups available in the data set and listed in [Georgia's Variable Name Lookup table](https://github.com/CenterForAssessment/SGPstateData/blob/master/Variable_Name_Lookup/GA_Variable_Name_Lookup.csv).  Visualizations (such as the bubble charts used in the technical report and "growth and achievement" charts) are produced from the SGP results and summary tables using the [`visualizeSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/visualizeSGP) function.
+
+
+```R
+###
+###   summarizeSGP
+###
+
+Georgia_SGP <- summarizeSGP(
+  Georgia_SGP,
+  parallel.config=list(
+    BACKEND="PARALLEL", WORKERS=list(SUMMARY=3))
+)
+
+Georgia_Summary_2019 <- Georgia_SGP@Summary
+
+save(Georgia_Summary_2019, file="Data/Georgia_Summary_2019.Rdata")
+
+
+###
+###   visualizeSGP
+###
+
+load("Data/Georgia_Summary_2019.Rdata")
+Georgia_SGP@Summary <- Georgia_Summary_2019
+
+Georgia_SGP@Data$SCHOOL_NAME <- as.character(NA); gc()
+Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
+
+visualizeSGP(Georgia_SGP,
+             plot.types = c("bubblePlot", "growthAchievementPlot"),
+             bPlot.years= "2019",
+             bPlot.content_areas=c("ELA", "MATHEMATICS"),
+             bPlot.anonymize=TRUE,
+             gaPlot.years = "2019",
+             gaPlot.max.order.for.progression=2,
+             parallel.config=list(
+               BACKEND='FOREACH', TYPE="doParallel",
+               WORKERS=list(GA_PLOTS=10)))
+
+```
+
+## Format the exported data
+
+Following the SGP analyses, a pipe delimited version of the complete long data is output ([`outputSGP`](https://www.rdocumentation.org/packages/SGP/versions/1.9-0.0/topics/outputSGP) step) and submitted to the Georgia DOE after some additional formatting to add fields such as students' entire prior score and course progression history needed for rendering data in the state's [visualization tool](http://gastudentgrowth.gadoe.org/).  The formatting process is described in detail below.
+
+```R
+###
+###   outputSGP
+###
+
+outputSGP(Georgia_SGP)
+```
+
+A formatted version of the growth results that contains fields needed for rendering data in the state's [vizualization tool](http://gastudentgrowth.gadoe.org/), such as students' entire prior score and course progression history, is produced externally.  In this step an additional check is also performed in which SGP results are removed when the absolute value of the difference between the uncorrected SGP and Ranked SIMEX SGP is equal to 20 or more ($|SGP_ {Uncorrected} - SGP_ {Ranked SIMEX}| \geq 20$).  Again, due to final data delivery times, separate files were produced and provided for EOG and EOC data.  The same code was run for both sets of data (with the exception of initial sub-setting of the data for EOC) and renaming/saving the final data objects/files.
+
+The code used in 2019 is presented here:
+
+```R
+###                  Georgia_SGP_FORMATTED_OUTPUT_2019.R                  ###
+
+#############################################################################
+###                                                                       ###
+###   Script to produce formatted output for Georgia from 2019 long data  ###
+###                                                                       ###
+#############################################################################
+
+require(data.table)
+
+###   Load SGP results Data
+load("Data/Georgia_SGP_LONG_Data_2019.Rdata") # Initially contains only EOG
+load("Data/Georgia_SGP.Rdata")
+
+###   For EOC Analyses/Data:
+Georgia_SGP_LONG_Data_2019 <- 
+    Georgia_SGP_LONG_Data_2019[!SUBJECT_CODE %in% c("ELA", "MATHEMATICS")]
+###
+
+
+### Variables to output
+variables.to.output <- 
+  c("VALID_CASE", "GTID", "SCHOOL_YEAR", "SUBJECT_CODE", "YEAR_WITHIN", 
+    "GRADE","GRADE_REPORTED","SCALE_SCORE","SCALE_SCORE_PRIOR_STANDARDIZED",
+    "ADMINISTRATION_PERIOD", "FIRST_OBSERVATION", "LAST_OBSERVATION", 
+    "PERFORMANCE_LEVEL", "SR_SYSTEM_ID", "SYSTEM_NAME", "SR_SCHOOL_ID",
+    "SCHOOL_NUMBER", "SCHOOL_NAME","ADMIN_INVALIDATION", "ADMIN_TYPE",
+    "MATCH_STATUS", "RACE_CODE", "GENDER_CODE", "ED", "SWD", "LEP", "GIFT",
+    "BIRTH_DATE", "LAST_NAME", "FIRST_NAME", "MIDDLE_NAME",
+    "SGP_NORM_GROUP", "SGP", "SGP_SIMEX", "SGP_SIMEX_RANKED", "SGP_LEVEL",
+    "SGP_STANDARD_ERROR", "SGP_NORM_GROUP_SCALE_SCORES", "SGP_NOTE",
+    "SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "SCALE_SCORE_PRIOR_1",
+    "PERFORMANCE_LEVEL_PRIOR_1", "GRADE_PRIOR_1",
+    "ADMINISTRATION_PERIOD_PRIOR_1", "ASSESSMENT_TYPE_PRIOR_1", 
+    "SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "SCALE_SCORE_PRIOR_2", 
+    "PERFORMANCE_LEVEL_PRIOR_2", "GRADE_PRIOR_2",
+    "ADMINISTRATION_PERIOD_PRIOR_2", "ASSESSMENT_TYPE_PRIOR_2", 
+    "SGP_PROJECTION_GROUP_CURRENT", "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT",
+    "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT",
+    "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT",
+    "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT",
+    "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
+
+### Subset out relevant variables
+tmp.long.data <- 
+    subset(Georgia_SGP_LONG_Data_2019, 
+           select=intersect(variables.to.output, 
+                            names(Georgia_SGP_LONG_Data_2019)))
+
+### Split SGP_NORM_GROUP
+my.tmp.split <- strsplit(as.character(tmp.long.data$SGP_NORM_GROUP), "; ")
+
+### YEAR Prior
+tmp.long.data$SCHOOL_YEAR_PRIOR_1 <- 
+  sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[2]), "/"), '[',1)
+tmp.long.data$SCHOOL_YEAR_PRIOR_2 <- 
+  sapply(strsplit(sapply(my.tmp.split, function(x) rev(x)[3]), "/"), '[',1)
+
+### SUBJECT_CODE Prior
+tmp.long.data$SUBJECT_CODE_PRIOR_1 <- 
+    sapply(sapply(strsplit(sapply(strsplit(sapply(
+       my.tmp.split, function(x) rev(x)[2]), "/"), 
+       '[', 2), "_"), head, -1), paste, collapse="_")
+tmp.long.data$SUBJECT_CODE_PRIOR_2 <- 
+    sapply(sapply(strsplit(sapply(strsplit(sapply(
+       my.tmp.split, function(x) rev(x)[3]), "/"), 
+       '[', 2), "_"), head, -1), paste, collapse="_")
+
+### GRADE Prior
+tmp.long.data$GRADE_PRIOR_1 <- 
+    sapply(strsplit(sapply(strsplit(sapply(
+       my.tmp.split, function(x) rev(x)[2]), "/"), 
+       '[', 2), "_"), tail, 1)
+tmp.long.data$GRADE_PRIOR_2 <- 
+    sapply(strsplit(sapply(strsplit(sapply(
+       my.tmp.split, function(x) rev(x)[3]), "/"),
+       '[', 2), "_"), tail, 1)
+
+### SCALE_SCORE Prior
+my.tmp.split.scale_score <- 
+    strsplit(tmp.long.data$SGP_NORM_GROUP_SCALE_SCORES, "; ")
+tmp.long.data$SCALE_SCORE_PRIOR_1 <- 
+    sapply(my.tmp.split.scale_score, function(x) rev(x)[2])
+tmp.long.data$SCALE_SCORE_PRIOR_2 <- 
+    sapply(my.tmp.split.scale_score, function(x) rev(x)[3])
+
+###  PERFORMANCE_LEVEL Prior
+
+## Set name of GRADE to GRADE_CURRENT for both prior var creations
+setnames(tmp.long.data, "GRADE", "GRADE_CURRENT")
+
+## Create the 1st Prior PERFORMANCE_LEVEL
+setnames(tmp.long.data, 
+    c("SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "GRADE_PRIOR_1"),
+    c("YEAR", "CONTENT_AREA", "GRADE"))
+tmp.long.data <- 
+    SGP:::getAchievementLevel(
+        tmp.long.data, state="GA", 
+        achievement.level.name="PERFORMANCE_LEVEL_PRIOR_1", 
+        scale.score.name="SCALE_SCORE_PRIOR_1")
+setnames(tmp.long.data, 
+    c("YEAR", "CONTENT_AREA", "GRADE"), 
+    c("SCHOOL_YEAR_PRIOR_1", "SUBJECT_CODE_PRIOR_1", "GRADE_PRIOR_1"))
+
+## Create the 2nd Prior PERFORMANCE_LEVEL
+setnames(tmp.long.data, 
+    c("SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "GRADE_PRIOR_2"), 
+    c("YEAR", "CONTENT_AREA", "GRADE"))
+tmp.long.data <- 
+    SGP:::getAchievementLevel(
+        tmp.long.data, state="GA", 
+        achievement.level.name="PERFORMANCE_LEVEL_PRIOR_2", 
+        scale.score.name="SCALE_SCORE_PRIOR_2")
+setnames(tmp.long.data, 
+    c("YEAR", "CONTENT_AREA", "GRADE"), 
+    c("SCHOOL_YEAR_PRIOR_2", "SUBJECT_CODE_PRIOR_2", "GRADE_PRIOR_2"))
+
+## Set name of GRADE_CURRENT back to GRADE
+setnames(tmp.long.data, "GRADE_CURRENT", "GRADE")
+
+
+### ADMINISTRATION_PERIOD_PRIOR_* Prior
+tmp.admin.period <- 
+    Georgia_SGP@Data[, 
+        c(key(Georgia_SGP@Data), "SCALE_SCORE"), with=FALSE][
+           VALID_CASE=="VALID_CASE"]
+setnames(tmp.admin.period, 
+    c("CONTENT_AREA", "YEAR", "GRADE", "ID", "YEAR_WITHIN", "SCALE_SCORE"),
+    c("SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1", "GTID",
+      "YEAR_WITHIN_PRIOR_1", "SCALE_SCORE_PRIOR_1"))
+tmp.admin.period[, SCALE_SCORE_PRIOR_1 := as.character(SCALE_SCORE_PRIOR_1)]
+
+## Remove the "LAST_OBSERVATION" for within year repeaters that had the exact same score in both Admin Periods
+setkeyv(tmp.admin.period, 
+    c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1",
+      "SCALE_SCORE_PRIOR_1", "YEAR_WITHIN_PRIOR_1", "VALID_CASE"))
+setkeyv(tmp.admin.period, 
+    c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", "GRADE_PRIOR_1",
+      "SCALE_SCORE_PRIOR_1", "VALID_CASE"))
+tmp.admin.period <- 
+    tmp.admin.period[which(!duplicated(tmp.admin.period, 
+        by = key(tmp.admin.period)))]
+
+setkeyv(tmp.long.data, 
+        c("GTID", "SUBJECT_CODE_PRIOR_1", "SCHOOL_YEAR_PRIOR_1", 
+          "GRADE_PRIOR_1", "SCALE_SCORE_PRIOR_1", "VALID_CASE"))
+tmp.long.data <- merge(tmp.long.data, tmp.admin.period, all.x=TRUE)
+
+tmp.long.data[which(!is.na(GRADE_PRIOR_1) & (YEAR_WITHIN_PRIOR_1== 1)), 
+              ADMINISTRATION_PERIOD_PRIOR_1 := "1: WINTER"]
+tmp.long.data[which(!is.na(GRADE_PRIOR_1) & (YEAR_WITHIN_PRIOR_1== 2)), 
+              ADMINISTRATION_PERIOD_PRIOR_1 := "2: SPRING"]
+tmp.long.data[which(!is.na(GRADE_PRIOR_1) & (YEAR_WITHIN_PRIOR_1== 3)), 
+              ADMINISTRATION_PERIOD_PRIOR_1 := "3: SUMMER"]
+
+tmp.long.data[, ADMINISTRATION_PERIOD_PRIOR_2 := as.character(NA)]
+tmp.long.data[which(!is.na(GRADE_PRIOR_2)), 
+              ADMINISTRATION_PERIOD_PRIOR_2 := "2: SPRING"]
+tmp.long.data[, YEAR_WITHIN_PRIOR_1 := NULL]
+
+
+###  ASSESSMENT_TYPE_PRIOR_*
+
+tmp.long.data[, 
+    paste("ASSESSMENT_TYPE_PRIOR", 1:2, sep="_") := as.character(NA)]
+
+tmp.long.data[which(GRADE_PRIOR_1=='EOCT'), 
+    ASSESSMENT_TYPE_PRIOR_1 := "EOC"]
+tmp.long.data[which(GRADE_PRIOR_1 %in% c('3','4', '5','6','7','8')), 
+    ASSESSMENT_TYPE_PRIOR_1 := "EOG"]
+tmp.long.data[which(GRADE_PRIOR_2 %in% c('3','4', '5','6','7','8')), 
+    ASSESSMENT_TYPE_PRIOR_2 := "EOG"]
+
+
+####
+###  Add in CURRENT Projections
+####
+
+my.variable.names <- 
+    c("ID", "YEAR_WITHIN", "GRADE", "SGP_PROJECTION_GROUP",
+      "LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", 
+      "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT",
+      "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT", 
+      "P1_PROJ_YEAR_1_CURRENT", "P35_PROJ_YEAR_1_CURRENT", 
+      "P66_PROJ_YEAR_1_CURRENT", "P99_PROJ_YEAR_1_CURRENT")
+
+tmp.list.current <- list()
+
+my.projection.table.names <- c(
+      "ELA.2019", "MATHEMATICS.2019", #  EOG
+      "GRADE_9_LIT.2019", "COORDINATE_ALGEBRA.2019", "ALGEBRA_I.2019")# EOC
+for (i in my.projection.table.names) {
+  setnames(Georgia_SGP@SGP$SGProjections[[i]], 
+           gsub("_CURRENT_CURRENT", "_CURRENT", 
+           names(Georgia_SGP@SGP$SGProjections[[i]])))
+  if ("YEAR_WITHIN_CURRENT" %in% names(Georgia_SGP@SGP$SGProjections[[i]])) {
+        setnames(Georgia_SGP@SGP$SGProjections[[i]], 
+                 "YEAR_WITHIN_CURRENT", "YEAR_WITHIN")
+  }
+  tmp.list.current[[i]] <- data.table(
+      VALID_CASE="VALID_CASE",
+      SUBJECT_CODE=unlist(strsplit(i, "\\."))[1],
+      SCHOOL_YEAR=unlist(strsplit(i, "\\."))[2],
+      Georgia_SGP@SGP$SGProjections[[i]][, my.variable.names, with=FALSE])
+}
+
+###  Merge projection/target data in.  Do this seperately so that 8th grade students get their prior merged in (no current target).
+
+## Remove the "FIRST_OBSERVATION" for within year repeaters
+tmp.projections.c <- 
+    data.table(rbindlist(tmp.list.current), key=c("ID", "SUBJECT_CODE"))
+
+## Remove the "FIRST_OBSERVATION" for within year repeaters
+setnames(tmp.projections.c, "ID", "GTID")
+setkeyv(tmp.projections.c,
+    c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID",
+      "YEAR_WITHIN", "GRADE"))
+setkeyv(tmp.long.data,
+    c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID",
+      "YEAR_WITHIN", "GRADE"))
+
+### Need to keep multiple projections for MATHEMATICS (allow.cartesian=TRUE)
+Georgia_SGP_Data_LONG_2019_FORMATTED <- 
+    tmp.projections.c[tmp.long.data, allow.cartesian=TRUE]
+setnames(Georgia_SGP_Data_LONG_2019_FORMATTED, 
+         "SGP_PROJECTION_GROUP", "SGP_PROJECTION_GROUP_CURRENT")
+
+
+###  Final arrangement of variables
+Georgia_SGP_Data_LONG_2019_FORMATTED <- 
+    Georgia_SGP_Data_LONG_2019_FORMATTED[, variables.to.output, with=FALSE]
+
+setnames(Georgia_SGP_Data_LONG_2019_FORMATTED, 
+    c("LEVEL_1_SGP_TARGET_YEAR_1_CURRENT", 
+      "LEVEL_2_SGP_TARGET_YEAR_1_CURRENT",
+      "LEVEL_3_SGP_TARGET_YEAR_1_CURRENT"),
+    c("DEVELOPING_SGP_TARGET_YEAR_1_CURRENT", 
+      "PROFICIENT_SGP_TARGET_YEAR_1_CURRENT",
+      "DISTINGUISHED_SGP_TARGET_YEAR_1_CURRENT"))
+
+setkeyv(Georgia_SGP_Data_LONG_2019_FORMATTED, 
+    c("VALID_CASE", "SUBJECT_CODE", "SCHOOL_YEAR", "GTID", "YEAR_WITHIN"))
+
+
+###  Add a SGP_Final to accommondate bussiness rule to eliminate (SGP - SGP_SIMEX_RANKED) greater than 20
+###  99 assigned to HOSS scores automatically now through SGPstateData `sgp.loss.hoss.adjustment` element.
+
+Georgia_SGP_Data_LONG_2019_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) <= 20), 
+                                     SGP_Final := SGP_SIMEX_RANKED]
+
+
+###   Save results
+
+#   Change the file name appendix to _EOG or _EOC depending on what is being formatted (Removed when EOC/EOG combined with updated SGP_STANDARD_ERROR)
+assign("Georgia_SGP_Data_LONG_2019_FORMATTED_EOC", 
+       Georgia_SGP_Data_LONG_2019_FORMATTED)
+save(Georgia_SGP_Data_LONG_2019_FORMATTED_EOC, 
+     file="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.Rdata")
+
+fwrite(Georgia_SGP_Data_LONG_2019_FORMATTED_EOC, 
+       file="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt", sep="|")
+zip(zipfile="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt.zip", 
+    files="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt")
+unlink("Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.txt")
+
+```
+
+##  Additional Steps for Future Analyses
+
+- Update `SGPstateData` entry annually.  Contact the package maintainers (Damian and Adam) directly or [file an issue](https://github.com/CenterForAssessment/SGPstateData/issues).  Entry will include updates for the following data:
+- Continue including student level CSEMs in the longitudinal data.
+- Baseline matrices.  Number of prior scores required will have to be established first (***as of 2019 enough years of Milestones are available***).
+  * Unadjusted (non-SIMEX) versions created first
+  * SIMEX adjusted versions (require unadjusted matrices)
+- Misc configuration and analysis code adjustments based on changes in course progressions and the incorporation of the new assessment program.
+
+# References
