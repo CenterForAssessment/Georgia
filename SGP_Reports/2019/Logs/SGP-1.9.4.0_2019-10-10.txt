@@ -1,0 +1,29 @@
+
+Started prepareSGP Thursday October 10 15:55:42 2019
+
+
+	prepareSGP(
+		 data = Georgia_SGP_Data_LONG_2019
+		create.additional.variables = FALSE )
+
+	NOTE: SCALE_SCORE_PRIOR in @Data converted from character to numeric.
+Finished prepareSGP Thursday October 10 15:55:50 2019 in 7.902 Seconds 
+
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: ELA Grade 8 data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+	NOTE: GEOMETRY Grade EOCT data does not include ACHIEVEMENT_LEVEL_PRIOR variable. Prior Achievement Level plot panel will not be included in goodness of fit plot.
+
+Started visualizeSGP Thursday October 10 18:12:15 2019 
+
+Started bubblePlot in visualizeSGP Thursday October 10 18:12:15 2019 
+
+Finished bubblePlot in visualizeSGP Thursday October 10 18:12:17 2019 in 1.701 Seconds 
+
+Finished visualizeSGP Thursday October 10 18:12:17 2019 in 1.712 Seconds 
+

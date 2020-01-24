@@ -1,0 +1,9 @@
+
+Started visualizeSGP Friday October 11 13:13:06 2019 
+
+Started bubblePlot in visualizeSGP Friday October 11 13:13:06 2019 
+
+Finished bubblePlot in visualizeSGP Friday October 11 13:13:08 2019 in 2.123 Seconds 
+
+Finished visualizeSGP Friday October 11 13:13:08 2019 in 2.13 Seconds 
+

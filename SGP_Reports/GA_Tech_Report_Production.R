@@ -1,3 +1,90 @@
+#######
+# 2019
+#######
+
+load("/Users/avi/Data/GA/IAPP/Data/Georgia_Orig.rda")
+load("/Users/avi/Data/GA/IAPP/Data/Georgia_Data-Analysis.rda")
+
+setwd("/Users/avi/Dropbox (SGP)/Github_Repos/Documentation/Georgia/IAPP")
+
+renderMultiDocument(rmd_input = "Georgia_IAPP_Comparison.Rmd",
+									report_format = c("HTML", "PDF"))
+
+
+renderMultiDocument(rmd_input = "Georgia_IAPP_Comparison_Addl.Rmd",
+										report_format = c("HTML", "PDF"))
+
+
+#######
+# 2019
+#######
+
+require(SGP)
+require(data.table)
+
+# load("/Users/avi/Dropbox (SGP)/SGP/Georgia/Data/Georgia_SGP_LONG_Data_2019.Rdata")
+vars.to.keep <- c("VALID_CASE", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR", "YEAR_WITHIN", "GTID", "SCHOOL_NUMBER", "SR_SYSTEM_ID",
+									"SGP", "SGP_Final", "SGP_SIMEX", "SGP_NORM_GROUP", "SGP_PROJECTION_GROUP_CURRENT",
+									"DEVELOPING_SGP_TARGET_YEAR_1_CURRENT", "PROFICIENT_SGP_TARGET_YEAR_1_CURRENT", "DISTINGUISHED_SGP_TARGET_YEAR_1_CURRENT",
+									"SCALE_SCORE", "SCALE_SCORE_PRIOR_1", "SCALE_SCORE_PRIOR_STANDARDIZED", "PERFORMANCE_LEVEL", "PERFORMANCE_LEVEL_PRIOR_1")
+
+load("/Users/avi/Dropbox (SGP)/SGP/Georgia/Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOG.Rdata")
+EOG_2019 <- Georgia_SGP_Data_LONG_2019_FORMATTED[, vars.to.keep, with=FALSE]
+load("/Users/avi/Dropbox (SGP)/SGP/Georgia/Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.Rdata")
+EOC_2019 <- Georgia_SGP_Data_LONG_2019_FORMATTED_EOC[, vars.to.keep, with=FALSE]
+
+Georgia_SGP_Data_LONG_2019 <- rbindlist(list(EOG_2019, EOC_2019))
+Georgia_SGP_Data_LONG_2019 <- Georgia_SGP_Data_LONG_2019[!SGP_PROJECTION_GROUP_CURRENT %in% c("G7_MATH_EOC", "MATH_COORD_ALG"),] # 1 YEAR targets for MATH_COORD_ALG, G7_MATH_EOC and MATH_ALG_I are same for grades 3-7
+# Georgia_SGP_Data_LONG_2019 <- Georgia_SGP_Data_LONG_2019[!(SGP_PROJECTION_GROUP_CURRENT == "G7_MATH_EOC" & GRADE %in% c(3:6)),] # Keep only G7_MATH_EOC for Grade 7
+
+Georgia_SGP_Data_LONG_2019[SGP_PROJECTION_GROUP_CURRENT == "COORDINATE_ALGEBRA", VALID_CASE := "INVALID_CASE"] # %in% c("G7_MATH_EOC", "COORDINATE_ALGEBRA") # INVALIDate temporarily for prepareSGP
+table(Georgia_SGP_Data_LONG_2019[, VALID_CASE, SGP_PROJECTION_GROUP_CURRENT])
+
+setnames(Georgia_SGP_Data_LONG_2019, c("SGP_Final", "SCALE_SCORE_PRIOR_1", "PERFORMANCE_LEVEL_PRIOR_1"), c("SGP_SIMEX_RANKED", "SCALE_SCORE_PRIOR", "ACHIEVEMENT_LEVEL_PRIOR"))
+
+setwd("/Users/avi/Dropbox (SGP)/Github_Repos/Documentation/Georgia/SGP_Reports/2019")
+
+Georgia_SGP <- prepareSGP(Georgia_SGP_Data_LONG_2019, create.additional.variables = FALSE)
+
+Georgia_SGP@Data$SCHOOL_NAME <- as.character(NA); gc()
+Georgia_SGP@Data$DISTRICT_NAME <- as.character(NA); gc()
+
+Georgia_SGP@Data$Most_Recent_Prior <- as.character(NA)
+Georgia_SGP@Data[, Most_Recent_Prior := sapply(strsplit(as.character(Georgia_SGP@Data$SGP_NORM_GROUP), "; "), function(x) rev(x)[2])]
+
+load("/Users/avi/Dropbox (SGP)/SGP/Georgia/Data/Georgia_Summary_2019.Rdata")
+Georgia_SGP@Summary <- Georgia_Summary_2019
+
+save(Georgia_SGP, file="../Data/Georgia_SGP.Rdata")
+
+###
+
+setwd("/Users/avi/Dropbox (SGP)/Github_Repos/Documentation/Georgia/SGP_Reports/2019")
+load("../Data/Georgia_SGP.Rdata")
+require(Literasee)
+
+renderMultiDocument(rmd_input = "Georgia_SGP_Report_2019.Rmd",
+										report_format = c("HTML", "PDF"), #, "DOCX"
+										# docx_self_contained=TRUE,
+										cleanup_aux_files = FALSE,
+										pandoc_args = "--webtex")
+
+renderMultiDocument(rmd_input = "Appendix_A_2019.Rmd",
+										report_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
+										# cleanup_aux_files = FALSE,
+										add_cover_title=TRUE)
+
+###   Not re-run in 2019
+# load("../Data/GA_Agg_Data_Long_v3-Ranked_SIMEX_w_EOCT.Rdata")
+# renderMultiDocument(rmd_input = "Appendix_B.Rmd",
+# 										report_format = c("HTML", "PDF"),
+# 										pandoc_args = "--webtex")
+
+renderMultiDocument(rmd_input = "Appendix_C_2019.Rmd",
+										report_format = c("HTML", "PDF"), #, "EPUB", "DOCX"
+										# cleanup_aux_files = FALSE,
+										add_cover_title=TRUE)
+
 
 #######
 # 2018

@@ -1,0 +1,52 @@
+
+Started visualizeSGP Tuesday December 31 12:09:49 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 12:09:49 2019 
+
+
+Started visualizeSGP Tuesday December 31 12:12:59 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 12:12:59 2019 
+
+
+Started visualizeSGP Tuesday December 31 12:13:43 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 12:13:43 2019 
+
+
+Started visualizeSGP Tuesday December 31 13:15:19 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 13:15:19 2019 
+
+Finished bubblePlot in visualizeSGP Tuesday December 31 13:15:21 2019 in 1.803 Seconds 
+
+Finished visualizeSGP Tuesday December 31 13:15:21 2019 in 1.809 Seconds 
+
+
+Started visualizeSGP Tuesday December 31 13:21:16 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 13:21:16 2019 
+
+Finished bubblePlot in visualizeSGP Tuesday December 31 13:21:18 2019 in 1.725 Seconds 
+
+Finished visualizeSGP Tuesday December 31 13:21:18 2019 in 1.731 Seconds 
+
+
+Started visualizeSGP Tuesday December 31 16:10:49 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 16:10:49 2019 
+
+
+Started visualizeSGP Tuesday December 31 16:13:56 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 16:13:56 2019 
+
+
+Started visualizeSGP Tuesday December 31 16:15:44 2019 
+
+Started bubblePlot in visualizeSGP Tuesday December 31 16:15:44 2019 
+
+Finished bubblePlot in visualizeSGP Tuesday December 31 16:15:46 2019 in 1.996 Seconds 
+
+Finished visualizeSGP Tuesday December 31 16:15:46 2019 in 2.001 Seconds 
+
