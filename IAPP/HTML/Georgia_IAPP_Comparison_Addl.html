@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<title></title>
+
+
+
+
+
+<style type="text/css">
+#document {
+counter-reset: figure 0 section 0;
+}
+
+.content-node.image,
+.content-node.resource {
+counter-increment: figure;
+}
+.content-node .caption {
+margin: 0px 80px;
+padding: 15px 0;
+text-align:justify;
+text-indent: 0px;
+margin-bottom: 25px;
+}
+.caption > p {
+}
+.content-node .caption.empty {
+display: none;
+}
+
+.content-node.image {
+text-align: center;
+}
+.breakbefore {
+page-break-before: always;
+}
+.breakafter {
+page-break-after: always;
+}
+.breakboth {
+page-break-before: always;
+page-break-after: always;
+}
+.image-content {
+display: inline-block;
+position: relative;
+text-align: center;
+padding: 0;
+margin: 0;
+}
+
+.image-content img, .image-content div {
+margin: 0;
+max-width: 650px;
+min-width: 150px;
+min-height: 150px;
+display: block;
+padding: 5px 5px;
+text-align: center;
+}
+.image-content.placeholder .image-file {
+bottom: 30px;
+}
+.figure {
+display: inline-block;
+position: relative;
+text-align: center;
+padding: 0;
+margin: 10px;
+}
+.figure img {
+margin: 0px 100px;
+max-width: 650px;
+min-width: 200px;
+min-height: 150px;
+display: block;
+padding: 5px 5px;
+text-align: center;
+float: center;
+}
+#document .resource-url-area .url-label {
+color: #555;
+padding-top: 10px;
+padding-bottom: 10px;
+font-style: italic;
+}
+#document .resource-url-area {
+position: absolute;
+top: 0px;
+bottom: 0px;
+right: 0px;
+left: 0px;
+padding: 20px;
+border: 2px dashed #aaa;
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+}
+.content-node.resource {
+text-align: center;
+}
+.content-node.resource img {
+padding: 0;
+margin: 0;
+max-width: 650px;
+display: block;
+padding: 5px 0;
+}
+.content-node.section {
+margin-bottom: 10px;
+}
+#document h1 {
+page-break-before: always;
+counter-reset: sub-section;
+font-size: 24px;
+border-top:none;
+border-bottom:none;
+text-transform:none;
+padding-top: 175px;
+}
+#document h2 {
+counter-reset: composite;
+border-top:none;
+border-bottom:none;
+text-transform:none;
+}
+#document .header-section-number {
+font-weight: bold;
+margin-right: 20px;
+}
+
+#document h1,
+#document h2,
+#document h3,
+#document h4 {
+font-weight: normal;
+margin: -100px 100px 0 100px;
+padding-top: 125px;
+padding-bottom: 10px;
+line-height: 1.6em;
+color: black;
+}
+#document h5,
+#document h6 {
+font-weight: normal;
+margin: -100px 100px 0 100px;
+padding-top: 110px;
+padding-bottom: 10px;
+line-height: 1.6em;
+color: black;
+}
+
+#document h1 a,
+#document h2 a,
+#document h3 a,
+#document h4 a {
+margin: -100px 100px 0 100px;
+padding: 100px 0px 0px 0px;
+line-height: 1.6em;
+}
+#document h2 {
+font-size: 20px;
+}
+#document h3 {
+font-size: 18px;
+font-style: italic;
+}
+#document .content-node.text .content {
+padding: 10px 0;
+}
+.content-node.section > p, ol {
+margin: 0 100px;
+}
+code {
+font-family: Monaco, Consolas, "Lucida Console", monospace;
+font-size: 12px;
+padding: 0px 3px;
+background: white;
+border: 1px solid #DDD;
+zoom: 1;
+}
+#document strong,
+#document b {
+font-weight: bold;
+}
+#document em,
+#document i {
+font-style: italic;
+}
+#document p {
+margin: 0px 100px 5px;
+min-height: 22px;
+text-indent:35px;
+}
+#document code {
+text-indent: 0px;
+}
+#document ol {
+padding-left: 20px;
+margin-bottom: 10px;
+margin-left: 100px;
+margin-right: 90px;
+min-height: 22px;
+}
+#document ul, li {
+padding-left: 20px;
+margin-top: 20px;
+margin-bottom: 10px;
+margin-left: 100px;
+margin-right: 90px;
+min-height: 22px;
+min-width: 300px;
+}
+
+#document ul ul {
+margin: 0px 0px 20px 20px;
+text-indent: -20px;
+min-height: 22px;
+-moz-padding-start: 0px;
+-webkit-padding-start: 0px;
+list-style-position: inside;
+}
+#document p + ul, ol {
+margin-top: 15px;
+}
+p {
+margin: 0 0 10px 0;
+text-align:justify;
+}
+p.info {
+font-style: italic;
+color: rgba(0, 0, 0, 0.7);
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+padding: 10px 0 5px 0;
+}
+h3,
+h4,
+h5,
+h6 {
+padding-top: 20px;
+}
+h2 {
+font-size: 160%;
+padding-bottom: 15px;
+}
+
+
+.content-node.document .document-title {
+font-size: 30px;
+line-height: 40px;
+padding-top: 100px;
+text-align: center;
+margin: 100px 100px 10px 100px;
+}
+.content-node.document .document-subtitle {
+font-size: 25px;
+font-style: italic;
+line-height: 30px;
+text-align: center;
+margin: 20px 100px 50px 100px;
+}
+.content-node.document .authors {
+font-size: 18px;
+line-height: 30px;
+text-align: center;
+margin-top: 50px;
+}
+.content-node.document .author_afil {
+font-size: 16px;
+font-style: italic;
+line-height: 30px;
+text-align: center;
+}
+.content-node.document .author_email {
+font-size: 16px;
+line-height: 30px;
+text-align: center;
+}
+.content-node.document .published {
+font-size: 18px;
+text-align: center;
+text-indent: 0px;
+padding-top: 50px;
+padding-bottom: 50px;
+}
+.content-node.document #document_lead {
+font-size: 18px;
+line-height: 1.2;
+font-style: italic;
+margin-top: 50px;
+text-align: center;
+margin-bottom: 150px;
+color: #999;
+padding: 0 25px 0 25px;
+}
+hr {
+display:none
+}
+
+#document .references p {
+margin: 0 100px;
+text-align:justify;
+min-height: 22px;
+padding-bottom: 15px;
+padding-left: 35px ;
+text-indent: -35px ;
+}
+.footnotes ol:before {
+content: "Footnotes";
+font-weight: bold;
+font-size: 24px ;
+font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+line-height: 3em;
+}
+#document #document_lens {
+display:none;
+}
+.footer{
+display:none;
+}
+.ui-font {
+font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+color: #111;
+-webkit-font-smoothing: antialiased;
+}
+.document-font {
+font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+font-weight: lighter;
+font-style: normal;
+}
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+font,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+tt,
+var,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead {
+margin: 0;
+padding: 0;
+border: 0;
+outline: 0;
+font-weight: inherit;
+font-style: inherit;
+font-size: 100%;
+font-family: inherit;
+text-align:justify;
+vertical-align: baseline;
+}
+:focus {
+outline: 0;
+}
+
+table{
+margin-left:100px;
+margin-right:auto;
+margin-top: 20px;
+margin-bottom: 20px;
+border-collapse: separate;
+border-spacing: 0;
+min-width: 300px;
+max-width: 650px;
+line-height: 1.6em;
+}
+.footnotes {
+margin-top: 3em;
+}
+#document .footnotes p {
+margin-left: 0px;
+}
+body {
+line-height: 1;
+color: black;
+background: white;
+}
+ol, ul {
+line-height: 1.6em;
+}
+caption,
+th,
+td {
+font-weight: normal;
+padding-left: 7px;
+padding-right: 7px;
+padding-top: 4px;
+}
+th {
+text-align: center;
+}
+th > img {
+max-width: 320px;
+float: left;
+}
+td > img {
+max-width: 320px;
+float: left;
+}
+h5 + p > img {
+max-width: 650px;
+display: block;
+padding-left: 10px;
+padding-bottom: 50px;
+}
+h6 + p > img {
+max-width: 320px;
+float: left;
+display: block;
+padding-left: 10px;
+}
+caption {
+width: 275%;
+max-width: 650px;
+padding-bottom: 10px;
+padding-left: 65px ;
+text-indent: -65px ;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+content: "";
+}
+blockquote,
+q {
+quotes: "" "";
+}
+
+* {
+box-sizing: border-box;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+}
+.clear {
+clear: both;
+}
+.hidden {
+display: none;
+}
+.invisible {
+opacity: 0;
+}
+.right {
+float: right;
+}
+.left {
+float: left;
+}
+.nobr {
+white-space: nowrap;
+}
+.right-align {
+text-align: right;
+}
+.serif {
+font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+font-weight: lighter;
+font-style: normal;
+}
+.italic {
+font-style: italic;
+}
+
+html {
+margin: 0;
+padding: 0;
+-webkit-font-smoothing: antialiased;
+}
+img {
+border: none;
+}
+body {
+font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+color: #111;
+-webkit-font-smoothing: antialiased;
+font-size: 14px;
+margin: 0;
+padding: 0;
+background: #F0F1EB;
+color: #444;
+line-height: 1.5em;
+}
+a {
+text-decoration: none;
+color: #0000CD;
+padding: 0 0 1px 0;
+}
+a:hover {
+color: #000;
+border-bottom: 1px solid #999;
+}
+hr.separator {
+display: block;
+height: 1px;
+background: #c1c1c1;
+border: 0;
+margin: 0px;
+}
+hr.separator.nomargin {
+margin: 0px;
+}
+.border {
+border-top: 1px solid red;
+border-bottom: 1px solid green;
+margin-bottom: 15px;
+}
+
+li {
+-webkit-transition: background, background-color, border-color, color, opacity 0.35s linear;
+}
+a {
+-webkit-transition: background, background-color, border-color, color, opacity 0.35s linear;
+}
+label {
+-webkit-transition: background, background-color, border-color, color, opacity 0.35s linear;
+}
+input {
+-webkit-transition: background, background-color, border-color, color, opacity 0.35s linear;
+}
+textarea {
+-webkit-transition: background, background-color, border-color, color, opacity 0.35s linear;
+}
+img {
+-webkit-transition: opacity 0.35s linear;
+}
+
+#content_wrapper {
+position: relative;
+margin: 0;
+}
+html,
+body {
+height: 100%;
+}
+body {
+min-width: 1200px;
+}
+#document {
+font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+font-weight: lighter;
+font-style: normal;
+width: 850px;
+color: #000;
+position: relative;
+margin: 0;
+margin-top: 100px;
+margin-left: 320px;
+padding: 0px 0 0px 0;
+-webkit-box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.35), inset 0px 0px 1px rgba(255, 255, 255, 0.15);
+-moz-box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.35), inset 0px 0px 1px rgba(255, 255, 255, 0.15);
+box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.35), inset 0px 0px 1px rgba(255, 255, 255, 0.15);
+background: #fff;
+-webkit-font-smoothing: subpixel-antialiased;
+font-size: 18px;
+line-height: 2em;
+}
+#document .document-separator {
+background: #000;
+width: 300px;
+height: 1px;
+margin: 50px auto;
+}
+
+.content-fragment {
+margin: 0 100px;
+}
+pre {
+padding: 2px 10px 2px 15px;
+border-left: 4px solid #BBB;
+margin: 10px 100px;
+}
+
+#TOC {
+display:block;
+-webkit-transition-property: top;
+-webkit-transition-duration: 0.6s;
+position: fixed;
+overflow-x: scroll;
+width: 395px;
+left: -75px;
+top: 100px;
+height: 360px;
+font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+color: #111;
+-webkit-font-smoothing: antialiased;
+font-weight: bold;
+font-size: 14px;
+}
+#TOC > ul {
+list-style-type: none;
+}
+#TOC ul > li {
+text-indent: -20px;
+margin-left: 10px;
+text-align: left;
+}
+#TOC > ul > li > ul {
+margin-left: 10px ;
+margin-right: 35px ;
+line-height: 2em;
+list-style-type: none;
+}
+#TOC > ul a {
+border: none;
+color: #939393;
+}
+#TOC > ul a:hover {
+color: #444;
+}
+#TOC > ul > li > ul a {
+border: none;
+color: #939393;
+}
+#TOC > ul > li > ul a:hover {
+color: #444;
+}
+#TOC > p {
+whitespace: nowrap;
+margin-left: 90px ;
+font-weight: bold;
+font-size: 16px;
+color: #3a3a3a;
+line-height: 40px;
+}
+#TOC .toc-section-number {
+font-weight: bold;
+margin-right: 5px;
+}
+#document .section {
+position: relative;
+margin: 10px 0;
+-webkit-transition: min-height 0.5s;
+-moz-transition: min-height 0.5s;
+}
+.section.document {
+margin: 0;
+padding-bottom: 80px;
+}
+
+p.question {
+font-size: 25px;
+line-height: 1.5em;
+margin: 0 100px 0 100px;
+padding: 10px 0;
+font-style: italic;
+}
+.section.quote > p {
+margin: 0 100px;
+padding: 10px 0;
+}
+blockquote {
+display: table;
+margin: 10px 140px 10px 140px;
+font-size: 1em;
+line-height: 1.3em;
+}
+blockquote > div {
+display: table-row;
+}
+blockquote p {
+min-width: 200px;
+display: table-cell;
+padding: 0 0 10px 0;
+font-size: 1em;
+font-style: italic;
+}
+blockquote cite.quote-author {
+display: table-cell;
+padding: 20px 0 0;
+font-size: 11px;
+text-align: right;
+}
+
+code, pre {
+font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+font-size:12px;
+}
+pre, div.meta {
+padding: 0px 3px;
+background: #FDFEFB;
+border-radius: 4px;
+border:1px solid #D7D8C8;
+overflow: auto;
+overflow-y: hidden;
+margin-bottom: 12px;
+line-height: 1.5em;
+}
+p code, li code {
+display: inline-block;
+white-space: no-wrap;
+background: #fff;
+font-size: .9em;
+line-height: 1.5em;
+color: #555;
+-moz-border-radius: 0.4em;
+-webkit-border-radius: 0.4em;
+-o-border-radius: 0.4em;
+-ms-border-radius: 0.4em;
+-khtml-border-radius: 0.4em;
+padding: 0px 3px;
+margin: -1px 0;
+}
+.proper-code {
+font-family: Monaco, Consolas, "Lucida Console", monospace;
+font-size: 12px;
+padding: 0px 3px;
+background: white;
+border: 1px solid #DDD;
+}
+.footer{
+display: block;
+text-align:center;
+font-size:small;
+padding:.5em;
+margin-bottom:1em;
+}
+.section.level1 > p, ul, ol {
+margin: 0 100px;
+}
+.section.level2 > p, ul, ol {
+margin: 0 100px;
+}
+.section.level3 > p, ul, ol {
+margin: 0 100px;
+}
+</style>
+
+</head>
+
+<body>
+
+
+<div id="TOC" , class="TOC">
+<p>Table of Contents:</p>
+<ul>
+<li><a href="#school-demographics"><span class="toc-section-number">0.1</span> School Demographics</a></li>
+</ul>
+<!--
+<ul>
+<li></li>
+<li><a href="#references">References</a></li>
+<li></li>
+</ul>
+-->
+</div>
+
+<div id="document">
+
+
+<div class="content-node document selected">
+
+<div class="content">
+<div class="document-title">Georgia Growth Comparison with IAPP District Removal:</div>
+<div class="document-subtitle" title>Additional Tables.</div>
+<div class="authors" id="authors">Adam R. VanIwaarden</div>
+<div class="authors" id="authors">Damian W. Betebenner</div>
+<div class="authors" id="authors"><em>National Center for the Improvement<br /> of Educational Assessment (NCIEA)</em></div>
+<div class="authors" id="authors">And</div>
+<div class="authors" id="authors">The Georgia Department of Education</div>
+<p class="published" style="text-indent: 0px;">November 2019</p>
+</div>
+
+<div class="content-node section"><!--SGPreport-->
+<!-- 
+This document was written by Damian Betebenner & Adam VanIwaarden in cooperation with the GA DoE.
+
+    Original Draft:  November 11, 2019
+    Final Draft:     November 18, 2019
+-->
+<div id="school-demographics" class="section level2">
+<h2><span class="header-section-number">0.1</span> School Demographics</h2>
+<!-- HTML_Start -->
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<td colspan="9" style="text-align: left;">
+<strong>Table 1:</strong> Demographic Composition of Consortia Schools by Year
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Demographic
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Group
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Year
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Min
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+1st Qu
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+3rd Qu
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Max
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+Econ Disadv
+</td>
+<td style="text-align: right;">
+IAPP
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+2
+</td>
+<td style="text-align: center;">
+60
+</td>
+<td style="text-align: center;">
+100
+</td>
+<td style="text-align: center;">
+79
+</td>
+<td style="text-align: center;">
+100
+</td>
+<td style="text-align: center;">
+100
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+2
+</td>
+<td style="text-align: center;">
+61
+</td>
+<td style="text-align: center;">
+100
+</td>
+<td style="text-align: center;">
+80
+</td>
+<td style="text-align: center;">
+100
+</td>
+<td style="text-align: center;">
+100
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+Non-IAPP
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+47
+</td>
+<td style="text-align: center;">
+73
+</td>
+<td style="text-align: center;">
+70
+</td>
+<td style="text-align: center;">
+100
+</td>
+<td style="text-align: center;">
+100
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1
+</td>
+<td style="text-align: center;">
+47
+</td>
+<td style="text-align: center;">
+72
+</td>
+<td style="text-align: center;">
+69
+</td>
+<td style="text-align: center;">
+100
+</td>
+<td style="text-align: center;">
+100
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Disabilities
+</td>
+<td style="text-align: right;">
+IAPP
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+2
+</td>
+<td style="text-align: center;">
+4
+</td>
+<td style="text-align: center;">
+7
+</td>
+<td style="text-align: center;">
+8
+</td>
+<td style="text-align: center;">
+34
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+2
+</td>
+<td style="text-align: center;">
+4
+</td>
+<td style="text-align: center;">
+7
+</td>
+<td style="text-align: center;">
+9
+</td>
+<td style="text-align: center;">
+50
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+Non-IAPP
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+1
+</td>
+<td style="text-align: center;">
+2
+</td>
+<td style="text-align: center;">
+6
+</td>
+<td style="text-align: center;">
+6
+</td>
+<td style="text-align: center;">
+100
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+1
+</td>
+<td style="text-align: center;">
+3
+</td>
+<td style="text-align: center;">
+6
+</td>
+<td style="text-align: center;">
+7
+</td>
+<td style="text-align: center;">
+100
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Eng Learners
+</td>
+<td style="text-align: right;">
+IAPP
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1
+</td>
+<td style="text-align: center;">
+10
+</td>
+<td style="text-align: center;">
+12
+</td>
+<td style="text-align: center;">
+12
+</td>
+<td style="text-align: center;">
+14
+</td>
+<td style="text-align: center;">
+39
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+10
+</td>
+<td style="text-align: center;">
+12
+</td>
+<td style="text-align: center;">
+12
+</td>
+<td style="text-align: center;">
+14
+</td>
+<td style="text-align: center;">
+50
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: right;">
+Non-IAPP
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+10
+</td>
+<td style="text-align: center;">
+13
+</td>
+<td style="text-align: center;">
+13
+</td>
+<td style="text-align: center;">
+16
+</td>
+<td style="text-align: center;">
+100
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+2019
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+10
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+13
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+14
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+16
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+100
+</td>
+</tr>
+</tbody>
+</table>
+<!-- LaTeX_Start
+%latex.default(my_tbl, file = "", where = where, col.just = tex.align,     caption = tmp_caption, ...)%
+\begin{table}[H]
+\caption{**Table 1:** Demographic Composition of Consortia Schools by Year\label{my}} 
+\begin{center}
+\begin{tabular}{rrccccccc}
+\hline\hline
+\multicolumn{1}{c}{Demographic}&\multicolumn{1}{c}{Group}&\multicolumn{1}{c}{Year}&\multicolumn{1}{c}{Min}&\multicolumn{1}{c}{1st Qu}&\multicolumn{1}{c}{Median}&\multicolumn{1}{c}{Mean}&\multicolumn{1}{c}{3rd Qu}&\multicolumn{1}{c}{Max}\tabularnewline
+\hline
+&&&&&&&&\tabularnewline
+Econ Disadv&IAPP&2018&2&60&100&79&100&100\tabularnewline
+&&2019&2&61&100&80&100&100\tabularnewline
+&Non-IAPP&2018&0&47& 73&70&100&100\tabularnewline
+&&2019&1&47& 72&69&100&100\tabularnewline
+\hline
+&&&&&&&&\tabularnewline
+Disabilities&IAPP&2018&0& 2&  4& 7&  8& 34\tabularnewline
+&&2019&0& 2&  4& 7&  9& 50\tabularnewline
+&Non-IAPP&2018&0& 1&  2& 6&  6&100\tabularnewline
+&&2019&0& 1&  3& 6&  7&100\tabularnewline
+\hline
+&&&&&&&&\tabularnewline
+Eng Learners&IAPP&2018&1&10& 12&12& 14& 39\tabularnewline
+&&2019&0&10& 12&12& 14& 50\tabularnewline
+&Non-IAPP&2018&0&10& 13&13& 16&100\tabularnewline
+&&2019&0&10& 13&14& 16&100\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+LaTeX_End -->
+<!-- HTML_Start -->
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<td colspan="8" style="text-align: left;">
+<strong>Table 2:</strong> Summary of Differences in Annual Mean SGPs (2018 - 2019) of Consortia Groups
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Subject
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Group
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Min.
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+1st Qu.
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Median
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Mean
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+3rd Qu.
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-12.5
+</td>
+<td style="text-align: center;">
+-2.7
+</td>
+<td style="text-align: center;">
+0.5
+</td>
+<td style="text-align: center;">
+0.7
+</td>
+<td style="text-align: center;">
+3.8
+</td>
+<td style="text-align: right;">
+17.3
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="text-align: center;">
+-26.6
+</td>
+<td style="text-align: center;">
+-4.2
+</td>
+<td style="text-align: center;">
+-0.5
+</td>
+<td style="text-align: center;">
+-0.4
+</td>
+<td style="text-align: center;">
+3.4
+</td>
+<td style="text-align: right;">
+28.3
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Mathematics
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-15.4
+</td>
+<td style="text-align: center;">
+-3.3
+</td>
+<td style="text-align: center;">
+2.0
+</td>
+<td style="text-align: center;">
+1.6
+</td>
+<td style="text-align: center;">
+6.3
+</td>
+<td style="text-align: right;">
+19.1
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="text-align: center;">
+-27.7
+</td>
+<td style="text-align: center;">
+-4.9
+</td>
+<td style="text-align: center;">
+0.0
+</td>
+<td style="text-align: center;">
+-0.2
+</td>
+<td style="text-align: center;">
+4.6
+</td>
+<td style="text-align: right;">
+30.9
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-19.7
+</td>
+<td style="text-align: center;">
+-3.6
+</td>
+<td style="text-align: center;">
+1.1
+</td>
+<td style="text-align: center;">
+0.3
+</td>
+<td style="text-align: center;">
+4.8
+</td>
+<td style="text-align: right;">
+16.3
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="text-align: center;">
+-26.4
+</td>
+<td style="text-align: center;">
+-3.9
+</td>
+<td style="text-align: center;">
+0.1
+</td>
+<td style="text-align: center;">
+-0.1
+</td>
+<td style="text-align: center;">
+3.8
+</td>
+<td style="text-align: right;">
+24.2
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-10.4
+</td>
+<td style="text-align: center;">
+-5.4
+</td>
+<td style="text-align: center;">
+-0.3
+</td>
+<td style="text-align: center;">
+0.3
+</td>
+<td style="text-align: center;">
+5.2
+</td>
+<td style="text-align: right;">
+16.9
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="text-align: center;">
+-27.2
+</td>
+<td style="text-align: center;">
+-4.1
+</td>
+<td style="text-align: center;">
+-0.4
+</td>
+<td style="text-align: center;">
+-0.7
+</td>
+<td style="text-align: center;">
+2.9
+</td>
+<td style="text-align: right;">
+16.2
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-39.8
+</td>
+<td style="text-align: center;">
+-6.8
+</td>
+<td style="text-align: center;">
+2.0
+</td>
+<td style="text-align: center;">
+1.0
+</td>
+<td style="text-align: center;">
+7.2
+</td>
+<td style="text-align: right;">
+36.9
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="text-align: center;">
+-43.5
+</td>
+<td style="text-align: center;">
+-5.1
+</td>
+<td style="text-align: center;">
+-0.2
+</td>
+<td style="text-align: center;">
+0.2
+</td>
+<td style="text-align: center;">
+5.5
+</td>
+<td style="text-align: right;">
+50.8
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-15.8
+</td>
+<td style="text-align: center;">
+-5.1
+</td>
+<td style="text-align: center;">
+-1.6
+</td>
+<td style="text-align: center;">
+-1.0
+</td>
+<td style="text-align: center;">
+3.8
+</td>
+<td style="text-align: right;">
+14.2
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="text-align: center;">
+-44.9
+</td>
+<td style="text-align: center;">
+-3.4
+</td>
+<td style="text-align: center;">
+0.4
+</td>
+<td style="text-align: center;">
+0.6
+</td>
+<td style="text-align: center;">
+4.1
+</td>
+<td style="text-align: right;">
+24.5
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-9.2
+</td>
+<td style="text-align: center;">
+-7.1
+</td>
+<td style="text-align: center;">
+-5.8
+</td>
+<td style="text-align: center;">
+-3.4
+</td>
+<td style="text-align: center;">
+-1.2
+</td>
+<td style="text-align: right;">
+7.3
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="text-align: center;">
+-25.2
+</td>
+<td style="text-align: center;">
+-5.5
+</td>
+<td style="text-align: center;">
+-0.2
+</td>
+<td style="text-align: center;">
+0.3
+</td>
+<td style="text-align: center;">
+6.3
+</td>
+<td style="text-align: right;">
+21.5
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Analytic Geometry
+</td>
+<td style="text-align: center;">
+IAPP School Means
+</td>
+<td style="text-align: center;">
+-3.6
+</td>
+<td style="text-align: center;">
+-2.3
+</td>
+<td style="text-align: center;">
+3.1
+</td>
+<td style="text-align: center;">
+5.6
+</td>
+<td style="text-align: center;">
+11.0
+</td>
+<td style="text-align: right;">
+20.1
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+Non-IAPP School Means
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+-24.7
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+-4.1
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.9
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+-0.1
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+5.5
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+14.4
+</td>
+</tr>
+</tbody>
+</table>
+<!-- LaTeX_Start
+%latex.default(my_tbl, file = "", where = where, col.just = tex.align,     caption = tmp_caption, ...)%
+\begin{table}[H]
+\caption{**Table 2:** Summary of Differences in Annual Mean SGPs (2018 - 2019) of Consortia Groups\label{my}} 
+\begin{center}
+\begin{tabular}{rccccccr}
+\hline\hline
+\multicolumn{1}{c}{Subject}&\multicolumn{1}{c}{Group}&\multicolumn{1}{c}{Min.}&\multicolumn{1}{c}{1st Qu.}&\multicolumn{1}{c}{Median}&\multicolumn{1}{c}{Mean}&\multicolumn{1}{c}{3rd Qu.}&\multicolumn{1}{c}{Max.}\tabularnewline
+\hline
+ELA&IAPP School Means&-12.5&-2.7& 0.5& 0.7& 3.8&17.3\tabularnewline
+&Non-IAPP School Means&-26.6&-4.2&-0.5&-0.4& 3.4&28.3\tabularnewline
+Mathematics&IAPP School Means&-15.4&-3.3& 2.0& 1.6& 6.3&19.1\tabularnewline
+&Non-IAPP School Means&-27.7&-4.9& 0.0&-0.2& 4.6&30.9\tabularnewline
+Grade 9 Lit&IAPP School Means&-19.7&-3.6& 1.1& 0.3& 4.8&16.3\tabularnewline
+&Non-IAPP School Means&-26.4&-3.9& 0.1&-0.1& 3.8&24.2\tabularnewline
+American Lit&IAPP School Means&-10.4&-5.4&-0.3& 0.3& 5.2&16.9\tabularnewline
+&Non-IAPP School Means&-27.2&-4.1&-0.4&-0.7& 2.9&16.2\tabularnewline
+Algebra I&IAPP School Means&-39.8&-6.8& 2.0& 1.0& 7.2&36.9\tabularnewline
+&Non-IAPP School Means&-43.5&-5.1&-0.2& 0.2& 5.5&50.8\tabularnewline
+Geometry&IAPP School Means&-15.8&-5.1&-1.6&-1.0& 3.8&14.2\tabularnewline
+&Non-IAPP School Means&-44.9&-3.4& 0.4& 0.6& 4.1&24.5\tabularnewline
+Coordinate Algebra&IAPP School Means& -9.2&-7.1&-5.8&-3.4&-1.2& 7.3\tabularnewline
+&Non-IAPP School Means&-25.2&-5.5&-0.2& 0.3& 6.3&21.5\tabularnewline
+Analytic Geometry&IAPP School Means& -3.6&-2.3& 3.1& 5.6&11.0&20.1\tabularnewline
+&Non-IAPP School Means&-24.7&-4.1& 0.9&-0.1& 5.5&14.4\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+LaTeX_End -->
+<!-- HTML_Start -->
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<td colspan="3" style="text-align: left;">
+<strong>Table 3:</strong> Correlation of Annual Mean SGPs (2018 - 2019) of Non-IAPP Schools
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Subject
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<span class="math inline"><em>r</em></span>
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+N
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style="text-align: center;">
+0.463
+</td>
+<td style="text-align: right;">
+1599
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Mathematics
+</td>
+<td style="text-align: center;">
+0.520
+</td>
+<td style="text-align: right;">
+1599
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: center;">
+0.559
+</td>
+<td style="text-align: right;">
+497
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: center;">
+0.619
+</td>
+<td style="text-align: right;">
+399
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: center;">
+0.654
+</td>
+<td style="text-align: right;">
+609
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: center;">
+0.643
+</td>
+<td style="text-align: right;">
+347
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: center;">
+0.725
+</td>
+<td style="text-align: right;">
+113
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Analytic Geometry
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.642
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+86
+</td>
+</tr>
+</tbody>
+</table>
+<!-- LaTeX_Start
+%latex.default(my_tbl, file = "", where = where, col.just = tex.align,     caption = tmp_caption, ...)%
+\begin{table}[H]
+\caption{**Table 3:** Correlation of Annual Mean SGPs (2018 - 2019) of Non-IAPP Schools\label{my}} 
+\begin{center}
+\begin{tabular}{rcr}
+\hline\hline
+\multicolumn{1}{c}{Subject}&\multicolumn{1}{c}{$r$}&\multicolumn{1}{c}{N}\tabularnewline
+\hline
+ELA&0.463&1599\tabularnewline
+Mathematics&0.520&1599\tabularnewline
+Grade 9 Lit&0.559& 497\tabularnewline
+American Lit&0.619& 399\tabularnewline
+Algebra I&0.654& 609\tabularnewline
+Geometry&0.643& 347\tabularnewline
+Coordinate Algebra&0.725& 113\tabularnewline
+Analytic Geometry&0.642&  86\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+LaTeX_End -->
+<!-- HTML_Start -->
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<td colspan="5" style="text-align: left;">
+<strong>Table 4:</strong> Correlation of Mean SGPs Differences (IAPP Excluded - Original
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Subject
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Year
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+R Uncorrected
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+R Rank Simex
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+N
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+1,579
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+1,583
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Mathematics
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+1,579
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+0.999
+</td>
+<td style="text-align: right;">
+1,582
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+0.999
+</td>
+<td style="text-align: right;">
+468
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+0.999
+</td>
+<td style="text-align: right;">
+487
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+389
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+0.999
+</td>
+<td style="text-align: right;">
+391
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+565
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+594
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+306
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+331
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+0.985
+</td>
+<td style="text-align: center;">
+0.982
+</td>
+<td style="text-align: right;">
+107
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+</td>
+<td style="text-align: center;">
+2019
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+0.999
+</td>
+<td style="text-align: right;">
+103
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Analytic Geometry
+</td>
+<td style="text-align: center;">
+2018
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: center;">
+1.000
+</td>
+<td style="text-align: right;">
+85
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+2019
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+1.000
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+1.000
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+63
+</td>
+</tr>
+</tbody>
+</table>
+<!-- LaTeX_Start
+%latex.default(my_tbl, file = "", where = where, col.just = tex.align,     caption = tmp_caption, ...)%
+\begin{table}[H]
+\caption{**Table 4:** Correlation of Mean SGPs Differences (IAPP Excluded - Original\label{my}} 
+\begin{center}
+\begin{tabular}{rcccr}
+\hline\hline
+\multicolumn{1}{c}{Subject}&\multicolumn{1}{c}{Year}&\multicolumn{1}{c}{R Uncorrected}&\multicolumn{1}{c}{R Rank Simex}&\multicolumn{1}{c}{N}\tabularnewline
+\hline
+&&&&\tabularnewline
+ELA&2018&1.000&1.000&1,579\tabularnewline
+&2019&1.000&1.000&1,583\tabularnewline
+\hline
+&&&&\tabularnewline
+Mathematics&2018&1.000&1.000&1,579\tabularnewline
+&2019&1.000&0.999&1,582\tabularnewline
+\hline
+&&&&\tabularnewline
+Grade 9 Lit&2018&1.000&0.999&468\tabularnewline
+&2019&1.000&0.999&487\tabularnewline
+\hline
+&&&&\tabularnewline
+American Lit&2018&1.000&1.000&389\tabularnewline
+&2019&1.000&0.999&391\tabularnewline
+\hline
+&&&&\tabularnewline
+Algebra I&2018&1.000&1.000&565\tabularnewline
+&2019&1.000&1.000&594\tabularnewline
+\hline
+&&&&\tabularnewline
+Geometry&2018&1.000&1.000&306\tabularnewline
+&2019&1.000&1.000&331\tabularnewline
+\hline
+&&&&\tabularnewline
+Coordinate Algebra&2018&0.985&0.982&107\tabularnewline
+&2019&1.000&0.999&103\tabularnewline
+\hline
+&&&&\tabularnewline
+Analytic Geometry&2018&1.000&1.000&85\tabularnewline
+&2019&1.000&1.000&63\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+LaTeX_End -->
+<!-- HTML_Start -->
+<table class="gmisc_table breakboth" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<td colspan="3" style="text-align: left;">
+<strong>Table 5:</strong> Correlation of Annual REVISED Mean SGPs (2018 - 2019 Non-IAPP Schools ONLY)
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Subject
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+MSGP Correlation
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+N
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">
+ELA
+</td>
+<td style="text-align: center;">
+0.454
+</td>
+<td style="text-align: center;">
+1,599
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Mathematics
+</td>
+<td style="text-align: center;">
+0.514
+</td>
+<td style="text-align: center;">
+1,598
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Grade 9 Lit
+</td>
+<td style="text-align: center;">
+0.564
+</td>
+<td style="text-align: center;">
+497
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+American Lit
+</td>
+<td style="text-align: center;">
+0.622
+</td>
+<td style="text-align: center;">
+399
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Algebra I
+</td>
+<td style="text-align: center;">
+0.655
+</td>
+<td style="text-align: center;">
+609
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Geometry
+</td>
+<td style="text-align: center;">
+0.643
+</td>
+<td style="text-align: center;">
+346
+</td>
+</tr>
+<tr>
+<td style="text-align: right;">
+Coordinate Algebra
+</td>
+<td style="text-align: center;">
+0.724
+</td>
+<td style="text-align: center;">
+112
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+Analytic Geometry
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.634
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+86
+</td>
+</tr>
+</tbody>
+</table>
+<!-- LaTeX_Start
+%latex.default(my_tbl, file = "", where = where, col.just = tex.align,     caption = tmp_caption, ...)%
+\begin{table}[H]
+\caption{**Table 5:** Correlation of Annual REVISED Mean SGPs (2018 - 2019 Non-IAPP Schools ONLY)\label{my}} 
+\begin{center}
+\begin{tabular}{rcc}
+\hline\hline
+\multicolumn{1}{c}{Subject}&\multicolumn{1}{c}{MSGP Correlation}&\multicolumn{1}{c}{N}\tabularnewline
+\hline
+ELA&0.454&1,599\tabularnewline
+Mathematics&0.514&1,598\tabularnewline
+Grade 9 Lit&0.564&497\tabularnewline
+American Lit&0.622&399\tabularnewline
+Algebra I&0.655&609\tabularnewline
+Geometry&0.643&346\tabularnewline
+Coordinate Algebra&0.724&112\tabularnewline
+Analytic Geometry&0.634&86\tabularnewline
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+LaTeX_End -->
+</div></div>
+
+</div>
+
+
+
+</body>
+</html>

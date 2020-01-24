@@ -1,0 +1,230 @@
+---
+title: "Georgia Growth Comparison with IAPP District Removal:"
+subtitle: "Additional Tables."
+author:
+  - name: Adam R. VanIwaarden
+  - name: Damian W. Betebenner
+  - name: <em>National Center for the Improvement<br></br> of Educational Assessment (NCIEA)</em>
+  - name: And
+  - name: The Georgia Department of Education
+date: November 2019
+---
+
+<!--SGPreport-->
+
+<!-- 
+This document was written by Damian Betebenner & Adam VanIwaarden in cooperation with the GA DoE.
+
+	Original Draft:  November 11, 2019
+	Final Draft:     November 18, 2019
+-->
+
+
+```{r, echo=FALSE, include=FALSE}
+  ## set a universal Cache path
+  knitr::opts_chunk$set(cache.path = "_cache/IAPP_Companion")
+
+  ##  Load some R packages and functions required for HTML table creation silently.  
+  ##  Load SGP and other packages here to avoid messages.
+  require(SGP)
+	require(data.table)
+	require(Gmisc)
+  require(htmlTable)
+
+  ##  Set Table, Figure and Equation Counters
+  options(table_number=0)
+  options("fig_caption_no"=0)
+	options(fig_caption_no_sprintf = "**Figure %s:**   %s")
+	options("fig_caption_no_roman"=FALSE)
+
+	IAPP_Districts <- c('607', '631', '772', '671', '678', '679', '781', '715', '657', '765',
+											'637', '647', '654', '656', '689', '698', '709', '714', '717', '793')
+	IAPP_Schools <- unique(Georgia_Orig[SR_SYSTEM_ID %in% IAPP_Districts, SCHOOL_NUMBER])
+
+	
+  subject_order <- c("ELA", "MATHEMATICS", 
+										 "GRADE_9_LIT", "AMERICAN_LIT",
+										 "ALGEBRA_I", "GEOMETRY", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY")
+	GL_subjects <- c("ELA", "MATHEMATICS")
+	EOC_subjects <- c("GRADE_9_LIT", "AMERICAN_LIT",
+										"ALGEBRA_I", "GEOMETRY", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY")
+
+	###   Script to run report:
+	# devtools::install_github("adamvi/Literasee")
+	# require(Literasee)
+	# renderMultiDocument(rmd_input = "Georgia_IAPP_Comparison.Rmd",
+	# 									report_format = c("HTML", "PDF"))
+```
+
+
+##  School Demographics
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, School_Demographic_Summary}
+	ntab<-Georgia_Orig[, list(N = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR", "SCHOOL_NUMBER")]
+
+	ed <- Georgia_Orig[,
+  	list(DEMOG = "ED", YN = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR", "SCHOOL_NUMBER", "ED")][ntab]
+	setnames(ed, "ED", "value")
+	ed[, YN := round(YN/N*100, 1)]
+
+	swd <- Georgia_Orig[,
+  	list(DEMOG = "SWD", YN = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR", "SCHOOL_NUMBER", "SWD")][ntab]
+	setnames(swd, "SWD", "value")
+	swd[, YN := round(YN/N*100, 1)]
+
+	lep <- Georgia_Orig[,
+  	list(DEMOG = "LEP", YN = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR", "SCHOOL_NUMBER", "LEP")][ntab]
+	setnames(lep, "LEP", "value")
+	lep[, YN := round(YN/N*100, 1)]
+
+	smry.demog <- rbind(ed, swd, lep)
+	# smry.demog[, N := NULL]
+	smry.demog[, value := gsub(".*:", "", value)]
+	
+	smry.demog.tbl <- smry.demog[value == " Yes", as.list(
+													round(summary(YN), 0)), keyby=c("DEMOG", "District_Membership", "SCHOOL_YEAR")]
+
+	smry.demog.tbl[, DEMOG := c("Econ Disadv", "", "", "", "Disabilities", "", "", "", "Eng Learners", "", "", "")]
+	
+	smry.demog.tbl$District_Membership[!(seq_along(smry.demog.tbl$District_Membership) %% 2 > 0)] <- ""
+	# for (r in 4:9) smry.demog.tbl[,f] <- as.character(smry.demog.tbl[[f]])
+	# smry.demog.tbl[smry.demog.tbl==100.0] <- "100"
+
+	setnames(smry.demog.tbl,  gsub("[.]", "", names(smry.demog.tbl)))
+	setnames(smry.demog.tbl, c(1,2,3), c("Demographic", "Group", "Year"))
+	
+  cat(dualTable(as.matrix(smry.demog.tbl), align=paste(c('r', 'r', rep('c', dim(smry.demog.tbl)[2]-2)), collapse=''),
+  							n.rgroup=rep(4, 3), caption = "Demographic Composition of Consortia Schools by Year"))
+
+```
+
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Annual_Change_Summary}
+	ann.sch <- Georgia_Orig[!is.na(ORIG_SIMEX_RANKED),
+  	list(Mean = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), N = .N), # ORIG
+		keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "SCHOOL_YEAR")] # , "Most_Recent_Prior"
+
+	ann.sch.grd <- Georgia_Orig[!is.na(ORIG_SIMEX_RANKED),
+  	list(Mean = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), N = .N), # ORIG
+		keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")] # , "Most_Recent_Prior"
+
+	ann.sch[, District_Membership := as.character(NA)]
+	ann.sch[SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "IAPP School Means"]
+	ann.sch[!SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "Non-IAPP School Means"]
+	# table(ann.sch[, District_Membership, SCHOOL_YEAR], exclude=NULL)
+
+	ann.sch.grd[, District_Membership := as.character(NA)]
+	ann.sch.grd[SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "IAPP School Means"]
+	ann.sch.grd[!SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "Non-IAPP School Means"]
+
+	ann.sch.w <- dcast(ann.sch[N > 14], ... ~ SCHOOL_YEAR, value.var = c("Mean", "N"), sep="_")#[, 1:9]
+	ann.sch.w[, Mean_Diff := (Mean_2018 - Mean_2019)]
+	smry.ann.sch <- ann.sch.w[(N_2018 > 14 | N_2019 > 14) & !is.na(Mean_Diff), as.list(round(summary(Mean_Diff), 1)), keyby=c("SUBJECT_CODE", "District_Membership")]
+
+	# ann.sch.grd.w <- dcast(ann.sch.grd[N > 14], ... ~ SCHOOL_YEAR, value.var = c("Mean", "N"), sep="_")#[, 1:9]
+	# ann.sch.grd.w[, Mean_Diff := (Mean_2018 - Mean_2019)]
+	# smry.ann.sch.grd <- ann.sch.grd.w[(N_2018 > 14 | N_2019 > 14) & !is.na(Mean_Diff), as.list(round(summary(Mean_Diff), 2)), keyby=c("SUBJECT_CODE", "GRADE", "District_Membership")]
+
+	smry.ann.sch <- smry.ann.sch[][order(match(smry.ann.sch$SUBJECT_CODE, subject_order))]
+	smry.ann.sch[, SUBJECT_CODE := sapply(SUBJECT_CODE, SGP::capwords)]
+	smry.ann.sch$SUBJECT_CODE[duplicated(smry.ann.sch$SUBJECT_CODE)] <- ""
+	# smry.ann.sch.grd$SUBJECT_CODE[duplicated(smry.ann.sch.grd$SUBJECT_CODE)] <- ""
+
+	setnames(smry.ann.sch, c(1,2), c("Subject", "Group"))
+	# setnames(smry.ann.sch.grd, 1:3, c("Subject", "Grade", "Group"))
+
+  cat(dualTable(as.matrix(smry.ann.sch), align=paste(c('r', rep('c', 'c', dim(smry.ann.sch)[2]-2), 'r'), collapse=''),
+  							# n.cgroup=c(2, 2, 2, 2, 1), cgroup=c("", "Econ Disadv", "Disabilities", "Eng Learners", ""),
+  							caption = "Summary of Differences in Annual Mean SGPs (2018 - 2019) of Consortia Groups"))
+```
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Annual_Correlation}
+	sch.n <- 14
+	cor.sch <- ann.sch.w[(N_2018 > sch.n | N_2019 > sch.n) & District_Membership=="Non-IAPP School Means", list(
+													MSGP_Correlation = round(cor(Mean_2018, Mean_2019, use='pairwise.complete'), 3), N = .N), 
+											 keyby=c("SUBJECT_CODE")]
+
+	ann.sch.grd.w <- dcast(ann.sch.grd[N > sch.n], ... ~ SCHOOL_YEAR, value.var = c("Mean", "N"), sep="_")#[, 1:9]
+	cor.sch.grd <- ann.sch.grd.w[(N_2018 > sch.n | N_2019 > sch.n) & District_Membership=="Non-IAPP School Means", list(
+												MSGP_Correlation = round(cor(Mean_2018, Mean_2019, use='pairwise.complete'), 3), N = .N), 
+ 											keyby=c("SUBJECT_CODE", "GRADE", "District_Membership")]
+
+	cor.sch <- cor.sch[][order(match(cor.sch$SUBJECT_CODE, subject_order))]
+	cor.sch[, SUBJECT_CODE := sapply(SUBJECT_CODE, SGP::capwords)]
+	cor.sch$SUBJECT_CODE[duplicated(cor.sch$SUBJECT_CODE)] <- ""
+
+	cor.sch.grd <- cor.sch.grd[][order(match(cor.sch.grd$SUBJECT_CODE, subject_order))]
+	cor.sch.grd[, SUBJECT_CODE := sapply(SUBJECT_CODE, SGP::capwords)]
+	cor.sch.grd$SUBJECT_CODE[duplicated(cor.sch.grd$SUBJECT_CODE)] <- ""
+
+	setnames(cor.sch, c(1,2), c("Subject", "$r$"))
+	setnames(cor.sch.grd, 1:3, c("Subject", "Grade", "$r$"))
+
+  cat(dualTable(as.matrix(cor.sch), align=paste(c('r', rep('c', 'c', dim(cor.sch)[2]-2), 'r'), collapse=''),
+  							# n.cgroup=c(2, 2, 2, 2, 1), cgroup=c("", "Econ Disadv", "Disabilities", "Eng Learners", ""),
+  							caption = "Correlation of Annual Mean SGPs (2018 - 2019) of Non-IAPP Schools"))
+```
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Comp_Correlation}
+	comp.sch <- Georgia_Data[!is.na(ORIG_SIMEX_RANKED), list(
+	  		Mean_Orig = round(mean(ORIG, na.rm=T), 1),
+	  		Mean_IAPP = round(mean(IAPP, na.rm=T), 1),
+	  		Mean_SIMEX_Orig = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1),
+  			Mean_SIMEX_IAPP = round(mean(IAPP_SIMEX_RANKED, na.rm=T), 1), N = .N), # ORIG
+			keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "SCHOOL_YEAR")] # , "Most_Recent_Prior"
+
+	comp.cor <- comp.sch[N > 14, list(
+  	             R_Uncorrected = round(cor(Mean_Orig, Mean_IAPP, use = "complete.obs"), 3),
+    	           R_Rank_SIMEX = round(cor(Mean_SIMEX_Orig, Mean_SIMEX_IAPP, use = "complete.obs"), 3), N=.N),
+      	      keyby=c("SUBJECT_CODE", "SCHOOL_YEAR")]
+
+# 	comp.cor.stu <- Georgia_Data[!is.na(ORIG), list(
+#   	                R_Uncorrected = round(cor(ORIG, IAPP, use = "complete.obs"), 3),
+#     	              R_Rank_SIMEX = round(cor(ORIG_SIMEX_RANKED, IAPP_SIMEX_RANKED, use = "complete.obs"), 3), N=.N),
+#       	          keyby=c("SUBJECT_CODE", "SCHOOL_YEAR")]
+
+# 	comp.cor.grd <- Georgia_Data[!is.na(ORIG), list(
+#   		                R_Uncorrected = round(cor(ORIG, IAPP, use = "complete.obs"), 3),
+#       	            R_Rank_SIMEX = round(cor(ORIG_SIMEX_RANKED, IAPP_SIMEX_RANKED, use = "complete.obs"), 3), N=.N),
+#         	        keyby=c("SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")]
+
+	comp.cor <- comp.cor[][order(match(comp.cor$SUBJECT_CODE, subject_order))]
+	comp.cor[, SUBJECT_CODE := sapply(SUBJECT_CODE, SGP::capwords)]
+	comp.cor$SUBJECT_CODE[duplicated(comp.cor$SUBJECT_CODE)] <- ""
+
+	# comp.cor.grd <- comp.cor.grd[][order(match(comp.cor.grd$SUBJECT_CODE, subject_order))]
+	# comp.cor.grd[, SUBJECT_CODE := sapply(SUBJECT_CODE, SGP::capwords)]
+	# comp.cor.grd$SUBJECT_CODE[duplicated(comp.cor.grd$SUBJECT_CODE)] <- ""
+
+	comp.cor$N <- prettyNum(comp.cor$N, preserve.width = "individual", big.mark=',')
+	setnames(comp.cor, sapply(names(comp.cor), capwords, special.words="N"))
+	setnames(comp.cor, c(1,2), c("Subject", "Year"))
+	# setnames(comp.cor.grd, 1:3, c("Subject", "Grade", "Year"))
+
+  cat(dualTable(as.matrix(comp.cor), align=paste(c('r', rep('c', dim(comp.cor)[2]-2), 'r'), collapse=''), n.rgroup=rep(2, 8), 
+  							caption = "Correlation of Mean SGPs Differences (IAPP Excluded - Original"))
+```
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Comp_Correlation_Annual}
+	comp.sch.grd.w <- dcast(comp.sch[N > sch.n, c(1:3, 7:8)], ... ~ SCHOOL_YEAR, value.var = c("Mean_SIMEX_IAPP", "N"), sep="_")#[, 1:9]
+
+	comp.cor.ann <- comp.sch.grd.w[(N_2018 > sch.n | N_2019 > sch.n) , list(
+												MSGP_Correlation = round(cor(Mean_SIMEX_IAPP_2018, Mean_SIMEX_IAPP_2019, use='pairwise.complete'), 3), N = .N), 
+										 keyby=c("SUBJECT_CODE")]
+
+	comp.cor.ann <- comp.cor.ann[][order(match(comp.cor.ann$SUBJECT_CODE, subject_order))]
+	comp.cor.ann[, SUBJECT_CODE := sapply(SUBJECT_CODE, SGP::capwords)]
+
+	comp.cor.ann$N <- prettyNum(comp.cor.ann$N, preserve.width = "individual", big.mark=',')
+	setnames(comp.cor.ann, sapply(names(comp.cor.ann), capwords, special.words=c("MSGP", "N")))
+	setnames(comp.cor.ann, c(1), c("Subject"))
+
+  cat(dualTable(as.matrix(comp.cor.ann), align=paste(c('r', rep('c', dim(comp.cor)[2]-2), 'r'), collapse=''), 
+  							caption = "Correlation of Annual REVISED Mean SGPs (2018 - 2019 Non-IAPP Schools ONLY)"))
+	
+```
+

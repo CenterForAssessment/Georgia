@@ -1,0 +1,1660 @@
+---
+title: "Georgia Growth Comparison with IAPP District Removal:"
+subtitle: "A Review of 2018 and 2019 Test Scores and SGPs."
+author:
+  - name: Adam R. VanIwaarden
+  - name: Damian W. Betebenner
+  - name: <em>National Center for the Improvement<br></br> of Educational Assessment (NCIEA)</em>
+  - name: And
+  - name: The Georgia Department of Education
+date: November 2019
+---
+
+<!--SGPreport-->
+
+<!-- 
+This document was written by Damian Betebenner & Adam VanIwaarden in cooperation with the GA DoE.
+
+	Original Draft:  November 11, 2019
+	Final Draft:     November 18, 2019
+-->
+
+
+```{r, echo=FALSE, include=FALSE}
+  ## set a universal Cache path
+  knitr::opts_chunk$set(cache.path = "_cache/Consortium_Comp_Spr_19")
+
+  ##  Load some R packages and functions required for HTML table creation silently.  
+  ##  Load SGP and other packages here to avoid messages.
+  require(SGP)
+	require(data.table)
+	require(Gmisc)
+  require(htmlTable)
+
+  ##  Set Table, Figure and Equation Counters
+  options(table_number=0)
+  options("fig_caption_no"=0)
+	options(fig_caption_no_sprintf = "**Figure %s:**   %s")
+	options("fig_caption_no_roman"=FALSE)
+
+	IAPP_Districts <- c('607', '631', '772', '671', '678', '679', '781', '715', '657', '765',
+											'637', '647', '654', '656', '689', '698', '709', '714', '717', '793')
+	IAPP_Schools <- unique(Georgia_Orig[SR_SYSTEM_ID %in% IAPP_Districts, SCHOOL_NUMBER])
+
+	
+  subject_order <- c("ELA", "MATHEMATICS", 
+										 "GRADE_9_LIT", "AMERICAN_LIT",
+										 "ALGEBRA_I", "GEOMETRY", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY")
+	GL_subjects <- c("ELA", "MATHEMATICS")
+	EOC_subjects <- c("GRADE_9_LIT", "AMERICAN_LIT",
+										"ALGEBRA_I", "GEOMETRY", "COORDINATE_ALGEBRA", "ANALYTIC_GEOMETRY")
+
+	###   Script to run report:
+	# devtools::install_github("adamvi/Literasee")
+	# require(Literasee)
+	# renderMultiDocument(rmd_input = "Georgia_IAPP_Comparison.Rmd",
+	# 									report_format = c("HTML", "PDF"))
+```
+
+#   Background
+
+In 2018, the Georgia legislature passed Senate Bill 362 which created a state innovative assessment pilot.  SB 362 authorized the State Board of Education (SBOE) to approve up to 10 Georgia districts or consortia of districts to develop and implement innovative assessment systems.  In August/September 2018, the SBOE held two rounds of applications for participants in the state pilot.  In accordance with SB 362, the Georgia Department of Education (GaDOE) sought flexibility under the federal Innovative Assessment Demonstration Authority (IADA) authorized by ESEA Section 1204 to support the state’s implementation of the innovative assessment pilot. 
+
+In July 2019, the U.S. Department of Education approved two Innovative Assessment Pilot Program (IAPP) consortia to develop and implement their assessment systems under the IADA.  The Georgia MAP Assessment Partnership is partnering with NWEA to develop and implement MAP Growth for Georgia.  The Putnam Consortium is partnering with Navvy Education, LLC to develop and implement Navvy.  Both assessment systems include a series of formative or interim assessments administered throughout the school year that will roll up into a single, summative score.
+
+The purpose of the IADA is to provide a five-year period during which the approved IAPP consortia can develop, implement, and scale their innovative assessment systems.  Each approved consortium must demonstrate comparability between their innovative assessment system and the state’s general academic assessments, Georgia Milestones, before being approved by GaDOE to implement their assessment system in lieu of Georgia Milestones.  After such approval, all participating districts will have to continue to administer Georgia Milestones to the extent necessary (i.e., a sample of students) throughout the IADA period to continue to meet annual comparability requirements. Additionally, Georgia Milestones will need to be administered to all students in any grade, content area, or course for which the innovative assessment system does not have a corresponding assessment.
+
+Once an IAPP consortium has demonstrated comparability between their innovative assessment system and Georgia Milestones and been approved by GaDOE, the innovative assessment system’s results will be used in the state’s College and Career Ready Performance Index (CCRPI) calculations for accountability purposes.  Both consortia’s assessment systems will produce a summative score, growth score, and literacy (Lexile) score that will be used in these calculations.
+
+During the five-year pilot period, the GaDOE will manage the demonstration authority, collect stakeholder feedback, and oversee an external technical evaluation of the innovative assessment systems.  At the end of the demonstration authority (the close of the 2023-2024 school year), the state will determine whether either of the innovative assessment systems should be administered statewide.  Georgia is required to determine which one assessment it will administer to all students by the end of its participation in the IADA.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+#	Literasee:::pageBreak()
+```
+
+#  Analysis Workflow
+
+In order to assess the potential impact of removing IAPP consortia students on Student Growth Percentile (SGP) results used to make Georgia accountability decisions, we reanalyzed the 2018 and 2019 Georgia Milestones end-of-grade (EOG) and end-of-course (EOC) test data excluding consortia member student records.  The same course progressions, number of prior test scores used, and all other relevant SGP model configurations were applied to these comparison analyses.
+
+This report serves as an exploratory that provides statistical summaries and visualizations to describe the changes in individual and school level SGP results due to changes in student norm groups.  IAPP consortia represent roughly 10% of Georgia's student population.  In the subsections below, details for each content area and grade level (for EOG subjects) are provided.  The Ranked SIMEX measurement error corrected SGP estimates are used for all summaries and visualizations as this value is the official growth metric used by the Georgia Department of Education for accountability purposes.  As with other reports provided on the SGP analyses, only schools and grade-levels with a minimum of 15 students are used in these summaries.
+
+The report is broken down into content area specific sections.  The EOG ELA and Mathematics sections begin with school-level aggregations of achievement and growth.  This summary level view is important to consider as they are more relevant to measures Georgia uses to make accountability judgements.  In these summaries, the Milestones scale scores have been standardized by grade in order to make appropriate cross-grade comparisons.  Subsequently summaries for each grade-level are provided.  This gives a more detailed and appropriate comparison for growth as SGP analyses are calculated for each unique year/content area/grade combination.  The EOC sections are presented by content area only as student grade-level is ignored in those analyses.
+
+
+##  IAPP vs Non-IAPP Comparability
+
+Comparing the results of the historical and revised SGP results is benefited by first comparing the IAPP and Non-IAPP students and schools.  To provide this context, the first page of each subsection below provides summaries of the student- and school-level current achievement and growth.  This information allows us to investigate these questions:
+
+- **Do IAPP students and schools have different levels of achievement than other Georgia students and schools?**
+- **Do IAPP students and schools have different levels of growth than other Georgia students and schools?**
+
+A set of four distribution plots are provided for each comparison in a 2 by 2 matrix.  The top rows contain information about individual students and the bottom rows are schools.  The left side columns look at achievement (Milestones scale scores) and growth is in the right column.  School level data in these cases are the mean scores and mean ranked SIMEX SGPs.  These plots allow us to see if there are clear differences in the distributions between the two groups and the degree to which these values are consistent from one year to the next within the groups.  In the case of the individual student growth percentile distribution (upper-right plot), we expect to see a uniform (box-like) distribution for the non-IAPP students and look for deviations from that in the IAPP students (dashed lines).  In the other three plots we expect more normal (bell-curve) distributions, paying attention to deviations between the groups, as well as between years within the groups.
+
+Summary statics are provided in tables as well to give additional context such as the median values and the number of students and schools.
+
+###  Consortia Group Demographic Composition
+
+The demographic composition of the IAPP consortia and non-consortia groups is another important factor to consider in addition to their achievement and growth.  Table `r tblNum(1)` presents the percent of students categorized as 1) economically disadvantaged, 2) having a disability and 3) English language learners.  As the table shows, the two groups have similar numbers of students with disabilities and English learners, but the IAPP consortia have approximately 15% more economically disadvantaged students in their population. 
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Demographic_Summary}
+	ntab<-Georgia_Orig[, list(N = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR")]
+
+	ed <- Georgia_Orig[,
+  	list(DEMOG = "ED", YN = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR", "ED")][ntab]
+	setnames(ed, "ED", "value")
+	ed[, YN := round(YN/N*100, 1)]
+
+	swd <- Georgia_Orig[,
+  	list(DEMOG = "SWD", YN = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR", "SWD")][ntab]
+	setnames(swd, "SWD", "value")
+	swd[, YN := round(YN/N*100, 1)]
+
+	lep <- Georgia_Orig[,
+  	list(DEMOG = "LEP", YN = .N),
+		keyby=c("District_Membership", "SCHOOL_YEAR", "LEP")][ntab]
+	setnames(lep, "LEP", "value")
+	lep[, YN := round(YN/N*100, 1)]
+
+	smry.demog <- rbind(ed, swd, lep)
+	# smry.demog[, N := NULL]
+	smry.demog[, value := gsub(".*:", "", value)]
+	
+	smry.demog.w <- dcast(smry.demog, ... ~ DEMOG + value, value.var = c("YN", "N"), sep=" ")[, 1:9]
+	smry.demog.w$District_Membership[duplicated(smry.demog.w$District_Membership)] <- ""
+
+	setnames(smry.demog.w,  gsub(".* ", "", names(smry.demog.w)))
+	# setnames(smry.demog.w,  sapply(gsub(".* ", "", names(smry.demog.w)), capwords))
+	setnames(smry.demog.w, c(1,2,9), c("Group", "Year", "N"))
+	
+	smry.demog.w$N <- prettyNum(smry.demog.w$N, preserve.width = "individual", big.mark=',')
+
+  cat(dualTable(as.matrix(smry.demog.w), align=paste(c('r', rep('c', dim(smry.demog.w)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 2, 1), cgroup=c("", "Econ Disadv", "Disabilities", "Eng Learners", ""),
+  							caption = "Demographic Composition of Consortia Groups by Year"))
+
+```
+
+##  Comparability of Growth Results with IAPP Students Removed
+
+Given any differences observed between IAPP and non-IAPP students and schools, we would expect to also see some differences in the student growth estimates if a significant number of non-random students are removed from the norm groups from which they are calculated.  The second page of each subsection includes summary tables and visualizations of these differences at the student- and school-levels.  
+
+These summaries help to address questions such as:
+
+- **If IAPP students and schools are different, what differences in growth might we see going forward?**
+- **What magnitude of changes in growth might we see going forward if IAPP consortia students are omitted from SGP analyses?**
+- **What type of school might be most impacted by removing IAPP consortia members?**
+
+Here we first provide a summary table of the differences in the SGP estimates at the student-level, where the difference is defined as the comparison SGP estimate from the reduced cohort minus the original SGP.  School-level differences are similarly defined as the original mean SGP (MSGP) subtracted from the revised comparison MSGP.  Visualizations provided in this section are for the distributions of original and revised school-level MSGPs for 2018 and 2019, and a scatterplot of the relationship between MSGP difference by school size.  A summary table for the MSGP differences is provided for additional context.
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Annual_Change_Summary}
+# 	ann.sch <- Georgia_Orig[!is.na(ORIG_SIMEX_RANKED),
+#   	list(Mean = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), N = .N), # ORIG
+# 		keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "SCHOOL_YEAR")] # , "Most_Recent_Prior"
+# 
+# 	ann.sch.grd <- Georgia_Orig[!is.na(ORIG_SIMEX_RANKED),
+#   	list(Mean = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), N = .N), # ORIG
+# 		keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")] # , "Most_Recent_Prior"
+
+	# ann.sch[, District_Membership := as.character(NA)]
+	# ann.sch[SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "IAPP School Means"]
+	# ann.sch[!SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "Non-IAPP School Means"]
+	# table(ann.sch[, District_Membership, SCHOOL_YEAR], exclude=NULL)
+
+	# ann.sch.grd[, District_Membership := as.character(NA)]
+	# ann.sch.grd[SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "IAPP School Means"]
+	# ann.sch.grd[!SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "Non-IAPP School Means"]
+
+	# ann.sch.w <- dcast(ann.sch[N > 14], ... ~ SCHOOL_YEAR, value.var = c("Mean", "N"), sep="_")#[, 1:9]
+	# ann.sch.w[, Mean_Diff := (Mean_2018 - Mean_2019)]
+	# smry.ann.sch <- ann.sch.w[(N_2018 > 14 | N_2019 > 14) & !is.na(Mean_Diff), as.list(round(summary(Mean_Diff), 1)), keyby=c("SUBJECT_CODE", "District_Membership")]
+
+	# ann.sch.grd.w <- dcast(ann.sch.grd[N > 14], ... ~ SCHOOL_YEAR, value.var = c("Mean", "N"), sep="_")#[, 1:9]
+	# ann.sch.grd.w[, Mean_Diff := (Mean_2018 - Mean_2019)]
+	# smry.ann.sch.grd <- ann.sch.grd.w[(N_2018 > 14 | N_2019 > 14) & !is.na(Mean_Diff), as.list(round(summary(Mean_Diff), 2)), keyby=c("SUBJECT_CODE", "GRADE", "District_Membership")]
+
+	# smry.ann.sch <- smry.ann.sch[][order(match(smry.ann.sch$SUBJECT_CODE, subject_order))]
+	# smry.ann.sch[, SUBJECT_CODE := sapply(SUBJECT_CODE, SGP::capwords)]
+	# smry.ann.sch$SUBJECT_CODE[duplicated(smry.ann.sch$SUBJECT_CODE)] <- ""
+	# smry.ann.sch.grd$SUBJECT_CODE[duplicated(smry.ann.sch.grd$SUBJECT_CODE)] <- ""
+
+	# setnames(smry.ann.sch, c(1,2), c("Subject", "Group"))
+	# setnames(smry.ann.sch.grd, 1:3, c("Subject", "Grade", "Group"))
+
+  # cat(dualTable(as.matrix(smry.ann.sch), align=paste(c('r', rep('c', 'c', dim(smry.ann.sch)[2]-2), 'r'), collapse=''),
+  							# caption = "Summary of Differences in Annual Mean SGPs (2018 - 2019) of Consortia Groups"))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Summary_Grd}
+	smry.grd <- Georgia_Orig[!is.na(ORIG),
+  	list(Mean = round(mean(SCALE_SCORE, na.rm=T), 1), Median = median(SCALE_SCORE, na.rm=T),
+  			 Mean = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), Median = median(as.numeric(ORIG_SIMEX_RANKED), na.rm=T), N=.N),
+		keyby=c("District_Membership", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")] # , "Most_Recent_Prior"
+
+	smry.sch1 <- Georgia_Orig[!is.na(ORIG),
+  	list(Mean = round(mean(SCALE_SCORE_STANDARDIZED, na.rm=T), 2), Median = round(median(SCALE_SCORE_STANDARDIZED, na.rm=T), 2),
+  			 Mean = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), Median = median(as.numeric(ORIG_SIMEX_RANKED), na.rm=T), N=.N),
+		keyby=c("District_Membership", "SUBJECT_CODE", "SCHOOL_YEAR")] # , "Most_Recent_Prior"
+
+	smry.grd[, GRADE := as.numeric(GRADE)]
+	setkey(smry.grd)
+	
+	smry.sch <- Georgia_Orig[!is.na(ORIG),
+  	list(Mean_SS = round(mean(SCALE_SCORE_STANDARDIZED, na.rm=T), 2), Median_SS = median(SCALE_SCORE_STANDARDIZED, na.rm=T),
+    	   Mean_Ranked_SIMEX = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 2), Median_Ranked_SIMEX = median(as.numeric(ORIG_SIMEX_RANKED), na.rm=T), N=.N),
+  	keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "SCHOOL_YEAR")]
+
+	smry.sch.grd <- Georgia_Orig[!is.na(ORIG),
+	  list(Mean_SS = round(mean(SCALE_SCORE, na.rm=T), 1), Median_SS = median(SCALE_SCORE, na.rm=T),
+  	     Mean_Ranked_SIMEX = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), Median_Ranked_SIMEX = median(as.numeric(ORIG_SIMEX_RANKED), na.rm=T), N=.N),
+  	keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")]
+
+	smry.sch[, District_Membership := as.character(NA)]
+	smry.sch[SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "IAPP School Means"]
+	smry.sch[!SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "Non-IAPP School Means"]
+	# table(smry.sch[, District_Membership, SCHOOL_YEAR], exclude=NULL)
+
+	smry.sch.grd[, District_Membership := as.character(NA)]
+	smry.sch.grd[SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "IAPP School Means"]
+	smry.sch.grd[!SCHOOL_NUMBER %in% IAPP_Schools, District_Membership := "Non-IAPP School Means"]
+
+	smry.sch2 <- smry.sch[N > 14,
+	 	list(Mean = round(mean(Mean_SS, na.rm=T), 2), Median = round(median(Median_SS, na.rm=T), 2),
+ 				 Mean = round(mean(Mean_Ranked_SIMEX, na.rm=T), 1), Median = round(median(as.numeric(Median_Ranked_SIMEX), na.rm=T), 1), N=.N),
+		keyby=c("District_Membership", "SUBJECT_CODE", "SCHOOL_YEAR")]
+
+	smry.sch.grd2 <- smry.sch.grd[N > 14,
+ 		list(Mean = round(mean(Mean_SS, na.rm=T), 1), Median = round(median(Median_SS, na.rm=T),1),
+ 				 Mean = round(mean(Mean_Ranked_SIMEX, na.rm=T), 1), Median = round(median(as.numeric(Median_Ranked_SIMEX), na.rm=T), 1), N=.N),
+		keyby=c("District_Membership", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")]
+```
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, School_Lev_Diff}
+diff.sch <- Georgia_Data[!is.na(ORIG),
+  list(Mean_Entire = round(mean(ORIG, na.rm=T), 1), Median_Entire = median(as.numeric(ORIG), na.rm=T),
+       Mean__Non___IAPP = round(mean(IAPP, na.rm=T), 1), Median__Non___IAPP = median(as.numeric(IAPP), na.rm=T),
+       Mean_Ranked_SIMEX_Entire = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), Median_Ranked_SIMEX_Entire = median(as.numeric(ORIG_SIMEX_RANKED), na.rm=T),
+       Mean_Ranked_SIMEX__Non___IAPP = round(mean(IAPP_SIMEX_RANKED, na.rm=T), 1), Median_Ranked_SIMEX__Non___IAPP = median(as.numeric(IAPP_SIMEX_RANKED), na.rm=T), N=.N),
+  keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "SCHOOL_YEAR")]
+
+diff.grd.sch <- Georgia_Data[!is.na(ORIG),
+list(Mean_Entire = round(mean(ORIG, na.rm=T), 1), Median_Entire = median(as.numeric(ORIG), na.rm=T),
+     Mean__Non___IAPP = round(mean(IAPP, na.rm=T), 1), Median__Non___IAPP = median(as.numeric(IAPP), na.rm=T),
+     Mean_Ranked_SIMEX_Entire = round(mean(ORIG_SIMEX_RANKED, na.rm=T), 1), Median_Ranked_SIMEX_Entire = median(as.numeric(ORIG_SIMEX_RANKED), na.rm=T),
+     Mean_Ranked_SIMEX__Non___IAPP = round(mean(IAPP_SIMEX_RANKED, na.rm=T), 1), Median_Ranked_SIMEX__Non___IAPP = median(as.numeric(IAPP_SIMEX_RANKED), na.rm=T), N=.N),
+  keyby=c("SCHOOL_NUMBER", "SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")]
+
+diff.sch[, Mean_Difference := Mean__Non___IAPP - Mean_Entire]
+diff.sch[, Median_Difference := Median__Non___IAPP - Median_Entire]
+diff.sch[, Mean_Difference_SIMEX := Mean_Ranked_SIMEX__Non___IAPP - Mean_Ranked_SIMEX_Entire]
+diff.sch[, Median_Difference_SIMEX := Median_Ranked_SIMEX__Non___IAPP - Mean_Ranked_SIMEX_Entire]
+
+diff.grd.sch[, Mean_Difference := Mean__Non___IAPP - Mean_Entire]
+diff.grd.sch[, Median_Difference := Median__Non___IAPP - Median_Entire]
+diff.grd.sch[, Mean_Difference_SIMEX := Mean_Ranked_SIMEX__Non___IAPP - Mean_Ranked_SIMEX_Entire]
+diff.grd.sch[, Median_Difference_SIMEX := Median_Ranked_SIMEX__Non___IAPP - Mean_Ranked_SIMEX_Entire]
+
+diff.grd.sch[, GRADE := as.numeric(GRADE)]
+setkey(diff.grd.sch)
+```
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, Student_Lev_Diffs}
+invisible(Georgia_Data[, SGP_DIFF_SIMEX := IAPP_SIMEX_RANKED - ORIG_SIMEX_RANKED])
+stu.all <- Georgia_Data[!is.na(ORIG), as.list(round(summary(SGP_DIFF_SIMEX), 2)), keyby=c("SUBJECT_CODE", "SCHOOL_YEAR")]
+stu.grd <- Georgia_Data[!is.na(ORIG), as.list(round(summary(SGP_DIFF_SIMEX), 2)), keyby=c("SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")]
+```
+
+```{r, results='asis', echo=FALSE, warning=FALSE, message=FALSE, School_Lev_Diffs_Smry}
+sch.comp <- diff.sch[N > 14, as.list(round(summary(Mean_Difference_SIMEX), 2)), keyby=c("SUBJECT_CODE", "SCHOOL_YEAR")]
+sch.grd.comp <- diff.grd.sch[N > 14, as.list(round(summary(Mean_Difference_SIMEX), 2)), keyby=c("SUBJECT_CODE", "GRADE", "SCHOOL_YEAR")]
+```
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+#  School Level ELA Results
+
+```{r, cache=FALSE, results="asis", echo=FALSE, ELA_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_ELA_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_ELA_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_ELA_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_ELA_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 School Level ELA Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_ELA}
+	tmp.cap <- "Mean and Median Values for School Level ELA - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.sch1[SUBJECT_CODE == "ELA",]
+	gl_tmp_tbl[, "SUBJECT_CODE" := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch2[SUBJECT_CODE == "ELA",]
+	sl_tmp_tbl[, "SUBJECT_CODE" := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Z Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+```
+
+
+##  ELA IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, ELA_Sch_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level ELA SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.all[SUBJECT_CODE == "ELA",]
+
+	st_tmp_tbl[, "SUBJECT_CODE" := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, ELA_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_ELA_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_ELA_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 ELA Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, ELA_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level ELA Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.comp[SUBJECT_CODE == "ELA",]
+
+	sch_tmp_tbl[, SUBJECT_CODE := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in ELA and their growth is very similar.  Although omitting IAPP students from the SGP norm group has a significant impact on some individual students' growth estimates, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from -1 to 1, which is small when compared to the annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+#  Grade Level ELA Results
+
+##  4<sup>th</sup> Grade ELA by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G4_ELA_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_4_ELA_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_4_ELA_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_4_ELA_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_4_ELA_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 4<sup>th</sup> Grade ELA Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G4ELA}
+	tmp.cap <- "Mean and Median Values for 4<sup>th</sup> Grade ELA - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "ELA" & GRADE == "4",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "ELA" & GRADE == "4",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+```
+
+
+##  4<sup>th</sup> Grade ELA IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G4_ELA_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 4<sup>th</sup> Grade ELA SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "ELA" & GRADE == "4",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G4_ELA_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_4_ELA_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_4_ELA_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 4<sup>th</sup> Grade ELA Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G4_ELA_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 4<sup>th</sup> Grade ELA Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "ELA" & GRADE == "4",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Grade 4 ELA and have slightly higher growth.  Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from -1 to 1, which is small when compared to the annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+It should be noted that Grade 4 ELA analyses use only a single prior score (Grade 3 ELA) unlike most end-of-grade analyses which use up to two priors.  This likely decreases the impact of removing a substantial part of the statewide norm group.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  5<sup>th</sup> Grade ELA by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G5_ELA_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_5_ELA_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_5_ELA_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_5_ELA_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_5_ELA_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 5<sup>th</sup> Grade ELA Consortium Member Comparisons")
+```
+
+<p></p>
+<p></p>
+
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G5ELA}
+	tmp.cap <- "Mean and Median Values for 5<sup>th</sup> Grade ELA - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "ELA" & GRADE == "5",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "ELA" & GRADE == "5",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  5<sup>th</sup> Grade ELA IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G5_ELA_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 5<sup>th</sup> Grade ELA SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "ELA" & GRADE == "5",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G5_ELA_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_5_ELA_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_5_ELA_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 5<sup>th</sup> Grade ELA Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G5_ELA_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 5<sup>th</sup> Grade ELA Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "ELA" & GRADE == "5",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Grade 5 ELA and slightly lower growth.  Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially (more so than Grade 4 ELA), there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1 to 1, which is small when compared to the annual fluctuation in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  6<sup>th</sup> Grade ELA by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G6_ELA_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_6_ELA_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_6_ELA_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_6_ELA_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_6_ELA_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 6<sup>th</sup> Grade ELA Consortium Member Comparisons")
+```
+
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G6ELA}
+	tmp.cap <- "Mean and Median Values for 6<sup>th</sup> Grade ELA - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "ELA" & GRADE == "6",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "ELA" & GRADE == "6",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+	
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  6<sup>th</sup> Grade ELA IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G6_ELA_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 6<sup>th</sup> Grade ELA SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "ELA" & GRADE == "6",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G6_ELA_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_6_ELA_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_6_ELA_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 6<sup>th</sup> Grade ELA Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G6_ELA_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 6<sup>th</sup> Grade ELA Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "ELA" & GRADE == "6",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Grade 6 ELA.  The typical growth is generally similar, although IAPP students and schools both saw a decrease in growth in 2019.  Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from -1.5 to 1, which is small when compared to the annual fluctuation in MSGPs for most schools.  As with the previous grades reviewed above, the impact of removing IAPP students decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+##  7<sup>th</sup> Grade ELA by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G7_ELA_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_7_ELA_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_7_ELA_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_7_ELA_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_7_ELA_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 7<sup>th</sup> Grade ELA Consortium Member Comparisons")
+```
+
+<p></p>
+<p></p>
+
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G7ELA}
+	tmp.cap <- "Mean and Median Values for 7<sup>th</sup> Grade ELA - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "ELA" & GRADE == "7",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "ELA" & GRADE == "7",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  7<sup>th</sup> Grade ELA IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G7_ELA_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 7<sup>th</sup> Grade ELA SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "ELA" & GRADE == "7",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G7_ELA_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_7_ELA_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_7_ELA_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 7<sup>th</sup> Grade ELA Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G7_ELA_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 7<sup>th</sup> Grade ELA Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "ELA" & GRADE == "7",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show slightly lower achievement in Grade 7 ELA.  Growth is similar between the two groups, although IAPP students and schools slightly outperform their non-IAPP peers.  
+
+Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1.5 to 1, which is small when compared to the annual fluctuation in MSGPs for most schools.  As with the other ELA grades, the impact of removing IAPP students decreases substantially with increasing school size.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+##  8<sup>th</sup> Grade ELA by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G8_ELA_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_8_ELA_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_8_ELA_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_8_ELA_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_8_ELA_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 8<sup>th</sup> Grade ELA Consortium Member Comparisons")
+```
+
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G8ELA}
+	tmp.cap <- "Mean and Median Values for 8<sup>th</sup> Grade ELA - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "ELA" & GRADE == "8",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "ELA" & GRADE == "8",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  8<sup>th</sup> Grade ELA IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G8_ELA_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 8<sup>th</sup> Grade ELA SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "ELA" & GRADE == "8",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G8_ELA_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_8_ELA_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_8_ELA_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 8<sup>th</sup> Grade ELA Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G8_ELA_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 8<sup>th</sup> Grade ELA Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "ELA" & GRADE == "8",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show lower achievement in Grade 8 ELA. The typical growth is similar, with IAPP students and schools slightly underperforming compared to their non-IAPP peers.  
+
+Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1.5 to 1, which is small when compared to the annual fluctuation in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+#  School Level Mathematics Results
+
+```{r, cache=FALSE, results="asis", echo=FALSE, Math_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Math_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Math_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Math_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Math_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 School Level Math Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_Math}
+	tmp.cap <- "Mean and Median Values for School Level Math - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.sch1[SUBJECT_CODE == "MATHEMATICS",]
+	gl_tmp_tbl[, "SUBJECT_CODE" := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch2[SUBJECT_CODE == "MATHEMATICS",]
+	sl_tmp_tbl[, "SUBJECT_CODE" := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Z Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+```
+
+
+##  Mathematics IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, Math_Sch_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level Math SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.all[SUBJECT_CODE == "MATHEMATICS",]
+
+	st_tmp_tbl[, "SUBJECT_CODE" := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, Math_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Math_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Math_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Math Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, Math_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level Math Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.comp[SUBJECT_CODE == "MATHEMATICS",]
+
+	sch_tmp_tbl[, SUBJECT_CODE := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Math and their growth is lower, particularly in 2019.  Although omitting IAPP students from the SGP norm group has a significant impact on some individual students' growth estimates, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -2 to 1, which is small when compared to the annual fluctuation in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+#  Grade Level Math Results
+
+##  4<sup>th</sup> Grade Mathematics by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G4_Math_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_4_Math_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_4_Math_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_4_Math_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_4_Math_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 4<sup>th</sup> Grade Mathematics Consortium Member Comparisons")
+```
+
+<p></p>
+<p></p>
+
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G4Math}
+	tmp.cap <- "Mean and Median Values for 4<sup>th</sup> Grade Math - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "4",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "MATHEMATICS" & GRADE == "4",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  4<sup>th</sup> Grade Math IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G4_Math_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 4<sup>th</sup> Grade Math SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "4",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G4_Math_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_4_Math_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_4_Math_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 4<sup>th</sup> Grade Math Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G4_Math_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 4<sup>th</sup> Grade Math Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "MATHEMATICS" & GRADE == "4",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Grade 4 Math and they underperform in growth as well. Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1.5 to 1, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+It should be noted that Grade 4 ELA analyses use only a single prior score (Grade 3 ELA) unlike most end-of-grade analyses which use up to two priors.  This likely decreases the impact of removing a substantial part of the statewide norm group.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  5<sup>th</sup> Grade Mathematics by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G5_Math_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_5_Math_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_5_Math_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_5_Math_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_5_Math_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 5<sup>th</sup> Grade Mathematics Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G5Math}
+	tmp.cap <- "Mean and Median Values for 5<sup>th</sup> Grade Math - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "5",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "MATHEMATICS" & GRADE == "5",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  5<sup>th</sup> Grade Math IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G5_Math_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 5<sup>th</sup> Grade Math SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "5",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G5_Math_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_5_Math_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_5_Math_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 5<sup>th</sup> Grade Math Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G5_Math_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 5<sup>th</sup> Grade Math Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "MATHEMATICS" & GRADE == "5",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Grade 5 Math and they underperform in growth as well (particularly in 2019). Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -2 to 2, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.  The change is particularly large in 2019 given low IAPP growth in that year.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  6<sup>th</sup> Grade Mathematics by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G6_Math_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_6_Math_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_6_Math_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_6_Math_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_6_Math_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 6<sup>th</sup> Grade Mathematics Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G6Math}
+	tmp.cap <- "Mean and Median Values for 6<sup>th</sup> Grade Math - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "6",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "MATHEMATICS" & GRADE == "6",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  6<sup>th</sup> Grade Math IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G6_Math_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 6<sup>th</sup> Grade Math SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "6",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G6_Math_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_6_Math_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_6_Math_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 6<sup>th</sup> Grade Math Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G6_Math_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 6<sup>th</sup> Grade Math Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "MATHEMATICS" & GRADE == "6",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Grade 6 Math and their growth is similar (with the IAPP groups in outperforming slightly in 2018). Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1 to 2.5, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  7<sup>th</sup> Grade Mathematics by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G7_Math_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_7_Math_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_7_Math_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_7_Math_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_7_Math_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 7<sup>th</sup> Grade Mathematics Consortium Member Comparisons")
+```
+
+<p></p>
+<p></p>
+
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G7Math}
+	tmp.cap <- "Mean and Median Values for 7<sup>th</sup> Grade Math - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "7",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "MATHEMATICS" & GRADE == "7",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  7<sup>th</sup> Grade Math IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G7_Math_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 7<sup>th</sup> Grade Math SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "7",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G7_Math_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_7_Math_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_7_Math_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 7<sup>th</sup> Grade Math Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G7_Math_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 7<sup>th</sup> Grade Math Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "MATHEMATICS" & GRADE == "7",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show overall lower achievement in Grade 7 Math and their growth is similar. Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -2 to 1, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  8<sup>th</sup> Grade Mathematics by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G8_Math_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_Grade_8_Math_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_8_Math_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_Grade_8_Math_Sch_Grd_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_Grade_8_Math_Sch_Grd_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 8<sup>th</sup> Grade Mathematics Consortium Member Comparisons")
+```
+
+<p></p>
+<p></p>
+
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G8Math}
+	tmp.cap <- "Mean and Median Values for 8<sup>th</sup> Grade Math - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "8",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "MATHEMATICS" & GRADE == "8",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  8<sup>th</sup> Grade Math IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G8_Math_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level 8<sup>th</sup> Grade Math SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "MATHEMATICS" & GRADE == "8",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G8_Math_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_Grade_8_Math_Sch_Grd_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_Grade_8_Math_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 8<sup>th</sup> Grade Math Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G8_Math_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level 8<sup>th</sup> Grade Math Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "MATHEMATICS" & GRADE == "8",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students and schools show slightly lower achievement in Grade 8 Math and their growth is similar (IAPP group slightly higher). Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1 to 1, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+#  End-of-Course Test Results
+
+In reviewing the end-of-course assessment results, it must be noted that they are collapsed across all course progressions, making them look more uneven than the grade level assessments.  However, because schools are consistent in their annual use of the same course progressions, the aggregation of these results should yield consistent patterns for the IAPP and Non-IAPP.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+##  Grade 9 Lit by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G9Lit_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_GRADE_9_LIT_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_GRADE_9_LIT_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_GRADE_9_LIT_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_GRADE_9_LIT_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Grade 9 Lit Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_G9Lit}
+	tmp.cap <- "Mean and Median Values for Grade 9 Lit - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "GRADE_9_LIT",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "GRADE_9_LIT",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  Grade 9 Lit IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, G9Lit_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level Grade 9 Lit SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "GRADE_9_LIT",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, G9Lit_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_GRADE_9_LIT_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_GRADE_9_LIT_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Grade 9 Lit Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, G9Lit_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level Grade 9 Lit Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "GRADE_9_LIT",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students show lower achievement in Grade 9 Literature, while schools averages are slightly higher. Their growth is similar for both groups, particularly at the school level. Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -3 to 1.5, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  American Lit by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, AmLit_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_AMERICAN_LIT_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_AMERICAN_LIT_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_AMERICAN_LIT_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_AMERICAN_LIT_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 American Lit Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_AmLit}
+	tmp.cap <- "Mean and Median Values for American Lit - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "AMERICAN_LIT",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "AMERICAN_LIT",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  American Lit IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, AmLit_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level American Lit SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "AMERICAN_LIT",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, AmLit_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_AMERICAN_LIT_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_AMERICAN_LIT_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 American Lit Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, AmLit_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level American Lit Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "AMERICAN_LIT",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students show lower achievement in American Literature, while schools averages are similar. Their growth is similar for both groups, particularly at the school level. Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1.5 to 1, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  Algebra I by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, ALG1_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_ALGEBRA_I_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_ALGEBRA_I_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_ALGEBRA_I_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_ALGEBRA_I_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Algebra I Consortium Member Comparisons")
+```
+
+<p></p>
+<p></p>
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_ALG1}
+	tmp.cap <- "Mean and Median Values for Algebra I - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "ALGEBRA_I",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "ALGEBRA_I",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  Algebra I IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, Alg1_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level Algebra I SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "ALGEBRA_I",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, Alg1_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_ALGEBRA_I_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_ALGEBRA_I_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Algebra I Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, Alg1_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level Algebra I Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "ALGEBRA_I",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students show lower achievement in Algebra I, while schools averages are only slightly lower. IAPP students and schools also underperform in growth. Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1.5 to 1.5, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  Geometry by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, GEOM_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_GEOMETRY_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_GEOMETRY_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_GEOMETRY_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_GEOMETRY_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Geometry Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_GEOM}
+	tmp.cap <- "Mean and Median Values for Geometry - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "GEOMETRY",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "GEOMETRY",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  Geometry IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, Geom_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level Geometry SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "GEOMETRY",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, Geom_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_GEOMETRY_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_GEOMETRY_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Geometry Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, Geom_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level Geometry Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "GEOMETRY",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+The IAPP students show lower achievement in Geometry, while schools averages are only slightly lower. However, IAPP students and schools outperform slightly in growth. Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -2 to 1, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  Coordinate Algebra by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, CoordAlg_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_COORDINATE_ALGEBRA_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_COORDINATE_ALGEBRA_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_COORDINATE_ALGEBRA_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_COORDINATE_ALGEBRA_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Coordinate Algebra Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_CoordAlg}
+	tmp.cap <- "Mean and Median Values for Coordinate Algebra - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "COORDINATE_ALGEBRA",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "COORDINATE_ALGEBRA",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  Coordinate Algebra IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, CoordAlg_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level Coordinate Algebra SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "COORDINATE_ALGEBRA",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, CoordAlg_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_COORDINATE_ALGEBRA_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_COORDINATE_ALGEBRA_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Coordinate Algebra Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, CoordAlg_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level Coordinate Algebra Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "COORDINATE_ALGEBRA",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+When comparing the Coordinate Algebra results it is important to note that there are only six IAPP schools in this cohort.
+
+The IAPP students and schools show lower achievement in Coordinate Algebra. IAPP students underperform in growth, while schools are generally similar in growth (note the difference between mean and median MSGPs for 2019 IAPP schools).  As with other subjects, omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially.  There is also greater change in the school-level MSGPs.  Differences in these aggregates range from approximately -12 to 7 in 2018, and -0.5 to 1 in 2019, which is still lower than annual fluctuations in MSGPs for these schools (which ranges from -25 to 22 for non-IAPP schools from 2018 to 2019).  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+##  Analytic Geometry by Consortium Membership
+
+```{r, cache=FALSE, results="asis", echo=FALSE, AnGeom_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_IAPP_Comp_ANALYTIC_GEOMETRY_SS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_ANALYTIC_GEOMETRY_SGP.pdf",
+								"./Plots/Georgia_IAPP_Comp_ANALYTIC_GEOMETRY_Sch_MSS.pdf", 
+								"./Plots/Georgia_IAPP_Comp_ANALYTIC_GEOMETRY_Sch_MSGP.pdf"),
+			rows = 2, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Analytic Geometry Consortium Member Comparisons")
+```
+
+```{r, results='asis', echo=FALSE, Smry_IAPP_AnGeom}
+	tmp.cap <- "Mean and Median Values for Analytic Geometry - Complete Georgia Analysis."
+
+	gl_tmp_tbl <- smry.grd[SUBJECT_CODE == "ANALYTIC_GEOMETRY",]
+	gl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	gl_tmp_tbl$District_Membership <- paste(gl_tmp_tbl$District_Membership, "Students")
+	gl_tmp_tbl$District_Membership[duplicated(gl_tmp_tbl$District_Membership)] <- ""
+	gl_tmp_tbl$N <- prettyNum(gl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(gl_tmp_tbl, sapply(names(gl_tmp_tbl), capwords, special.words="N"))
+	setnames(gl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+	sl_tmp_tbl <- smry.sch.grd2[SUBJECT_CODE == "ANALYTIC_GEOMETRY",]
+	sl_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	sl_tmp_tbl$District_Membership[duplicated(sl_tmp_tbl$District_Membership)] <- ""
+	sl_tmp_tbl$N <- prettyNum(sl_tmp_tbl$N, preserve.width = "individual", big.mark=',')
+	setnames(sl_tmp_tbl, sapply(names(sl_tmp_tbl), capwords, special.words="N"))
+	setnames(sl_tmp_tbl, c(1,2), c("Group", "Year"))
+
+  cat(dualTable(as.matrix(rbind(gl_tmp_tbl, sl_tmp_tbl)), align=paste(c('r', rep('c', dim(gl_tmp_tbl)[2]-2), 'r'), collapse=''),
+  							n.cgroup=c(2, 2, 2, 1), cgroup=c("", "Scale Scores", "SGPs", ""), n.rgroup = c(4,4), caption = tmp.cap))
+	Literasee:::pageBreak()
+```
+
+
+##  Analytic Geometry IAPP Consortium Exclusion Comparison
+
+```{r, results='asis', echo=FALSE, AnGeom_Student_Non_IAPP_Comp}
+	tmp.cap <- "Differences in Student Level Analytic Geometry SGPs (Non-IAPP Results minus Complete)."
+	st_tmp_tbl <- stu.grd[SUBJECT_CODE == "ANALYTIC_GEOMETRY",]
+
+	st_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(st_tmp_tbl, sapply(names(st_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(st_tmp_tbl), align=paste(c('r', rep('c', dim(st_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+```{r, cache=FALSE, results="asis", echo=FALSE, AnGeom_Comp_Plots}
+		placeFigure(
+			files = c("./Plots/Georgia_Non_IAPP_Comp_ANALYTIC_GEOMETRY_Sch_MSGP.pdf", 
+								"./Plots/Georgia_Non_IAPP_Comp_ANALYTIC_GEOMETRY_Diff_x_N.pdf"),
+			rows = 1, columns = 2, pdf.width = 0.5,
+			caption = "2018 and 2019 Analytic Geometry Alternate Analysis Comparison - School Level Mean SGPs (MSGP)")
+```
+
+```{r, results='asis', echo=FALSE, AnGeom_School_Non_IAPP_Comp}
+	tmp.cap <- "Differences in School Level Analytic Geometry Mean SGPs (Non-IAPP District MSGP minus Complete MSGP)."
+	sch_tmp_tbl <- sch.grd.comp[SUBJECT_CODE == "ANALYTIC_GEOMETRY",]
+
+	sch_tmp_tbl[, c("SUBJECT_CODE", "GRADE") := NULL]
+	setnames(sch_tmp_tbl, sapply(names(sch_tmp_tbl), capwords, special.words="N"))
+
+  cat(dualTable(as.matrix(sch_tmp_tbl), align=paste(c('r', rep('c', dim(sch_tmp_tbl)[2]-1)), collapse=''), caption = tmp.cap))
+```
+
+When comparing the Analytic Geometry results it is important to note that there are only four IAPP schools in this cohort.
+
+The IAPP students and schools show lower achievement in Analytic Geometry. IAPP students and schools both underperform in growth, while schools are generally similar in growth, particularly in 2019.  Although omitting IAPP students from the SGP norm group impacts some individual students' growth estimates substantially, there is minimal change in the school-level MSGPs.  Differences in these aggregates range from approximately -1 to 0.5, which is much lower than annual fluctuations in MSGPs for most schools.  The impact of removing IAPP students also decreases substantially with increasing school size.
+
+
+```{r, cache=FALSE, results="asis", echo=FALSE}
+	Literasee:::pageBreak()
+```
+
+
+#  Discussion
+
+This exploratory analysis looked at both the comparability of IAPP and non-IAPP students and schools, as well as the differences that Georgia might expect to see if those schools are removed from the cohorts from which SGPs are calculated.  At the demographic level, IAPP consortia have more students that are economically disadvantaged.  Overall they tend to be lower performing academically at the student level, and this typically results in lower school-level average academic achievement.  Although growth is relatively similar in most cases, the IAPP students and schools also tend to have somewhat lower growth on average.  
+
+Due to these factors, removing these students from the growth calculation cohorts has an overall negative impact.  However, this impact is small when compared to the annual fluctuation in MSGPs at the school level.  For example, when looking at the change in schools (again with a minimum of 15 students) in their MSGPs from 2018 to 2019, the range in differences is as large as -45 to 50.  For most subjects and grades in the analyses excluding the IAPP consortia, the differences were within the range of -3 to 3 (with the exception of 2018 Coordinate Algebra).
+
+Although this exploratory analysis does suggest some impact to be expected from removing the IAPP consortium schools from growth analyses, particularly in individual student estimates, the changes do not appear to be significant enough to prevent Georgia from moving forward with their IADA pilot program.  However, more in depth analyses may be required going forward.
