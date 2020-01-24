@@ -47,7 +47,11 @@ Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/EOG_Final_data_2019.txt.zip
 
 ###   Start EOC
 ###
-# Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/2019 SGP Preliminary Data/EOC_Prelim_data_WINTER_SPRING_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+
+##  This is the file used to compute coefficient matrices for the EOG growth targets
+# Georgia_Data_LONG_2019 <- readZIP("./Data/Base_Files/EOC_Final_data_WINTER_SPRING_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29))
+
+##  This is the final/official file used to compute EOC growth percentiles and targets
 Georgia_Data_LONG_2019 <- rbindlist(list(
           readZIP("./Data/Base_Files/EOC_Final_data_WINTER_SPRING_2019.txt.zip",  header = TRUE, sep = "|", colClasses=rep("character", 29)),
           fread("./Data/Base_Files/EOC_Final_data_SUMMER_2019.txt",  header = TRUE, sep = "|", colClasses=rep("character", 29))))

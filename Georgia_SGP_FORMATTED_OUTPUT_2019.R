@@ -167,12 +167,6 @@ Georgia_SGP_Data_LONG_2019_FORMATTED[which(abs(SGP-SGP_SIMEX_RANKED) <= 20), SGP
 
 ###   Save results
 
-##    GADOE
-save(Georgia_SGP_Data_LONG_2019_FORMATTED, file="U:/DATA/SGP/Data/2019 SGPs/2019 SGP Calculation/Working Directory_QQ/Data/Georgia_SGP_Data_LONG_2019_FORMATTED.Rdata")
-fwrite(Georgia_SGP_Data_LONG_2019_FORMATTED, file="U:/DATA/SGP/Data/2019 SGPs/2019 SGP Calculation/Working Directory_QQ/Data/Georgia_SGP_Data_LONG_2019_FORMATTED.txt", sep="|")
-
-##    CFA
-
 #   Change the file name appendix to _EOG or _EOC depending on what is being formatted (Removed when EOC/EOG combined with updated SGP_STANDARD_ERROR)
 assign("Georgia_SGP_Data_LONG_2019_FORMATTED_EOC", Georgia_SGP_Data_LONG_2019_FORMATTED)
 save(Georgia_SGP_Data_LONG_2019_FORMATTED_EOC, file="Data/Georgia_SGP_Data_LONG_2019_FORMATTED_EOC.Rdata")

@@ -12,7 +12,7 @@ require(data.table)
 load("Data/Georgia_SGP-Shell_2019.Rdata")
 load("Data/Georgia_Data_LONG_2019_EOG.Rdata")
 
-##    Load EOC Coefficient_Matrices produced from Fall/Spring data (see Georgia_SGP_EOC_Matrices_2019.R)
+##    Load EOC Coefficient_Matrices produced from Winter/Spring data (see Georgia_SGP_EOC_Matrices_2019.R)
 ##    Populate @SGP$Coefficient_Matrices slot with these with EOC matrices to run EOG projections.
 load("Data/Georgia_EOC_Coef_Matrices_2019.rda")
 Georgia_SGP@SGP$Coefficient_Matrices <- Georgia_EOC_Coef_Matrices_2019
