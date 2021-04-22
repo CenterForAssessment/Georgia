@@ -46,7 +46,7 @@ navbar:
       - text: "Summer 2017"
         href: articles/releases/SGP_Summer_2017_Notes.html
     right:
-      - icon: fa-github fa-2x
+      - icon: fab fa-github fa-2x
         href: https://github.com/centerforassessment/Georgia
-      - icon: fa-twitter
-        href: https://twitter.com/intent/tweet?url=https%3A%2F%2Fcenterforassessment.github.io%2FGeorgia%2F&via=NCIEA1&text=SGP%20analysis%20source%20code%20%26%20documentation%20for%20Georgia&hashtags=rstats%2C%20SGP
+      - icon: fab fa-twitter
+        href: https://twitter.com/intent/tweet?url=https%3A%2F%2Fcenterforassessment.github.io%2FGeorgia%2F&via=NCIEA1&text=SGP%20analysis%20source%20code%20%26%20documentation%20for%20Georgia&hashtags=rstats%2CSGP
