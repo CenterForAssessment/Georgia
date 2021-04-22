@@ -47,7 +47,7 @@ The "Student Growth Percentile Range" panel at bottom left shows the empirical d
 
 The bottom right panel of each plot is a [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) which compares the observed distribution of SGPs with the theoretical (uniform) distribution.  An ideal plot here will show black step function lines that do not deviate from the ideal, red line which traces the 45 degree angle of perfect fit.
 
-Goodness of fit plots for SIMEX measurement error corrected models are also presented here for each analysis.  The expectations in the SGP distribution panels are different for these models, where lower attaining students will recieve higher SGPs and vice versa.  This typically shifts the median lines in the mosaic plot panel and causes a red shift (more SGPs than expected) in the upper right and lower left quadrants of the "Student Growth Percentile Range" panel.  See Appendix B of this report for a more detailed discussion of SIMEX models and description of their impact on SGP distributions.
+Goodness of fit plots for SIMEX measurement error corrected models are also presented here for each analysis.  The expectations in the SGP distribution panels are different for these models, where lower attaining students will receive higher SGPs and vice versa.  This typically shifts the median lines in the mosaic plot panel and causes a red shift (more SGPs than expected) in the upper right and lower left quadrants of the "Student Growth Percentile Range" panel.  See Appendix B of this report for a more detailed discussion of SIMEX models and description of their impact on SGP distributions.
 
 ```{r, cache=FALSE, results="asis", echo=FALSE}
 	pageBreak()
