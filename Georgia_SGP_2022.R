@@ -19,8 +19,6 @@ load("./Data/GA_Baseline_Matrices.Rdata")
 SGPstateData[["GA"]][["Baseline_splineMatrix"]][["Coefficient_Matrices"]] <- GA_Baseline_Matrices
 
 
-###  Might not run baselines...
-
 #####
 ###   PART A -- 2019 Consecutive Year Baseline SGPs
 #####
