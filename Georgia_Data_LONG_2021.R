@@ -1,6 +1,6 @@
 #####################################################################################
 ###                                                                               ###
-###           Prepare and format the 2021 EOG and EOC Georgia Milestones data     ###
+###        Prepare and format the 2021 EOG and EOC Georgia Milestones data        ###
 ###                                                                               ###
 #####################################################################################
 
