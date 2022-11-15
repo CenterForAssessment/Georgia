@@ -10,8 +10,8 @@ MATHEMATICS_2021.config <- list(
   MATHEMATICS.2021 = list(
     sgp.content.areas=rep("MATHEMATICS", 3),
     sgp.panel.years.within=c(rep("LAST_OBSERVATION", 2), "FIRST_OBSERVATION"),
-		sgp.panel.years=c("2018", "2019", "2021"),
-		sgp.grade.sequences=list(c("3", "5"), c("3", "4", "6"), c("4", "5", "7"), c("5", "6", "8")),
+    sgp.panel.years=c("2018", "2019", "2021"),
+    sgp.grade.sequences=list(c("3", "5"), c("3", "4", "6"), c("4", "5", "7"), c("5", "6", "8")),
     sgp.projection.sequence = c("MATH_ALG_I", "MATH_COORD_ALG", "G7_MATH_EOC")))
 
 
@@ -134,7 +134,7 @@ ALGEBRA_I_2021.config <- list(
     # sgp.projection.grade.sequences="NO_PROJECTIONS", #  NEW CANONICAL
     sgp.norm.group.preference=3),
 
-	ALGEBRA_I.2021 = list( # NEW
+  ALGEBRA_I.2021 = list( # NEW
     sgp.content.areas=c("MATHEMATICS", "MATHEMATICS", "ALGEBRA_I"),
     sgp.panel.years=c("2018", "2019", "2021"),
     sgp.grade.sequences=list(c("5", "6", "EOCT")),
